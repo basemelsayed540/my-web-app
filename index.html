@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
+    <title>تسجيل الدخول | نظام الشحن الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
+
+    <div class="absolute top-4 left-4 z-50">
+        <button onclick="toggleTheme()" class="p-3 bg-white dark:bg-slate-800 rounded-full shadow-md text-slate-500 dark:text-slate-300 hover:text-indigo-600 transition-colors">
+            <i id="themeIcon" class="fas fa-moon text-xl"></i>
+        </button>
+    </div>
+
+    <div class="max-w-md w-full animate-fade-in">
+        <div class="glass p-6 sm:p-8 rounded-[2rem] shadow-2xl relative overflow-hidden mx-2 sm:mx-0">
+            <div class="absolute -top-10 -right-10 w-32 h-32 bg-indigo-500/10 rounded-full blur-2xl"></div>
+
+            <div class="text-center mb-8 relative">
+                <div class="w-20 h-20 bg-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-indigo-200">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white mb-2">لايت شبينج</h1>
+                <p class="text-slate-500 dark:text-slate-400 font-semibold">سجل دخولك لمتابعة شحناتك</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6 relative">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">رقم الموبايل</label>
+                    <input type="text" id="phone" name="phone" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="01xxxxxxxxx">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">كلمة المرور</label>
+                    <input type="password" id="password" name="password" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="••••••••">
+                </div>
+
+                <div class="flex items-center justify-between px-1">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                        <span class="text-sm font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">تذكرني</span>
+                    </label>
+                    <a href="#" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">نسيت كلمة المرور؟</a>
+                </div>
+
+                <button type="submit" id="loginBtn" class="w-full py-4 rounded-xl btn-primary flex items-center justify-center gap-2 text-xl font-black mt-2 mb-4 active:scale-95 transition-transform">
+                    <span>تسجيل الدخول</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p class="text-slate-500 font-semibold">ليس لديك حساب؟ <a href="#" id="openRepSignup" class="text-indigo-600 font-bold hover:underline">انشئ حساب</a></p>
+            </div>
+        </div>
+
+        <p class="text-center mt-8 text-slate-400 font-bold text-sm">© 2026 نظام الشحن المتطور - جميع الحقوق محفوظة</p>
+    </div>
+
+    <div id="repSignupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="w-full max-w-lg bg-white dark:bg-slate-900 rounded-[2rem] shadow-2xl p-6 md:p-8 relative">
+            <button type="button" id="closeRepSignup" class="absolute top-4 left-4 w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="mb-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">إنشاء حساب مندوب</h2>
+                <p class="text-slate-500 dark:text-slate-400 font-semibold">املأ البيانات التالية لإنشاء حساب مندوب جديد.</p>
+            </div>
+
+            <form id="repSignupForm" class="space-y-4">
+                <div>
+                    <label for="signupRole" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">نوع الحساب</label>
+                    <select id="signupRole" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl outline-none focus:border-indigo-500">
+                        <option value="rep">مندوب عادي</option>
+                        <option value="sub-rep">مندوب فرعي</option>
+                        <option value="rep">مندوب متقدم</option>
+                        <option value="follower">متابعة</option>
+                        <option value="sender">الراسل</option>
+                    </select>
+                </div>
+                <div>
+                    <label for="signupName" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">اسم المندوب</label>
+                    <input type="text" id="signupName" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="اكتب الاسم">
+                </div>
+                <div>
+                    <label for="signupPhone" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">رقم الموبايل</label>
+                    <input type="text" id="signupPhone" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="01xxxxxxxxx">
+                </div>
+                <div>
+                    <label for="signupEmail" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="signupEmail" class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="name@example.com">
+                </div>
+                <div>
+                    <label for="signupPassword" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">كلمة المرور</label>
+                    <input type="password" id="signupPassword" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="6 أحرف على الأقل">
+                </div>
+                <div>
+                    <label for="signupPasswordConfirm" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">تأكيد كلمة المرور</label>
+                    <input type="password" id="signupPasswordConfirm" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl" placeholder="أعد كتابة كلمة المرور">
+                </div>
+
+                <button type="submit" id="signupBtn" class="w-full py-4 rounded-xl btn-primary flex items-center justify-center gap-2 text-xl font-black mt-4 active:scale-95 transition-transform">
+                    <span>إنشاء الحساب</span>
+                    <i class="fas fa-user-plus"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+
+        const loginForm = document.getElementById('loginForm');
+        const loginBtn = document.getElementById('loginBtn');
+        const repSignupModal = document.getElementById('repSignupModal');
+        const repSignupForm = document.getElementById('repSignupForm');
+        const signupBtn = document.getElementById('signupBtn');
+        const openRepSignupBtn = document.getElementById('openRepSignup');
+        const closeRepSignupBtn = document.getElementById('closeRepSignup');
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+            localStorage.setItem('rep-theme', isDark ? 'dark' : 'light');
+        }
+
+        if (localStorage.getItem('rep-theme') === 'dark') {
+            document.body.classList.add('dark');
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = 'fas fa-sun text-xl';
+        }
+
+        function toggleRepSignupModal(show) {
+            repSignupModal.classList.toggle('hidden', !show);
+            repSignupModal.classList.toggle('flex', show);
+            document.body.classList.toggle('overflow-hidden', show);
+        }
+
+        openRepSignupBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            repSignupForm.reset();
+            toggleRepSignupModal(true);
+        });
+
+        closeRepSignupBtn.addEventListener('click', () => toggleRepSignupModal(false));
+
+        repSignupModal.addEventListener('click', (e) => {
+            if (e.target === repSignupModal) toggleRepSignupModal(false);
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && repSignupModal.classList.contains('flex')) {
+                toggleRepSignupModal(false);
+            }
+        });
+
+        loginForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('phone').value.trim();
+            const password = document.getElementById('password').value;
+
+            loginBtn.disabled = true;
+            loginBtn.innerHTML = 'جاري التحقق...';
+
+            try {
+                const loginResult = await invokeUsersAuthAction('login', { phone, password });
+                const data = loginResult?.user;
+                if (!data) throw new Error('تعذر إنشاء جلسة تسجيل الدخول.');
+                saveUserSession(data, loginResult.sessionToken || '');
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم تسجيل الدخول بنجاح',
+                    text: phone === 'admin' ? 'مرحباً أيها المدير' : `مرحباً بك، ${data.full_name || data.username}`,
+                    timer: 1500,
+                    showConfirmButton: false
+                }).then(() => {
+                    if (data.role === 'admin' || data.role === 'housing') window.location.href = 'admin.html';
+                    else if (data.role === 'rep') window.location.href = 'rep.html';
+                    else if (data.role === 'sender') window.location.href = 'sender.html';
+                    else if (data.role === 'follower') window.location.href = 'follower.html';
+                    else if (data.role === 'sub-rep') window.location.href = 'sub-rep.html';
+                    else throw new Error('دور المستخدم غير معروف');
+                });
+
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'فشل الدخول',
+                    text: err.message
+                });
+            } finally {
+                loginBtn.disabled = false;
+                loginBtn.innerHTML = 'تسجيل الدخول';
+            }
+        });
+
+        repSignupForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const signupRole = document.getElementById('signupRole').value;
+            const username = document.getElementById('signupName').value.trim();
+            const phone = document.getElementById('signupPhone').value.trim();
+            const email = document.getElementById('signupEmail').value.trim();
+            const password = document.getElementById('signupPassword').value;
+            const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
+
+            if (!username || !phone || !password) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'بيانات ناقصة',
+                    text: 'يرجى استكمال الاسم ورقم الموبايل وكلمة المرور.'
+                });
+                return;
+            }
+
+            if (password.length < 6) {
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'كلمة مرور ضعيفة',
+                    text: 'يرجى استخدام 6 أحرف أو أرقام على الأقل.'
+                });
+                return;
+            }
+
+            if (password !== passwordConfirm) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'كلمتا المرور غير متطابقتين',
+                    text: 'تأكد من إعادة كتابة كلمة المرور بشكل صحيح.'
+                });
+                return;
+            }
+
+            signupBtn.disabled = true;
+            signupBtn.innerHTML = 'جاري إنشاء الحساب...';
+
+            try {
+                await invokeUsersAuthAction('signup', {
+                    username,
+                    phone,
+                    email: email || null,
+                    passwordHash: await hashPassword(password),
+                    role: signupRole
+                });
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم إنشاء الحساب',
+                    text: 'تم إنشاء حسابك بنجاح. يرجى الانتظار حتى يقوم المدير بتفعيل الحساب لتتمكن من تسجيل الدخول.'
+                }).then(() => {
+                    toggleRepSignupModal(false);
+                    // No automatic redirect since it's not approved yet
+                    window.location.href = 'index.html';
+                });
+            } catch (err) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'تعذر إنشاء الحساب',
+                    text: err.message || 'حدث خطأ أثناء إنشاء الحساب.'
+                });
+            } finally {
+                signupBtn.disabled = false;
+                signupBtn.innerHTML = '<span>إنشاء الحساب</span><i class="fas fa-user-plus"></i>';
+            }
+        });
+    </script>
+</body>
+</html>

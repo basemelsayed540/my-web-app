@@ -1,0 +1,1959 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
+    <title>لوحة المندوب | نظام الشحن الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            /* Professional Slate-50 */
+            color: #0f172a;
+            /* Slate-900 */
+            font-family: 'Cairo', sans-serif;
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Premium Card Style */
+        .glass {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark .glass {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* High Visibility Status Badges */
+        .badge-solid {
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.75rem;
+            font-weight: 800;
+            font-size: 0.7rem;
+            letter-spacing: 0.025em;
+        }
+
+        @keyframes repDateFilterGlow {
+
+            0%,
+            100% {
+                border-color: #e2e8f0;
+            }
+
+            50% {
+                border-color: #6366f1;
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            }
+        }
+
+        .rep-date-filter-glow {
+            animation: repDateFilterGlow 2.5s ease-in-out infinite;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .text-main {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .text-sub {
+            color: #64748b;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen transition-colors duration-300">
+
+    <!-- Header -->
+    <header
+        class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-4 mb-4 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-12 h-12 bg-indigo-600 rounded-[1rem] flex items-center justify-center text-white shadow-indigo-200 shadow-lg">
+                    <i class="fas fa-truck-fast text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 id="repName" class="text-base font-bold text-slate-900 dark:text-white">جاري التحميل...</h1>
+                        <span id="repUnreadBadge"
+                            class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
+                    </div>
+                    <p class="text-[10px] font-bold text-indigo-600 uppercase tracking-tight">مندوب توصيل محترف</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="toggleTheme()"
+                    class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                    <i id="themeIcon" class="fas fa-moon text-xl"></i>
+                </button>
+                <button onclick="logout()"
+                    class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
+                    <i class="fas fa-power-off text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pb-24">
+        <div
+            class="sticky top-[66px] z-40 mb-4 -mx-4 px-4 py-2 bg-white/95 dark:bg-slate-950/95 border-b border-slate-100 dark:border-slate-800">
+            <div
+                class="bg-slate-50 dark:bg-slate-900 rounded-2xl p-3 shadow-md border border-slate-200 dark:border-slate-800">
+                <div class="flex items-start justify-between gap-3 mb-2">
+                    <div class="min-w-0">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400">
+                            نسبة الإنجاز</p>
+                        <h2 class="text-xl font-black text-black dark:text-white leading-none"><span
+                                id="progressPercent">0</span>%</h2>
+                        <p class="text-[11px] font-black text-slate-800 dark:text-slate-200">تم <span
+                                id="progressDelivered" class="text-emerald-600">0</span> | شحن <span
+                                id="progressShipping" class="text-sky-600">0</span> من <span
+                                id="progressTotal">0</span></p>
+                    </div>
+                    <div class="min-w-0 text-left">
+                        <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mb-0.5">عمولة المندوب
+                        </p>
+                        <h2 id="repCommissionTotal"
+                            class="text-xl font-black text-black dark:text-white leading-none mb-0.5">0 <span
+                                class="text-[10px]">ج.م</span></h2>
+                        <p id="repShippingStats" class="text-[10px] font-black text-slate-700 dark:text-slate-300">
+                            توريد: 0 ش | 0 ج.م</p>
+                    </div>
+                </div>
+                <div class="w-full h-3 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden">
+                    <div id="progressBar"
+                        class="h-full bg-gradient-to-l from-emerald-500 to-indigo-600 rounded-full transition-all duration-500"
+                        style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Containers -->
+        <div id="dashboard-view">
+            <!-- Search and Filter -->
+            <div class="mb-6 space-y-4">
+            <div class="relative group">
+                <i
+                    class="fas fa-search absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors text-base"></i>
+                <input type="text" id="searchInput" placeholder="بحث برقم الشحنة أو الموبايل..."
+                    class="w-full bg-white dark:bg-slate-800 pl-4 pr-12 py-3.5 rounded-xl text-sm font-black text-black dark:text-white outline-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm">
+            </div>
+
+            <div class="flex gap-2 w-full flex-wrap">
+                <div class="relative flex-1 min-w-[100px]">
+                    <button id="filterDateBtn"
+                        onclick="document.getElementById('filterDateMenu').classList.toggle('hidden'); stopDateFilterGlow();"
+                        class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-black dark:text-white dark:bg-slate-800 outline-none border border-slate-200 dark:border-slate-700 text-center flex items-center justify-between transition-all">
+                        <span id="filterDateLabel" class="truncate">اليومية</span>
+                        <i class="fas fa-chevron-down text-[10px]"></i>
+                    </button>
+                    <div id="filterDateMenu"
+                        class="hidden absolute top-full right-0 mt-1 min-w-[200px] w-full bg-white rounded-xl shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-700 max-h-60 overflow-y-auto z-[60] p-2 flex flex-col gap-1 text-right">
+                    </div>
+                </div>
+                <div class="relative flex-1 min-w-[100px]">
+                    <select id="filterStatus" onchange="toggleStatusSelection(this.value)"
+                        class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                        <option value="الكل">الحالة: الكل</option>
+                        <!-- Options will be populated dynamically or we can just let fillStatusDropdown do it -->
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+                <div class="relative flex-1 min-w-[100px]">
+                    <select id="filterZone" onchange="toggleZoneSelection(this.value)"
+                        class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                        <option value="الكل">الزون: الكل</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+                <div class="relative flex-1 min-w-[100px]">
+                    <select id="filterSender" onchange="toggleSenderSelection(this.value)"
+                        class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
+                        <option value="الكل">الراسل: الكل</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Shipments List -->
+        <div id="shipmentsList" class="space-y-4">
+            <!-- Shimmers/Loading -->
+            <div class="animate-pulse space-y-4">
+                <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
+                <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
+            </div>
+        </div>
+            <div id="shipmentMenu"
+                class="hidden fixed z-50 min-w-[220px] rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+                <button onclick="copyShipmentDataFromMenu()"
+                    class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100">
+                    نسخ بيانات الشحنة
+                </button>
+            </div>
+        </div>
+
+        <!-- Notifications View -->
+        <div id="notifications-view" class="hidden space-y-4">
+            <div class="flex items-center justify-between mb-4">
+                <h2 class="text-lg font-black text-slate-900 dark:text-white">سجل الإشعارات</h2>
+                <button onclick="clearRepNotifications()" class="text-[10px] font-black text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-800">
+                    مسح الكل
+                </button>
+            </div>
+            <div id="repNotificationsContainer" class="space-y-3">
+                <!-- Notifications injected here -->
+            </div>
+        </div>
+    </main>
+
+    <!-- Navigation Bottom (Mobile Only) -->
+    <nav
+        class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-lg glass rounded-full px-4 py-3 flex items-center justify-around shadow-2xl z-50">
+        <button id="nav-btn-dashboard" onclick="switchRepView('dashboard')" class="flex flex-col items-center gap-1 text-indigo-600 transition-all">
+            <i class="fas fa-box text-xl"></i>
+            <span class="text-[9px] font-black">شحناتي</span>
+        </button>
+        <a href="wallet.html"
+            class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="text-[9px] font-black">المحفظة</span>
+        </a>
+        <button id="nav-btn-notifications" onclick="switchRepView('notifications')"
+            class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
+            <i class="fas fa-bell text-xl"></i>
+            <span class="text-[9px] font-black">الإشعارات</span>
+            <span id="low-unread-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[8px] font-black flex items-center justify-center border-2 border-white dark:border-slate-900 animate-pulse">0</span>
+        </button>
+        <a href="account.html"
+            class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[9px] font-black">الحساب</span>
+        </a>
+    </nav>
+
+    <script src="js/config.js"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+        const SHIPMENT_PRICE_FIELD = 'السعر بعد التعديل';
+        const SHIPMENT_PRICE_FIELD_LEGACY = 'السعر_بعد_التعديل';
+        const SHIPMENT_CODE_FIELD = 'كود الشحنة';
+        const SHIPMENT_CODE_FIELD_LEGACY = 'order_id';
+
+        function normalizeShipmentPriceField(record) {
+            return normalizeShipmentRecordHeaders(record);
+        }
+
+        function toServerShipmentPayload(payload) {
+            return buildShipmentServerPayload(payload);
+        }
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'rep') {
+            window.location.href = 'index.html';
+        }
+        startStoredUserSessionGuard(supabaseClient, {
+            allowedRoles: ['rep'],
+            onValidUser: (latestUser) => {
+                user = latestUser;
+                const repName = document.getElementById('repName');
+                if (repName) repName.innerText = latestUser.full_name || latestUser.username || latestUser.phone;
+            }
+        });
+
+        document.getElementById('repName').innerText = user.full_name || user.username || user.phone;
+
+        let allShipments = [];
+        let currentFilter = 'قيد التوصيل';
+        let activeShipmentMenuId = null;
+        let lockedShipmentIds = new Set();
+        const REP_UI_STATE_KEY = 'repUiState';
+        const REP_SEEN_SHIPMENTS_KEY_PREFIX = 'repSeenShipments:';
+        const REP_UNREAD_SESSION_KEY = 'repUnreadShipments:';
+        const REP_NOTIFICATIONS_KEY = 'rep_local_notifications';
+        
+        let repNotifications = JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
+        let currentActiveView = 'dashboard';
+
+        function addRepNotification(type, shipment) {
+            const notif = {
+                id: Date.now() + Math.random(),
+                type: type, // 'added', 'removed', 'deleted', 'status_changed'
+                order_id: shipment.order_id || shipment.كود_الشحنة || shipment.الكود || '---',
+                client: shipment.اسم_العميل || '---',
+                employee: shipment['اسم الموظف'] || '---',
+                newStatus: shipment.الحالة || '---',
+                isWarehouse: normalizeComparableValue(shipment.المندوب) === normalizeComparableValue('مخزن'),
+                time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toLocaleDateString('ar-EG'),
+                read: false
+            };
+            repNotifications.unshift(notif);
+            if (repNotifications.length > 50) repNotifications.pop();
+            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            updateRepNotifUI();
+        }
+
+        function updateRepNotifUI() {
+            const unreadCount = repNotifications.filter(n => !n.read).length;
+            const badge = document.getElementById('low-unread-badge');
+            if (badge) {
+                badge.innerText = unreadCount;
+                badge.classList.toggle('hidden', unreadCount === 0);
+                badge.classList.toggle('flex', unreadCount > 0);
+            }
+            if (currentActiveView === 'notifications') renderRepNotifications();
+        }
+
+        function clearRepNotifications() {
+            repNotifications = [];
+            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            renderRepNotifications();
+            updateRepNotifUI();
+        }
+
+        function renderRepNotifications() {
+            const container = document.getElementById('repNotificationsContainer');
+            if (!container) return;
+            
+            if (repNotifications.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-20 glass rounded-[2.5rem]">
+                        <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 mx-auto mb-4">
+                            <i class="fas fa-bell-slash text-2xl"></i>
+                        </div>
+                        <h3 class="font-bold text-slate-800 dark:text-white">لا توجد إشعارات</h3>
+                        <p class="text-[10px] text-slate-400 mt-1">سيتم إخطارك بكل جديد هنا</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = repNotifications.map(n => {
+                let icon = 'fa-plus-circle text-emerald-500 bg-emerald-50';
+                let text = 'شحنة جديدة بعهدتكم';
+                if (n.type === 'removed') { 
+                    icon = n.isWarehouse ? 'fa-warehouse text-slate-500 bg-slate-50' : 'fa-exchange-alt text-amber-500 bg-amber-50'; 
+                    text = n.isWarehouse ? 'تم التحويل للمخزن' : 'تم سحب شحنة من عهدتكم'; 
+                }
+                if (n.type === 'deleted') { icon = 'fa-trash text-rose-500 bg-rose-50'; text = 'تم حذف شحنة من عهدتكم'; }
+                if (n.type === 'status_changed') { icon = 'fa-info-circle text-sky-500 bg-sky-50'; text = `تم تغيير الحالة إلى (${n.newStatus})`; }
+
+                return `
+                    <div class="glass p-4 rounded-3xl flex items-start gap-3 border ${n.read ? 'border-slate-100' : 'border-indigo-200 bg-indigo-50/20 shadow-sm'}">
+                        <div class="w-10 h-10 ${icon} rounded-2xl flex items-center justify-center flex-shrink-0">
+                            <i class="fas ${icon.split(' ')[0]}"></i>
+                        </div>
+                        <div class="flex-1">
+                            <div class="flex justify-between items-start">
+                                <h4 class="text-xs font-black text-slate-800 dark:text-white">${text}</h4>
+                                <span class="text-[9px] text-slate-400 font-bold">${n.time}</span>
+                            </div>
+                            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">المعرف: <span class="font-black text-black dark:text-white">${n.order_id}</span> | العميل: ${n.client}</p>
+                            <p class="text-[10px] text-indigo-500 font-bold mt-1 leading-none flex items-center gap-1">
+                                <i class="fas fa-user-edit text-[9px]"></i> بواسطة: ${n.employee}
+                            </p>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function switchRepView(viewId) {
+            currentActiveView = viewId;
+            document.getElementById('dashboard-view').classList.add('hidden');
+            document.getElementById('notifications-view').classList.add('hidden');
+            document.getElementById(viewId + '-view').classList.remove('hidden');
+
+            const dashBtn = document.getElementById('nav-btn-dashboard');
+            const notifBtn = document.getElementById('nav-btn-notifications');
+            
+            if (viewId === 'dashboard') {
+                dashBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+                notifBtn?.classList.replace('text-indigo-600', 'text-slate-400');
+            } else {
+                notifBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+                dashBtn?.classList.replace('text-indigo-600', 'text-slate-400');
+                
+                // Mark as read
+                repNotifications.forEach(n => n.read = true);
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+                setTimeout(updateRepNotifUI, 1000);
+                renderRepNotifications();
+            }
+        }
+
+        let notificationAudioContext = null;
+        let dateFilterSelections = new Set();
+        let statusFilterSelections = new Set(['قيد التوصيل']); // Default
+        let zoneFilterSelections = new Set();
+        let senderFilterSelections = new Set();
+        let dateFilterGlowTimeout = null;
+
+        function getSelectedStatuses() {
+            return Array.from(statusFilterSelections);
+        }
+
+        function getSelectedDates() {
+            return Array.from(dateFilterSelections);
+        }
+
+        function getSelectedZones() {
+            return Array.from(zoneFilterSelections);
+        }
+
+        function getSelectedSenders() {
+            return Array.from(senderFilterSelections);
+        }
+
+        function toggleDateSelection(value) {
+            const normalizedValue = String(value || '').trim();
+            if (!normalizedValue) return;
+
+            if (dateFilterSelections.has(normalizedValue)) dateFilterSelections.delete(normalizedValue);
+            else dateFilterSelections.add(normalizedValue);
+
+            saveDateFilter(getSelectedDates()[0] || '');
+            saveRepUiState();
+            stopDateFilterGlow();
+            renderShipments();
+        }
+
+        function toggleZoneSelection(value) {
+            const normalizedValue = String(value || '').trim();
+            if (!normalizedValue) return;
+
+            zoneFilterSelections.clear();
+            if (normalizedValue !== 'الكل') {
+                zoneFilterSelections.add(normalizedValue);
+            }
+
+            saveRepUiState();
+            renderShipments();
+        }
+
+        function toggleStatusSelection(value) {
+            const normalizedValue = String(value || '').trim();
+            if (!normalizedValue) return;
+
+            statusFilterSelections.clear();
+            if (normalizedValue !== 'الكل') {
+                statusFilterSelections.add(normalizedValue);
+            }
+
+            saveRepUiState();
+            renderShipments();
+        }
+
+        function toggleSenderSelection(value) {
+            const normalizedValue = String(value || '').trim();
+            if (!normalizedValue) return;
+
+            senderFilterSelections.clear();
+            if (normalizedValue !== 'الكل') {
+                senderFilterSelections.add(normalizedValue);
+            }
+
+            saveRepUiState();
+            renderShipments();
+        }
+
+        function stopDateFilterGlow() {
+            if (dateFilterGlowTimeout) {
+                clearTimeout(dateFilterGlowTimeout);
+                dateFilterGlowTimeout = null;
+            }
+        }
+
+        function triggerDateFilterGlow() {
+            const btn = document.getElementById('filterDateBtn');
+            const menu = document.getElementById('filterDateMenu');
+            if (!btn || !menu || !menu.classList.contains('hidden')) return;
+
+            // btn.classList.add('rep-date-filter-glow');
+            if (dateFilterGlowTimeout) {
+                clearTimeout(dateFilterGlowTimeout);
+                dateFilterGlowTimeout = null;
+            }
+        }
+
+        function saveRepUiState() {
+            try {
+                localStorage.setItem(REP_UI_STATE_KEY, JSON.stringify({
+                    search: document.getElementById('searchInput')?.value || '',
+                    date: getSelectedDates(),
+                    status: getSelectedStatuses(),
+                    zone: getSelectedZones(),
+                    sender: getSelectedSenders()
+                }));
+            } catch (error) { }
+        }
+
+        function restoreRepUiState() {
+            let state = null;
+            try {
+                state = JSON.parse(localStorage.getItem(REP_UI_STATE_KEY) || 'null');
+            } catch (error) { }
+
+            if (state && state.date) {
+                const dates = Array.isArray(state.date) ? state.date : [state.date];
+                dates.map(d => String(d || '').trim()).filter(Boolean).forEach(d => dateFilterSelections.add(d));
+            } else {
+                const legacyDate = getSavedDateFilter();
+                const normalizedLegacyDate = String(legacyDate || '').trim();
+                if (normalizedLegacyDate) dateFilterSelections.add(normalizedLegacyDate);
+            }
+
+            if (state && state.status) {
+                const statuses = Array.isArray(state.status) ? state.status : [state.status];
+                statusFilterSelections.clear();
+                statuses.map(s => String(s || '').trim()).filter(Boolean).forEach(s => statusFilterSelections.add(s));
+            }
+
+            if (state && state.zone) {
+                const zones = Array.isArray(state.zone) ? state.zone : [state.zone];
+                zones.map(z => String(z || '').trim()).filter(Boolean).forEach(z => zoneFilterSelections.add(z));
+            }
+
+            if (!state) return;
+
+            if (state && state.sender) {
+                const senders = Array.isArray(state.sender) ? state.sender : [state.sender];
+                senders.map(s => String(s || '').trim()).filter(Boolean).forEach(s => senderFilterSelections.add(s));
+            }
+
+            if (!state) return;
+
+            const searchInput = document.getElementById('searchInput');
+
+            if (searchInput) searchInput.value = state.search || '';
+        }
+
+        function syncFilterButtons(filter) {
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+                const onClickAttr = btn.getAttribute('onclick') || '';
+                const isMatch = onClickAttr.includes(`'${filter}'`);
+
+                btn.classList.toggle('active', isMatch);
+                if (isMatch) {
+                    btn.classList.replace('bg-white', 'bg-indigo-600');
+                    btn.classList.replace('text-slate-600', 'text-white');
+                    btn.classList.replace('border-slate-200', 'border-indigo-600');
+                } else {
+                    btn.classList.replace('bg-indigo-600', 'bg-white');
+                    btn.classList.replace('text-white', 'text-slate-600');
+                    btn.classList.replace('border-indigo-600', 'border-slate-200');
+                }
+            });
+        }
+
+        function getRepIdentifiers() {
+            return [...new Set([
+                user.full_name,
+                user.username,
+                user.phone
+            ].map(value => String(value || '').trim()).filter(Boolean))];
+        }
+
+        function normalizeComparableValue(value) {
+            return String(value || '').replace(/\s+/g, ' ').trim();
+        }
+
+        function getUnreadSessionKey() {
+            const repKey = normalizeComparableValue(user?.username || user?.phone || user?.full_name || 'rep');
+            return `${REP_UNREAD_SESSION_KEY}${repKey}`;
+        }
+
+        function loadUnreadShipmentIds() {
+            try {
+                const raw = sessionStorage.getItem(getUnreadSessionKey());
+                const ids = JSON.parse(raw || '[]');
+                return new Set((Array.isArray(ids) ? ids : []).map(id => String(id)));
+            } catch (error) {
+                return new Set();
+            }
+        }
+
+        function saveUnreadShipmentIds(ids) {
+            try {
+                sessionStorage.setItem(getUnreadSessionKey(), JSON.stringify([...ids]));
+            } catch (error) { }
+        }
+
+        function setUnreadBadge(count) {
+            const badge = document.getElementById('repUnreadBadge');
+            if (!badge) return;
+
+            const safeCount = Number(count) || 0;
+            badge.innerText = safeCount > 99 ? '99+' : String(safeCount);
+            badge.classList.toggle('hidden', safeCount <= 0);
+            document.title = safeCount > 0 ? `(${safeCount}) لوحة المندوب | نظام الشحن الاحترافي` : 'لوحة المندوب | نظام الشحن الاحترافي';
+        }
+
+        function initUnreadBadge() {
+            const unreadIds = loadUnreadShipmentIds();
+            setUnreadBadge(unreadIds.size);
+        }
+
+        function playNotificationSound() {
+            try {
+                const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContextClass) return;
+
+                if (!notificationAudioContext) {
+                    notificationAudioContext = new AudioContextClass();
+                }
+
+                if (notificationAudioContext.state === 'suspended') {
+                    notificationAudioContext.resume().catch(() => { });
+                }
+
+                const now = notificationAudioContext.currentTime;
+                const gain = notificationAudioContext.createGain();
+                gain.gain.setValueAtTime(0.0001, now);
+                gain.gain.exponentialRampToValueAtTime(0.15, now + 0.03);
+                gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.42);
+                gain.connect(notificationAudioContext.destination);
+
+                [880, 1320].forEach((freq, index) => {
+                    const osc = notificationAudioContext.createOscillator();
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(freq, now + index * 0.12);
+                    osc.connect(gain);
+                    osc.start(now + index * 0.12);
+                    osc.stop(now + 0.18 + index * 0.12);
+                });
+            } catch (error) { }
+        }
+
+        function enableAudioOnInteraction() {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            if (!notificationAudioContext) {
+                try {
+                    notificationAudioContext = new AudioContextClass();
+                } catch (error) { }
+            }
+            if (notificationAudioContext && notificationAudioContext.state === 'suspended') {
+                notificationAudioContext.resume().catch(() => { });
+            }
+        }
+
+        window.addEventListener('pointerdown', enableAudioOnInteraction, { once: true, passive: true });
+        window.addEventListener('keydown', enableAudioOnInteraction, { once: true });
+
+        function syncUnreadShipments(newShipments) {
+            if (!newShipments || newShipments.length === 0) return;
+
+            const unreadIds = loadUnreadShipmentIds();
+            let changed = false;
+            newShipments.forEach(shipment => {
+                const id = String(shipment?.id || '');
+                if (!id || unreadIds.has(id)) return;
+                unreadIds.add(id);
+                changed = true;
+            });
+
+            if (!changed) return;
+
+            saveUnreadShipmentIds(unreadIds);
+            setUnreadBadge(unreadIds.size);
+            playNotificationSound();
+        }
+
+        function getRepNotificationKey() {
+            const repKey = normalizeComparableValue(user?.username || user?.phone || user?.full_name || 'rep');
+            return `${REP_SEEN_SHIPMENTS_KEY_PREFIX}${repKey}`;
+        }
+
+        function loadSeenShipmentIds() {
+            try {
+                const raw = localStorage.getItem(getRepNotificationKey());
+                const ids = JSON.parse(raw || '[]');
+                return new Set((Array.isArray(ids) ? ids : []).map(id => String(id)));
+            } catch (error) {
+                return new Set();
+            }
+        }
+
+        function saveSeenShipmentIds(ids) {
+            try {
+                localStorage.setItem(getRepNotificationKey(), JSON.stringify([...ids]));
+            } catch (error) { }
+        }
+
+        function getShipmentDisplayLabel(shipment) {
+            return String(
+                shipment?.كود_الشحنة ||
+                shipment?.order_id ||
+                shipment?.id ||
+                shipment?.الاسم ||
+                ''
+            ).trim();
+        }
+
+        function showNewShipmentNotification(newShipments) {
+            if (!newShipments || newShipments.length === 0) return;
+
+            const count = newShipments.length;
+            const codes = newShipments
+                .map(getShipmentDisplayLabel)
+                .filter(Boolean)
+                .slice(0, 3);
+            const extra = count > codes.length ? ` و${count - codes.length} أخرى` : '';
+            const body = codes.length
+                ? `تم تنزيل ${count} شحنة جديدة عليك: ${codes.join('، ')}${extra}`
+                : `تم تنزيل ${count} شحنة جديدة عليك`;
+
+            Swal.fire({
+                toast: true,
+                position: 'top-start',
+                icon: 'success',
+                title: 'شحنات جديدة',
+                text: body,
+                showConfirmButton: false,
+                timer: 5000,
+                timerProgressBar: true
+            });
+
+            if ('Notification' in window && Notification.permission === 'granted') {
+                try {
+                    new Notification('شحنات جديدة للمندوب', {
+                        body,
+                        dir: 'rtl'
+                    });
+                } catch (error) { }
+            }
+        }
+
+        function getShipmentUpdateValue(shipment) {
+            const directValue = shipment?.['اليومية'] ?? shipment?.اليومية ?? shipment?.['اليوميه'];
+            if (directValue !== null && directValue !== undefined) {
+                const normalized = String(directValue).trim();
+                if (normalized) return normalized;
+            }
+
+            if (!shipment || typeof shipment !== 'object') return '';
+            const fallbackKey = Object.keys(shipment).find((key) => {
+                const normalizedKey = String(key || '').replace(/\s+/g, '').trim();
+                return normalizedKey === 'اليومية' || normalizedKey === 'اليوميه';
+            });
+            if (!fallbackKey) return '';
+
+            const fallbackValue = shipment[fallbackKey];
+            if (fallbackValue === null || fallbackValue === undefined) return '';
+            return String(fallbackValue).trim();
+        }
+
+        async function fetchShipments() {
+            const previouslySeenIds = loadSeenShipmentIds();
+            const isFirstLoad = previouslySeenIds.size === 0;
+            const repIdentifiers = getRepIdentifiers();
+            const { data, error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .select('*')
+                .order('كود الشحنة', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            const normalizedRepIdentifiers = repIdentifiers.map(normalizeComparableValue);
+            const currentShipments = (data || [])
+                .map(normalizeShipmentPriceField)
+                .filter(shipment => normalizedRepIdentifiers.includes(normalizeComparableValue(shipment?.المندوب)));
+            const currentSeenIds = new Set(currentShipments.map(shipment => String(shipment.id)));
+            const newShipments = !isFirstLoad
+                ? currentShipments.filter(shipment => !previouslySeenIds.has(String(shipment.id)))
+                : [];
+
+            allShipments = currentShipments;
+            saveSeenShipmentIds(currentSeenIds);
+
+            if (newShipments.length > 0) {
+                syncUnreadShipments(newShipments);
+                showNewShipmentNotification(newShipments);
+                // Also add to the persistent notification log (history tab)
+                newShipments.forEach(s => addRepNotification('added', s));
+            }
+
+            await fetchLockedShipmentIds();
+            restoreRepUiState();
+            populateDropdowns();
+            updateFilterCounters();
+            renderShipments();
+        }
+
+        async function fetchLockedShipmentIds() {
+            const repIdentifiers = getRepIdentifiers();
+            const { data, error } = await supabaseClient
+                .from(CONFIG.TABLES.SETTLEMENTS)
+                .select('order_ids')
+                .in('rep_name', repIdentifiers);
+
+            if (error) {
+                console.error(error);
+                lockedShipmentIds = new Set();
+                return;
+            }
+
+            const lockedIds = new Set();
+            (data || []).forEach(row => {
+                try {
+                    const ids = JSON.parse(row.order_ids || '[]');
+                    ids.forEach(id => lockedIds.add(String(id)));
+                } catch (e) { }
+            });
+
+            lockedShipmentIds = lockedIds;
+        }
+
+        function isShipmentLocked(id) {
+            return lockedShipmentIds.has(String(id));
+        }
+
+        function lockShipmentForFurtherUpdates(id) {
+            lockedShipmentIds.add(String(id));
+        }
+
+        function isShipmentUpdateLocked(shipmentOrId) {
+            const shipment = typeof shipmentOrId === 'object'
+                ? shipmentOrId
+                : allShipments.find(s => String(s.id) === String(shipmentOrId));
+
+            if (!shipment) return isShipmentLocked(shipmentOrId);
+            return isShipmentLocked(shipment.id) || isRejectedStatus(shipment.الحالة);
+        }
+
+        function populateDropdowns() {
+            const currentZone = document.getElementById('filterZone')?.value || '';
+            const currentSender = document.getElementById('filterSender')?.value || '';
+
+            const selectedStatuses = getSelectedStatuses();
+
+            const checkStatus = (s) => {
+                if (selectedStatuses.length === 0) return true;
+                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
+                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
+                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
+                return false;
+            };
+
+            const dates = [...new Set(allShipments
+                .filter(s => 
+                    (!currentZone || currentZone === 'الكل' || s.الزون === currentZone) &&
+                    (!currentSender || currentSender === 'الكل' || s.الراسل === currentSender) &&
+                    checkStatus(s)
+                )
+                .map(s => getShipmentUpdateValue(s))
+                .filter(Boolean))].sort().reverse();
+            const datesSet = new Set(dates);
+            const normalizedSelectedDates = getSelectedDates().filter(date => datesSet.has(date));
+            if (normalizedSelectedDates.length !== dateFilterSelections.size) {
+                dateFilterSelections = new Set(normalizedSelectedDates);
+                saveDateFilter(normalizedSelectedDates[0] || '');
+                saveRepUiState();
+            }
+            const selectedDates = normalizedSelectedDates;
+
+            const zones = [...new Set(allShipments
+                .filter(s => 
+                    (selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s))) && 
+                    (!currentSender || currentSender === 'الكل' || s.الراسل === currentSender) &&
+                    checkStatus(s)
+                )
+                .map(s => s.الزون)
+                .filter(Boolean))].sort();
+
+            const senders = [...new Set(allShipments
+                .filter(s => 
+                    (selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s))) && 
+                    (!currentZone || currentZone === 'الكل' || s.الزون === currentZone) &&
+                    checkStatus(s)
+                )
+                .map(s => s.الراسل)
+                .filter(Boolean))].sort();
+
+            fillDateDropdown(dates);
+            fillStatusDropdown();
+            fillZoneDropdown(zones);
+            fillSenderDropdown(senders);
+        }
+
+        function fillStatusDropdown() {
+            const select = document.getElementById('filterStatus');
+            if (!select) return;
+
+            const statusOptions = ['قيد التوصيل', 'تم', 'مؤجل', 'رفض', 'تعديل سعر', 'شحن'];
+            
+            const selectedDates = getSelectedDates();
+            const currentZone = document.getElementById('filterZone')?.value || '';
+            const currentSender = document.getElementById('filterSender')?.value || '';
+
+            const scopedShipments = allShipments.filter(s => {
+                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
+                const matchZone = !currentZone || currentZone === 'الكل' || s.الزون === currentZone;
+                const matchSender = !currentSender || currentSender === 'الكل' || s.الراسل === currentSender;
+                return matchDate && matchZone && matchSender;
+            });
+            
+            const counts = {
+                'قيد التوصيل': scopedShipments.filter(s => isPendingStatus(s.الحالة)).length,
+                'تم': scopedShipments.filter(s => isDeliveredStatus(s.الحالة, s)).length,
+                'مؤجل': scopedShipments.filter(s => isDelayedStatus(s.الحالة)).length,
+                'رفض': scopedShipments.filter(s => isRejectedStatus(s.الحالة)).length,
+                'تعديل سعر': scopedShipments.filter(s => isPriceEditShipment(s)).length,
+                'شحن': scopedShipments.filter(s => isShippingFeeShipment(s)).length
+            };
+
+            let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الحالة: الكل (${scopedShipments.length})</option>`;
+            statusOptions.forEach(opt => {
+                const count = counts[opt] || 0;
+                optionsHtml += `<option value="${opt}" class="text-slate-800 bg-white">${opt} (${count})</option>`;
+            });
+
+            select.innerHTML = optionsHtml;
+
+            const selectedArr = getSelectedStatuses();
+            if (selectedArr.length > 0) {
+                select.value = selectedArr[0];
+                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            } else {
+                select.value = 'الكل';
+                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            }
+        }
+
+        function fillDateDropdown(items) {
+            const menu = document.getElementById('filterDateMenu');
+            const label = document.getElementById('filterDateLabel');
+            if (!menu || !label) return;
+
+            const selectedArr = getSelectedDates();
+            const btn = document.getElementById('filterDateBtn');
+            
+            if (selectedArr.length > 0) {
+                label.innerText = selectedArr.length === 1 ? selectedArr[0] : `اليومية (${selectedArr.length})`;
+                label.classList.add('text-white', 'font-black');
+                label.classList.remove('text-slate-700', 'dark:text-slate-200');
+                if (btn) {
+                    btn.classList.add('bg-indigo-600', 'dark:bg-indigo-500', 'border-indigo-600', 'shadow-indigo-500/30');
+                    btn.classList.remove('bg-white', 'dark:bg-slate-800', 'border-slate-200', 'text-black', 'dark:text-white');
+                }
+            } else {
+                label.innerText = 'اليومية';
+                label.classList.remove('text-white', 'font-black');
+                label.classList.add('text-slate-700', 'dark:text-slate-200');
+                if (btn) {
+                    btn.classList.remove('bg-indigo-600', 'dark:bg-indigo-500', 'border-indigo-600', 'shadow-indigo-500/30');
+                    btn.classList.add('bg-white', 'dark:bg-slate-800', 'border-slate-200', 'text-black', 'dark:text-white');
+                }
+            }
+
+            if (!items || items.length === 0) {
+                menu.innerHTML = `
+                    <div class="px-2 py-3 text-center text-[11px] font-bold text-slate-500 dark:text-slate-300">
+                        لا يوجد يومية متاحة
+                    </div>
+                `;
+                return;
+            }
+
+            const currentZone = document.getElementById('filterZone')?.value || '';
+            const currentSender = document.getElementById('filterSender')?.value || '';
+            const selectedStatuses = getSelectedStatuses();
+
+            const checkStatus = (s) => {
+                if (selectedStatuses.length === 0) return true;
+                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
+                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
+                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
+                return false;
+            };
+
+            const narrowedData = allShipments.filter(s => {
+                const matchZone = !currentZone || currentZone === 'الكل' || s.الزون === currentZone;
+                const matchSender = !currentSender || currentSender === 'الكل' || s.الراسل === currentSender;
+                return matchZone && matchSender && checkStatus(s);
+            });
+
+            const dateCounts = {};
+            narrowedData.forEach(s => {
+                const d = getShipmentUpdateValue(s);
+                if (d) dateCounts[d] = (dateCounts[d] || 0) + 1;
+            });
+
+            menu.innerHTML = items.map(item => {
+                const isSelected = dateFilterSelections.has(item);
+                const count = dateCounts[item] || 0;
+                return `
+                    <label class="flex items-center justify-between gap-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors" onclick="event.stopPropagation()">
+                        <div class="flex items-center gap-2">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} onchange='toggleDateSelection(${JSON.stringify(item)})' class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <span class="text-slate-700 dark:text-slate-200 font-bold">${item}</span>
+                        </div>
+                        <span class="bg-indigo-50 text-indigo-600 text-[10px] px-2 py-0.5 rounded-full font-black">${count}</span>
+                    </label>
+                `;
+            }).join('');
+        }
+
+        function fillZoneDropdown(items) {
+            const select = document.getElementById('filterZone');
+            if (!select) return;
+
+            const selectedArr = getSelectedZones();
+            
+            const selectedDates = getSelectedDates();
+            const currentSender = document.getElementById('filterSender')?.value || '';
+            const selectedStatuses = getSelectedStatuses();
+
+            const checkStatus = (s) => {
+                if (selectedStatuses.length === 0) return true;
+                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
+                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
+                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
+                return false;
+            };
+
+            const narrowedData = allShipments.filter(s => {
+                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
+                const matchSender = !currentSender || currentSender === 'الكل' || s.الراسل === currentSender;
+                return matchDate && matchSender && checkStatus(s);
+            });
+            const zoneCounts = {};
+            narrowedData.forEach(s => {
+                const z = s.الزون;
+                if (z) zoneCounts[z] = (zoneCounts[z] || 0) + 1;
+            });
+
+            let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الزون: الكل</option>`;
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    const count = zoneCounts[item] || 0;
+                    optionsHtml += `<option value="${item}" class="text-slate-800 bg-white">${item} (${count})</option>`;
+                });
+            }
+
+            select.innerHTML = optionsHtml;
+
+            if (selectedArr.length > 0) {
+                select.value = selectedArr[0];
+                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            } else {
+                select.value = 'الكل';
+                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            }
+        }
+
+        function fillSenderDropdown(items) {
+            const select = document.getElementById('filterSender');
+            if (!select) return;
+
+            const selectedArr = getSelectedSenders();
+            
+            const selectedDates = getSelectedDates();
+            const currentZone = document.getElementById('filterZone')?.value || '';
+            const selectedStatuses = getSelectedStatuses();
+
+            const checkStatus = (s) => {
+                if (selectedStatuses.length === 0) return true;
+                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
+                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
+                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
+                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
+                return false;
+            };
+
+            const narrowedData = allShipments.filter(s => {
+                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
+                const matchZone = !currentZone || currentZone === 'الكل' || s.الزون === currentZone;
+                return matchDate && matchZone && checkStatus(s);
+            });
+            const senderCounts = {};
+            narrowedData.forEach(s => {
+                const sn = s.الراسل;
+                if (sn) senderCounts[sn] = (senderCounts[sn] || 0) + 1;
+            });
+
+            let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الراسل: الكل</option>`;
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    const count = senderCounts[item] || 0;
+                    optionsHtml += `<option value="${item}" class="text-slate-800 bg-white">${item} (${count})</option>`;
+                });
+            }
+
+            select.innerHTML = optionsHtml;
+
+            if (selectedArr.length > 0) {
+                select.value = selectedArr[0];
+                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            } else {
+                select.value = 'الكل';
+                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            }
+        }
+
+        function fillSelect(id, items, defaultText, currentValue = '') {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = `<option value="">${defaultText}</option>`;
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.innerText = item;
+                select.appendChild(opt);
+            });
+            select.value = items.includes(currentValue) ? currentValue : '';
+        }
+
+        function isPriceEditShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
+            // شحن is a separate category, NOT price edit
+            return normalizedStatus === 'تعديل سعر' || normalizedReason === 'تعديل سعر';
+        }
+
+        function isShippingFeeShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
+            return normalizedStatus === 'شحن' || normalizedReason.includes('شحن');
+        }
+
+        function isDeliveredStatus(status, shipment = null) {
+            const normalizedStatus = String(status || '').trim();
+            if (shipment && isPriceEditShipment(shipment)) return false;
+            if (shipment && isShippingFeeShipment(shipment)) return false;
+            return normalizedStatus === 'تم' || normalizedStatus === 'تم التسليم';
+        }
+
+        function isPendingStatus(status) {
+            const normalizedStatus = String(status || '').replace(/\s+/g, ' ').trim();
+            return normalizedStatus === '' || normalizedStatus === 'قيد' || normalizedStatus === 'قيد التوصيل' || normalizedStatus === 'قيد التنفيذ';
+        }
+
+        function isDelayedStatus(status) {
+            const normalizedStatus = String(status || '').trim();
+            return normalizedStatus === 'مؤجل' || normalizedStatus === 'مؤجل';
+        }
+
+        function isRejectedStatus(status) {
+            const normalizedStatus = String(status || '').trim();
+            return normalizedStatus === 'رفض' || normalizedStatus === 'الغاء' || normalizedStatus === 'إلغاء';
+        }
+
+        function getShipmentCommission(shipment) {
+            const value = parseFloat(shipment?.['عمولة المندوب'] || 0);
+            return Number.isNaN(value) ? 0 : value;
+        }
+
+        function getShipmentAmount(shipment) {
+            const value = parseFloat(shipment?.السعر_بعد_التعديل || shipment?.المبلغ || 0);
+            return Number.isNaN(value) ? 0 : value;
+        }
+
+        function getAdjustedShipmentAmount(shipment) {
+            const value = parseFloat(shipment?.السعر_بعد_التعديل || 0);
+            return Number.isNaN(value) ? 0 : value;
+        }
+
+        function isCommissionEligibleShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            // 'تم' = delivered, isPriceEditShipment = price edit (تعديل سعر), isShippingFeeShipment = shipping fee (شحن)
+            return normalizedStatus === 'تم' || normalizedStatus === 'تم التسليم' || isPriceEditShipment(shipment) || isShippingFeeShipment(shipment);
+        }
+
+        function getDateFilteredShipments() {
+            const selectedDates = getSelectedDates();
+            if (selectedDates.length === 0) return [];
+            return allShipments.filter(s => selectedDates.includes(getShipmentUpdateValue(s)));
+        }
+
+        function updateFilterCounters() {
+            const scopedShipments = getDateFilteredShipments();
+            const total = scopedShipments.length;
+            const delivered = scopedShipments.filter(s => isDeliveredStatus(s.الحالة, s)).length;
+            const shipping = scopedShipments.filter(s => isShippingFeeShipment(s)).length;
+            const progress = total ? Math.round((delivered / total) * 100) : 0;
+
+            document.getElementById('progressPercent').innerText = progress;
+            document.getElementById('progressDelivered').innerText = delivered;
+            document.getElementById('progressShipping').innerText = shipping;
+            document.getElementById('progressTotal').innerText = total;
+            document.getElementById('progressBar').style.width = `${progress}%`;
+            document.getElementById('repCommissionTotal').innerHTML = `${scopedShipments.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)} <span class="text-sm text-slate-800 dark:text-white">ج.م</span>`;
+            const remittanceShipments = scopedShipments.filter(s => isCommissionEligibleShipment(s) && !isShipmentLocked(s.id));
+            const remittanceAmount = remittanceShipments.reduce((acc, shipment) => acc + getShipmentAmount(shipment), 0);
+            document.getElementById('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
+        }
+
+        function renderShipments() {
+            populateDropdowns();
+            updateFilterCounters();
+
+            const list = document.getElementById('shipmentsList');
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const selectedDates = getSelectedDates();
+            const selectedZones = getSelectedZones();
+            const selectedSenders = getSelectedSenders();
+
+            const selectedStatuses = getSelectedStatuses();
+
+            if (selectedDates.length === 0 && selectedStatuses.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-10 opacity-60">
+                        <i class="fas fa-calendar-alt text-5xl mb-3"></i>
+                        <p class="font-bold">يرجى اختيار اليومية أولاً لعرض الشحنات وتشغيل الفلاتر والإحصائيات</p>
+                    </div>
+                `;
+                return;
+            }
+
+            const filtered2 = allShipments.filter(s => {
+                const matchSearch = String(s.order_id).toLowerCase().includes(search) ||
+                    String(s.الهاتف).toLowerCase().includes(search) ||
+                    String(s.اسم_العميل).toLowerCase().includes(search);
+
+                let matchStatus = false;
+                if (selectedStatuses.length === 0) matchStatus = true;
+                else {
+                    if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) matchStatus = true;
+                    if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) matchStatus = true;
+                    if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) matchStatus = true;
+                    if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) matchStatus = true;
+                    if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) matchStatus = true;
+                    if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) matchStatus = true;
+                }
+
+                // If date is selected, must match date; if no date selected but status filter is active, show all matching statuses
+                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
+                const matchZone = selectedZones.length === 0 || selectedZones.includes(s.الزون);
+                const matchSender = selectedSenders.length === 0 || selectedSenders.includes(s.الراسل);
+
+                return matchSearch && matchStatus && matchDate && matchZone && matchSender;
+            });
+
+            const filtered = filtered2;
+
+            if (filtered.length === 0) {
+                list.innerHTML = `
+                    <div class="text-center py-10 opacity-40">
+                        <i class="fas fa-box-open text-5xl mb-3"></i>
+                        <p class="font-bold">لا يوجد شحنات تطابق البحث</p>
+                    </div>
+                `;
+                return;
+            }
+
+            list.innerHTML = filtered.map(s => {
+                const hideUpdateActions =
+                    (selectedStatuses.length === 0 && (
+                        isDeliveredStatus(s.الحالة, s) ||
+                        isShippingFeeShipment(s) ||
+                        isPriceEditShipment(s)
+                    )) ||
+                    (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) ||
+                    (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) ||
+                    (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) ||
+                    (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة));
+                return `
+                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-3">
+                    <div class="absolute top-0 right-0 w-1.5 h-full ${getStatusColor(s)}"></div>
+                    
+                    <div class="flex justify-between items-start mb-3">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-1">
+                                <button onclick="toggleShipmentMenu(event, '${s.id}')" class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
+                                    <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <span class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-tight border border-indigo-100/50 dark:border-indigo-800/50">#${s.order_id}</span>
+                            </div>
+                            <h3 class="text-base font-bold text-slate-900 dark:text-white leading-tight">${s.اسم_العميل || 'غير مسجل'}</h3>
+                        </div>
+                        <div class="flex flex-col items-end gap-1">
+                            <span class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm border border-white dark:border-slate-800 ${getStatusBadgeClass(s)}">
+                                ${isPendingStatus(s.الحالة) ? 'قيد التوصيل' : (isPriceEditShipment(s) ? (s['سبب الحالة'] || s.سبب_الحالة || 'تعديل سعر') : (isDelayedStatus(s.الحالة) ? 'مؤجل' : (isRejectedStatus(s.الحالة) ? 'رفض' : (isDeliveredStatus(s.الحالة, s) ? 'تم' : (s.الحالة || 'قيد التوصيل')))))}
+                            </span>
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                                الراسل: ${s.الراسل || '---'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2.5 mb-5">
+                        <div class="flex items-start gap-2.5">
+                            <i class="fas fa-map-pin text-sm mt-0.5 text-indigo-500"></i>
+                            <span class="text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">${s.العنوان || 'بدون عنوان'}</span>
+                        </div>
+                        <div class="flex items-center gap-2.5 text-slate-500 dark:text-slate-400">
+                            <i class="fas fa-cube text-xs"></i>
+                            <span class="text-xs font-semibold">${s.المنتج || s.المنتجات || 'بدون منتج'}</span>
+                        </div>
+                        
+                        <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-50 dark:border-slate-800">
+                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <i class="fas fa-wallet text-sm text-slate-400"></i>
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">المبلغ</span>
+                                    <span class="text-base font-bold text-slate-900 dark:text-white">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[10px] font-bold opacity-40">ج.م</small></span>
+                                </div>
+                            </div>
+                            <div class="flex gap-1.5 flex-wrap justify-end">
+                                ${renderShipmentContactActions(s)}
+                            </div>
+                        </div>
+                    </div>
+
+                    ${hideUpdateActions ? '' : `
+                    <div class="grid grid-cols-2 gap-3 mt-1">
+                        <button onclick="updateStatus('${s.id}', 'تم التسليم')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
+                        <button onclick="editPrice('${s.id}')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-slate-100 active:scale-95 transition-all">تعديل سعر</button>
+                        <button onclick="updateStatus('${s.id}', 'مؤجل')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-amber-100 active:scale-95 transition-all">مؤجل</button>
+                        <button onclick="handleRejectAction('${s.id}')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-rose-100 active:scale-95 transition-all">رفض</button>
+                    </div>
+                    `}
+                    ${isShipmentUpdateLocked(s) ? `
+                        <div class="mt-2 rounded-xl border border-amber-100/50 bg-amber-50/50 px-3 py-1.5 text-center text-[10px] font-bold text-amber-600">
+                            هذه الشحنة لا يمكن تعديلها مرة أخرى
+                        </div>
+                    ` : ''}
+                </div>
+            `}).join('');
+            saveRepUiState();
+        }
+
+        function getShipmentById(id) {
+            return allShipments.find(s => String(s.id) === String(id));
+        }
+
+        function getShipmentPhone(shipment, key) {
+            return (shipment[key] || '').toString().trim();
+        }
+
+        function normalizeWhatsAppPhone(rawPhone) {
+            const value = String(rawPhone || '').trim();
+            if (!value) return '';
+
+            const primaryPart = value.split('//')[0].split('/')[0].trim();
+            let normalized = primaryPart.replace(/[^\d+]/g, '');
+
+            if (!normalized) return '';
+            if (normalized.startsWith('+')) {
+                normalized = `+${normalized.slice(1).replace(/\+/g, '')}`;
+            } else {
+                normalized = normalized.replace(/\+/g, '');
+            }
+            if (normalized.startsWith('00')) normalized = `+${normalized.slice(2)}`;
+            if (normalized.startsWith('01') && normalized.length === 11) normalized = `20${normalized.slice(1)}`;
+            if (normalized.startsWith('+')) normalized = normalized.slice(1);
+
+            return normalized;
+        }
+
+        function normalizeCallPhone(rawPhone) {
+            const value = String(rawPhone || '').trim();
+            if (!value) return '';
+
+            const primaryPart = value.split('//')[0].split('/')[0].trim();
+            return primaryPart.replace(/[^\d+]/g, '');
+        }
+
+        function hasShipmentPhone(shipment, key) {
+            return Boolean(getShipmentPhone(shipment, key));
+        }
+
+        function renderShipmentContactActions(shipment) {
+            const renderField = (key, label) => {
+                const val = getShipmentPhone(shipment, key);
+                if (!val) return '';
+
+                const cleaned = normalizeWhatsAppPhone(val);
+                const callNumber = normalizeCallPhone(val);
+                const isNumeric = /^\+?\d+$/.test(cleaned) && cleaned.length >= 7;
+
+                if (!isNumeric) {
+                    return `
+                        <div class="flex-1 flex items-center justify-center p-2 bg-slate-100 rounded-xl border border-slate-200">
+                            <span class="text-[10px] font-black text-slate-600 text-center leading-tight">${val}</span>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="flex gap-2">
+                        <button onclick="sendWhatsApp('${shipment.id}', '${key}')" class="w-11 h-11 rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
+                            <i class="fab fa-whatsapp text-lg"></i>
+                        </button>
+                        <a href="tel:${callNumber}" class="w-11 h-11 rounded-full bg-white border border-slate-200 text-indigo-600 shadow-sm active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
+                            <i class="fas fa-phone-alt text-base"></i>
+                        </a>
+                    </div>
+                `;
+            };
+
+            const primary = renderField('الهاتف', 'الهاتف');
+            const secondary = renderField('هاتف_بديل', 'الهاتف البديل');
+
+            return `
+                <div class="flex flex-wrap items-center justify-center gap-3 w-full">
+                    ${primary}
+                    ${secondary}
+                </div>
+            `;
+        }
+
+        function formatShipmentCopyText(shipment) {
+            const getValue = (value) => {
+                if (value === null || value === undefined || value === '') return '---';
+                return String(value);
+            };
+
+            return [
+                `اسم العميل: ${getValue(shipment.اسم_العميل)}`,
+                `العنوان: ${getValue(shipment.العنوان)}`,
+                `الزون: ${getValue(shipment.الزون)}`,
+                `المنتج: ${getValue(shipment.المنتج)}`,
+                `الهاتف: ${getValue(shipment.الهاتف)}`,
+                `هاتف بديل: ${getValue(shipment.هاتف_بديل)}`,
+                `المبلغ: ${getValue(shipment.المبلغ)}`,
+                `الكود: ${getValue(shipment.الكود)}`,
+                `الراسل: ${getValue(shipment.الراسل)}`,
+                `المندوب: ${getValue(shipment.المندوب)}`
+            ].join('\n');
+        }
+
+        function closeShipmentMenu() {
+            const menu = document.getElementById('shipmentMenu');
+            menu.classList.add('hidden');
+            activeShipmentMenuId = null;
+        }
+
+        function toggleShipmentMenu(event, shipmentId) {
+            event.stopPropagation();
+            const menu = document.getElementById('shipmentMenu');
+            const isOpenForSameShipment = activeShipmentMenuId === shipmentId && !menu.classList.contains('hidden');
+
+            if (isOpenForSameShipment) {
+                closeShipmentMenu();
+                return;
+            }
+
+            activeShipmentMenuId = shipmentId;
+            menu.classList.remove('hidden');
+
+            const menuWidth = 220;
+            const menuHeight = 64;
+            const left = Math.max(12, Math.min(event.clientX - menuWidth + 20, window.innerWidth - menuWidth - 12));
+            const top = Math.max(12, Math.min(event.clientY + 12, window.innerHeight - menuHeight - 12));
+
+            menu.style.left = `${left}px`;
+            menu.style.top = `${top}px`;
+        }
+
+        async function copyShipmentData(id) {
+            const shipment = getShipmentById(id);
+            if (!shipment) return;
+
+            try {
+                await navigator.clipboard.writeText(formatShipmentCopyText(shipment));
+                closeShipmentMenu();
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تم نسخ بيانات الشحنة',
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1800
+                });
+            } catch (error) {
+                closeShipmentMenu();
+                Swal.fire('خطأ', 'فشل نسخ بيانات الشحنة', 'error');
+            }
+        }
+
+        function copyShipmentDataFromMenu() {
+            if (!activeShipmentMenuId) return;
+            copyShipmentData(activeShipmentMenuId);
+        }
+
+        function getStatusColor(shipment) {
+            if (isPriceEditShipment(shipment)) return 'bg-cyan-500';
+            if (isDelayedStatus(shipment.الحالة)) return 'bg-amber-500';
+            if (isRejectedStatus(shipment.الحالة)) return 'bg-rose-500';
+            switch (shipment.الحالة) {
+                case 'تم':
+                case 'شحن':
+                case 'تم التسليم': return 'bg-emerald-500';
+                default: return 'bg-indigo-500';
+            }
+        }
+
+        function getStatusBadgeClass(shipment) {
+            if (isPriceEditShipment(shipment)) return 'bg-cyan-100 text-cyan-700';
+            if (isDelayedStatus(shipment.الحالة)) return 'bg-amber-100 text-amber-700';
+            if (isRejectedStatus(shipment.الحالة)) return 'bg-rose-100 text-rose-700';
+            switch (shipment.الحالة) {
+                case 'تم':
+                case 'شحن':
+                case 'تم التسليم': return 'bg-emerald-100 text-emerald-700';
+                default: return 'bg-indigo-100 text-indigo-700';
+            }
+        }
+
+        async function updateStatus(id, status) {
+            if (isShipmentUpdateLocked(id)) {
+                Swal.fire('تنبيه', 'هذه الشحنة مرتبطة بطلب تسوية ولا يمكن تعديلها مرة أخرى', 'warning');
+                return;
+            }
+
+            const shipment = allShipments.find(s => s.id == id);
+            if (!shipment) return;
+
+            const normalizedStatus = status === 'تم التسليم' ? 'تم' : (status === 'مؤجل' ? 'مؤجل' : status);
+            const updatePayload = {
+                الحالة: normalizedStatus
+            };
+
+            if (arguments.length > 2 && arguments[2]) {
+                updatePayload['سبب الحالة'] = arguments[2];
+            } else if (normalizedStatus === 'مؤجل') {
+                updatePayload['سبب الحالة'] = 'مؤجل';
+            }
+
+            if (normalizedStatus === 'تم') {
+                updatePayload.السعر_بعد_التعديل = Number(getShipmentAmount(shipment)) || 0;
+            }
+
+            const { error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .update(toServerShipmentPayload(updatePayload))
+                .eq('id', Number(id) || id);
+
+            if (error) {
+                console.error('Update shipment status error:', error);
+                Swal.fire('خطأ', error.message || 'فشل تحديث الحالة', 'error');
+                return;
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التحديث',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+
+            // Local update for smoothness
+            const index = allShipments.findIndex(s => s.id == id);
+            if (index !== -1) {
+                allShipments[index].الحالة = normalizedStatus;
+                if (updatePayload['سبب الحالة']) {
+                    allShipments[index]['سبب الحالة'] = updatePayload['سبب الحالة'];
+                }
+                if (Object.prototype.hasOwnProperty.call(updatePayload, 'السعر_بعد_التعديل')) {
+                    allShipments[index].السعر_بعد_التعديل = updatePayload.السعر_بعد_التعديل;
+                }
+            }
+            if (normalizedStatus === 'تم' || normalizedStatus === 'شحن') {
+                lockShipmentForFurtherUpdates(id);
+            }
+            updateFilterCounters();
+            renderShipments();
+        }
+
+        async function handleRejectAction(id) {
+            if (isShipmentUpdateLocked(id)) {
+                Swal.fire('تنبيه', 'هذه الشحنة مرتبطة بطلب تسوية ولا يمكن تعديلها مرة أخرى', 'warning');
+                return;
+            }
+
+            const { value: reason } = await Swal.fire({
+                title: 'سبب الرفض',
+                input: 'select',
+                inputOptions: {
+                    'تهرب': 'تهرب ⛔',
+                    'رفض': 'رفض',
+                    'استلم من قبل': 'استلم من قبل',
+                    'رفض دفع شحن': 'رفض دفع شحن',
+                    'رفض المنتج غير مطابق': 'رفض المنتج غير مطابق',
+                    'مؤجل بعيد': 'مؤجل بعيد'
+                },
+                inputPlaceholder: 'اختر السبب المخصص',
+                showCancelButton: true,
+                confirmButtonText: 'تحديث الحالة',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#e11d48',
+                customClass: {
+                    input: 'rounded-xl text-sm font-bold',
+                    popup: 'rounded-2xl shadow-2xl'
+                }
+            });
+
+            if (reason) {
+                await updateStatus(id, 'الغاء', reason);
+            }
+        }
+
+        async function editPrice(id) {
+            const shipment = allShipments.find(s => s.id == id);
+            if (!shipment) return;
+            if (isShipmentUpdateLocked(shipment)) {
+                Swal.fire('تنبيه', 'هذه الشحنة مرتبطة بطلب تسوية ولا يمكن تعديلها مرة أخرى', 'warning');
+                return;
+            }
+
+            const currentReason = String(shipment['سبب الحالة'] || shipment.سبب_الحالة || '').trim();
+            const isShippingType = currentReason.includes('شحن');
+
+            const { value: formValues } = await Swal.fire({
+                title: 'تعديل سعر الشحنة',
+                html: `
+                    <div class="space-y-4 text-right" dir="rtl">
+                        <div>
+                            <label class="block text-sm font-bold mb-1">نوع التعديل</label>
+                            <select id="swal-edit-type" class="swal2-input !m-0 !w-full border border-slate-200 rounded-lg">
+                                <option value="تعديل سعر" ${!isShippingType ? 'selected' : ''}>تعديل سعر</option>
+                                <option value="شحن" ${isShippingType ? 'selected' : ''}>شحن</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">المبلغ</label>
+                            <input id="swal-edit-price" type="number" class="swal2-input !m-0 !w-full border border-slate-200 rounded-lg" value="${shipment.السعر_بعد_التعديل || shipment.المبلغ || ''}" step="0.01" min="0">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-bold mb-1">الملاحظات</label>
+                            <input id="swal-edit-note" type="text" class="swal2-input !m-0 !w-full border border-slate-200 rounded-lg" value="${currentReason}" placeholder="اكتب الملاحظات التي ستُحفظ داخل سبب الحالة">
+                        </div>
+                    </div>
+                `,
+                focusConfirm: false,
+                preConfirm: () => {
+                    const type = document.getElementById('swal-edit-type').value;
+                    const price = document.getElementById('swal-edit-price').value;
+                    const note = document.getElementById('swal-edit-note').value.trim();
+                    if (price === '' || price === null || Number(price) < 0) {
+                        Swal.showValidationMessage('يرجى إدخال مبلغ صحيح');
+                        return false;
+                    }
+                    if (!note) {
+                        Swal.showValidationMessage('يرجى كتابة الملاحظات');
+                        return false;
+                    }
+                    return { type, note, price: Number(price) };
+                },
+                showCancelButton: true,
+                confirmButtonText: 'حفظ',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (!formValues) return;
+
+            const { type, note, price } = formValues;
+            const isPriceEdit = type === 'تعديل سعر';
+            const isShippingEdit = type === 'شحن';
+            const newStatus = isPriceEdit ? 'تم' : (isShippingEdit ? 'شحن' : type);
+            const newReason = note;
+            const baseCommission = parseFloat(String(shipment?.['عمولة المندوب'] ?? 0).replace(/[^0-9.-]+/g, '')) || 0;
+            const calculatedCommission = isShippingEdit
+                ? (price < 50 ? baseCommission / 2 : baseCommission)
+                : baseCommission;
+            const updatePayload = {
+                الحالة: newStatus,
+                'سبب الحالة': newReason,
+                السعر_بعد_التعديل: price,
+                'عمولة المندوب': calculatedCommission
+            };
+
+            const { error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .update(toServerShipmentPayload(updatePayload))
+                .eq('id', Number(id) || id);
+
+            if (error) {
+                console.error('Edit shipment price error:', error);
+                Swal.fire('خطأ', error.message || 'فشل تعديل السعر', 'error');
+                return;
+            }
+
+            const index = allShipments.findIndex(s => s.id == id);
+            if (index !== -1) {
+                allShipments[index].الحالة = newStatus;
+                allShipments[index]['سبب الحالة'] = newReason;
+                allShipments[index].سبب_الحالة = newReason;
+                allShipments[index].السعر_بعد_التعديل = price;
+                allShipments[index]['عمولة المندوب'] = calculatedCommission;
+            }
+            if (newStatus === 'تم' || newStatus === 'شحن') {
+                lockShipmentForFurtherUpdates(id);
+            }
+
+            Swal.fire({
+                icon: 'success',
+                title: 'تم التعديل',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 2000
+            });
+            renderShipments();
+        }
+
+        function sendWhatsApp(id, phoneKey = 'الهاتف') {
+            const s = allShipments.find(x => x.id == id);
+            if (!s) return;
+
+            let phone = normalizeWhatsAppPhone(getShipmentPhone(s, phoneKey));
+            if (!phone) {
+                Swal.fire('تنبيه', 'لا يوجد رقم هاتف صالح', 'warning');
+                return;
+            }
+
+            const text = `السلام عليكم يا فندم معاك مندوب شركة شحن لتوصيل أوردر لحضرتك:
+📦 رقم الأوردر: #${s.order_id || '---'}
+👤 العميل: ${s.اسم_العميل || '---'}
+📍 العنوان: ${s.العنوان || '---'}
+🗺️ المنطقة: ${s.الزون || '---'}
+📦 المنتج: ${s.المنتج || s.المنتجات || '---'}
+📱 التليفون: ${s.الهاتف || '---'}
+📱 رقم بديل: ${s.هاتف_بديل || '---'}
+💰 المبلغ: ${s.السعر_بعد_التعديل || s.المبلغ || 0}
+🏢 الراسل: ${s.الراسل || '---'}
+
+*برجاء الاستعداد لاستلامه*`;
+
+            window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
+        }
+
+        function setFilter(filter) {
+            currentFilter = filter;
+            syncFilterButtons(filter);
+            renderShipments();
+            saveRepUiState();
+        }
+
+        document.getElementById('searchInput').addEventListener('input', () => {
+            renderShipments();
+            saveRepUiState();
+        });
+        document.addEventListener('click', (event) => {
+            const menu = document.getElementById('shipmentMenu');
+            if (menu && !menu.contains(event.target)) {
+                closeShipmentMenu();
+            }
+            const dateBtn = document.getElementById('filterDateBtn');
+            const dateMenu = document.getElementById('filterDateMenu');
+            const zoneBtn = document.getElementById('filterZoneBtn');
+            const zoneMenu = document.getElementById('filterZoneMenu');
+            const senderBtn = document.getElementById('filterSenderBtn');
+            const senderMenu = document.getElementById('filterSenderMenu');
+
+            if (dateBtn && dateMenu && !dateBtn.contains(event.target) && !dateMenu.contains(event.target)) {
+                dateMenu.classList.add('hidden');
+            }
+            if (zoneBtn && zoneMenu && !zoneBtn.contains(event.target) && !zoneMenu.contains(event.target)) {
+                zoneMenu.classList.add('hidden');
+            }
+            if (senderBtn && senderMenu && !senderBtn.contains(event.target) && !senderMenu.contains(event.target)) {
+                senderMenu.classList.add('hidden');
+            }
+        });
+        window.addEventListener('resize', closeShipmentMenu);
+        window.addEventListener('scroll', closeShipmentMenu);
+
+        function logout() {
+            clearStoredUserSession();
+        }
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            const isDark = body.classList.toggle('dark');
+
+            icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+            localStorage.setItem('rep-theme', isDark ? 'dark' : 'light');
+        }
+
+        // Apply theme on load
+        if (localStorage.getItem('rep-theme') === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fas fa-sun text-xl';
+        }
+
+        // Real-time listener
+        const channel = supabaseClient
+            .channel('public:elsayed')
+            .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLES.SHIPMENTS }, async (payload) => {
+                const event = payload.eventType;
+                const newRow = payload.new;
+                const oldRow = payload.old;
+                const repIdentifiers = getRepIdentifiers().map(normalizeComparableValue);
+
+                if (event === 'INSERT') {
+                    if (repIdentifiers.includes(normalizeComparableValue(newRow.المندوب))) {
+                        addRepNotification('added', newRow);
+                    }
+                } else if (event === 'UPDATE') {
+                    const localOld = allShipments.find(s => String(s.id) === String(newRow.id));
+                    const wasMine = localOld && repIdentifiers.includes(normalizeComparableValue(localOld.المندوب));
+                    const currentRepInRows = newRow.hasOwnProperty('المندوب') ? newRow.المندوب : (localOld ? localOld.المندوب : null);
+                    const isMine = currentRepInRows && repIdentifiers.includes(normalizeComparableValue(currentRepInRows));
+
+                    const merged = { ...localOld, ...newRow };
+                    if (!wasMine && isMine) addRepNotification('added', merged);
+                    else if (wasMine && !isMine) addRepNotification('removed', merged);
+                    else if (wasMine && isMine && localOld && newRow.hasOwnProperty('الحالة') && localOld.الحالة !== newRow.الحالة) {
+                        addRepNotification('status_changed', merged);
+                    }
+                } else if (event === 'DELETE') {
+                    const localDeleted = allShipments.find(s => String(s.id) === String(oldRow.id));
+                    if (localDeleted && repIdentifiers.includes(normalizeComparableValue(localDeleted.المندوب))) {
+                        addRepNotification('deleted', localDeleted);
+                    }
+                }
+
+                triggerDateFilterGlow();
+                await fetchShipments();
+                console.log('تحديث جديد للشحنات');
+            })
+            .subscribe();
+
+        supabaseClient
+            .channel('public:settlements_rep_lock')
+            .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLES.SETTLEMENTS }, payload => {
+                triggerDateFilterGlow();
+                fetchShipments();
+            })
+            .subscribe();
+
+
+        function exportToExcel() {
+            const data = getFilteredShipments();
+            if (!data || data.length === 0) {
+                Swal.fire('تنبيه', 'لا توجد بيانات لتصديرها', 'warning');
+                return;
+            }
+
+            const exportData = data.map(s => ({
+                'm': s.m || s.م || '',
+                'كود الشحنة': s['كود الشحنة'] || s.كود_الشحنة || s.الكود || s.order_id || '',
+                'اسم العميل': s['اسم العميل'] || s.اسم_العميل || '',
+                'العنوان': s.العنوان || '',
+                'الزون': s.الزون || '',
+                'المنتج': s.المنتج || '',
+                'المبلغ': s.المبلغ || '',
+                'الصافي': s['السعر بعد التعديل'] || s.السعر_بعد_التعديل || s.المبلغ || '',
+                'الراسل': s.الراسل || '',
+                'الحالة': isPriceEditShipment(s) ? 'تعديل سعر' : (isDeliveredStatus(s.الحالة, s) ? 'تم التوصيل' : (s.الحالة || 'قيد التوصيل')),
+                'سبب الحالة': (s['سبب الحالة'] || s.سبب_الحالة || ''),
+                'الهاتف': s.الهاتف || s.الهات || '',
+                'هاتف بديل': s['هاتف بديل'] || s.هاتف_بديل || s.هات_بديل || '',
+                'تاريخ التحديث': s['تاريخ التحديث'] || s.الابيديت || ''
+            }));
+
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, "شحناتي");
+            XLSX.writeFile(wb, `شحناتي_${new Date().toLocaleDateString('ar-EG').replace(/\//g, '-')}.xlsx`);
+        }
+
+        function getFilteredShipments() {
+            const searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
+            const dates = getSelectedDates();
+            const statuses = getSelectedStatuses();
+            const zones = getSelectedZones();
+            const senders = getSelectedSenders();
+
+            return allShipments.filter(s => {
+                if (dates.length > 0 && !dates.includes(getShipmentUpdateDate(s))) return false;
+                if (statuses.length > 0) {
+                    let matchStatus = false;
+                    for (const st of statuses) {
+                        if (st === 'قيد التوصيل') {
+                            if (isPendingStatus(s.الحالة)) { matchStatus = true; break; }
+                        } else if (st === 'تم') {
+                            if (isDeliveredStatus(s.الحالة, s)) { matchStatus = true; break; }
+                        } else if (st === 'رفض') {
+                            if (isRejectedStatus(s.الحالة)) { matchStatus = true; break; }
+                        } else if (st === 'تعديل سعر') {
+                            if (isPriceEditShipment(s)) { matchStatus = true; break; }
+                        } else if (st === 'مؤجل' || st === 'مؤجل') {
+                            if (isDelayedStatus(s.الحالة)) { matchStatus = true; break; }
+                        } else if (st === 'شحن') {
+                            if (String(s.الحالة || '').trim() === 'شحن' || String(s.سبب_الحالة || '').includes('شحن')) { matchStatus = true; break; }
+                        } else if (s.الحالة === st) {
+                            matchStatus = true; break;
+                        }
+                    }
+                    if (!matchStatus) return false;
+                }
+                if (zones.length > 0 && !zones.includes(String(s.الزون || '').trim())) return false;
+                if (senders.length > 0 && !senders.includes(String(s.الراسل || '').trim())) return false;
+
+                if (searchQ) {
+                    const idS = String(s.order_id || '').toLowerCase();
+                    const nameS = String(s.اسم_العميل || '').toLowerCase();
+                    const phoneS = String(s.الهاتف || '').toLowerCase();
+                    const altPhoneS = String(s.هاتف_بديل || '').toLowerCase();
+                    if (!idS.includes(searchQ) && !nameS.includes(searchQ) && !phoneS.includes(searchQ) && !altPhoneS.includes(searchQ)) return false;
+                }
+                return true;
+            });
+        }
+
+        fetchShipments();
+        initUnreadBadge();
+        updateRepNotifUI(); // Initialize notification system
+        
+        // Handle direct navigation to notifications
+        document.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash === '#notifications') {
+                switchRepView('notifications');
+            }
+        });
+    </script>
+</body>
+
+</html>

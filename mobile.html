@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
+    <title>ربط الموبايل | Mobile Scanner</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="js/config.js"></script>
+    <style>
+        :root {
+            --bg: #eff6ff;
+            --card: rgba(255, 255, 255, 0.95);
+            --text: #0f172a;
+            --muted: #475569;
+            --primary: #2563eb;
+            --success: #16a34a;
+            --danger: #dc2626;
+            --border: rgba(148, 163, 184, 0.28);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: 'Cairo', sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top, rgba(37, 99, 235, 0.22), transparent 32%),
+                linear-gradient(180deg, #dbeafe 0%, var(--bg) 45%, #e2e8f0 100%);
+        }
+
+        .page {
+            width: min(100%, 760px);
+            margin: 0 auto;
+            padding: 18px 14px 28px;
+        }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        h1, h2, p { margin-top: 0; }
+
+        .lead {
+            color: var(--muted);
+            line-height: 1.85;
+        }
+
+        .pill-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 16px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 14px;
+            border-radius: 999px;
+            font-weight: 700;
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid var(--border);
+        }
+
+        .dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 999px;
+            background: #94a3b8;
+        }
+
+        .dot.live {
+            background: var(--success);
+            box-shadow: 0 0 0 8px rgba(22, 163, 74, 0.14);
+        }
+
+        .btn {
+            width: 100%;
+            border: 0;
+            border-radius: 18px;
+            font: inherit;
+            font-weight: 800;
+            padding: 15px 16px;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #1d4ed8);
+            color: #fff;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        #scannerPanel { display: none; }
+
+        #reader {
+            overflow: hidden;
+            border-radius: 24px;
+            min-height: 300px;
+            background: #0f172a;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .helper, .note {
+            color: var(--muted);
+            line-height: 1.8;
+        }
+
+        .result-box {
+            min-height: 90px;
+            border-radius: 18px;
+            padding: 14px;
+            border: 1px dashed rgba(37, 99, 235, 0.35);
+            background: rgba(255, 255, 255, 0.76);
+        }
+
+        .warn-box {
+            border: 1px solid rgba(220, 38, 38, 0.18);
+            background: rgba(220, 38, 38, 0.06);
+            color: #991b1b;
+            border-radius: 18px;
+            padding: 14px;
+            margin-top: 14px;
+            display: none;
+        }
+
+        @media (max-width: 520px) {
+            .actions { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+
+<body>
+    <main class="page">
+        <section class="card">
+            <h1>ربط الموبايل بالماسح</h1>
+            <p class="lead">اضغط على الزر بالأسفل للمتابعة وفتح الكاميرا. بعد السماح بالوصول ستبدأ قراءة أكواد الشحنات وإرسالها مباشرة إلى الكمبيوتر.</p>
+            <div class="pill-row">
+                <div class="pill">
+                    <span id="connectionDot" class="dot"></span>
+                    <span id="connectionText">جاري تجهيز الاتصال</span>
+                </div>
+                <div class="pill">Session: <span id="sessionText">---</span></div>
+            </div>
+            <div id="networkWarning" class="warn-box"></div>
+            <button id="beginBtn" class="btn btn-primary" style="margin-top:16px;">بدء المسح</button>
+            <p class="note" style="margin-top:12px;">سيتم طلب إذن الكاميرا فقط بعد الضغط على الزر. إذا لم تُفتح الصفحة من نفس الشبكة المحلية فلن يبدأ المسح.</p>
+        </section>
+
+        <section id="scannerPanel" class="card">
+            <h2>الكاميرا</h2>
+            <div id="reader"></div>
+            <div class="actions">
+                <button id="restartBtn" class="btn btn-secondary">إعادة تشغيل الكاميرا</button>
+                <button id="stopBtn" class="btn btn-secondary" disabled>إيقاف المسح</button>
+            </div>
+            <p class="helper" style="margin-top:12px;">وجّه الكاميرا نحو QR الخاص بالشحنة. سيتم تجاهل التكرار السريع تلقائيًا.</p>
+        </section>
+
+        <section class="card">
+            <h2>آخر نتيجة</h2>
+            <div id="resultBox" class="result-box">بانتظار بدء المسح...</div>
+        </section>
+    </main>
+
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+        const params = new URLSearchParams(window.location.search);
+        const sessionId = String(params.get('session') || '').trim();
+        const expectedHost = String(params.get('host') || '').trim();
+
+        let scannerChannel = null;
+        let html5QrScanner = null;
+        let scannerRunning = false;
+        let lastSentCode = '';
+        let lastSentAt = 0;
+        let activeStream = null;
+
+        const connectionDot = document.getElementById('connectionDot');
+        const connectionText = document.getElementById('connectionText');
+        const sessionText = document.getElementById('sessionText');
+        const resultBox = document.getElementById('resultBox');
+        const networkWarning = document.getElementById('networkWarning');
+        const beginBtn = document.getElementById('beginBtn');
+        const restartBtn = document.getElementById('restartBtn');
+        const stopBtn = document.getElementById('stopBtn');
+        const scannerPanel = document.getElementById('scannerPanel');
+
+        function setConnectionState(isLive, text) {
+            connectionText.innerText = text;
+            connectionDot.classList.toggle('live', !!isLive);
+        }
+
+        function normalizeCode(value) {
+            return String(value || '').trim();
+        }
+
+        function isPrivateLanHost(hostname) {
+            return /^(192\.168\.|10\.|172\.(1[6-9]|2\d|3[0-1])\.)/.test(hostname) || hostname === 'localhost' || hostname === '127.0.0.1';
+        }
+
+        function hasMatchingNetworkHost() {
+            if (!expectedHost) return isPrivateLanHost(window.location.hostname);
+            return window.location.hostname === expectedHost && isPrivateLanHost(window.location.hostname);
+        }
+
+        function isCameraSecureContext() {
+            return window.isSecureContext || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+        }
+
+        function showNetworkWarning(message) {
+            networkWarning.style.display = 'block';
+            networkWarning.innerText = message;
+        }
+
+        async function releaseActiveStream() {
+            if (!activeStream) return;
+            activeStream.getTracks().forEach(track => track.stop());
+            activeStream = null;
+        }
+
+        async function sendBroadcast(event, payload) {
+            if (!scannerChannel) return;
+            try {
+                await scannerChannel.send({
+                    type: 'broadcast',
+                    event,
+                    payload
+                });
+            } catch (error) {
+                console.error(error);
+            }
+        }
+
+        async function connectChannel() {
+            if (!sessionId) {
+                setConnectionState(false, 'رابط الجلسة غير صالح');
+                beginBtn.disabled = true;
+                resultBox.innerText = 'هذه الصفحة تحتاج Session صحيحة.';
+                return;
+            }
+
+            sessionText.innerText = sessionId;
+            scannerChannel = supabaseClient.channel(`housing-qr:${sessionId}`, {
+                config: { broadcast: { self: true } }
+            });
+
+            scannerChannel.subscribe(async (status) => {
+                if (status === 'SUBSCRIBED') {
+                    setConnectionState(true, 'تم الاتصال بالكمبيوتر');
+                    await sendBroadcast('mobile_status', {
+                        state: 'connected',
+                        connectedAt: new Date().toISOString()
+                    });
+                } else if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+                    setConnectionState(false, 'تعذر الاتصال بالكمبيوتر');
+                }
+            });
+        }
+
+        async function prepareCameraAccess() {
+            if (!hasMatchingNetworkHost()) {
+                throw new Error('هذا الموبايل لم يفتح الصفحة من نفس عنوان الشبكة المحلية الخاص بالكمبيوتر.');
+            }
+
+            if (!navigator.mediaDevices?.getUserMedia) {
+                throw new Error('المتصفح الحالي لا يدعم الوصول للكاميرا.');
+            }
+
+            if (!isCameraSecureContext()) {
+                throw new Error('المتصفح يمنع الكاميرا من رابط HTTP غير آمن. يلزم HTTPS أو متصفح يسمح بكاميرا الشبكة المحلية.');
+            }
+
+            await releaseActiveStream();
+            activeStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: { ideal: 'environment' } },
+                audio: false
+            });
+
+            const settings = activeStream.getVideoTracks()[0]?.getSettings?.() || {};
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoInputs = devices.filter(device => device.kind === 'videoinput');
+            const preferredDevice =
+                videoInputs.find(device => device.deviceId && device.deviceId === settings.deviceId) ||
+                videoInputs.find(device => /back|rear|environment|الخلف/i.test(device.label)) ||
+                videoInputs[0] ||
+                null;
+
+            return { preferredDeviceId: preferredDevice?.deviceId || null };
+        }
+
+        async function handleDecodedText(decodedText) {
+            const code = normalizeCode(decodedText);
+            if (!code) return;
+
+            const now = Date.now();
+            if (code === lastSentCode && now - lastSentAt < 1500) return;
+
+            lastSentCode = code;
+            lastSentAt = now;
+            resultBox.innerHTML = `<strong>تم المسح:</strong> ${code}<br><span class="helper">تم إرسال الكود إلى الكمبيوتر بنجاح.</span>`;
+            navigator.vibrate?.(120);
+
+            await sendBroadcast('shipment_scanned', {
+                code,
+                rawText: decodedText,
+                scannedAt: new Date().toISOString()
+            });
+        }
+
+        function getScannerConfig() {
+            return {
+                fps: 10,
+                qrbox: { width: 240, height: 240 },
+                aspectRatio: 1.2,
+                rememberLastUsedCamera: true,
+                showTorchButtonIfSupported: true,
+                showZoomSliderIfSupported: true
+            };
+        }
+
+        async function startHtmlScanner(cameraConfig) {
+            if (!html5QrScanner) {
+                html5QrScanner = new Html5Qrcode('reader');
+            }
+            await html5QrScanner.start(cameraConfig, getScannerConfig(), handleDecodedText, () => {});
+        }
+
+        async function startScannerFlow() {
+            try {
+                resultBox.innerText = 'جاري تجهيز الكاميرا...';
+                const cameraSetup = await prepareCameraAccess();
+                const attempts = [];
+
+                if (cameraSetup.preferredDeviceId) {
+                    attempts.push({ deviceId: { exact: cameraSetup.preferredDeviceId } });
+                }
+
+                attempts.push({ facingMode: { exact: 'environment' } });
+                attempts.push({ facingMode: 'environment' });
+                attempts.push({ facingMode: 'user' });
+
+                let lastError = null;
+                let started = false;
+
+                for (const attempt of attempts) {
+                    try {
+                        await startHtmlScanner(attempt);
+                        started = true;
+                        break;
+                    } catch (error) {
+                        lastError = error;
+                    }
+                }
+
+                await releaseActiveStream();
+
+                if (!started) {
+                    throw lastError || new Error('تعذر تشغيل الكاميرا بعد عدة محاولات.');
+                }
+
+                scannerRunning = true;
+                scannerPanel.style.display = 'block';
+                beginBtn.disabled = true;
+                stopBtn.disabled = false;
+                resultBox.innerHTML = '<strong>الكاميرا تعمل الآن.</strong><br><span class="helper">ابدأ مسح أكواد الشحنات.</span>';
+            } catch (error) {
+                await releaseActiveStream();
+                console.error(error);
+                Swal.fire('تعذر بدء المسح', error?.message || 'حدث خطأ أثناء فتح الكاميرا.', 'error');
+            }
+        }
+
+        async function stopScannerFlow() {
+            if (!html5QrScanner || !scannerRunning) return;
+            await html5QrScanner.stop();
+            await html5QrScanner.clear();
+            await releaseActiveStream();
+            scannerRunning = false;
+            beginBtn.disabled = false;
+            stopBtn.disabled = true;
+            resultBox.innerText = 'تم إيقاف الكاميرا. يمكنك تشغيلها مرة أخرى.';
+        }
+
+        beginBtn.addEventListener('click', startScannerFlow);
+        restartBtn.addEventListener('click', async () => {
+            if (scannerRunning) {
+                await stopScannerFlow();
+            }
+            await startScannerFlow();
+        });
+        stopBtn.addEventListener('click', stopScannerFlow);
+
+        window.addEventListener('beforeunload', () => {
+            sendBroadcast('mobile_status', {
+                state: 'disconnected',
+                disconnectedAt: new Date().toISOString()
+            });
+        });
+
+        if (!hasMatchingNetworkHost()) {
+            showNetworkWarning('لن يبدأ المسح لأن الصفحة لم تُفتح من نفس عنوان الشبكة المحلية الموجود داخل QR.');
+        } else if (!isPrivateLanHost(window.location.hostname)) {
+            showNetworkWarning('يجب فتح الصفحة من عنوان LAN محلي مثل 192.168.x.x أو 10.x.x.x.');
+        }
+
+        connectChannel();
+    </script>
+</body>
+
+</html>

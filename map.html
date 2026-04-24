@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co https://*.tile.openstreetmap.org https://nominatim.openstreetmap.org https://router.project-osrm.org; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
+    <title>خريطة المندوب | نظام الشحن الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        #map { height: calc(100vh - 180px); width: 100%; border-radius: 20px; z-index: 10; }
+        .distance-label { background: white; border-radius: 8px; padding: 4px 8px; font-weight: bold; color: #4f46e5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid #4f46e5; font-size: 12px;}
+    </style>
+</head>
+<body class="bg-indigo-50/50 dark:bg-slate-950 min-h-screen transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="glass relative z-50 px-4 py-4 mb-4">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md">
+                    <i class="fas fa-map-marked-alt text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-slate-800 dark:text-white">خريطة التوصيل</h1>
+                    <p class="text-[10px] font-bold text-indigo-600" id="mapStatus">جاري تحديد الموقع...</p>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button onclick="toggleTheme()" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+                    <i id="themeIcon" class="fas fa-moon text-xl"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-4xl mx-auto px-4 pb-24">
+        <div id="map" class="shadow-lg border border-slate-200 dark:border-slate-800"></div>
+    </main>
+
+    <!-- Navigation Bottom -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md glass rounded-full px-8 py-4 flex items-center justify-between shadow-2xl z-50">
+        <a href="rep.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+            <i class="fas fa-box text-xl"></i>
+            <span class="text-[10px] font-bold">شحناتي</span>
+        </a>
+        <button class="flex flex-col items-center gap-1 text-indigo-600">
+            <i class="fas fa-map-marked-alt text-xl"></i>
+            <span class="text-[10px] font-bold">الخريطة</span>
+        </button>
+        <a href="wallet.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="text-[10px] font-bold">المحفظة</span>
+        </a>
+        <a href="account.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[10px] font-bold">الحساب</span>
+        </a>
+    </nav>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    <script src="js/config.js"></script>
+
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+        const SHIPMENT_CODE_FIELD = 'كود الشحنة';
+        const SHIPMENT_CODE_FIELD_LEGACY = 'order_id';
+
+        function normalizeShipmentRecord(record) {
+            return normalizeShipmentRecordHeaders(record);
+        }
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'rep') {
+            window.location.href = 'index.html';
+        }
+        startStoredUserSessionGuard(supabaseClient, {
+            allowedRoles: ['rep'],
+            onValidUser: (latestUser) => {
+                user = latestUser;
+            }
+        });
+
+        let map, repMarker;
+        let repCoords = null;
+        let customerMarkers = [];
+        let currentPolyline = null;
+        let distanceLabel = null;
+
+        function isPendingStatus(status) {
+            const normalizedStatus = String(status || '').trim();
+            return normalizedStatus === '' || normalizedStatus === 'قيد' || normalizedStatus === 'قيد التنفيذ' || normalizedStatus === 'قيد التوصيل';
+        }
+
+        // Icons
+        const repIcon = L.divIcon({
+            html: '<div class="w-8 h-8 bg-indigo-600 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white"><i class="fas fa-motorcycle"></i></div>',
+            className: 'custom-div-icon',
+            iconSize: [32, 32],
+            iconAnchor: [16, 16]
+        });
+
+        const customerIcon = L.divIcon({
+            html: '<div class="w-8 h-8 bg-emerald-500 text-white rounded-full flex items-center justify-center shadow-lg border-2 border-white"><i class="fas fa-map-marker-alt"></i></div>',
+            className: 'custom-div-icon',
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+
+        function initMap() {
+            // Default center (Cairo)
+            map = L.map('map').setView([30.0444, 31.2357], 11);
+            
+            // Standard OpenStreetMap tiles (Free)
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+
+            locateRepresentative();
+        }
+
+        function locateRepresentative() {
+            if ("geolocation" in navigator) {
+                navigator.geolocation.getCurrentPosition(position => {
+                    repCoords = [position.coords.latitude, position.coords.longitude];
+                    
+                    if (repMarker) {
+                        repMarker.setLatLng(repCoords);
+                    } else {
+                        repMarker = L.marker(repCoords, {icon: repIcon}).addTo(map)
+                            .bindPopup('<b>موقعك الحالي</b>');
+                    }
+                    
+                    map.setView(repCoords, 13);
+                    document.getElementById('mapStatus').innerText = "تم تحديد الموقع - جاري جلب الشحنات";
+                    document.getElementById('mapStatus').className = "text-[10px] font-bold text-emerald-600";
+                    
+                    fetchPendingShipments();
+                }, error => {
+                    console.error(error);
+                    Swal.fire('تنبيه', 'يرجى تفعيل صلاحية الوصول للموقع الجغرافي (GPS) لتعمل الخريطة بشكل صحيح.', 'warning');
+                    document.getElementById('mapStatus').innerText = "موقع غير متوفر - يرجى تفعيل الـ GPS";
+                    document.getElementById('mapStatus').className = "text-[10px] font-bold text-rose-500";
+                    fetchPendingShipments(); // Fetch anyway
+                }, {
+                    enableHighAccuracy: true
+                });
+            } else {
+                Swal.fire('خطأ', 'متصفحك لا يدعم تحديد الموقع', 'error');
+            }
+        }
+
+        async function fetchPendingShipments() {
+            const { data, error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .select('*')
+                .eq('المندوب', user.username || user.phone);
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            // Only pending deliveries
+            const pendingShipments = (data || []).map(normalizeShipmentRecord).filter(s => isPendingStatus(s.الحالة));
+            
+            if (pendingShipments.length === 0) {
+                document.getElementById('mapStatus').innerText = "لا توجد شحنات قيد التوصيل";
+                return;
+            }
+
+            document.getElementById('mapStatus').innerText = `جاري تحديد مواقع ${pendingShipments.length} عميل...`;
+            mapCustomers(pendingShipments);
+        }
+
+        async function mapCustomers(shipments) {
+            // Processing a few at a time to avoid Nominatim rate limits (1 req/sec recommended)
+            for (const s of shipments) {
+                if (!s.العنوان) continue;
+
+                // Simple cache to avoid redundant calls for same address
+                let coords = null;
+                try {
+                    // Enhancing the search query text for better Egypt hits
+                    const addressQuery = s.العنوان + " , مصر"; 
+                    const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressQuery)}&limit=1`);
+                    const results = await response.json();
+                    
+                    if (results && results.length > 0) {
+                        coords = [parseFloat(results[0].lat), parseFloat(results[0].lon)];
+                    }
+                } catch (e) {
+                    console.error("Geocoding failed for:", s.العنوان);
+                }
+
+                if (coords) {
+                    const marker = L.marker(coords, {icon: customerIcon}).addTo(map);
+                    
+                    const popupContent = `
+                        <div class="text-right" dir="rtl">
+                            <h4 class="font-bold text-sm text-indigo-600 mb-1">#${s.order_id} - ${s.اسم_العميل || 'عميل'}</h4>
+                            <p class="text-xs text-slate-600 mb-2 line-clamp-2">${s.العنوان}</p>
+                            <p class="text-sm font-black text-slate-800">${s.المبلغ || 0} ج.م</p>
+                            <button onclick="calculateDistanceToCustomer(${coords[0]}, ${coords[1]}, '${s.اسم_العميل}')" class="mt-3 w-full bg-indigo-50 text-indigo-600 font-bold py-1 px-2 rounded hover:bg-indigo-100 transition">عرض المسافة</button>
+                        </div>
+                    `;
+                    marker.bindPopup(popupContent);
+                    customerMarkers.push(marker);
+                }
+                
+                // Be gentle with public API
+                await new Promise(r => setTimeout(r, 1000));
+            }
+            
+            if (customerMarkers.length > 0) {
+                document.getElementById('mapStatus').innerText = "تم عرض العملاء على الخريطة";
+                
+                // Fit map to show rep and all found customers
+                const group = new L.featureGroup([...customerMarkers]);
+                if (repMarker) group.addLayer(repMarker);
+                map.fitBounds(group.getBounds().pad(0.1));
+            } else {
+                document.getElementById('mapStatus').innerText = "لم نتمكن من تحديد مواقع العملاء بدقة";
+            }
+        }
+
+        // Must assign to window to be accessible from Leaflet popup
+        window.calculateDistanceToCustomer = function(lat, lng, name) {
+            if (!repCoords) {
+                Swal.fire('عذراً', 'موقعك الحالي غير معروف لرسم المسار', 'warning');
+                return;
+            }
+
+            // Remove existing line and label
+            if (currentPolyline) map.removeLayer(currentPolyline);
+            if (distanceLabel) map.removeLayer(distanceLabel);
+
+            const customerCoords = [lat, lng];
+            
+            // Draw line
+            currentPolyline = L.polyline([repCoords, customerCoords], {
+                color: '#4f46e5',
+                weight: 4,
+                opacity: 0.8,
+                dashArray: '10, 10'
+            }).addTo(map);
+
+            // Calculate distance (in meters)
+            const distanceMeters = map.distance(repCoords, customerCoords);
+            const distStr = distanceMeters > 1000 
+                            ? (distanceMeters / 1000).toFixed(2) + ' كم' 
+                            : Math.round(distanceMeters) + ' متر';
+
+            // Add distance label halfway
+            const centerLat = (repCoords[0] + customerCoords[0]) / 2;
+            const centerLng = (repCoords[1] + customerCoords[1]) / 2;
+
+            const labelIcon = L.divIcon({
+                className: 'distance-label-container',
+                html: `<div class="distance-label">${distStr}</div>`,
+                iconSize: [80, 24]
+            });
+
+            distanceLabel = L.marker([centerLat, centerLng], {icon: labelIcon}).addTo(map);
+
+            // Zoom out to see both
+            map.fitBounds(currentPolyline.getBounds().pad(0.2));
+            
+            map.closePopup();
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: 'info',
+                title: `المسافة التقديرية إلى ${name || 'العميل'}: ${distStr}`,
+                showConfirmButton: false,
+                timer: 3000
+            });
+        };
+
+        function toggleTheme() {
+            const body = document.body;
+            const icon = document.getElementById('themeIcon');
+            const isDark = body.classList.toggle('dark');
+            icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
+            localStorage.setItem('rep-theme', isDark ? 'dark' : 'light');
+        }
+
+        if (localStorage.getItem('rep-theme') === 'dark') {
+            document.body.classList.add('dark');
+            document.getElementById('themeIcon').className = 'fas fa-sun text-xl';
+        }
+
+        // Initialize Map
+        document.addEventListener('DOMContentLoaded', initMap);
+
+    </script>
+</body>
+</html>
