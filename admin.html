@@ -6111,19 +6111,9 @@
         async function deleteSelectedHousingShipments() {
             const checkboxes = document.querySelectorAll('.housing-row-checkbox:checked');
             const selectedIds = Array.from(checkboxes).map(cb => cb.value);
-            const selectedShipmentCodes = Array.from(new Set(
-                Array.from(checkboxes)
-                    .map(cb => String(cb.dataset.shipmentCode || '').trim())
-                    .filter(Boolean)
-            ));
 
             if (selectedIds.length === 0) {
                 Swal.fire('تنبيه', 'يرجى تحديد شحنات للحذف أولاً', 'warning');
-                return;
-            }
-
-            if (selectedShipmentCodes.length !== selectedIds.length) {
-                Swal.fire('خطأ', 'تعذر تحديد كود شحنة واحدة أو أكثر، لذلك تم إيقاف الحذف لحماية البيانات.', 'error');
                 return;
             }
 
@@ -6147,17 +6137,20 @@
 
             showLoading(true);
             try {
+                // Convert to numbers if they look like numbers to be safe with Supabase int columns
+                const numericIds = selectedIds.map(id => isNaN(id) ? id : Number(id));
+
                 const { error } = await supabaseClient
                     .from(CONFIG.TABLES.SHIPMENTS)
                     .delete()
-                    .in('كود الشحنة', selectedShipmentCodes);
+                    .in('id', numericIds);
 
                 if (error) throw error;
 
                 Swal.fire({
                     icon: 'success',
                     title: 'تم الحذف بنجاح',
-                    text: `تم حذف ${selectedShipmentCodes.length} شحنة من قاعدة البيانات.`,
+                    text: `تم حذف ${selectedIds.length} شحنة من قاعدة البيانات.`,
                     timer: 2500,
                     showConfirmButton: false
                 });
