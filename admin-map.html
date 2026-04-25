@@ -232,19 +232,22 @@
             }
         }
 
-        function getRepStatusInfo(lastTimestamp) {
+        function getRepStatusInfo(rep) {
             const now = new Date();
-            const updatedTime = new Date(lastTimestamp);
+            const updatedTime = new Date(rep.timestamp);
             const diffMinutes = (now - updatedTime) / (1000 * 60);
 
-            if (diffMinutes < 5) return { status: 'online', color: 'pulse-marker-online', text: 'متصل الآن' };
-            if (diffMinutes < 30) return { status: 'idle', color: 'pulse-marker-idle', text: 'خامل (منذ ' + Math.floor(diffMinutes) + ' دقيقة)' };
-            
             let timeStr = diffMinutes > 60*24 ? Math.floor(diffMinutes / (60*24)) + ' يوم' : 
                           diffMinutes > 60 ? Math.floor(diffMinutes/60) + ' ساعة' : 
                           Math.floor(diffMinutes) + ' دقيقة';
-                          
-            return { status: 'offline', color: 'pulse-marker-offline', text: 'غير متصل (' + timeStr + ')' };
+
+            // Explicitly handle "offline" pings (shift ended)
+            if (rep.status === 'offline' || diffMinutes >= 30) {
+                return { status: 'offline', color: 'pulse-marker-offline', text: 'غير متصل (' + timeStr + ')' };
+            }
+
+            if (diffMinutes < 5) return { status: 'online', color: 'pulse-marker-online', text: 'متصل الآن' };
+            return { status: 'idle', color: 'pulse-marker-idle', text: 'خامل (منذ ' + Math.floor(diffMinutes) + ' دقيقة)' };
         }
 
         function updateMapMarkers() {
@@ -258,7 +261,7 @@
             });
 
             repsData.forEach(rep => {
-                const info = getRepStatusInfo(rep.timestamp);
+                const info = getRepStatusInfo(rep);
                 const coords = [rep.lat, rep.lng];
                 
                 // Icon HTML
@@ -371,7 +374,7 @@
 
             let html = '';
             filtered.forEach(rep => {
-                const info = getRepStatusInfo(rep.timestamp);
+                const info = getRepStatusInfo(rep);
                 const statusColor = info.status === 'online' ? 'bg-emerald-500' : (info.status === 'idle' ? 'bg-amber-500' : 'bg-slate-400');
                 
                 html += `
@@ -400,7 +403,7 @@
         function updateStats() {
             let online = 0, idle = 0, offline = 0;
             repsData.forEach(rep => {
-                const info = getRepStatusInfo(rep.timestamp);
+                const info = getRepStatusInfo(rep);
                 if (info.status === 'online') online++;
                 else if (info.status === 'idle') idle++;
                 else offline++;

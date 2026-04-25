@@ -887,14 +887,16 @@
                 const isNowActive = trackingSystem.toggleShift();
                 updateTrackingUI();
                 
-                Swal.fire({
-                    toast: true,
-                    position: 'top-end',
-                    icon: isNowActive ? 'success' : 'info',
-                    title: isNowActive ? 'تم بدء الشيفت - جاري تتبع الموقع' : 'تم إنهاء الشيفت - توقف التتبع',
-                    showConfirmButton: false,
-                    timer: 3000
-                });
+                if (isNowActive) {
+                    Swal.fire({
+                        toast: true,
+                        position: 'top-end',
+                        icon: 'success',
+                        title: 'تم بدء الشيفت - جاري تتبع الموقع',
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                }
             }
 
             let user = JSON.parse(localStorage.getItem('user'));
@@ -1931,21 +1933,6 @@
                     allShipments[sIndex]['الابيديت'] = allShipments[sIndex]['تاريخ التحديث'];
                     updateData['تاريخ التحديث'] = allShipments[sIndex]['تاريخ التحديث'];
                     updateData['تاريخ الحالة'] = allShipments[sIndex]['تاريخ التحديث'];
-                    Swal.fire('خطأ', 'شل الحظ: ' + err.message, 'error');
-                }
-            }
-
-            function toggleAllSubRepRows(source) {
-                const checkboxes = document.querySelectorAll('.subrep-row-checkbox');
-                checkboxes.forEach(cb => cb.checked = source.checked);
-            }
-
-            function updateSubRepRowSelection() {
-                const selectAll = document.getElementById('subRepSelectAll');
-                const checkboxes = document.querySelectorAll('.subrep-row-checkbox');
-                const checkedCount = Array.from(checkboxes).filter(cb => cb.checked).length;
-                
-                if (selectAll && checkboxes.length > 0) {
                     const allChecked = checkedCount === checkboxes.length;
                     const someChecked = checkedCount > 0;
                     selectAll.checked = allChecked;

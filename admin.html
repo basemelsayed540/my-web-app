@@ -3298,6 +3298,13 @@
             });
         }
 
+        const EXACT_EXPORT_COLUMNS = [
+            'm', 'اسم العميل', 'العنوان', 'الزون', 'المنتج', 'الهاتف', 'هاتف بديل', 'المبلغ',
+            'الراسل', 'كود الشحنة', 'المندوب', 'الحالة', 'سبب الحالة', 'السعر بعد التعديل',
+            'ملاحظات', 'تاريخ التحديث', 'الصافي', 'الشحن', 'عدد', 'تقفيل', 'عمولة المندوب',
+            'اسم الموظف', 'نوع المندوب', 'حدث', 'اليومية'
+        ];
+
         function exportHousingToExcel() {
             const data = getHousingFilteredShipments();
             if (!data || data.length === 0) {
@@ -3320,13 +3327,12 @@
             });
 
             const exportData = sortedData.map(s => {
-                const d = getHousingDisplayShipmentData(s);
-                const normalized = normalizeShipmentRecordHeaders(d);
-                return buildShipmentExcelRow(normalized, {
-                    'الحالة': normalized['الحالة'] || '',
-                    'سبب الحالة': normalized['سبب الحالة'] || '',
-                    'السعر بعد التعديل': normalized['السعر بعد التعديل'] || ''
+                const d = normalizeShipmentRecordHeaders(getHousingDisplayShipmentData(s));
+                const row = {};
+                EXACT_EXPORT_COLUMNS.forEach(col => {
+                    row[col] = d[col] !== undefined ? d[col] : '';
                 });
+                return row;
             });
 
             const ws = XLSX.utils.json_to_sheet(exportData);
@@ -3368,62 +3374,12 @@
                 return va.localeCompare(vb, undefined, { numeric: true, sensitivity: 'base' });
             });
 
-            const labelOrder = [
-                { key: 'm', label: 'm' },
-                { key: 'اسم العميل', label: 'اسم العميل' },
-                { key: 'العنوان', label: 'العنوان' },
-                { key: 'الزون', label: 'الزون' },
-                { key: 'المنتج', label: 'المنتج' },
-                { key: 'الهاتف', label: 'الهاتف' },
-                { key: 'هاتف بديل', label: 'هاتف بديل' },
-                { key: 'المبلغ', label: 'المبلغ' },
-                { key: 'الراسل', label: 'الراسل' },
-                { key: 'كود الشحنة', label: 'كود الشحنة' },
-                { key: 'المندوب', label: 'المندوب' },
-                { key: 'الحالة', label: 'الحالة' },
-                { key: 'سبب الحالة', label: 'سبب الحالة' },
-                { key: 'السعر بعد التعديل', label: 'السعر بعد التعديل' },
-                { key: 'ملاحظات', label: 'ملاحظات' },
-                { key: 'تاريخ التحديث', label: 'تاريخ التحديث' },
-                { key: 'الصافي', label: 'الصافي' },
-                { key: 'الشحن', label: 'الشحن' },
-                { key: 'عدد', label: 'عدد' },
-                { key: 'تقفيل', label: 'تقفيل' },
-                { key: 'عمولة المندوب', label: 'عمولة المندوب' },
-                { key: 'اسم الموظف', label: 'اسم الموظف' },
-                { key: 'نوع المندوب', label: 'نوع المندوب' }
-            ];
-
-            const currentExporter = currentUser.username || currentUser.full_name || 'المدير';
-
             const exportData = sortedData.map(s => {
                 const d = normalizeShipmentRecordHeaders(getHousingDisplayShipmentData(s));
                 const row = {};
-                
-                // 1. Add requested columns in specific order
-                labelOrder.forEach(item => {
-                    let val = '';
-                    if (item.key === 'سبب الحالة') {
-                        val = d['سبب الحالة'] || '';
-                    } else if (item.key === 'كود الشحنة') {
-                        val = d['كود الشحنة'] || '';
-                    } else if (item.key === 'exporter_name') {
-                        val = currentExporter;
-                    } else {
-                        val = d[item.key] || '';
-                    }
-                    row[item.label] = val;
+                EXACT_EXPORT_COLUMNS.forEach(col => {
+                    row[col] = d[col] !== undefined ? d[col] : '';
                 });
-
-                // 2. Add any other remaining fields from the database record
-                const orderedKeys = labelOrder.map(i => i.key);
-                Object.keys(d).forEach(k => {
-                    // Skip keys already processed or internal IDs
-                    if (!orderedKeys.includes(k) && !['id', 'سبب الحالة', 'كود_الشحنة', 'اسم_العميل', 'هاتف_بديل', 'السعر_بعد_التعديل', 'اسم الموظ', 'الابيديت', 'المندوب_الرعي'].includes(k)) {
-                         row[k] = d[k] || '';
-                    }
-                });
-
                 return row;
             });
 

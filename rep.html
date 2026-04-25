@@ -362,14 +362,16 @@
             const isNowActive = trackingSystem.toggleShift();
             updateTrackingUI();
             
-            Swal.fire({
-                toast: true,
-                position: 'top-end',
-                icon: isNowActive ? 'success' : 'info',
-                title: isNowActive ? 'تم بدء الشيفت - جاري تتبع الموقع' : 'تم إنهاء الشيفت - توقف التتبع',
-                showConfirmButton: false,
-                timer: 3000
-            });
+            if (isNowActive) {
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'تم بدء الشيفت - جاري تتبع الموقع',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
         }
 
         function normalizeShipmentPriceField(record) {

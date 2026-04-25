@@ -11,6 +11,17 @@ const CONFIG = {
 CONFIG.DATE_FILTER_STORAGE_KEY = 'global-selected-abydet';
 CONFIG.PASSWORD_HASH_PREFIX = 'sha256$';
 CONFIG.SESSION_TOKEN_STORAGE_KEY = 'sessionToken';
+CONFIG.ENABLE_EDGE_FUNCTIONS = false; // Set to true only if you have deployed the Edge Functions
+
+let _sharedSupabaseClient = null;
+function getSharedSupabaseClient() {
+    if (!window.supabase) throw new Error("مكتبة قواعد البيانات غير متوفرة.");
+    if (!_sharedSupabaseClient) {
+        _sharedSupabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+    }
+    return _sharedSupabaseClient;
+}
+
 CONFIG.USER_PUBLIC_FIELDS = [
     'id',
     'username',
@@ -323,32 +334,33 @@ async function invokeUsersAdminAction(action, payload = {}, currentUserOverride 
         throw new Error('تعذر التحقق من التخويل المحلي للتعديل.');
     }
 
-    try {
-        const response = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/users-admin`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                apikey: CONFIG.SUPABASE_KEY,
-                Authorization: `Bearer ${CONFIG.SUPABASE_KEY}`
-            },
-            body: JSON.stringify({ action, actorToken: sessionToken, payload })
-        });
-        if (response.ok) {
-            const data = await response.json();
-            if (data?.actor) {
-                const mergedUser = mergeClientUserData(currentUser, data.actor);
-                saveUserSession(mergedUser, data.sessionToken || null);
+    if (CONFIG.ENABLE_EDGE_FUNCTIONS) {
+        try {
+            const response = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/users-admin`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    apikey: CONFIG.SUPABASE_KEY,
+                    Authorization: `Bearer ${CONFIG.SUPABASE_KEY}`
+                },
+                body: JSON.stringify({ action, actorToken: sessionToken, payload })
+            });
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.actor) {
+                    const mergedUser = mergeClientUserData(currentUser, data.actor);
+                    saveUserSession(mergedUser, data.sessionToken || null);
+                }
+                if (data?.error) throw new Error(data.error);
+                return data;
             }
-            if (data?.error) throw new Error(data.error);
-            return data;
+        } catch (err) {
+            console.warn("Edge function 'users-admin' failed, falling back to client-side logic:", err);
         }
-    } catch (err) {
-        console.warn("Edge function 'users-admin' failed, falling back to client-side logic:", err);
     }
 
     // --- FALLBACK LOGIC ---
-    if (!window.supabase) throw new Error("مكتبة قواعد البيانات غير متوفرة.");
-    const client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+    const client = getSharedSupabaseClient();
 
     if (action === 'admin_list_users') {
         if (currentUser.role !== 'admin') throw new Error("متاح للمدير فقط");
@@ -422,34 +434,35 @@ async function invokeUsersAdminAction(action, payload = {}, currentUserOverride 
 }
 
 async function invokeUsersAuthAction(action, payload = {}) {
-    try {
-        const response = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/users-auth`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                apikey: CONFIG.SUPABASE_KEY,
-                Authorization: `Bearer ${CONFIG.SUPABASE_KEY}`
-            },
-            body: JSON.stringify({ action, sessionToken: getStoredSessionToken(), payload })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            if (data?.user) {
-                const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
-                const mergedUser = data.user ? mergeClientUserData(currentUser, data.user) : currentUser;
-                saveUserSession(mergedUser, data.sessionToken || null);
+    if (CONFIG.ENABLE_EDGE_FUNCTIONS) {
+        try {
+            const response = await fetch(`${CONFIG.SUPABASE_URL}/functions/v1/users-auth`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    apikey: CONFIG.SUPABASE_KEY,
+                    Authorization: `Bearer ${CONFIG.SUPABASE_KEY}`
+                },
+                body: JSON.stringify({ action, sessionToken: getStoredSessionToken(), payload })
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                if (data?.user) {
+                    const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+                    const mergedUser = data.user ? mergeClientUserData(currentUser, data.user) : currentUser;
+                    saveUserSession(mergedUser, data.sessionToken || null);
+                }
+                if (data?.error) throw new Error(data.error);
+                return data;
             }
-            if (data?.error) throw new Error(data.error);
-            return data;
+        } catch (err) {
+            console.warn("Edge function 'users-auth' failed, falling back to client-side logic:", err);
         }
-    } catch (err) {
-        console.warn("Edge function 'users-auth' failed, falling back to client-side logic:", err);
     }
 
     // --- FALLBACK LOGIC ---
-    if (!window.supabase) throw new Error("مكتبة قواعد البيانات غير متوفرة.");
-    const client = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+    const client = getSharedSupabaseClient();
 
     if (action === 'login') {
         let { data: users, error } = await client.from('users').select('*').eq('phone', payload.phone);
