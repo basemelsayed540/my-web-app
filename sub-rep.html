@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -459,6 +459,69 @@
                             <i class="fas fa-bell w-4 text-slate-400"></i>
                             <span>الإشعارات</span>
                         </div>
+                        <button onclick="assignSubRepToVisible()" id="btnAssignSubRep"
+                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all duration-300 active:scale-95">
+                            <i class="fas fa-bolt"></i>
+                            <span id="btnAssignBtnText">تطبيق التعيين (0)</span>
+                        </button>
+                        <button onclick="transferToWarehouse()"
+                            class="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border border-slate-600">
+                            <i class="fas fa-warehouse"></i>
+                            <span>تحويل للمخزن</span>
+                        </button>
+                        <button onclick="exportToExcel()"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border border-emerald-500">
+                            <i class="fas fa-file-excel"></i>
+                            <span>تصدير Excel</span>
+                        </button>
+                        <!-- Excel Upload Button -->
+                        <button onclick="document.getElementById('excelFileInput').click()"
+                            class="w-full bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-500">
+                            <i class="fas fa-file-import"></i>
+                            <span>رع شحنات (إكسل)</span>
+                        </button>
+                        <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(this)">
+                        
+                        <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
+                            <button onclick="toggleAllSubRepRowsGlobal()"
+                                class="w-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-3 px-2 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1 transition-all active:scale-95 border border-slate-300 dark:border-slate-600">
+                                <i class="fas fa-check-square"></i>
+                                <span id="globalSelectAllText">تحديد الكل</span>
+                            </button>
+                            <button onclick="deleteSelectedShipmentsSubRep()"
+                                class="w-full bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 py-3 px-2 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1 transition-all active:scale-95 border border-rose-200 dark:border-rose-900/50">
+                                <i class="fas fa-trash-alt text-rose-500"></i>
+                                <span id="globalDeleteBtnText">مسح المحدد (0)</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons moved to BOTTOM -->
+            <div class="border-t border-slate-100 dark:border-slate-800 pt-6">
+                <nav id="subRepSidebarNav" class="space-y-3">
+                    <button onclick="switchView('dashboard')" id="nav-dashboard"
+                        class="w-full flex items-center gap-3 px-5 py-4 bg-indigo-600 text-white rounded-[1.25rem] font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
+                        <i class="fas fa-th-large w-5 text-indigo-200"></i>
+                        <span>لوحة التحكم</span>
+                    </button>
+                    <button onclick="switchView('accounts')" id="nav-accounts"
+                        class="w-full flex items-center gap-3 px-5 py-4 text-slate-600 dark:text-slate-400 rounded-[1.25rem] font-bold hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95">
+                        <i class="fas fa-users-cog w-5 text-slate-400"></i>
+                        <span>إدارة المناديب</span>
+                    </button>
+                    <button onclick="switchView('auditLogs')" id="nav-auditLogs"
+                        class="w-full flex items-center gap-3 px-5 py-4 text-slate-600 dark:text-slate-400 rounded-[1.25rem] font-bold hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95">
+                        <i class="fas fa-history w-5 text-slate-400"></i>
+                        <span>مراجعة التعديلات</span>
+                    </button>
+                    <button onclick="switchView('notifications')" id="nav-notifications"
+                        class="w-full flex items-center justify-between gap-3 px-5 py-4 text-slate-600 dark:text-slate-400 rounded-[1.25rem] font-bold hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95 relative">
+                        <div class="flex items-center gap-3">
+                            <i class="fas fa-bell w-4 text-slate-400"></i>
+                            <span>الإشعارات</span>
+                        </div>
                         <span id="notif-badge" class="hidden bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full items-center justify-center animate-bounce shadow-lg shadow-rose-500/20">0</span>
                     </button>
                 </nav>
@@ -489,6 +552,10 @@
 
                 <!-- Left Side (Theme & Logout) -->
                 <div class="flex items-center gap-2">
+                    <button onclick="toggleTracking()" id="trackingToggleBtn"
+                        class="p-2 text-slate-400 dark:text-slate-300 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
+                        <i id="trackingIcon" class="fas fa-location-crosshairs text-xl"></i>
+                    </button>
                     <button onclick="toggleTheme()"
                         class="p-2 text-slate-400 dark:text-slate-300 hover:text-indigo-600 transition-colors">
                         <i id="themeIcon" class="fas fa-moon text-xl"></i>
@@ -580,7 +647,7 @@
                     <div class="flex-1 col-span-2 md:col-span-1">
                         <label class="block text-[10px] font-bold text-slate-500 mb-1 px-1">الراسل (المكتب)</label>
                         <div class="relative w-full">
-                            <select id="filterSender" onchange="filterData()" data-has-agent="true"><!--MARKER-->
+                            <select id="filterSender" onchange="filterData()" data-has-agent="true"
                                 class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-[11px] font-bold outline-none appearance-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 transition-colors">
                                 <option value="">كافة المكاتب</option>
                             </select>
@@ -778,6 +845,7 @@
         </main>
 
         <script src="js/config.js"></script>
+        <script src="js/tracking.js"></script>
         <script>
             const { createClient } = supabase;
             const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -798,6 +866,37 @@
                 return buildShipmentServerPayload(payload);
             }
 
+            let trackingSystem = null;
+
+            function updateTrackingUI() {
+                const btn = document.getElementById('trackingToggleBtn');
+                const icon = document.getElementById('trackingIcon');
+                if(trackingSystem && trackingSystem.isTracking) {
+                    btn.classList.replace('text-slate-400', 'text-emerald-500');
+                    btn.classList.replace('dark:text-slate-300', 'dark:text-emerald-500');
+                    icon.classList.add('animate-pulse');
+                } else {
+                    btn.classList.replace('text-emerald-500', 'text-slate-400');
+                    btn.classList.replace('dark:text-emerald-500', 'dark:text-slate-300');
+                    icon.classList.remove('animate-pulse');
+                }
+            }
+
+            function toggleTracking() {
+                if(!trackingSystem) return;
+                const isNowActive = trackingSystem.toggleShift();
+                updateTrackingUI();
+                
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: isNowActive ? 'success' : 'info',
+                    title: isNowActive ? 'تم بدء الشيفت - جاري تتبع الموقع' : 'تم إنهاء الشيفت - توقف التتبع',
+                    showConfirmButton: false,
+                    timer: 3000
+                });
+            }
+
             let user = JSON.parse(localStorage.getItem('user'));
             if (!user || user.role !== 'sub-rep') {
                 window.location.href = 'index.html';
@@ -808,6 +907,11 @@
                     user = latestUser;
                     const subRepName = document.getElementById('subRepName');
                     if (subRepName) subRepName.innerText = latestUser.full_name || latestUser.username || latestUser.phone;
+                    
+                    if(!trackingSystem) {
+                        trackingSystem = new RepTrackingSystem(supabaseClient, latestUser);
+                        updateTrackingUI();
+                    }
                 }
             });
 
@@ -1558,8 +1662,6 @@
                 if (accountNames.includes(prevVal)) assignSelect.value = prevVal;
             }
 
-
-
             function toggleStatFilter(status) {
                 if (globalStatFilter === status) {
                     globalStatFilter = ''; // Clear filter if clicked twice
@@ -1829,26 +1931,6 @@
                     allShipments[sIndex]['الابيديت'] = allShipments[sIndex]['تاريخ التحديث'];
                     updateData['تاريخ التحديث'] = allShipments[sIndex]['تاريخ التحديث'];
                     updateData['تاريخ الحالة'] = allShipments[sIndex]['تاريخ التحديث'];
-                }
-
-                try {
-                    const { error } = await supabaseClient
-                        .from(CONFIG.TABLES.SHIPMENTS)
-                        .update(toServerShipmentPayload(updateData))
-                        .eq('id', id);
-
-                    if (error) {
-                        allShipments[sIndex][field] = oldVal; // Revert
-                        throw error;
-                    }
-                    
-                    if (field === 'الحالة') {
-                        renderTable(); // Re-evaluate filters safely
-                    }
-                    
-                    // Show small success toast
-                    Swal.fire({ toast: true, position: 'top-end', icon: 'success', title: 'تم التعديل بنجاح', showConfirmButton: false, timer: 1500 });
-                } catch (err) {
                     Swal.fire('خطأ', 'شل الحظ: ' + err.message, 'error');
                 }
             }
@@ -1896,6 +1978,18 @@
                 clearTimeout(_subRepAssignDebounce);
                 _subRepAssignDebounce = setTimeout(() => renderTable(), 300);
             }
+            }
+
+            let _subRepAssignDebounce = null;
+            function updateSubRepAssignButtons() {
+                const newRepName = (document.getElementById('subRepNewRepName')?.value || '').trim();
+                document.querySelectorAll('.subrep-assign-btn').forEach(btn => {
+                    btn.innerText = newRepName || '—';
+                    btn.title = newRepName ? `تعيين: ${newRepName}` : 'اكتب اسم المندوب أولاً';
+                });
+                clearTimeout(_subRepAssignDebounce);
+                _subRepAssignDebounce = setTimeout(() => renderTable(), 300);
+            }
 
             async function assignNewRepToShipment(id) {
                 const newRepName = document.getElementById('subRepNewRepName')?.value.trim();
@@ -1908,8 +2002,6 @@
                     .from(CONFIG.TABLES.SHIPMENTS)
                     .update(toServerShipmentPayload({ [SHIPMENT_SUBREP_FIELD_LEGACY]: newRepName }))
                     .eq('id', id);
-
-                if (!error) {
                     Swal.fire({
                         icon: 'success',
                         title: 'تم التعيين بنجاح',

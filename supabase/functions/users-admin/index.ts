@@ -7,11 +7,11 @@ const corsHeaders = {
   "Access-Control-Allow-Methods": "POST, OPTIONS",
 };
 
-const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "";
-const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "";
-const appSessionSecret = Deno.env.get("APP_SESSION_SECRET") ?? "";
+const supabaseUrl = Deno.env.get("SUPABASE_URL") ?? "https://placeholder.supabase.co";
+const serviceRoleKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "placeholder";
+const appSessionSecret = Deno.env.get("APP_SESSION_SECRET") ?? "fallback_secret_must_change";
 
-if (!supabaseUrl || !serviceRoleKey) {
+if (supabaseUrl === "https://placeholder.supabase.co" || serviceRoleKey === "placeholder") {
   console.error("Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY");
 }
 

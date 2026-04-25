@@ -96,6 +96,94 @@
                 </div>
                 <div>
                     <div class="flex items-center gap-2">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            /* Professional Slate-50 */
+            color: #0f172a;
+            /* Slate-900 */
+            font-family: 'Cairo', sans-serif;
+            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
+
+        /* Premium Card Style */
+        .glass {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
+            border-radius: 1.25rem;
+            transition: all 0.3s ease;
+        }
+
+        .dark .glass {
+            background: #0f172a;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        /* High Visibility Status Badges */
+        .badge-solid {
+            padding: 0.4rem 0.8rem;
+            border-radius: 0.75rem;
+            font-weight: 800;
+            font-size: 0.7rem;
+            letter-spacing: 0.025em;
+        }
+
+        @keyframes repDateFilterGlow {
+
+            0%,
+            100% {
+                border-color: #e2e8f0;
+            }
+
+            50% {
+                border-color: #6366f1;
+                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+            }
+        }
+
+        .rep-date-filter-glow {
+            animation: repDateFilterGlow 2.5s ease-in-out infinite;
+        }
+
+        .card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+        }
+
+        .text-main {
+            color: #0f172a;
+            font-weight: 800;
+        }
+
+        .text-sub {
+            color: #64748b;
+            font-weight: 600;
+        }
+    </style>
+</head>
+
+<body class="min-h-screen transition-colors duration-300">
+
+    <!-- Header -->
+    <header
+        class="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md sticky top-0 z-50 px-4 py-4 mb-4 border-b border-slate-200 dark:border-slate-800 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-12 h-12 bg-indigo-600 rounded-[1rem] flex items-center justify-center text-white shadow-indigo-200 shadow-lg">
+                    <i class="fas fa-truck-fast text-xl"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
                         <h1 id="repName" class="text-base font-bold text-slate-900 dark:text-white">جاري التحميل...</h1>
                         <span id="repUnreadBadge"
                             class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
@@ -104,6 +192,10 @@
                 </div>
             </div>
             <div class="flex items-center gap-1">
+                <button onclick="toggleTracking()" id="trackingToggleBtn"
+                    class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
+                    <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
+                </button>
                 <button onclick="toggleTheme()"
                     class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
                     <i id="themeIcon" class="fas fa-moon text-xl"></i>
@@ -255,6 +347,7 @@
     </nav>
 
     <script src="js/config.js"></script>
+    <script src="js/tracking.js"></script>
     <script>
         const { createClient } = supabase;
         const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
@@ -262,6 +355,35 @@
         const SHIPMENT_PRICE_FIELD_LEGACY = 'السعر_بعد_التعديل';
         const SHIPMENT_CODE_FIELD = 'كود الشحنة';
         const SHIPMENT_CODE_FIELD_LEGACY = 'order_id';
+
+        let trackingSystem = null;
+
+        function updateTrackingUI() {
+            const btn = document.getElementById('trackingToggleBtn');
+            const icon = document.getElementById('trackingIcon');
+            if(trackingSystem && trackingSystem.isTracking) {
+                btn.classList.replace('text-slate-400', 'text-emerald-500');
+                icon.classList.add('animate-pulse');
+            } else {
+                btn.classList.replace('text-emerald-500', 'text-slate-400');
+                icon.classList.remove('animate-pulse');
+            }
+        }
+
+        function toggleTracking() {
+            if(!trackingSystem) return;
+            const isNowActive = trackingSystem.toggleShift();
+            updateTrackingUI();
+            
+            Swal.fire({
+                toast: true,
+                position: 'top-end',
+                icon: isNowActive ? 'success' : 'info',
+                title: isNowActive ? 'تم بدء الشيفت - جاري تتبع الموقع' : 'تم إنهاء الشيفت - توقف التتبع',
+                showConfirmButton: false,
+                timer: 3000
+            });
+        }
 
         function normalizeShipmentPriceField(record) {
             return normalizeShipmentRecordHeaders(record);
@@ -281,6 +403,11 @@
                 user = latestUser;
                 const repName = document.getElementById('repName');
                 if (repName) repName.innerText = latestUser.full_name || latestUser.username || latestUser.phone;
+                
+                if(!trackingSystem) {
+                    trackingSystem = new RepTrackingSystem(supabaseClient, latestUser);
+                    updateTrackingUI();
+                }
             }
         });
 
