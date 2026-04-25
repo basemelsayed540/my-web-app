@@ -210,11 +210,20 @@
                 const { data, error } = await supabaseClient
                     .from('rep_locations')
                     .select('*')
-                    .order('updated_at', { ascending: false });
+                    .order('timestamp', { ascending: false });
 
                 if (error) throw error;
                 
-                repsData = data || [];
+                // Group by rep_id to only take the latest location (since it's ordered descending by timestamp)
+                const latestReps = {};
+                (data || []).forEach(row => {
+                    if (!latestReps[row.rep_id]) {
+                        latestReps[row.rep_id] = row;
+                    }
+                });
+                
+                repsData = Object.values(latestReps);
+                
                 updateMapMarkers();
                 renderRepsList();
                 updateStats();
@@ -223,9 +232,9 @@
             }
         }
 
-        function getRepStatusInfo(lastUpdatedAt) {
+        function getRepStatusInfo(lastTimestamp) {
             const now = new Date();
-            const updatedTime = new Date(lastUpdatedAt);
+            const updatedTime = new Date(lastTimestamp);
             const diffMinutes = (now - updatedTime) / (1000 * 60);
 
             if (diffMinutes < 5) return { status: 'online', color: 'pulse-marker-online', text: 'متصل الآن' };
@@ -249,7 +258,7 @@
             });
 
             repsData.forEach(rep => {
-                const info = getRepStatusInfo(rep.updated_at);
+                const info = getRepStatusInfo(rep.timestamp);
                 const coords = [rep.lat, rep.lng];
                 
                 // Icon HTML
@@ -321,7 +330,7 @@
         }
 
         function buildPopupHTML(rep, info) {
-            const dateStr = new Date(rep.updated_at).toLocaleString('ar-EG');
+            const dateStr = new Date(rep.timestamp).toLocaleString('ar-EG');
             const distance = getDistanceFromLatLonInKm(SERVICE_ZONE.center[0], SERVICE_ZONE.center[1], rep.lat, rep.lng);
             const isBreached = distance > SERVICE_ZONE.radiusKm;
             
@@ -362,7 +371,7 @@
 
             let html = '';
             filtered.forEach(rep => {
-                const info = getRepStatusInfo(rep.updated_at);
+                const info = getRepStatusInfo(rep.timestamp);
                 const statusColor = info.status === 'online' ? 'bg-emerald-500' : (info.status === 'idle' ? 'bg-amber-500' : 'bg-slate-400');
                 
                 html += `
@@ -391,7 +400,7 @@
         function updateStats() {
             let online = 0, idle = 0, offline = 0;
             repsData.forEach(rep => {
-                const info = getRepStatusInfo(rep.updated_at);
+                const info = getRepStatusInfo(rep.timestamp);
                 if (info.status === 'online') online++;
                 else if (info.status === 'idle') idle++;
                 else offline++;
