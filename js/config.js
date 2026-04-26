@@ -54,8 +54,10 @@ CONFIG.SHIPMENT_SERVER_FIELDS = [
     'عدد',
     'تقفيل',
     'عمولة المندوب',
+    'عمولة المندوب الفرعي',
     'اسم الموظف',
     'نوع المندوب',
+    'المندوب الفرعي',
     'حدث',
     'اليومية',
 ];
@@ -95,12 +97,17 @@ function normalizeShipmentRecordHeaders(record) {
     assignShipmentAliases(normalized, 'اليومية', ['اليوميه']);
     assignShipmentAliases(normalized, 'عدد', ['كود اضافي', 'كود_اضافي']);
     assignShipmentAliases(normalized, 'عمولة المندوب', ['عمولة_المندوب']);
+    assignShipmentAliases(normalized, 'عمولة المندوب الفرعي', ['عمولة_المندوب_الفرعي']);
     assignShipmentAliases(normalized, 'اسم الموظف', ['اسم الموظ', 'اسم_الموظف']);
     assignShipmentAliases(normalized, 'الصافي', ['الصاي']);
-    assignShipmentAliases(normalized, 'نوع المندوب', ['المندوب_الرعي', 'المندوب الرعي', 'المندوب_الفرعي', 'المندوب الفرعي']);
+    assignShipmentAliases(normalized, 'المندوب الفرعي', ['المندوب_الفرعي', 'المندوب الفرعي', 'المندوب_الرعي', 'المندوب الرعي']);
+    if (!normalized['نوع المندوب'] && normalized['المندوب الفرعي']) {
+        // Fallback or keep empty? The user wants it explicitly set by code.
+    }
 
     const stableShipmentId = String(
         normalized.id ??
+        normalized.ID ??
         normalized['كود الشحنة'] ??
         normalized.order_id ??
         normalized['كود_الشحنة'] ??
@@ -108,6 +115,7 @@ function normalizeShipmentRecordHeaders(record) {
     ).trim();
     if (stableShipmentId) {
         normalized.id = stableShipmentId;
+        normalized.ID = stableShipmentId;
     }
 
     return normalized;
@@ -386,7 +394,6 @@ async function invokeUsersAdminAction(action, payload = {}, currentUserOverride 
     if (action === 'admin_upsert_user') {
         let p = {
             username: payload.username,
-            full_name: payload.full_name || payload.username,
             phone: payload.phone,
             role: payload.role,
             approved: payload.approved !== false,
@@ -417,11 +424,10 @@ async function invokeUsersAdminAction(action, payload = {}, currentUserOverride 
     if (action === 'subrep_create_user') {
         const p = {
             username: payload.username,
-            full_name: payload.full_name || payload.username,
             phone: payload.phone,
             password: payload.password,
             email: payload.email || null,
-            role: 'rep',
+            role: 'مندوب فرعي',
             parent_id: currentUser.id,
             approved: true
         };
@@ -474,7 +480,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
             if (payload.password !== 'admin') throw new Error("بيانات الدخول غير صحيحة");
             const pHash = await hashPassword(payload.password);
             const { data: created, error: cErr } = await client.from('users').insert([{
-                username: "المدير العام", full_name: "المدير العام", phone: "admin", 
+                username: "المدير العام", phone: "admin", 
                 role: "admin", approved: true, password: pHash
             }]).select().single();
             if (cErr) throw new Error("فشل إنشاء الإدمن: " + cErr.message);
@@ -504,7 +510,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
         if (exists) throw new Error("هذا الرقم مسجل مسبقاً.");
 
         const { data, error } = await client.from('users').insert([{
-            username: payload.username, full_name: payload.username, phone: payload.phone,
+            username: payload.username, phone: payload.phone,
             password: payload.passwordHash, email: payload.email, role: payload.role, approved: false
         }]).select().single();
         if (error) throw new Error("تعذر إنشاء الحساب: " + error.message);

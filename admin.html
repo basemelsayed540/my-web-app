@@ -1793,7 +1793,7 @@
     <script src="js/config.js"></script>
     <script>
         const { createClient } = supabase;
-        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+        const supabaseClient = getSharedSupabaseClient();
         const SHIPMENT_PRICE_FIELD = 'السعر بعد التعديل';
         const SHIPMENT_PRICE_FIELD_LEGACY = 'السعر_بعد_التعديل';
         const SHIPMENT_CODE_FIELD = 'كود الشحنة';
@@ -2330,7 +2330,7 @@
             fillDatalist('dl-housingProduct', [...new Set([...getUnique('المنتج'), ...getUnique('الصنف')])]);
             fillDatalist('dl-housingSender', getUnique('الراسل'));
             fillDatalist('dl-housingRep', getUnique('المندوب'));
-            fillDatalist('dl-housingSubRep', getUnique('المندوب_الفرعي'));
+            fillDatalist('dl-housingSubRep', getUnique('المندوب الفرعي'));
             fillDatalist('dl-housingStatus', getUnique('الحالة'));
             fillDatalist('dl-housingReason', getUnique('سبب_الحالة'));
             populateHousingEditDateFilter();
@@ -2388,7 +2388,7 @@
                     if (data.الصنف) unique.products.add(data.الصنف);
                     if (data.الراسل) unique.senders.add(data.الراسل);
                     if (data.المندوب) unique.reps.add(data.المندوب);
-                    if (data.المندوب_الفرعي) unique.subReps.add(data.المندوب_الفرعي);
+                    if (data['المندوب الفرعي']) unique.subReps.add(data['المندوب الفرعي']);
                     if (data.الحالة) unique.statuses.add(data.الحالة);
                     if (data['سبب الحالة'] || data.سبب_الحالة) unique.reasons.add(data['سبب الحالة'] || data.سبب_الحالة);
                 });
@@ -2667,7 +2667,7 @@
                 // المندوب المتقدم هو المسؤول الرئيسي عن الشحنة في هذا المنطق
                 if (!mainName || !isSubRep(mainName)) return;
 
-                const name = String(s.المندوب_الفرعي || s.المندوب || '').trim();
+                const name = String(s['المندوب الفرعي'] || s.المندوب || '').trim();
                 if (name === 'مخزن') return;
                 if (!subRepsData[name]) subRepsData[name] = zeroStats();
 
@@ -2729,7 +2729,7 @@
                     <tr>
                     <td><strong>${u.username || u.full_name || '---'}</strong></td>
                     <td>${u.phone}</td>
-                    <td><span class="badge bg-light text-dark">${u.role === 'rep' ? 'مندوب' : (u.role === 'sender' ? 'راسل' : (u.role === 'follower' ? 'متابعة' : (u.role === 'housing' ? 'تسكين الشحنات' : 'مدير')))}</span></td>
+                    <td><span class="badge bg-light text-dark">${u.role === 'rep' ? 'مندوب' : (u.role === 'مندوب فرعي' ? 'مندوب فرعي' : (u.role === 'sender' ? 'راسل' : (u.role === 'follower' ? 'متابعة' : (u.role === 'housing' ? 'تسكين الشحنات' : 'مدير'))))}</span></td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
                             <button onclick="editUser(${JSON.stringify(u).replace(/"/g, '&quot;')})" class="btn-action bg-primary-subtle text-primary"><i class="fas fa-edit"></i></button>
@@ -2742,6 +2742,7 @@
 
         function getUserRoleLabel(role) {
             if (role === 'rep') return 'مندوب';
+            if (role === 'مندوب فرعي') return 'مندوب فرعي';
             if (role === 'sub-rep') return 'مندوب متقدم';
             if (role === 'sender') return 'راسل';
             if (role === 'follower') return 'متابعة';
@@ -2812,7 +2813,7 @@
         }
 
         function renderUsers() {
-            const repUsers = allUsers.filter(u => u.role === 'rep');
+            const repUsers = allUsers.filter(u => u.role === 'rep' || u.role === 'مندوب فرعي');
             const subRepUsers = allUsers.filter(u => u.role === 'sub-rep');
             const followerUsers = allUsers.filter(u => u.role === 'follower');
             const housingUsers = allUsers.filter(u => u.role === 'housing');
@@ -2905,7 +2906,7 @@
         function getHousingRepOptions(selectedValue = '') {
             const byName = new Map();
             allUsers
-                .filter(u => (u.role === 'rep' || u.role === 'sub-rep') && u.approved)
+                .filter(u => (u.role === 'rep' || u.role === 'sub-rep' || u.role === 'مندوب فرعي') && u.approved)
                 .map(u => ({
                     name: String(u.username || u.full_name || u.phone || '').trim(),
                     isSub: u.role === 'sub-rep'
@@ -3046,7 +3047,7 @@
             const select = document.getElementById('qrBulkRep');
             if (!select) return;
             const reps = allUsers
-                .filter(u => (u.role === 'rep' || u.role === 'sub-rep') && u.approved)
+                .filter(u => (u.role === 'rep' || u.role === 'sub-rep' || u.role === 'مندوب فرعي') && u.approved)
                 .map(u => u.username || u.full_name)
                 .filter(Boolean)
                 .sort();
@@ -3454,7 +3455,7 @@
                         { key: 'تقفيل', labels: ['تقفيل'] },
                         { key: 'عمولة المندوب', labels: ['عمولة المندوب', 'عمولة_المندوب'] },
                         { key: 'اسم الموظف', labels: ['اسم الموظف', 'اسم الموظ', 'اسم_الموظف'] },
-                        { key: 'نوع المندوب', labels: ['نوع المندوب', 'المندوب الفرعي', 'المندوب_الفرعي', 'المندوب الرعي', 'المندوب_الرعي'] },
+                        { key: 'نوع المندوب', labels: ['نوع المندوب', 'المندوب الفرعي', 'المندوب_الرعي', 'المندوب الرعي', 'المندوب_الرعي'] },
                         { key: 'حدث', labels: ['حدث'] },
                         { key: 'اليومية', labels: ['اليومية', 'اليوميه'] },
                     ];
@@ -3902,15 +3903,6 @@
             oscillator.onended = () => audioContext.close().catch(() => { });
         }
 
-        function getHousingDisplayShipmentData(shipment) {
-            const draft = housingDrafts.get(String(shipment.id)) || {};
-            const merged = { ...shipment, ...draft };
-            return {
-                ...merged,
-                m: merged.m ?? merged.م ?? '',
-                م: merged.م ?? merged.m ?? ''
-            };
-        }
 
         const HOUSING_UI_STATE_KEY = 'housingUiState';
 
@@ -4136,7 +4128,7 @@
                     if (!filters.reps.includes(String(d.المندوب || '').trim())) return false;
                 }
                 if (!excludeFields.includes('subRep') && filters.subReps.length > 0) {
-                    if (!filters.subReps.includes(String(d.المندوب_الفرعي || '').trim())) return false;
+                    if (!filters.subReps.includes(String(d['المندوب الفرعي'] || '').trim())) return false;
                 }
                 if (!excludeFields.includes('sender') && filters.senders.length > 0) {
                     if (!filters.senders.includes(String(d.الراسل || '').trim())) return false;
@@ -4262,7 +4254,7 @@
 
             const selected = new Set(getHousingSubRepFilters());
             const baseShipments = getHousingShipmentsFilteredBy(['subRep']);
-            const subReps = [...new Set(baseShipments.map(s => String(s.المندوب_الفرعي || '').trim()).filter(Boolean))]
+            const subReps = [...new Set(baseShipments.map(s => String(s['المندوب الفرعي'] || '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b));
 
             if (!subReps.length) {
@@ -4277,7 +4269,7 @@
                 const baseShipments = getHousingShipmentsFilteredBy(['subRep']);
                 baseShipments.forEach(s => {
                     const data = getHousingDisplayShipmentData(s);
-                    const val = String(data.المندوب_الفرعي || '').trim();
+                    const val = String(data['المندوب الفرعي'] || '').trim();
                     if (val) counts[val] = (counts[val] || 0) + 1;
                 });
             }
@@ -4440,7 +4432,7 @@
                     matchesEditDate &&
                     (!filters.statuses.length || filters.statuses.includes(String(currentData.الحالة || '').trim())) &&
                     (!filters.reps.length || filters.reps.includes(String(currentData.المندوب || '').trim())) &&
-                    (!filters.subReps.length || filters.subReps.includes(String(currentData.المندوب_الفرعي || '').trim())) &&
+                    (!filters.subReps.length || filters.subReps.includes(String(currentData['المندوب الفرعي'] || '').trim())) &&
                     (!filters.senders.length || filters.senders.includes(String(currentData.الراسل || '').trim())) &&
                     (!filters.name || String(currentData.اسم_العميل || '').toLowerCase().includes(filters.name)) &&
                     (!filters.phone || String(currentData.الهاتف || '').toLowerCase().includes(filters.phone)) &&
@@ -4451,7 +4443,7 @@
                     (!filters.code || String(currentData.كود_الشحنة || currentData.order_id || '').toLowerCase().includes(filters.code)) &&
                     (!filters.amount || String(currentData.المبلغ || '').toLowerCase().includes(filters.amount)) &&
                     (!filters.rep || String(currentData.المندوب || '').toLowerCase().includes(filters.rep)) &&
-                    (!filters.subRep || String(currentData.المندوب_الفرعي || '').toLowerCase().includes(filters.subRep)) &&
+                    (!filters.subRep || String(currentData['المندوب الفرعي'] || '').toLowerCase().includes(filters.subRep)) &&
                     (!filters.status || String(currentData.الحالة || '').toLowerCase().includes(filters.status));
 
                 if (!matchesColumns) return false;
@@ -4537,7 +4529,7 @@
                     matchesEditDate &&
                     (!filters.statuses.length || filters.statuses.includes(String(currentData.الحالة || '').trim())) &&
                     (!filters.reps.length || filters.reps.includes(String(currentData.المندوب || '').trim())) &&
-                    (!filters.subReps.length || filters.subReps.includes(String(currentData.المندوب_الفرعي || '').trim())) &&
+                    (!filters.subReps.length || filters.subReps.includes(String(currentData['المندوب الفرعي'] || '').trim())) &&
                     (!filters.senders.length || filters.senders.includes(String(currentData.الراسل || '').trim())) &&
                     (!filters.name || String(currentData.اسم_العميل || '').toLowerCase().includes(filters.name)) &&
                     (!filters.phone || String(currentData.الهاتف || '').toLowerCase().includes(filters.phone)) &&
@@ -4548,7 +4540,7 @@
                     (!filters.code || String(currentData.كود_الشحنة || currentData.order_id || '').toLowerCase().includes(filters.code)) &&
                     (!filters.amount || String(currentData.المبلغ || '').toLowerCase().includes(filters.amount)) &&
                     (!filters.rep || String(currentData.المندوب || '').toLowerCase().includes(filters.rep)) &&
-                    (!filters.subRep || String(currentData.المندوب_الفرعي || '').toLowerCase().includes(filters.subRep)) &&
+                    (!filters.subRep || String(currentData['المندوب الفرعي'] || '').toLowerCase().includes(filters.subRep)) &&
                     (!filters.status || String(currentData.الحالة || '').toLowerCase().includes(filters.status));
 
                 if (!matchesColumns) return false;
@@ -4619,14 +4611,14 @@
                 السعر_بعد_التعديل: document.getElementById(`housing-adjusted-${id}`)?.value || null,
                 المندوب: document.getElementById(`housing-rep-${id}`)?.value || null,
                 الفرع: document.getElementById(`housing-branch-${id}`)?.value.trim() || '',
-                المندوب_الفرعي: document.getElementById(`housing-subrep-${id}`)?.value || null,
+                ['المندوب الفرعي']: document.getElementById(`housing-subrep-${id}`)?.value || null,
                 الحالة: document.getElementById(`housing-status-${id}`)?.value.trim() || '',
                 ['سبب الحالة']: document.getElementById(`housing-reason-${id}`)?.value.trim() || ''
             };
         }
 
         function getHousingChangedFields(baseShipment, payload) {
-            const fields = ['اسم_العميل', 'الهاتف', 'هاتف_بديل', 'الزون', 'الراسل', 'المبلغ', 'السعر_بعد_التعديل', 'المندوب', 'الفرع', 'المندوب_الفرعي', 'الحالة', 'سبب الحالة'];
+            const fields = ['اسم_العميل', 'الهاتف', 'هاتف_بديل', 'الزون', 'الراسل', 'المبلغ', 'السعر_بعد_التعديل', 'المندوب', 'الفرع', 'المندوب الفرعي', 'الحالة', 'سبب الحالة'];
             return fields.filter(key => normalizeHousingComparableValue(key, payload[key]) !== normalizeHousingComparableValue(key, baseShipment?.[key]));
         }
 
@@ -5095,7 +5087,7 @@
                     const baseCommission = parseHousingNumericValue(
                         mergedShipmentData[SHIPMENT_COMMISSION_FIELD] ?? mergedShipmentData[SHIPMENT_COMMISSION_FIELD_LEGACY] ?? 0
                     );
-                    finalPayload[SHIPMENT_COMMISSION_FIELD] = shipmentValue < 50 ? (baseCommission / 2) : baseCommission;
+                    finalPayload[SHIPMENT_COMMISSION_FIELD] = baseCommission;
                     entry.payload[SHIPMENT_COMMISSION_FIELD] = finalPayload[SHIPMENT_COMMISSION_FIELD];
                 }
 
@@ -5556,7 +5548,7 @@
             updateAdminFiltersVisualState();
 
             const actualRepsOpts = allUsers
-                .filter(u => (u.role === 'rep' || u.role === 'sub-rep') && String(u.username || u.full_name || '').trim())
+                .filter(u => (u.role === 'rep' || u.role === 'sub-rep' || u.role === 'مندوب فرعي') && String(u.username || u.full_name || '').trim())
                 .map(u => ({
                     name: String(u.username || u.full_name || '').trim(),
                     label: u.role === 'sub-rep' ? `${String(u.username || u.full_name || '').trim()} (متقدم)` : String(u.username || u.full_name || '').trim()
@@ -5829,23 +5821,17 @@
                 return;
             }
 
-            const { value: password } = await Swal.fire({
+            const { isConfirmed } = await Swal.fire({
                 title: 'تأكيد التعيين الجماعي',
-                html: `سيتم نقل <b>${targetIds.length}</b> شحنة من الشحنات الظاهرة إلى المندوب: <b class="text-primary">${escapeHtml(rep)}</b><br><br>يرجى إدخال كلمة المرور لتأكيد العملية.`,
-                input: 'password',
-                inputPlaceholder: 'أدخل كلمة المرور هنا...',
+                html: `سيتم نقل <b>${targetIds.length}</b> شحنة من الشحنات الظاهرة إلى المندوب: <b class="text-primary">${escapeHtml(rep)}</b>`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'تأكيد النقل',
                 cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#d33',
-                inputValidator: async (value) => {
-                    if (!value) return 'يجب إدخال كلمة المرور!';
-                    if (!(await verifyCurrentPasswordSecure(value))) return 'كلمة المرور غير صحيحة!';
-                }
+                confirmButtonColor: '#3085d6'
             });
 
-            if (!password) return; // تم الإلغاء
+            if (!isConfirmed) return; // تم الإلغاء
 
             // --- Undo: snapshot previous reps for all targets ---
             const snapshots = targetIds.map(id => {
@@ -6137,29 +6123,29 @@
 
             showLoading(true);
             try {
-                // Convert to numbers if they look like numbers to be safe with Supabase int columns
-                const numericIds = selectedIds.map(id => isNaN(id) ? id : Number(id));
-
                 const { error } = await supabaseClient
                     .from(CONFIG.TABLES.SHIPMENTS)
                     .delete()
-                    .in('id', numericIds);
+                    .in('ID', selectedIds);
 
                 if (error) throw error;
 
+                const beforeCount = allShipments.length;
+                allShipments = allShipments.filter(s => !selectedIds.includes(String(s.id || s.ID || '')));
+                const afterCount = allShipments.length;
+                const actuallyFiltered = beforeCount - afterCount;
+
                 Swal.fire({
-                    icon: 'success',
-                    title: 'تم الحذف بنجاح',
-                    text: `تم حذف ${selectedIds.length} شحنة من قاعدة البيانات.`,
-                    timer: 2500,
-                    showConfirmButton: false
+                    icon: actuallyFiltered > 0 ? 'success' : 'warning',
+                    title: actuallyFiltered > 0 ? 'تم الحذف بنجاح' : 'تنبيه: تم الحذف من السيرفر فقط',
+                    text: actuallyFiltered > 0 
+                        ? `تم حذف ${selectedIds.length} شحنة بنجاح من قاعدة البيانات والجدول.`
+                        : `تم الحذف من قاعدة البيانات، ولكن لم يتم مسح ${selectedIds.length} شحنة من الجدول الحالي. يرجى تحديث الصفحة أو مراجعة تطابق المعرفات (ID).`,
+                    timer: 5000,
+                    showConfirmButton: true
                 });
 
-                // تحديث البيانات محلياً
-                allShipments = allShipments.filter(s => !selectedIds.includes(String(s.id)));
                 markHousingDataChanged();
-                
-                // إعادة تصيير الجدول والإحصائيات
                 refreshDashboard();
 
             } catch (err) {

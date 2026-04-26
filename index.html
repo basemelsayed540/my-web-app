@@ -48,7 +48,7 @@
 
                 <div class="flex items-center justify-between px-1">
                     <label class="flex items-center gap-2 cursor-pointer group">
-                        <input type="checkbox" class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                        <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
                         <span class="text-sm font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">تذكرني</span>
                     </label>
                     <a href="#" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">نسيت كلمة المرور؟</a>
@@ -128,6 +128,17 @@
 
         const loginForm = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
+        const rememberMeCheckbox = document.getElementById('rememberMe');
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const savedPhone = localStorage.getItem('savedPhone');
+            const savedPassword = localStorage.getItem('savedPassword');
+            if (savedPhone && savedPassword) {
+                document.getElementById('phone').value = savedPhone;
+                document.getElementById('password').value = savedPassword;
+                if (rememberMeCheckbox) rememberMeCheckbox.checked = true;
+            }
+        });
         const repSignupModal = document.getElementById('repSignupModal');
         const repSignupForm = document.getElementById('repSignupForm');
         const signupBtn = document.getElementById('signupBtn');
@@ -185,6 +196,14 @@
                 if (!data) throw new Error('تعذر إنشاء جلسة تسجيل الدخول.');
                 saveUserSession(data, loginResult.sessionToken || '');
 
+                if (rememberMeCheckbox && rememberMeCheckbox.checked) {
+                    localStorage.setItem('savedPhone', phone);
+                    localStorage.setItem('savedPassword', password);
+                } else {
+                    localStorage.removeItem('savedPhone');
+                    localStorage.removeItem('savedPassword');
+                }
+
                 Swal.fire({
                     icon: 'success',
                     title: 'تم تسجيل الدخول بنجاح',
@@ -193,7 +212,7 @@
                     showConfirmButton: false
                 }).then(() => {
                     if (data.role === 'admin' || data.role === 'housing') window.location.href = 'admin.html';
-                    else if (data.role === 'rep') window.location.href = 'rep.html';
+                    else if (data.role === 'rep' || data.role === 'مندوب فرعي') window.location.href = 'rep.html';
                     else if (data.role === 'sender') window.location.href = 'sender.html';
                     else if (data.role === 'follower') window.location.href = 'follower.html';
                     else if (data.role === 'sub-rep') window.location.href = 'sub-rep.html';

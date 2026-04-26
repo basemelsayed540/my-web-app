@@ -175,12 +175,12 @@
                         <span id="repUnreadBadge"
                             class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
                     </div>
-                    <p class="text-[10px] font-bold text-indigo-600 uppercase tracking-tight">مندوب توصيل محترف</p>
+                    <p id="repRoleLabel" class="text-[10px] font-bold text-indigo-600 uppercase tracking-tight">مندوب توصيل محترف</p>
                 </div>
             </div>
             <div class="flex items-center gap-1">
                 <button onclick="toggleTracking()" id="trackingToggleBtn"
-                    class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
+                    class="hidden w-12 h-12 flex items-center justify-center text-slate-400 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
                     <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
                 </button>
                 <button onclick="toggleTheme()"
@@ -383,24 +383,36 @@
         }
 
         let user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'rep') {
+        if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي')) {
             window.location.href = 'index.html';
         }
         startStoredUserSessionGuard(supabaseClient, {
-            allowedRoles: ['rep'],
+            allowedRoles: ['rep', 'مندوب فرعي'],
             onValidUser: (latestUser) => {
                 user = latestUser;
                 const repName = document.getElementById('repName');
                 if (repName) repName.innerText = latestUser.full_name || latestUser.username || latestUser.phone;
                 
+                const repRoleLabel = document.getElementById('repRoleLabel');
+                if (repRoleLabel) {
+                    repRoleLabel.innerText = latestUser.role === 'مندوب فرعي' ? 'مندوب فرعي' : 'مندوب توصيل محترف';
+                }
+                
                 if(!trackingSystem) {
                     trackingSystem = new RepTrackingSystem(supabaseClient, latestUser);
+                    if (!trackingSystem.isTracking) {
+                        trackingSystem.startTracking();
+                    }
                     updateTrackingUI();
                 }
             }
         });
 
         document.getElementById('repName').innerText = user.full_name || user.username || user.phone;
+        const initialRoleLabel = document.getElementById('repRoleLabel');
+        if (initialRoleLabel) {
+            initialRoleLabel.innerText = user.role === 'مندوب فرعي' ? 'مندوب فرعي' : 'مندوب توصيل محترف';
+        }
 
         let allShipments = [];
         let currentFilter = 'قيد التوصيل';
@@ -477,6 +489,7 @@
                 }
                 if (n.type === 'deleted') { icon = 'fa-trash text-rose-500 bg-rose-50'; text = 'تم حذف شحنة من عهدتكم'; }
                 if (n.type === 'status_changed') { icon = 'fa-info-circle text-sky-500 bg-sky-50'; text = `تم تغيير الحالة إلى (${n.newStatus})`; }
+                if (n.type === 'updated') { icon = 'fa-edit text-indigo-500 bg-indigo-50'; text = 'تم تحديث بيانات الشحنة'; }
 
                 return `
                     <div class="glass p-4 rounded-3xl flex items-start gap-3 border ${n.read ? 'border-slate-100' : 'border-indigo-200 bg-indigo-50/20 shadow-sm'}">
@@ -901,7 +914,10 @@
             const normalizedRepIdentifiers = repIdentifiers.map(normalizeComparableValue);
             const currentShipments = (data || [])
                 .map(normalizeShipmentPriceField)
-                .filter(shipment => normalizedRepIdentifiers.includes(normalizeComparableValue(shipment?.المندوب)));
+                .filter(shipment => 
+                    normalizedRepIdentifiers.includes(normalizeComparableValue(shipment?.المندوب)) ||
+                    normalizedRepIdentifiers.includes(normalizeComparableValue(shipment?.['المندوب الفرعي']))
+                );
             const currentSeenIds = new Set(currentShipments.map(shipment => String(shipment.id)));
             const newShipments = !isFirstLoad
                 ? currentShipments.filter(shipment => !previouslySeenIds.has(String(shipment.id)))
@@ -1225,13 +1241,13 @@
                 const matchZone = !currentZone || currentZone === 'الكل' || s.الزون === currentZone;
                 return matchDate && matchZone && checkStatus(s);
             });
-            const senderCounts = {};
+                        const senderCounts = {};
             narrowedData.forEach(s => {
                 const sn = s.الراسل;
                 if (sn) senderCounts[sn] = (senderCounts[sn] || 0) + 1;
             });
 
-            let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الراسل: الكل</option>`;
+            let optionsHtml = '<option value="الكل" class="text-slate-800 bg-white">الراسل: الكل</option>';
             if (items && items.length > 0) {
                 items.forEach(item => {
                     const count = senderCounts[item] || 0;
@@ -1268,7 +1284,6 @@
         function isPriceEditShipment(shipment) {
             const normalizedStatus = String(shipment?.الحالة || '').trim();
             const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
-            // شحن is a separate category, NOT price edit
             return normalizedStatus === 'تعديل سعر' || normalizedReason === 'تعديل سعر';
         }
 
@@ -1301,7 +1316,11 @@
         }
 
         function getShipmentCommission(shipment) {
-            const value = parseFloat(shipment?.['عمولة المندوب'] || 0);
+            let commissionValue = shipment?.['عمولة المندوب'];
+            if (user && user.role === 'مندوب فرعي') {
+                commissionValue = shipment?.['عمولة المندوب الفرعي'] || shipment?.عمولة_المندوب_الفرعي || 0;
+            }
+            const value = parseFloat(commissionValue || 0);
             return Number.isNaN(value) ? 0 : value;
         }
 
@@ -1313,6 +1332,31 @@
         function getAdjustedShipmentAmount(shipment) {
             const value = parseFloat(shipment?.السعر_بعد_التعديل || 0);
             return Number.isNaN(value) ? 0 : value;
+        }
+
+        function fillSelect(id, items, defaultText, currentValue = '') {
+            const select = document.getElementById(id);
+            if (!select) return;
+            select.innerHTML = `<option value="">${defaultText}</option>`;
+            items.forEach(item => {
+                const opt = document.createElement('option');
+                opt.value = item;
+                opt.innerText = item;
+                select.appendChild(opt);
+            });
+            select.value = items.includes(currentValue) ? currentValue : '';
+        }
+
+        function isPriceEditShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
+            if (shipment && isShippingFeeShipment(shipment)) return false;
+            return normalizedStatus === 'تم' || normalizedStatus === 'تم التسليم';
+        }
+
+        function isPendingStatus(status) {
+            const normalizedStatus = String(status || '').replace(/\s+/g, ' ').trim();
+            return normalizedStatus === '' || normalizedStatus === 'قيد' || normalizedStatus === 'قيد التوصيل' || normalizedStatus === 'قيد التنفيذ';
         }
 
         function isCommissionEligibleShipment(shipment) {
@@ -1345,7 +1389,14 @@
             document.getElementById('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
         }
 
-        function renderShipments() {
+        let currentDisplayLimit = 50;
+        function loadMoreShipments() {
+            currentDisplayLimit += 50;
+            renderShipments(true);
+        }
+
+        function renderShipments(append = false) {
+            if (append !== true) currentDisplayLimit = 50;
             populateDropdowns();
             updateFilterCounters();
 
@@ -1403,7 +1454,8 @@
                 return;
             }
 
-            list.innerHTML = filtered.map(s => {
+            const itemsToRender = filtered.slice(0, currentDisplayLimit);
+            list.innerHTML = itemsToRender.map(s => {
                 const hideUpdateActions =
                     (selectedStatuses.length === 0 && (
                         isDeliveredStatus(s.الحالة, s) ||
@@ -1477,6 +1529,15 @@
                     ` : ''}
                 </div>
             `}).join('');
+            
+            if (filtered.length > currentDisplayLimit) {
+                list.innerHTML += `
+                    <button onclick="loadMoreShipments()" class="w-full bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-bold text-[13px] border border-slate-200 dark:border-slate-700 transition-colors shadow-sm mb-4">
+                        عرض المزيد (${filtered.length - currentDisplayLimit} شحنة)
+                        <i class="fas fa-chevron-down mr-2 opacity-50"></i>
+                    </button>
+                `;
+            }
             saveRepUiState();
         }
 
@@ -1810,12 +1871,10 @@
             const { type, note, price } = formValues;
             const isPriceEdit = type === 'تعديل سعر';
             const isShippingEdit = type === 'شحن';
-            const newStatus = isPriceEdit ? 'تم' : (isShippingEdit ? 'شحن' : type);
+            const newStatus = isPriceEdit ? 'تعديل سعر' : (isShippingEdit ? 'شحن' : type);
             const newReason = note;
             const baseCommission = parseFloat(String(shipment?.['عمولة المندوب'] ?? 0).replace(/[^0-9.-]+/g, '')) || 0;
-            const calculatedCommission = isShippingEdit
-                ? (price < 50 ? baseCommission / 2 : baseCommission)
-                : baseCommission;
+            const calculatedCommission = baseCommission;
             const updatePayload = {
                 الحالة: newStatus,
                 'سبب الحالة': newReason,
@@ -1842,7 +1901,7 @@
                 allShipments[index].السعر_بعد_التعديل = price;
                 allShipments[index]['عمولة المندوب'] = calculatedCommission;
             }
-            if (newStatus === 'تم' || newStatus === 'شحن') {
+            if (newStatus === 'تم' || newStatus === 'شحن' || newStatus === 'تعديل سعر') {
                 lockShipmentForFurtherUpdates(id);
             }
 
@@ -1894,6 +1953,7 @@
             renderShipments();
             saveRepUiState();
         });
+
         document.addEventListener('click', (event) => {
             const menu = document.getElementById('shipmentMenu');
             if (menu && !menu.contains(event.target)) {
@@ -1948,24 +2008,35 @@
                 const repIdentifiers = getRepIdentifiers().map(normalizeComparableValue);
 
                 if (event === 'INSERT') {
-                    if (repIdentifiers.includes(normalizeComparableValue(newRow.المندوب))) {
+                    if (repIdentifiers.includes(normalizeComparableValue(newRow.المندوب)) || repIdentifiers.includes(normalizeComparableValue(newRow['المندوب الفرعي']))) {
                         addRepNotification('added', newRow);
                     }
                 } else if (event === 'UPDATE') {
                     const localOld = allShipments.find(s => String(s.id) === String(newRow.id));
-                    const wasMine = localOld && repIdentifiers.includes(normalizeComparableValue(localOld.المندوب));
+                    const wasMine = localOld && (repIdentifiers.includes(normalizeComparableValue(localOld.المندوب)) || repIdentifiers.includes(normalizeComparableValue(localOld['المندوب الفرعي'])));
                     const currentRepInRows = newRow.hasOwnProperty('المندوب') ? newRow.المندوب : (localOld ? localOld.المندوب : null);
-                    const isMine = currentRepInRows && repIdentifiers.includes(normalizeComparableValue(currentRepInRows));
+                    const isMine = (currentRepInRows && repIdentifiers.includes(normalizeComparableValue(currentRepInRows))) || (newRow['المندوب الفرعي'] && repIdentifiers.includes(normalizeComparableValue(newRow['المندوب الفرعي'])));
 
                     const merged = { ...localOld, ...newRow };
                     if (!wasMine && isMine) addRepNotification('added', merged);
                     else if (wasMine && !isMine) addRepNotification('removed', merged);
-                    else if (wasMine && isMine && localOld && newRow.hasOwnProperty('الحالة') && localOld.الحالة !== newRow.الحالة) {
-                        addRepNotification('status_changed', merged);
+                    else if (wasMine && isMine && localOld) {
+                        const hasChanges = Object.keys(newRow).some(k => {
+                            if (['t_updated', 'تاريخ التحديث', 'updated_at'].includes(k)) return false;
+                            return String(newRow[k] || '').trim() !== String(localOld[k] || '').trim();
+                        });
+                        if (hasChanges) {
+                            if (newRow.hasOwnProperty('الحالة') && localOld.الحالة !== newRow.الحالة) {
+                                addRepNotification('status_changed', merged);
+                            } else {
+                                addRepNotification('updated', merged);
+                            }
+                        }
                     }
+                    
                 } else if (event === 'DELETE') {
                     const localDeleted = allShipments.find(s => String(s.id) === String(oldRow.id));
-                    if (localDeleted && repIdentifiers.includes(normalizeComparableValue(localDeleted.المندوب))) {
+                    if (localDeleted && (repIdentifiers.includes(normalizeComparableValue(localDeleted.المندوب)) || repIdentifiers.includes(normalizeComparableValue(localDeleted['المندوب الفرعي'])))) {
                         addRepNotification('deleted', localDeleted);
                     }
                 }

@@ -30,9 +30,12 @@
                     <p class="text-xs font-bold text-indigo-600" id="repName">مندوب توصيل</p>
                 </div>
             </div>
-            <div class="flex items-center gap-2">
-                <button onclick="toggleTheme()" class="p-2 text-slate-400 hover:text-indigo-600 transition-colors">
+            <div class="flex items-center gap-1">
+                <button onclick="toggleTheme()" class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
                     <i id="themeIcon" class="fas fa-moon text-xl"></i>
+                </button>
+                <button onclick="logout()" class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
+                    <i class="fas fa-power-off text-xl"></i>
                 </button>
             </div>
         </div>
@@ -131,11 +134,11 @@
         }
 
         let user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'rep') {
+        if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي')) {
             window.location.href = 'index.html';
         }
         startStoredUserSessionGuard(supabaseClient, {
-            allowedRoles: ['rep'],
+            allowedRoles: ['rep', 'مندوب فرعي'],
             onValidUser: (latestUser) => {
                 user = latestUser;
                 const repName = document.getElementById('repName');
@@ -197,10 +200,13 @@
         }
 
         async function fetchShipments() {
+            const identifiers = [user.username, user.phone, user.full_name].filter(Boolean);
+            const orQuery = identifiers.map(id => `المندوب.eq."${id}",المندوب الفرعي.eq."${id}"`).join(',');
+
             const { data, error } = await supabaseClient
                 .from(CONFIG.TABLES.SHIPMENTS)
                 .select('*')
-                .eq('المندوب', user.username || user.phone)
+                .or(orQuery)
                 .order('id', { ascending: false });
 
             if (error) {
@@ -283,7 +289,8 @@
 
         function isPriceEditShipment(shipment) {
             const normalizedStatus = String(shipment?.الحالة || '').trim();
-            return normalizedStatus === 'تعديل سعر';
+            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
+            return normalizedStatus === 'تعديل سعر' || normalizedReason === 'تعديل سعر';
         }
 
         function isShippingFeeShipment(shipment) {
@@ -294,7 +301,9 @@
 
         function isDeliveredShipment(shipment) {
             const normalizedStatus = String(shipment?.الحالة || '').trim();
-            return (normalizedStatus === 'تم' || normalizedStatus === 'تم التسليم') && !isShippingFeeShipment(shipment);
+            if (isPriceEditShipment(shipment)) return false;
+            if (isShippingFeeShipment(shipment)) return false;
+            return normalizedStatus === 'تم' || normalizedStatus === 'تم التسليم';
         }
 
         function isRejectedShipment(shipment) {
@@ -325,7 +334,11 @@
         }
 
         function getShipmentCommission(shipment) {
-            const value = parseFloat(shipment?.['عمولة المندوب'] || 0);
+            let commissionValue = shipment?.['عمولة المندوب'];
+            if (user && user.role === 'مندوب فرعي') {
+                commissionValue = shipment?.['عمولة المندوب الفرعي'] || shipment?.عمولة_المندوب_الفرعي || 0;
+            }
+            const value = parseFloat(commissionValue || 0);
             return Number.isNaN(value) ? 0 : value;
         }
 
@@ -451,6 +464,10 @@
             
             icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
             localStorage.setItem('rep-theme', isDark ? 'dark' : 'light');
+        }
+
+        function logout() {
+            clearStoredUserSession();
         }
 
         if (localStorage.getItem('rep-theme') === 'dark') {

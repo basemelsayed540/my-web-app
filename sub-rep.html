@@ -459,69 +459,6 @@
                             <i class="fas fa-bell w-4 text-slate-400"></i>
                             <span>الإشعارات</span>
                         </div>
-                        <button onclick="assignSubRepToVisible()" id="btnAssignSubRep"
-                            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all duration-300 active:scale-95">
-                            <i class="fas fa-bolt"></i>
-                            <span id="btnAssignBtnText">تطبيق التعيين (0)</span>
-                        </button>
-                        <button onclick="transferToWarehouse()"
-                            class="w-full bg-slate-700 hover:bg-slate-800 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border border-slate-600">
-                            <i class="fas fa-warehouse"></i>
-                            <span>تحويل للمخزن</span>
-                        </button>
-                        <button onclick="exportToExcel()"
-                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border border-emerald-500">
-                            <i class="fas fa-file-excel"></i>
-                            <span>تصدير Excel</span>
-                        </button>
-                        <!-- Excel Upload Button -->
-                        <button onclick="document.getElementById('excelFileInput').click()"
-                            class="w-full bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-500">
-                            <i class="fas fa-file-import"></i>
-                            <span>رع شحنات (إكسل)</span>
-                        </button>
-                        <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(this)">
-                        
-                        <div class="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200 dark:border-slate-700">
-                            <button onclick="toggleAllSubRepRowsGlobal()"
-                                class="w-full bg-slate-200 dark:bg-slate-800 hover:bg-slate-300 dark:hover:bg-slate-700 text-slate-800 dark:text-white py-3 px-2 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1 transition-all active:scale-95 border border-slate-300 dark:border-slate-600">
-                                <i class="fas fa-check-square"></i>
-                                <span id="globalSelectAllText">تحديد الكل</span>
-                            </button>
-                            <button onclick="deleteSelectedShipmentsSubRep()"
-                                class="w-full bg-rose-50 dark:bg-rose-900/40 hover:bg-rose-100 text-rose-600 dark:text-rose-400 py-3 px-2 rounded-xl text-xs font-bold shadow-sm flex items-center justify-center gap-1 transition-all active:scale-95 border border-rose-200 dark:border-rose-900/50">
-                                <i class="fas fa-trash-alt text-rose-500"></i>
-                                <span id="globalDeleteBtnText">مسح المحدد (0)</span>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Navigation Buttons moved to BOTTOM -->
-            <div class="border-t border-slate-100 dark:border-slate-800 pt-6">
-                <nav id="subRepSidebarNav" class="space-y-3">
-                    <button onclick="switchView('dashboard')" id="nav-dashboard"
-                        class="w-full flex items-center gap-3 px-5 py-4 bg-indigo-600 text-white rounded-[1.25rem] font-bold transition-all shadow-lg shadow-indigo-600/20 active:scale-95">
-                        <i class="fas fa-th-large w-5 text-indigo-200"></i>
-                        <span>لوحة التحكم</span>
-                    </button>
-                    <button onclick="switchView('accounts')" id="nav-accounts"
-                        class="w-full flex items-center gap-3 px-5 py-4 text-slate-600 dark:text-slate-400 rounded-[1.25rem] font-bold hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95">
-                        <i class="fas fa-users-cog w-5 text-slate-400"></i>
-                        <span>إدارة المناديب</span>
-                    </button>
-                    <button onclick="switchView('auditLogs')" id="nav-auditLogs"
-                        class="w-full flex items-center gap-3 px-5 py-4 text-slate-600 dark:text-slate-400 rounded-[1.25rem] font-bold hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95">
-                        <i class="fas fa-history w-5 text-slate-400"></i>
-                        <span>مراجعة التعديلات</span>
-                    </button>
-                    <button onclick="switchView('notifications')" id="nav-notifications"
-                        class="w-full flex items-center justify-between gap-3 px-5 py-4 text-slate-600 dark:text-slate-400 rounded-[1.25rem] font-bold hover:bg-white dark:hover:bg-slate-800 hover:shadow-md transition-all active:scale-95 relative">
-                        <div class="flex items-center gap-3">
-                            <i class="fas fa-bell w-4 text-slate-400"></i>
-                            <span>الإشعارات</span>
-                        </div>
                         <span id="notif-badge" class="hidden bg-rose-500 text-white text-[10px] w-5 h-5 rounded-full items-center justify-center animate-bounce shadow-lg shadow-rose-500/20">0</span>
                     </button>
                 </nav>
@@ -553,7 +490,7 @@
                 <!-- Left Side (Theme & Logout) -->
                 <div class="flex items-center gap-2">
                     <button onclick="toggleTracking()" id="trackingToggleBtn"
-                        class="p-2 text-slate-400 dark:text-slate-300 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
+                        class="hidden p-2 text-slate-400 dark:text-slate-300 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
                         <i id="trackingIcon" class="fas fa-location-crosshairs text-xl"></i>
                     </button>
                     <button onclick="toggleTheme()"
@@ -615,7 +552,7 @@
                         </div>
                     </div>
                     <div class="flex-1">
-                        <label class="block text-[10px] font-bold text-slate-500 mb-1 px-1">المندوب الرعي</label>
+                        <label class="block text-[10px] font-bold text-slate-500 mb-1 px-1">المندوب الفرعي</label>
                         <div class="relative w-full">
                             <select id="filterSubRepName" onchange="filterData()"
                                 class="w-full bg-slate-50 dark:bg-slate-800 text-slate-700 dark:text-slate-300 px-3 py-2 rounded-xl text-[11px] font-bold outline-none appearance-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 transition-colors">
@@ -713,7 +650,7 @@
                                 <th class="p-2 text-[11px] font-black max-w-[80px] truncate">المنتج</th>
                                 <th class="p-2 text-[11px] font-black whitespace-nowrap">الراسل</th>
                                 <th class="p-2 text-[11px] font-black whitespace-nowrap">الوكيل</th>
-                                <th class="p-2 text-[11px] font-black whitespace-nowrap">المندوب الرعي</th>
+                                <th class="p-2 text-[11px] font-black whitespace-nowrap">المندوب الفرعي</th>
                                 <th class="p-2 text-[11px] font-black whitespace-nowrap text-center">الحالة</th>
                                 <th class="p-2 text-[11px] font-black min-w-[100px]">السبب</th>
                                 <th class="p-2 text-[11px] font-black whitespace-nowrap">المبلغ</th>
@@ -821,7 +758,7 @@
                                     <th class="p-3 font-bold text-[11px] uppercase tracking-wider">هاتف بديل</th>
                                     <th class="p-3 font-bold text-[11px] uppercase tracking-wider">المبلغ</th>
                                     <th class="p-3 font-bold text-[11px] uppercase tracking-wider">الحالة</th>
-                                    <th class="p-3 font-bold text-[11px] uppercase tracking-wider">المندوب الرعي</th>
+                                    <th class="p-3 font-bold text-[11px] uppercase tracking-wider">المندوب الفرعي</th>
                                     <th class="p-3 font-bold text-[11px] uppercase tracking-wider">الرع</th>
                                 </tr>
                             </thead>
@@ -856,7 +793,7 @@
             const SHIPMENT_COMMISSION_FIELD = 'عمولة المندوب';
             const SHIPMENT_COMMISSION_FIELD_LEGACY = 'عمولة_المندوب';
             const SHIPMENT_SUBREP_FIELD = 'نوع المندوب';
-            const SHIPMENT_SUBREP_FIELD_LEGACY = 'المندوب_الرعي';
+            const SHIPMENT_SUBREP_FIELD_LEGACY = 'المندوب الفرعي';
 
             function normalizeShipmentPriceField(record) {
                 return normalizeShipmentRecordHeaders(record);
@@ -886,17 +823,6 @@
                 if(!trackingSystem) return;
                 const isNowActive = trackingSystem.toggleShift();
                 updateTrackingUI();
-                
-                if (isNowActive) {
-                    Swal.fire({
-                        toast: true,
-                        position: 'top-end',
-                        icon: 'success',
-                        title: 'تم بدء الشيفت - جاري تتبع الموقع',
-                        showConfirmButton: false,
-                        timer: 3000
-                    });
-                }
             }
 
             let user = JSON.parse(localStorage.getItem('user'));
@@ -912,6 +838,9 @@
                     
                     if(!trackingSystem) {
                         trackingSystem = new RepTrackingSystem(supabaseClient, latestUser);
+                        if (!trackingSystem.isTracking) {
+                            trackingSystem.startTracking();
+                        }
                         updateTrackingUI();
                     }
                 }
@@ -1047,7 +976,7 @@
                 const currentRep = document.getElementById('filterRep')?.value || '';
 
                 const commonCondition = s => (!currentStatus || getShipmentDisplayStatus(s) === currentStatus) && 
-                                             (!currentSubRep || (String(s.المندوب_الرعي || '').trim() || 'بدون مندوب') === currentSubRep) &&
+                                             (!currentSubRep || (String(s['المندوب الفرعي'] || '').trim() || 'بدون مندوب') === currentSubRep) &&
                                              (!currentRep || String(s.المندوب || '').trim() === currentRep) &&
                                              (!currentAgent || String(s['اسم الموظ'] || '').trim() === currentAgent);
 
@@ -1059,7 +988,7 @@
 
                 const agentsData = allShipments.filter(s => (!currentZone || s.الزون === currentZone) && (!currentSender || s.الراسل === currentSender) && (!currentUpdate || getShipmentDailyValue(s) === currentUpdate) &&
                                                             (!currentStatus || getShipmentDisplayStatus(s) === currentStatus) &&
-                                                            (!currentSubRep || (String(s.المندوب_الرعي || '').trim() || 'بدون مندوب') === currentSubRep) &&
+                                                            (!currentSubRep || (String(s['المندوب الفرعي'] || '').trim() || 'بدون مندوب') === currentSubRep) &&
                                                             (!currentRep || String(s.المندوب || '').trim() === currentRep));
                 const agents = [...new Set(agentsData.map(s => String(s['اسم الموظ'] || '').trim()).filter(Boolean))].sort();
 
@@ -1067,18 +996,18 @@
                 const updates = [...new Set(updatesData.map(s => getShipmentDailyValue(s)).filter(Boolean))].sort().reverse();
 
                 const statusesData = allShipments.filter(s => (!currentZone || s.الزون === currentZone) && (!currentSender || s.الراسل === currentSender) && (!currentAgent || String(s['اسم الموظ'] || '').trim() === currentAgent) && (!currentUpdate || getShipmentDailyValue(s) === currentUpdate) && 
-                                                            (!currentSubRep || (String(s.المندوب_الرعي || '').trim() || 'بدون مندوب') === currentSubRep) &&
+                                                            (!currentSubRep || (String(s['المندوب الفرعي'] || '').trim() || 'بدون مندوب') === currentSubRep) &&
                                                             (!currentRep || String(s.المندوب || '').trim() === currentRep));
                 const statuses = [...new Set(statusesData.map(s => getShipmentDisplayStatus(s)).filter(Boolean))].sort();
 
                 const subrepsData = allShipments.filter(s => (!currentZone || s.الزون === currentZone) && (!currentSender || s.الراسل === currentSender) && (!currentAgent || String(s['اسم الموظ'] || '').trim() === currentAgent) && (!currentUpdate || getShipmentDailyValue(s) === currentUpdate) && 
                                                             (!currentStatus || getShipmentDisplayStatus(s) === currentStatus) &&
                                                             (!currentRep || String(s.المندوب || '').trim() === currentRep));
-                const subreps = [...new Set(subrepsData.map(s => String(s.المندوب_الرعي || '').trim() || 'بدون مندوب'))].sort();
+                const subreps = [...new Set(subrepsData.map(s => String(s['المندوب الفرعي'] || '').trim() || 'بدون مندوب'))].sort();
 
                 const repsData = allShipments.filter(s => (!currentZone || s.الزون === currentZone) && (!currentSender || s.الراسل === currentSender) && (!currentAgent || String(s['اسم الموظ'] || '').trim() === currentAgent) && (!currentUpdate || getShipmentDailyValue(s) === currentUpdate) && 
                                                             (!currentStatus || getShipmentDisplayStatus(s) === currentStatus) &&
-                                                            (!currentSubRep || (String(s.المندوب_الرعي || '').trim() || 'بدون مندوب') === currentSubRep));
+                                                            (!currentSubRep || (String(s['المندوب الفرعي'] || '').trim() || 'بدون مندوب') === currentSubRep));
                 const reps = [...new Set(repsData.map(s => String(s.المندوب || '').trim()).filter(Boolean))].sort();
 
                 fillSelect('filterStatus', statuses);
@@ -1347,7 +1276,14 @@
                 }
             }
 
-            function logout() {
+            async function logout() {
+                try {
+                    if(trackingSystem && trackingSystem.isTracking) {
+                        await trackingSystem.stopTracking();
+                    }
+                } catch(e) {
+                    console.error('Logout tracking error', e);
+                }
                 clearStoredUserSession();
             }
 
@@ -1486,9 +1422,11 @@
                                 'عدد': getVal(row, 'عدد', 'كود اضافي', 'كود_اضافي'),
                                 'تقفيل': String(getVal(row, 'تقفيل', 'تقيل') || ''),
                                 'عمولة المندوب': cleanNumericValue(getVal(row, 'عمولة المندوب', 'عمولة_المندوب')),
+                                'عمولة المندوب الفرعي': cleanNumericValue(getVal(row, 'عمولة المندوب الفرعي', 'عمولة_المندوب_الفرعي')),
                                 'الحالة': getVal(row, 'الحالة', 'حالة', 'حالة الشحنة'),
                                 'سبب الحالة': getVal(row, 'سبب الحالة', 'سبب_الحالة', 'السبب'),
-                                'نوع المندوب': getVal(row, 'نوع المندوب', 'المندوب الرعي', 'المندوب_الرعي'),
+                                'نوع المندوب': 'مندوب متقدم',
+                                'المندوب الفرعي': getVal(row, 'المندوب الرعي', 'المندوب الفرعي', 'نوع المندوب'),
                                 'ملاحظات': getVal(row, 'ملاحظات'),
                                 'كود الشحنة': orderId,
                                 'المندوب': getVal(row, 'المندوب', 'مندوب', 'اسم المندوب') || `PRIVATE:${user.username}`,
@@ -1635,7 +1573,8 @@
                     return buildShipmentExcelRow(normalized, {
                         'الحالة': getShipmentDisplayStatus(s),
                         'سبب الحالة': getShipmentDisplayReason(s),
-                        'السعر بعد التعديل': normalized['السعر بعد التعديل'] || normalized['المبلغ'] || ''
+                        'السعر بعد التعديل': normalized['السعر بعد التعديل'] || normalized['المبلغ'] || '',
+                        'عمولة المندوب الفرعي': normalized['عمولة المندوب الفرعي'] || s['عمولة_المندوب_الفرعي'] || s['عمولة المندوب الفرعي'] || ''
                     });
                 });
 
@@ -1704,14 +1643,14 @@
                 const subRepNamesFull = subRepAccounts.map(u => u.full_name).filter(Boolean);
 
                 const noDelegate = shipments.filter(s => {
-                    const rep = s.المندوب_الرعي;
+                    const rep = s['المندوب الفرعي'];
                     return !subRepNamesShort.includes(rep) && !subRepNamesFull.includes(rep) && rep !== 'مخزن';
                 }).length;
                 const noAmountCount = 0; if(false){ const _removed = shipments.filter(s => {
                     const amt = String(s.المبلغ || '').trim();
                     return !amt || amt === '0' || amt === '0.0' || amt === '0.00';
                 }).length; }
-                const warehouseCount = shipments.filter(s => s.المندوب_الرعي === 'مخزن').length;
+                const warehouseCount = shipments.filter(s => s['المندوب الفرعي'] === 'مخزن').length;
                 const doneCount = shipments.filter(s => getShipmentDisplayStatus(s) === 'تم التوصيل').length;
                 const amendedCount = shipments.filter(s => getShipmentDisplayStatus(s) === 'تعديل سعر').length;
                 const rejectedCount = shipments.filter(s => getShipmentDisplayStatus(s) === 'رفض').length;
@@ -1791,7 +1730,7 @@
 
                 return allShipments.filter(s => {
                     if (fStatus && getShipmentDisplayStatus(s) !== fStatus) return false;
-                    if (fSubRep && (String(s.المندوب_الرعي || '').trim() || 'بدون مندوب') !== fSubRep) return false;
+                    if (fSubRep && (String(s['المندوب الفرعي'] || '').trim() || 'بدون مندوب') !== fSubRep) return false;
                     if (fZone && s.الزون !== fZone) return false;
                     if (fSender && s.الراسل !== fSender) return false;
                     if (fAgent && String(s['اسم الموظ'] || '').trim() !== fAgent) return false;
@@ -1803,13 +1742,13 @@
                         if (globalStatFilter === 'بدون مندوب') {
                             const subRepNamesShort = subRepAccounts.map(u => u.username).filter(Boolean);
                             const subRepNamesFull = subRepAccounts.map(u => u.full_name).filter(Boolean);
-                            const rep = s.المندوب_الرعي;
+                            const rep = s['المندوب الفرعي'];
                             if (subRepNamesShort.includes(rep) || subRepNamesFull.includes(rep) || rep === 'مخزن') return false;
                         } else if (globalStatFilter === 'بدون مبلغ') {
                             const amt = String(s.المبلغ || '').trim();
                             if (amt && amt !== '0' && amt !== '0.0' && amt !== '0.00') return false;
                         } else if (globalStatFilter === 'مخزن') {
-                            if (s.المندوب_الرعي !== 'مخزن') return false;
+                            if (s['المندوب الفرعي'] !== 'مخزن') return false;
                         } else if (globalStatFilter === 'رفض') {
                             const status = getShipmentDisplayStatus(s);
                             if (status !== 'رفض') return false;
@@ -1869,7 +1808,7 @@
                         ${(() => {
                         const subRepNamesShort = subRepAccounts.map(u => u.username).filter(Boolean);
                         const subRepNamesFull = subRepAccounts.map(u => u.full_name).filter(Boolean);
-                        const rep = s.المندوب_الرعي;
+                        const rep = s['المندوب الفرعي'];
                         if (subRepNamesShort.includes(rep) || subRepNamesFull.includes(rep)) {
                             return `<span class="text-indigo-600 bg-indigo-50 px-2 py-1 rounded-md border border-indigo-100">${rep}</span>`;
                         } else if (rep === 'مخزن') {
@@ -1965,18 +1904,6 @@
                 clearTimeout(_subRepAssignDebounce);
                 _subRepAssignDebounce = setTimeout(() => renderTable(), 300);
             }
-            }
-
-            let _subRepAssignDebounce = null;
-            function updateSubRepAssignButtons() {
-                const newRepName = (document.getElementById('subRepNewRepName')?.value || '').trim();
-                document.querySelectorAll('.subrep-assign-btn').forEach(btn => {
-                    btn.innerText = newRepName || '—';
-                    btn.title = newRepName ? `تعيين: ${newRepName}` : 'اكتب اسم المندوب أولاً';
-                });
-                clearTimeout(_subRepAssignDebounce);
-                _subRepAssignDebounce = setTimeout(() => renderTable(), 300);
-            }
 
             async function assignNewRepToShipment(id) {
                 const newRepName = document.getElementById('subRepNewRepName')?.value.trim();
@@ -1987,8 +1914,12 @@
 
                 const { error } = await supabaseClient
                     .from(CONFIG.TABLES.SHIPMENTS)
-                    .update(toServerShipmentPayload({ [SHIPMENT_SUBREP_FIELD_LEGACY]: newRepName }))
+                    .update(toServerShipmentPayload({ 
+                        [SHIPMENT_SUBREP_FIELD_LEGACY]: newRepName,
+                        [SHIPMENT_SUBREP_FIELD]: 'مندوب متقدم'
+                    }))
                     .eq('id', id);
+                if (!error) {
                     Swal.fire({
                         icon: 'success',
                         title: 'تم التعيين بنجاح',
@@ -1999,7 +1930,7 @@
                     });
                     const index = allShipments.findIndex(s => String(s.id) === String(id));
                     if (index !== -1) {
-                        allShipments[index][SHIPMENT_SUBREP_FIELD] = newRepName;
+                        allShipments[index][SHIPMENT_SUBREP_FIELD] = 'مندوب متقدم';
                         allShipments[index][SHIPMENT_SUBREP_FIELD_LEGACY] = newRepName;
                     }
                     renderTable();
@@ -2052,27 +1983,29 @@
                     targetIds = visible.map(s => s.id);
                 }
 
-                const { value: password } = await Swal.fire({
+                const { isConfirmed } = await Swal.fire({
                     title: 'تأكيد التعيين الجماعي',
-                    html: `سيتم نقل <b class="text-indigo-600">${targetIds.length}</b> شحنة من الشحنات ${isSelectedBase ? 'المحددة' : 'الظاهرة'} إلى المندوب: <b class="text-indigo-600">${repName}</b><br><br>يرجى إدخال كلمة المرور لتأكيد العملية.`,
+                    html: `هل أنت متأكد من نقل <b class="text-indigo-600">${targetIds.length}</b> شحنة من الشحنات ${isSelectedBase ? 'المحددة' : 'الظاهرة'} إلى المندوب: <b class="text-indigo-600">${repName}</b>؟`,
                     icon: 'warning',
-                    input: 'password',
-                    inputPlaceholder: 'أدخل كلمة المرور هنا...',
+                    
+
                     showCancelButton: true,
-                    confirmButtonText: 'تأكيد التعيين',
+                    confirmButtonText: 'نعم، تأكيد التعيين',
                     cancelButtonText: 'إلغاء',
-                    confirmButtonColor: '#4f46e5',
-                    inputValidator: async (value) => {
-                        if (!value) return 'يجب إدخال كلمة المرور!';
-                        if (!(await verifyCurrentPasswordSecure(value))) return 'كلمة المرور غير صحيحة!';
-                    }
+                    confirmButtonColor: '#4f46e5'
+
+
+
                 });
 
-                if (!password) return;
+                if (!isConfirmed) return;
 
                 const { error } = await supabaseClient
                     .from(CONFIG.TABLES.SHIPMENTS)
-                    .update(toServerShipmentPayload({ [SHIPMENT_SUBREP_FIELD_LEGACY]: repName }))
+                    .update(toServerShipmentPayload({ 
+                        [SHIPMENT_SUBREP_FIELD_LEGACY]: repName,
+                        [SHIPMENT_SUBREP_FIELD]: 'مندوب متقدم'
+                    }))
                     .in('id', targetIds);
 
                 if (error) {
@@ -2149,7 +2082,7 @@
                 const { value: password } = await Swal.fire({
                     title: 'تأكيد المسح الجماعي',
                     html: `هل أنت متأكد من مسح <b>(${targetIds.length})</b> شحنة نهائياً؟<br><br><span class="text-rose-600 font-bold text-sm">هذا الإجراء لا يمكن التراجع عنه.</span><br><br>يرجى إدخال كلمة مرور الحساب للتأكيد:`,
-                    input: 'password',
+                    
                     inputPlaceholder: 'كلمة المرور',
                     icon: 'warning',
                     showCancelButton: true,
@@ -2219,7 +2152,10 @@
                 try {
                     const { error } = await supabaseClient
                         .from(CONFIG.TABLES.SHIPMENTS)
-                        .update(toServerShipmentPayload({ [SHIPMENT_SUBREP_FIELD_LEGACY]: 'مخزن' }))
+                        .update(toServerShipmentPayload({ 
+                            [SHIPMENT_SUBREP_FIELD_LEGACY]: 'مخزن',
+                            [SHIPMENT_SUBREP_FIELD]: 'مندوب متقدم'
+                        }))
                         .in('id', targetIds);
 
                     if (error) throw error;
@@ -2364,7 +2300,7 @@
                 alt_phone: shipment.هات_بديل || shipment['هات بديل'] || '---',
                 amount: shipment.السعر_بعد_التعديل || shipment.المبلغ || '0',
                 status: shipment.الحالة || '---',
-                sub_rep: shipment.المندوب_الرعي || shipment['المندوب الرعي'] || '---',
+                sub_rep: shipment['المندوب الفرعي'] || shipment['المندوب الرعي'] || '---',
                 الرع: shipment.الرع || '---',
                 abydet: shipment.الابيديت || shipment['تاريخ التحديث'] || ''
             };
@@ -2601,7 +2537,7 @@
         async function deleteSubRepAccount(id, name) {
             const confirmed = await Swal.fire({
                 title: 'هل أنت متأكد؟',
-                text: `هل تريد مسح المندوب الرعي "${name}" نهائياً من حسابك؟`,
+                text: `هل تريد مسح المندوب الفرعي "${name}" نهائياً من حسابك؟`,
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonColor: '#e11d48',
@@ -2660,7 +2596,7 @@
 
             const updateData = {
                 username: full_name,
-                full_name: full_name,
+
                 phone: phone
             };
 
@@ -2694,7 +2630,6 @@
             try {
                 await invokeUsersAdminAction('subrep_create_user', {
                     username,
-                    full_name: username,
                     phone,
                     password: await hashPassword(password),
                     email: `${phone}@delegate.local`,

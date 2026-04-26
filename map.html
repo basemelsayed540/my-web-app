@@ -84,11 +84,11 @@
         }
 
         let user = JSON.parse(localStorage.getItem('user'));
-        if (!user || user.role !== 'rep') {
+        if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي')) {
             window.location.href = 'index.html';
         }
         startStoredUserSessionGuard(supabaseClient, {
-            allowedRoles: ['rep'],
+            allowedRoles: ['rep', 'مندوب فرعي'],
             onValidUser: (latestUser) => {
                 user = latestUser;
             }
