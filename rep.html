@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org https://router.project-osrm.org; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
     <title>لوحة المندوب | نظام الشحن الاحترافي</title>
@@ -15,81 +15,12 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body {
-            background-color: #f8fafc;
-            /* Professional Slate-50 */
-            color: #0f172a;
-            /* Slate-900 */
-            font-family: 'Cairo', sans-serif;
-            background-image: radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.03) 0px, transparent 50%), radial-gradient(at 100% 100%, rgba(16, 185, 129, 0.03) 0px, transparent 50%);
-            background-attachment: fixed;
-        }
 
-        /* Premium Card Style */
-        .glass {
-            background: #ffffff;
-            border: 1px solid #e2e8f0;
-            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05), 0 1px 2px -1px rgba(0, 0, 0, 0.05);
-            border-radius: 1.25rem;
-            transition: all 0.3s ease;
-        }
-
-        .dark .glass {
-            background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
-
-        /* High Visibility Status Badges */
-        .badge-solid {
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.75rem;
-            font-weight: 800;
-            font-size: 0.7rem;
-            letter-spacing: 0.025em;
-        }
-
-        @keyframes repDateFilterGlow {
-
-            0%,
-            100% {
-                border-color: #e2e8f0;
-            }
-
-            50% {
-                border-color: #6366f1;
-                box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            }
-        }
-
-        .rep-date-filter-glow {
-            animation: repDateFilterGlow 2.5s ease-in-out infinite;
-        }
-
-        .card-shadow {
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-        }
-
-        .text-main {
-            color: #0f172a;
-            font-weight: 800;
-        }
-
-        .text-sub {
-            color: #64748b;
-            font-weight: 600;
-        }
-    </style>
-</head>
-
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Leaflet Map Libraries -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
+    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
     <style>
         body {
             background-color: #f8fafc;
@@ -179,15 +110,15 @@
                 </div>
             </div>
             <div class="flex items-center gap-1">
-                <button onclick="toggleTracking()" id="trackingToggleBtn"
+                <button id="trackingToggleBtn"
                     class="hidden w-12 h-12 flex items-center justify-center text-slate-400 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
                     <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
                 </button>
-                <button onclick="toggleTheme()"
+                <button id="themeToggleBtn"
                     class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
                     <i id="themeIcon" class="fas fa-moon text-xl"></i>
                 </button>
-                <button onclick="logout()"
+                <button id="logoutBtn"
                     class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
                     <i class="fas fa-power-off text-xl"></i>
                 </button>
@@ -243,7 +174,6 @@
             <div class="flex gap-2 w-full flex-wrap">
                 <div class="relative flex-1 min-w-[100px]">
                     <button id="filterDateBtn"
-                        onclick="document.getElementById('filterDateMenu').classList.toggle('hidden'); stopDateFilterGlow();"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-black dark:text-white dark:bg-slate-800 outline-none border border-slate-200 dark:border-slate-700 text-center flex items-center justify-between transition-all">
                         <span id="filterDateLabel" class="truncate">اليومية</span>
                         <i class="fas fa-chevron-down text-[10px]"></i>
@@ -253,22 +183,22 @@
                     </div>
                 </div>
                 <div class="relative flex-1 min-w-[100px]">
-                    <select id="filterStatus" onchange="toggleStatusSelection(this.value)"
+                    <select id="filterStatus"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
-                        <option value="الكل">الحالة: الكل</option>
+                        <option value="قيد التوصيل">قيد التوصيل</option>
                         <!-- Options will be populated dynamically or we can just let fillStatusDropdown do it -->
                     </select>
                     <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
                 <div class="relative flex-1 min-w-[100px]">
-                    <select id="filterZone" onchange="toggleZoneSelection(this.value)"
+                    <select id="filterZone"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
                         <option value="الكل">الزون: الكل</option>
                     </select>
                     <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
                 <div class="relative flex-1 min-w-[100px]">
-                    <select id="filterSender" onchange="toggleSenderSelection(this.value)"
+                    <select id="filterSender"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
                         <option value="الكل">الراسل: الكل</option>
                     </select>
@@ -278,6 +208,22 @@
         </div>
 
         <!-- Shipments List -->
+        <div id="bulkActionBar" class="hidden mb-4 p-3 bg-white dark:bg-slate-800 rounded-xl border border-indigo-100 dark:border-indigo-900 shadow-sm flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+                <span id="selectedCountBadge" class="bg-indigo-100 text-indigo-800 text-[10px] font-black px-2 py-0.5 rounded-full">0</span>
+            </div>
+            <div class="flex items-center gap-2 flex-wrap">
+                <select id="bulkStatusSelect" class="bg-slate-50 border border-slate-200 text-slate-900 text-xs rounded-lg focus:ring-indigo-500 focus:border-indigo-500 block p-2 dark:bg-slate-700 dark:border-slate-600 dark:placeholder-slate-400 dark:text-white dark:focus:ring-indigo-500 dark:focus:border-indigo-500 font-bold outline-none">
+                    <option value="">اختر الحالة...</option>
+                    <option value="تم">تم التسليم</option>
+                    <option value="مؤجل">مؤجل</option>
+                    <option value="رفض">رفض</option>
+                </select>
+                <button id="bulkUpdateBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-xs font-bold shadow-sm transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                    تحديث جماعي
+                </button>
+            </div>
+        </div>
         <div id="shipmentsList" class="space-y-4">
             <!-- Shimmers/Loading -->
             <div class="animate-pulse space-y-4">
@@ -287,7 +233,7 @@
         </div>
             <div id="shipmentMenu"
                 class="hidden fixed z-50 min-w-[220px] rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
-                <button onclick="copyShipmentDataFromMenu()"
+                <button id="copyShipmentMenuBtn"
                     class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100">
                     نسخ بيانات الشحنة
                 </button>
@@ -298,7 +244,7 @@
         <div id="notifications-view" class="hidden space-y-4">
             <div class="flex items-center justify-between mb-4">
                 <h2 class="text-lg font-black text-slate-900 dark:text-white">سجل الإشعارات</h2>
-                <button onclick="clearRepNotifications()" class="text-[10px] font-black text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-800">
+                <button id="clearRepNotificationsBtn" class="text-[10px] font-black text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-800">
                     مسح الكل
                 </button>
             </div>
@@ -311,16 +257,20 @@
     <!-- Navigation Bottom (Mobile Only) -->
     <nav
         class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-lg glass rounded-full px-4 py-3 flex items-center justify-around shadow-2xl z-50">
-        <button id="nav-btn-dashboard" onclick="switchRepView('dashboard')" class="flex flex-col items-center gap-1 text-indigo-600 transition-all">
+        <button id="nav-btn-dashboard" class="flex flex-col items-center gap-1 text-indigo-600 transition-all">
             <i class="fas fa-box text-xl"></i>
             <span class="text-[9px] font-black">شحناتي</span>
+        </button>
+        <button id="nav-btn-favorites" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
+            <i class="fas fa-heart text-xl"></i>
+            <span class="text-[9px] font-black">المفضلة</span>
         </button>
         <a href="wallet.html"
             class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
             <i class="fas fa-wallet text-xl"></i>
             <span class="text-[9px] font-black">المحفظة</span>
         </a>
-        <button id="nav-btn-notifications" onclick="switchRepView('notifications')"
+        <button id="nav-btn-notifications"
             class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
             <i class="fas fa-bell text-xl"></i>
             <span class="text-[9px] font-black">الإشعارات</span>
@@ -415,16 +365,18 @@
         }
 
         let allShipments = [];
-        let currentFilter = 'قيد التوصيل';
+        let selectedShipmentIdsForBulk = new Set();
         let activeShipmentMenuId = null;
         let lockedShipmentIds = new Set();
         const REP_UI_STATE_KEY = 'repUiState';
         const REP_SEEN_SHIPMENTS_KEY_PREFIX = 'repSeenShipments:';
         const REP_UNREAD_SESSION_KEY = 'repUnreadShipments:';
         const REP_NOTIFICATIONS_KEY = 'rep_local_notifications';
+        const REP_FAVORITES_KEY_PREFIX = 'repFavoriteShipments:';
         
         let repNotifications = JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
         let currentActiveView = 'dashboard';
+        let favoriteShipmentIds = new Set();
 
         function addRepNotification(type, shipment) {
             const notif = {
@@ -513,20 +465,31 @@
 
         function switchRepView(viewId) {
             currentActiveView = viewId;
-            document.getElementById('dashboard-view').classList.add('hidden');
-            document.getElementById('notifications-view').classList.add('hidden');
-            document.getElementById(viewId + '-view').classList.remove('hidden');
-
+            const dashboardView = document.getElementById('dashboard-view');
+            const notificationsView = document.getElementById('notifications-view');
             const dashBtn = document.getElementById('nav-btn-dashboard');
+            const favoritesBtn = document.getElementById('nav-btn-favorites');
             const notifBtn = document.getElementById('nav-btn-notifications');
-            
-            if (viewId === 'dashboard') {
-                dashBtn?.classList.replace('text-slate-400', 'text-indigo-600');
-                notifBtn?.classList.replace('text-indigo-600', 'text-slate-400');
-            } else {
+
+            dashboardView?.classList.add('hidden');
+            notificationsView?.classList.add('hidden');
+
+            [dashBtn, favoritesBtn, notifBtn].forEach(btn => {
+                btn?.classList.remove('text-indigo-600');
+                btn?.classList.add('text-slate-400');
+            });
+
+            if (viewId === 'notifications') {
+                notificationsView?.classList.remove('hidden');
                 notifBtn?.classList.replace('text-slate-400', 'text-indigo-600');
-                dashBtn?.classList.replace('text-indigo-600', 'text-slate-400');
+            } else {
+                dashboardView?.classList.remove('hidden');
+                if (viewId === 'favorites') favoritesBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+                else dashBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+                renderShipments();
+            }
                 
+            if (viewId === 'notifications') {
                 // Mark as read
                 repNotifications.forEach(n => n.read = true);
                 localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
@@ -541,9 +504,43 @@
         let zoneFilterSelections = new Set();
         let senderFilterSelections = new Set();
         let dateFilterGlowTimeout = null;
+        const STATUS_OPTIONS = ['قيد التوصيل', 'تم', 'مؤجل', 'رفض', 'تعديل سعر', 'شحن'];
+
+        function el(id) {
+            return document.getElementById(id);
+        }
+
+        function getElementValue(id) {
+            return el(id)?.value || '';
+        }
+
+        function getSingleSelectFilter(id) {
+            const value = String(getElementValue(id) || '').trim();
+            return !value || value === 'الكل' ? [] : [value];
+        }
+
+        function applyActiveSelectState(select, selectedArr, defaultValue = 'الكل') {
+            if (!select) return;
+
+            if (selectedArr.length > 0) {
+                select.value = selectedArr[0];
+                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            } else {
+                select.value = defaultValue;
+                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
+                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+            }
+        }
 
         function getSelectedStatuses() {
             return Array.from(statusFilterSelections);
+        }
+
+        function ensureStatusSelection() {
+            if (statusFilterSelections.size === 0) {
+                statusFilterSelections.add(STATUS_OPTIONS[0]);
+            }
         }
 
         function getSelectedDates() {
@@ -586,12 +583,11 @@
 
         function toggleStatusSelection(value) {
             const normalizedValue = String(value || '').trim();
-            if (!normalizedValue) return;
-
             statusFilterSelections.clear();
-            if (normalizedValue !== 'الكل') {
+            if (normalizedValue) {
                 statusFilterSelections.add(normalizedValue);
             }
+            ensureStatusSelection();
 
             saveRepUiState();
             renderShipments();
@@ -618,8 +614,8 @@
         }
 
         function triggerDateFilterGlow() {
-            const btn = document.getElementById('filterDateBtn');
-            const menu = document.getElementById('filterDateMenu');
+            const btn = el('filterDateBtn');
+            const menu = el('filterDateMenu');
             if (!btn || !menu || !menu.classList.contains('hidden')) return;
 
             // btn.classList.add('rep-date-filter-glow');
@@ -632,7 +628,7 @@
         function saveRepUiState() {
             try {
                 localStorage.setItem(REP_UI_STATE_KEY, JSON.stringify({
-                    search: document.getElementById('searchInput')?.value || '',
+                    search: getElementValue('searchInput'),
                     date: getSelectedDates(),
                     status: getSelectedStatuses(),
                     zone: getSelectedZones(),
@@ -661,6 +657,7 @@
                 statusFilterSelections.clear();
                 statuses.map(s => String(s || '').trim()).filter(Boolean).forEach(s => statusFilterSelections.add(s));
             }
+            ensureStatusSelection();
 
             if (state && state.zone) {
                 const zones = Array.isArray(state.zone) ? state.zone : [state.zone];
@@ -676,27 +673,9 @@
 
             if (!state) return;
 
-            const searchInput = document.getElementById('searchInput');
+            const searchInput = el('searchInput');
 
             if (searchInput) searchInput.value = state.search || '';
-        }
-
-        function syncFilterButtons(filter) {
-            document.querySelectorAll('.filter-btn').forEach(btn => {
-                const onClickAttr = btn.getAttribute('onclick') || '';
-                const isMatch = onClickAttr.includes(`'${filter}'`);
-
-                btn.classList.toggle('active', isMatch);
-                if (isMatch) {
-                    btn.classList.replace('bg-white', 'bg-indigo-600');
-                    btn.classList.replace('text-slate-600', 'text-white');
-                    btn.classList.replace('border-slate-200', 'border-indigo-600');
-                } else {
-                    btn.classList.replace('bg-indigo-600', 'bg-white');
-                    btn.classList.replace('text-white', 'text-slate-600');
-                    btn.classList.replace('border-indigo-600', 'border-slate-200');
-                }
-            });
         }
 
         function getRepIdentifiers() {
@@ -818,6 +797,39 @@
             return `${REP_SEEN_SHIPMENTS_KEY_PREFIX}${repKey}`;
         }
 
+        function getRepFavoritesKey() {
+            const repKey = normalizeComparableValue(user?.username || user?.phone || user?.full_name || 'rep');
+            return `${REP_FAVORITES_KEY_PREFIX}${repKey}`;
+        }
+
+        function loadFavoriteShipmentIds() {
+            try {
+                const raw = localStorage.getItem(getRepFavoritesKey());
+                const ids = JSON.parse(raw || '[]');
+                return new Set((Array.isArray(ids) ? ids : []).map(id => String(id)));
+            } catch (error) {
+                return new Set();
+            }
+        }
+
+        function saveFavoriteShipmentIds(ids) {
+            try {
+                localStorage.setItem(getRepFavoritesKey(), JSON.stringify([...ids]));
+            } catch (error) { }
+        }
+
+        function isFavoriteShipment(id) {
+            return favoriteShipmentIds.has(String(id));
+        }
+
+        function toggleFavoriteShipment(id) {
+            const strId = String(id);
+            if (favoriteShipmentIds.has(strId)) favoriteShipmentIds.delete(strId);
+            else favoriteShipmentIds.add(strId);
+            saveFavoriteShipmentIds(favoriteShipmentIds);
+            renderShipments();
+        }
+
         function loadSeenShipmentIds() {
             try {
                 const raw = localStorage.getItem(getRepNotificationKey());
@@ -924,6 +936,11 @@
                 : [];
 
             allShipments = currentShipments;
+            favoriteShipmentIds = new Set(
+                [...favoriteShipmentIds].filter(id => currentShipments.some(shipment => String(shipment.id) === String(id)))
+            );
+            saveFavoriteShipmentIds(favoriteShipmentIds);
+            pruneBulkSelection();
             saveSeenShipmentIds(currentSeenIds);
 
             if (newShipments.length > 0) {
@@ -981,9 +998,28 @@
             return isShipmentLocked(shipment.id) || isRejectedStatus(shipment.الحالة);
         }
 
+        function isShipmentBulkEditable(shipment) {
+            if (!shipment) return false;
+            if (isShipmentLocked(shipment.id)) return false;
+            if (isRejectedStatus(shipment.الحالة)) return false;
+            if (isDeliveredStatus(shipment.الحالة, shipment)) return false;
+            if (isPriceEditShipment(shipment)) return false;
+            if (isShippingFeeShipment(shipment)) return false;
+            return true;
+        }
+
+        function pruneBulkSelection() {
+            selectedShipmentIdsForBulk = new Set(
+                [...selectedShipmentIdsForBulk].filter((id) => {
+                    const shipment = allShipments.find(s => String(s.id) === String(id));
+                    return isShipmentBulkEditable(shipment);
+                })
+            );
+        }
+
         function populateDropdowns() {
-            const currentZone = document.getElementById('filterZone')?.value || '';
-            const currentSender = document.getElementById('filterSender')?.value || '';
+            const currentZone = getElementValue('filterZone');
+            const currentSender = getElementValue('filterSender');
 
             const selectedStatuses = getSelectedStatuses();
 
@@ -1040,14 +1076,12 @@
         }
 
         function fillStatusDropdown() {
-            const select = document.getElementById('filterStatus');
+            const select = el('filterStatus');
             if (!select) return;
-
-            const statusOptions = ['قيد التوصيل', 'تم', 'مؤجل', 'رفض', 'تعديل سعر', 'شحن'];
             
             const selectedDates = getSelectedDates();
-            const currentZone = document.getElementById('filterZone')?.value || '';
-            const currentSender = document.getElementById('filterSender')?.value || '';
+            const currentZone = getElementValue('filterZone');
+            const currentSender = getElementValue('filterSender');
 
             const scopedShipments = allShipments.filter(s => {
                 const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
@@ -1056,42 +1090,27 @@
                 return matchDate && matchZone && matchSender;
             });
             
-            const counts = {
-                'قيد التوصيل': scopedShipments.filter(s => isPendingStatus(s.الحالة)).length,
-                'تم': scopedShipments.filter(s => isDeliveredStatus(s.الحالة, s)).length,
-                'مؤجل': scopedShipments.filter(s => isDelayedStatus(s.الحالة)).length,
-                'رفض': scopedShipments.filter(s => isRejectedStatus(s.الحالة)).length,
-                'تعديل سعر': scopedShipments.filter(s => isPriceEditShipment(s)).length,
-                'شحن': scopedShipments.filter(s => isShippingFeeShipment(s)).length
-            };
+            const counts = countShipmentsByStatus(scopedShipments);
 
-            let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الحالة: الكل (${scopedShipments.length})</option>`;
-            statusOptions.forEach(opt => {
+            ensureStatusSelection();
+
+            let optionsHtml = '';
+            STATUS_OPTIONS.forEach(opt => {
                 const count = counts[opt] || 0;
                 optionsHtml += `<option value="${opt}" class="text-slate-800 bg-white">${opt} (${count})</option>`;
             });
 
             select.innerHTML = optionsHtml;
-
-            const selectedArr = getSelectedStatuses();
-            if (selectedArr.length > 0) {
-                select.value = selectedArr[0];
-                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
-                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
-            } else {
-                select.value = 'الكل';
-                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
-                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
-            }
+            applyActiveSelectState(select, getSelectedStatuses(), STATUS_OPTIONS[0]);
         }
 
         function fillDateDropdown(items) {
-            const menu = document.getElementById('filterDateMenu');
-            const label = document.getElementById('filterDateLabel');
+            const menu = el('filterDateMenu');
+            const label = el('filterDateLabel');
             if (!menu || !label) return;
 
             const selectedArr = getSelectedDates();
-            const btn = document.getElementById('filterDateBtn');
+            const btn = el('filterDateBtn');
             
             if (selectedArr.length > 0) {
                 label.innerText = selectedArr.length === 1 ? selectedArr[0] : `اليومية (${selectedArr.length})`;
@@ -1120,25 +1139,10 @@
                 return;
             }
 
-            const currentZone = document.getElementById('filterZone')?.value || '';
-            const currentSender = document.getElementById('filterSender')?.value || '';
-            const selectedStatuses = getSelectedStatuses();
-
-            const checkStatus = (s) => {
-                if (selectedStatuses.length === 0) return true;
-                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
-                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
-                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
-                return false;
-            };
-
-            const narrowedData = allShipments.filter(s => {
-                const matchZone = !currentZone || currentZone === 'الكل' || s.الزون === currentZone;
-                const matchSender = !currentSender || currentSender === 'الكل' || s.الراسل === currentSender;
-                return matchZone && matchSender && checkStatus(s);
+            const narrowedData = filterShipmentsCollection(allShipments, {
+                zones: getSingleSelectFilter('filterZone'),
+                senders: getSingleSelectFilter('filterSender'),
+                statuses: getSelectedStatuses()
             });
 
             const dateCounts = {};
@@ -1151,9 +1155,9 @@
                 const isSelected = dateFilterSelections.has(item);
                 const count = dateCounts[item] || 0;
                 return `
-                    <label class="flex items-center justify-between gap-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors" onclick="event.stopPropagation()">
+                    <label class="rep-date-option flex items-center justify-between gap-2 p-1.5 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg cursor-pointer transition-colors">
                         <div class="flex items-center gap-2">
-                            <input type="checkbox" ${isSelected ? 'checked' : ''} onchange='toggleDateSelection(${JSON.stringify(item)})' class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <input type="checkbox" ${isSelected ? 'checked' : ''} data-action="toggle-date-selection" data-date="${item.replace(/"/g, '&quot;')}" class="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300">
                             <span class="text-slate-700 dark:text-slate-200 font-bold">${item}</span>
                         </div>
                         <span class="bg-indigo-50 text-indigo-600 text-[10px] px-2 py-0.5 rounded-full font-black">${count}</span>
@@ -1163,30 +1167,15 @@
         }
 
         function fillZoneDropdown(items) {
-            const select = document.getElementById('filterZone');
+            const select = el('filterZone');
             if (!select) return;
 
             const selectedArr = getSelectedZones();
             
-            const selectedDates = getSelectedDates();
-            const currentSender = document.getElementById('filterSender')?.value || '';
-            const selectedStatuses = getSelectedStatuses();
-
-            const checkStatus = (s) => {
-                if (selectedStatuses.length === 0) return true;
-                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
-                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
-                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
-                return false;
-            };
-
-            const narrowedData = allShipments.filter(s => {
-                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
-                const matchSender = !currentSender || currentSender === 'الكل' || s.الراسل === currentSender;
-                return matchDate && matchSender && checkStatus(s);
+            const narrowedData = filterShipmentsCollection(allShipments, {
+                dates: getSelectedDates(),
+                senders: getSingleSelectFilter('filterSender'),
+                statuses: getSelectedStatuses()
             });
             const zoneCounts = {};
             narrowedData.forEach(s => {
@@ -1203,45 +1192,21 @@
             }
 
             select.innerHTML = optionsHtml;
-
-            if (selectedArr.length > 0) {
-                select.value = selectedArr[0];
-                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
-                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
-            } else {
-                select.value = 'الكل';
-                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
-                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
-            }
+            applyActiveSelectState(select, selectedArr);
         }
 
         function fillSenderDropdown(items) {
-            const select = document.getElementById('filterSender');
+            const select = el('filterSender');
             if (!select) return;
 
             const selectedArr = getSelectedSenders();
             
-            const selectedDates = getSelectedDates();
-            const currentZone = document.getElementById('filterZone')?.value || '';
-            const selectedStatuses = getSelectedStatuses();
-
-            const checkStatus = (s) => {
-                if (selectedStatuses.length === 0) return true;
-                if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) return true;
-                if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) return true;
-                if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) return true;
-                if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) return true;
-                return false;
-            };
-
-            const narrowedData = allShipments.filter(s => {
-                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
-                const matchZone = !currentZone || currentZone === 'الكل' || s.الزون === currentZone;
-                return matchDate && matchZone && checkStatus(s);
+            const narrowedData = filterShipmentsCollection(allShipments, {
+                dates: getSelectedDates(),
+                zones: getSingleSelectFilter('filterZone'),
+                statuses: getSelectedStatuses()
             });
-                        const senderCounts = {};
+            const senderCounts = {};
             narrowedData.forEach(s => {
                 const sn = s.الراسل;
                 if (sn) senderCounts[sn] = (senderCounts[sn] || 0) + 1;
@@ -1256,29 +1221,7 @@
             }
 
             select.innerHTML = optionsHtml;
-
-            if (selectedArr.length > 0) {
-                select.value = selectedArr[0];
-                select.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
-                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
-            } else {
-                select.value = 'الكل';
-                select.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-indigo-500/30');
-                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
-            }
-        }
-
-        function fillSelect(id, items, defaultText, currentValue = '') {
-            const select = document.getElementById(id);
-            if (!select) return;
-            select.innerHTML = `<option value="">${defaultText}</option>`;
-            items.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.innerText = item;
-                select.appendChild(opt);
-            });
-            select.value = items.includes(currentValue) ? currentValue : '';
+            applyActiveSelectState(select, selectedArr);
         }
 
         function isPriceEditShipment(shipment) {
@@ -1315,6 +1258,81 @@
             return normalizedStatus === 'رفض' || normalizedStatus === 'الغاء' || normalizedStatus === 'إلغاء';
         }
 
+        function matchesSelectedStatuses(shipment, selectedStatuses = []) {
+            if (!selectedStatuses || selectedStatuses.length === 0) return true;
+            if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(shipment.الحالة)) return true;
+            if (selectedStatuses.includes('تم') && isDeliveredStatus(shipment.الحالة, shipment)) return true;
+            if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(shipment)) return true;
+            if (selectedStatuses.includes('مؤجل') && isDelayedStatus(shipment.الحالة)) return true;
+            if (selectedStatuses.includes('رفض') && isRejectedStatus(shipment.الحالة)) return true;
+            if (selectedStatuses.includes('شحن') && isShippingFeeShipment(shipment)) return true;
+            return false;
+        }
+
+        function matchesShipmentFilters(shipment, filters = {}) {
+            const {
+                search = '',
+                dates = [],
+                zones = [],
+                senders = [],
+                statuses = []
+            } = filters;
+
+            const normalizedSearch = String(search || '').trim().toLowerCase();
+            if (normalizedSearch) {
+                const orderId = String(shipment.order_id || '').toLowerCase();
+                const phone = String(shipment.الهاتف || '').toLowerCase();
+                const customer = String(shipment.اسم_العميل || '').toLowerCase();
+                const altPhone = String(shipment['هاتف بديل'] || shipment.هاتف_بديل || shipment.هات_بديل || '').toLowerCase();
+                if (!orderId.includes(normalizedSearch) && !phone.includes(normalizedSearch) && !customer.includes(normalizedSearch) && !altPhone.includes(normalizedSearch)) {
+                    return false;
+                }
+            }
+
+            if (dates.length > 0 && !dates.includes(getShipmentUpdateValue(shipment))) return false;
+            if (zones.length > 0 && !zones.includes(shipment.الزون)) return false;
+            if (senders.length > 0 && !senders.includes(shipment.الراسل)) return false;
+            return matchesSelectedStatuses(shipment, statuses);
+        }
+
+        function filterShipmentsCollection(shipments, filters = {}) {
+            return shipments.filter(shipment => matchesShipmentFilters(shipment, filters));
+        }
+
+        function countShipmentsByStatus(shipments) {
+            return {
+                'قيد التوصيل': shipments.filter(s => isPendingStatus(s.الحالة)).length,
+                'تم': shipments.filter(s => isDeliveredStatus(s.الحالة, s)).length,
+                'مؤجل': shipments.filter(s => isDelayedStatus(s.الحالة)).length,
+                'رفض': shipments.filter(s => isRejectedStatus(s.الحالة)).length,
+                'تعديل سعر': shipments.filter(s => isPriceEditShipment(s)).length,
+                'شحن': shipments.filter(s => isShippingFeeShipment(s)).length
+            };
+        }
+
+        function getShipmentStatusLabel(shipment) {
+            if (isPendingStatus(shipment.الحالة)) return 'قيد التوصيل';
+            if (isPriceEditShipment(shipment)) return shipment['سبب الحالة'] || shipment.سبب_الحالة || 'تعديل سعر';
+            if (isDelayedStatus(shipment.الحالة)) return 'مؤجل';
+            if (isRejectedStatus(shipment.الحالة)) return 'رفض';
+            if (isDeliveredStatus(shipment.الحالة, shipment)) return 'تم';
+            return shipment.الحالة || 'قيد التوصيل';
+        }
+
+        function shouldHideShipmentUpdateActions(shipment, selectedStatuses = []) {
+            return (
+                (selectedStatuses.length === 0 && (
+                    isDeliveredStatus(shipment.الحالة, shipment) ||
+                    isShippingFeeShipment(shipment) ||
+                    isPriceEditShipment(shipment)
+                )) ||
+                (selectedStatuses.includes('تم') && isDeliveredStatus(shipment.الحالة, shipment)) ||
+                (selectedStatuses.includes('شحن') && isShippingFeeShipment(shipment)) ||
+                (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(shipment)) ||
+                (selectedStatuses.includes('رفض') && isRejectedStatus(shipment.الحالة))
+            );
+        }
+
         function getShipmentCommission(shipment) {
             let commissionValue = shipment?.['عمولة المندوب'];
             if (user && user.role === 'مندوب فرعي') {
@@ -1329,36 +1347,6 @@
             return Number.isNaN(value) ? 0 : value;
         }
 
-        function getAdjustedShipmentAmount(shipment) {
-            const value = parseFloat(shipment?.السعر_بعد_التعديل || 0);
-            return Number.isNaN(value) ? 0 : value;
-        }
-
-        function fillSelect(id, items, defaultText, currentValue = '') {
-            const select = document.getElementById(id);
-            if (!select) return;
-            select.innerHTML = `<option value="">${defaultText}</option>`;
-            items.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item;
-                opt.innerText = item;
-                select.appendChild(opt);
-            });
-            select.value = items.includes(currentValue) ? currentValue : '';
-        }
-
-        function isPriceEditShipment(shipment) {
-            const normalizedStatus = String(shipment?.الحالة || '').trim();
-            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
-            if (shipment && isShippingFeeShipment(shipment)) return false;
-            return normalizedStatus === 'تم' || normalizedStatus === 'تم التسليم';
-        }
-
-        function isPendingStatus(status) {
-            const normalizedStatus = String(status || '').replace(/\s+/g, ' ').trim();
-            return normalizedStatus === '' || normalizedStatus === 'قيد' || normalizedStatus === 'قيد التوصيل' || normalizedStatus === 'قيد التنفيذ';
-        }
-
         function isCommissionEligibleShipment(shipment) {
             const normalizedStatus = String(shipment?.الحالة || '').trim();
             // 'تم' = delivered, isPriceEditShipment = price edit (تعديل سعر), isShippingFeeShipment = shipping fee (شحن)
@@ -1368,7 +1356,7 @@
         function getDateFilteredShipments() {
             const selectedDates = getSelectedDates();
             if (selectedDates.length === 0) return [];
-            return allShipments.filter(s => selectedDates.includes(getShipmentUpdateValue(s)));
+            return filterShipmentsCollection(allShipments, { dates: selectedDates });
         }
 
         function updateFilterCounters() {
@@ -1378,35 +1366,42 @@
             const shipping = scopedShipments.filter(s => isShippingFeeShipment(s)).length;
             const progress = total ? Math.round((delivered / total) * 100) : 0;
 
-            document.getElementById('progressPercent').innerText = progress;
-            document.getElementById('progressDelivered').innerText = delivered;
-            document.getElementById('progressShipping').innerText = shipping;
-            document.getElementById('progressTotal').innerText = total;
-            document.getElementById('progressBar').style.width = `${progress}%`;
-            document.getElementById('repCommissionTotal').innerHTML = `${scopedShipments.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)} <span class="text-sm text-slate-800 dark:text-white">ج.م</span>`;
+            el('progressPercent').innerText = progress;
+            el('progressDelivered').innerText = delivered;
+            el('progressShipping').innerText = shipping;
+            el('progressTotal').innerText = total;
+            el('progressBar').style.width = `${progress}%`;
+            el('repCommissionTotal').innerHTML = `${scopedShipments.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)} <span class="text-sm text-slate-800 dark:text-white">ج.م</span>`;
             const remittanceShipments = scopedShipments.filter(s => isCommissionEligibleShipment(s) && !isShipmentLocked(s.id));
             const remittanceAmount = remittanceShipments.reduce((acc, shipment) => acc + getShipmentAmount(shipment), 0);
-            document.getElementById('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
+            el('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
         }
 
-        let currentDisplayLimit = 50;
+        let currentDisplayLimit = 20;
         function loadMoreShipments() {
-            currentDisplayLimit += 50;
+            currentDisplayLimit += 20;
             renderShipments(true);
         }
 
         function renderShipments(append = false) {
-            if (append !== true) currentDisplayLimit = 50;
+            if (append !== true) currentDisplayLimit = 20;
             populateDropdowns();
             updateFilterCounters();
+            pruneBulkSelection();
 
-            const list = document.getElementById('shipmentsList');
-            const search = document.getElementById('searchInput').value.toLowerCase();
+            const list = el('shipmentsList');
+            const bulkActionBar = el('bulkActionBar');
             const selectedDates = getSelectedDates();
             const selectedZones = getSelectedZones();
             const selectedSenders = getSelectedSenders();
-
             const selectedStatuses = getSelectedStatuses();
+            const filters = {
+                search: document.getElementById('searchInput').value,
+                dates: selectedDates,
+                zones: selectedZones,
+                senders: selectedSenders,
+                statuses: selectedStatuses
+            };
 
             if (selectedDates.length === 0 && selectedStatuses.length === 0) {
                 list.innerHTML = `
@@ -1418,54 +1413,37 @@
                 return;
             }
 
-            const filtered2 = allShipments.filter(s => {
-                const matchSearch = String(s.order_id).toLowerCase().includes(search) ||
-                    String(s.الهاتف).toLowerCase().includes(search) ||
-                    String(s.اسم_العميل).toLowerCase().includes(search);
+            const filtered = filterShipmentsCollection(allShipments, filters);
+            const scopedFiltered = currentActiveView === 'favorites'
+                ? filtered.filter(s => isFavoriteShipment(s.id))
+                : filtered;
 
-                let matchStatus = false;
-                if (selectedStatuses.length === 0) matchStatus = true;
-                else {
-                    if (selectedStatuses.includes('قيد التوصيل') && isPendingStatus(s.الحالة)) matchStatus = true;
-                    if (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) matchStatus = true;
-                    if (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) matchStatus = true;
-                    if (selectedStatuses.includes('مؤجل') && isDelayedStatus(s.الحالة)) matchStatus = true;
-                    if (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة)) matchStatus = true;
-                    if (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) matchStatus = true;
-                }
-
-                // If date is selected, must match date; if no date selected but status filter is active, show all matching statuses
-                const matchDate = selectedDates.length === 0 || selectedDates.includes(getShipmentUpdateValue(s));
-                const matchZone = selectedZones.length === 0 || selectedZones.includes(s.الزون);
-                const matchSender = selectedSenders.length === 0 || selectedSenders.includes(s.الراسل);
-
-                return matchSearch && matchStatus && matchDate && matchZone && matchSender;
-            });
-
-            const filtered = filtered2;
-
-            if (filtered.length === 0) {
+            if (scopedFiltered.length === 0) {
+                selectedShipmentIdsForBulk.clear();
+                if(bulkActionBar) bulkActionBar.classList.add('hidden');
                 list.innerHTML = `
                     <div class="text-center py-10 opacity-40">
-                        <i class="fas fa-box-open text-5xl mb-3"></i>
-                        <p class="font-bold">لا يوجد شحنات تطابق البحث</p>
+                        <i class="fas ${currentActiveView === 'favorites' ? 'fa-heart-crack' : 'fa-box-open'} text-5xl mb-3"></i>
+                        <p class="font-bold">${currentActiveView === 'favorites' ? 'لا توجد شحنات داخل المفضلة' : 'لا يوجد شحنات تطابق البحث'}</p>
                     </div>
                 `;
                 return;
             }
 
-            const itemsToRender = filtered.slice(0, currentDisplayLimit);
+            const itemsToRender = scopedFiltered.slice(0, currentDisplayLimit);
+            const hasEditableItems = itemsToRender.some(isShipmentBulkEditable);
+            if(bulkActionBar) {
+                if(hasEditableItems) {
+                    bulkActionBar.classList.remove('hidden');
+                } else {
+                    bulkActionBar.classList.add('hidden');
+                }
+            }
             list.innerHTML = itemsToRender.map(s => {
-                const hideUpdateActions =
-                    (selectedStatuses.length === 0 && (
-                        isDeliveredStatus(s.الحالة, s) ||
-                        isShippingFeeShipment(s) ||
-                        isPriceEditShipment(s)
-                    )) ||
-                    (selectedStatuses.includes('تم') && isDeliveredStatus(s.الحالة, s)) ||
-                    (selectedStatuses.includes('شحن') && isShippingFeeShipment(s)) ||
-                    (selectedStatuses.includes('تعديل سعر') && isPriceEditShipment(s)) ||
-                    (selectedStatuses.includes('رفض') && isRejectedStatus(s.الحالة));
+                const canBulkEdit = isShipmentBulkEditable(s);
+                const isSelected = selectedShipmentIdsForBulk.has(String(s.id));
+                const isFavorite = isFavoriteShipment(s.id);
+                const hideUpdateActions = shouldHideShipmentUpdateActions(s, selectedStatuses);
                 return `
                 <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-3">
                     <div class="absolute top-0 right-0 w-1.5 h-full ${getStatusColor(s)}"></div>
@@ -1473,8 +1451,21 @@
                     <div class="flex justify-between items-start mb-3">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
-                                <button onclick="toggleShipmentMenu(event, '${s.id}')" class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
+                                <label class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 ${canBulkEdit ? 'bg-white dark:bg-slate-900 cursor-pointer' : 'bg-slate-100 dark:bg-slate-800 opacity-50 cursor-not-allowed'}" title="${canBulkEdit ? 'تحديد الشحنة' : 'هذه الشحنة مغلقة أو تمت تسويتها'}">
+                                    <input
+                                        type="checkbox"
+                                        class="bulk-item-checkbox w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 cursor-pointer"
+                                        data-id="${s.id}"
+                                        data-action="toggle-shipment-selection"
+                                        ${isSelected ? 'checked' : ''}
+                                        ${canBulkEdit ? '' : 'disabled'}
+                                    >
+                                </label>
+                                <button data-action="toggle-shipment-menu" data-id="${s.id}" class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
                                     <i class="fas fa-ellipsis-h"></i>
+                                </button>
+                                <button data-action="toggle-favorite-shipment" data-id="${s.id}" class="flex h-9 w-9 items-center justify-center rounded-lg ${isFavorite ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 border-slate-100 dark:border-slate-700'} border transition-all" title="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}" aria-label="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">
+                                    <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
                                 </button>
                                 <span class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-tight border border-indigo-100/50 dark:border-indigo-800/50">#${s.order_id}</span>
                             </div>
@@ -1482,7 +1473,7 @@
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm border border-white dark:border-slate-800 ${getStatusBadgeClass(s)}">
-                                ${isPendingStatus(s.الحالة) ? 'قيد التوصيل' : (isPriceEditShipment(s) ? (s['سبب الحالة'] || s.سبب_الحالة || 'تعديل سعر') : (isDelayedStatus(s.الحالة) ? 'مؤجل' : (isRejectedStatus(s.الحالة) ? 'رفض' : (isDeliveredStatus(s.الحالة, s) ? 'تم' : (s.الحالة || 'قيد التوصيل')))))}
+                                ${getShipmentStatusLabel(s)}
                             </span>
                             <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">
                                 الراسل: ${s.الراسل || '---'}
@@ -1491,8 +1482,8 @@
                     </div>
 
                     <div class="space-y-2.5 mb-5">
-                        <div class="flex items-start gap-2.5">
-                            <i class="fas fa-map-pin text-sm mt-0.5 text-indigo-500"></i>
+                        <div data-action="open-map" data-id="${s.id}" class="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-colors -mx-2 relative z-10 group/map">
+                            <i class="fas fa-map-marked-alt text-base mt-0.5 text-indigo-500 group-hover/map:animate-bounce"></i>
                             <span class="text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">${s.العنوان || 'بدون عنوان'}</span>
                         </div>
                         <div class="flex items-center gap-2.5 text-slate-500 dark:text-slate-400">
@@ -1516,10 +1507,10 @@
 
                     ${hideUpdateActions ? '' : `
                     <div class="grid grid-cols-2 gap-3 mt-1">
-                        <button onclick="updateStatus('${s.id}', 'تم التسليم')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
-                        <button onclick="editPrice('${s.id}')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-slate-100 active:scale-95 transition-all">تعديل سعر</button>
-                        <button onclick="updateStatus('${s.id}', 'مؤجل')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-amber-100 active:scale-95 transition-all">مؤجل</button>
-                        <button onclick="handleRejectAction('${s.id}')" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-rose-100 active:scale-95 transition-all">رفض</button>
+                        <button data-action="update-status" data-id="${s.id}" data-status="تم التسليم" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
+                        <button data-action="edit-price" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-slate-100 active:scale-95 transition-all">تعديل سعر</button>
+                        <button data-action="update-status" data-id="${s.id}" data-status="مؤجل" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-amber-100 active:scale-95 transition-all">مؤجل</button>
+                        <button data-action="reject-shipment" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-rose-100 active:scale-95 transition-all">رفض</button>
                     </div>
                     `}
                     ${isShipmentUpdateLocked(s) ? `
@@ -1530,15 +1521,28 @@
                 </div>
             `}).join('');
             
-            if (filtered.length > currentDisplayLimit) {
+            if (scopedFiltered.length > currentDisplayLimit) {
                 list.innerHTML += `
-                    <button onclick="loadMoreShipments()" class="w-full bg-slate-100 dark:bg-slate-800/50 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-600 dark:text-slate-300 py-4 rounded-2xl font-bold text-[13px] border border-slate-200 dark:border-slate-700 transition-colors shadow-sm mb-4">
-                        عرض المزيد (${filtered.length - currentDisplayLimit} شحنة)
-                        <i class="fas fa-chevron-down mr-2 opacity-50"></i>
-                    </button>
+                    <div id="lazyLoadTrigger" class="w-full text-center py-6 text-slate-400 animate-pulse">
+                        <i class="fas fa-spinner fa-spin text-2xl mb-2"></i>
+                        <p class="text-[10px] font-bold">جاري تحميل المزيد...</p>
+                    </div>
                 `;
+                setTimeout(() => {
+                    const trigger = document.getElementById('lazyLoadTrigger');
+                    if (trigger) {
+                        const observer = new IntersectionObserver((entries) => {
+                            if (entries[0].isIntersecting) {
+                                observer.disconnect();
+                                loadMoreShipments();
+                            }
+                        }, { rootMargin: '300px' });
+                        observer.observe(trigger);
+                    }
+                }, 50);
             }
             saveRepUiState();
+            updateBulkActionBar();
         }
 
         function getShipmentById(id) {
@@ -1577,10 +1581,6 @@
             return primaryPart.replace(/[^\d+]/g, '');
         }
 
-        function hasShipmentPhone(shipment, key) {
-            return Boolean(getShipmentPhone(shipment, key));
-        }
-
         function renderShipmentContactActions(shipment) {
             const renderField = (key, label) => {
                 const val = getShipmentPhone(shipment, key);
@@ -1600,7 +1600,7 @@
 
                 return `
                     <div class="flex gap-2">
-                        <button onclick="sendWhatsApp('${shipment.id}', '${key}')" class="w-11 h-11 rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
+                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="w-11 h-11 rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
                             <i class="fab fa-whatsapp text-lg"></i>
                         </button>
                         <a href="tel:${callNumber}" class="w-11 h-11 rounded-full bg-white border border-slate-200 text-indigo-600 shadow-sm active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
@@ -1942,29 +1942,96 @@
             window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
         }
 
-        function setFilter(filter) {
-            currentFilter = filter;
-            syncFilterButtons(filter);
-            renderShipments();
-            saveRepUiState();
-        }
-
-        document.getElementById('searchInput').addEventListener('input', () => {
+        el('searchInput').addEventListener('input', () => {
             renderShipments();
             saveRepUiState();
         });
 
+        el('filterDateBtn')?.addEventListener('click', () => {
+            el('filterDateMenu')?.classList.toggle('hidden');
+            stopDateFilterGlow();
+        });
+
+        el('trackingToggleBtn')?.addEventListener('click', toggleTracking);
+        el('themeToggleBtn')?.addEventListener('click', toggleTheme);
+        el('logoutBtn')?.addEventListener('click', logout);
+        el('bulkUpdateBtn')?.addEventListener('click', applyBulkUpdate);
+        el('copyShipmentMenuBtn')?.addEventListener('click', copyShipmentDataFromMenu);
+        el('clearRepNotificationsBtn')?.addEventListener('click', clearRepNotifications);
+        el('nav-btn-dashboard')?.addEventListener('click', () => switchRepView('dashboard'));
+        el('nav-btn-favorites')?.addEventListener('click', () => switchRepView('favorites'));
+        el('nav-btn-notifications')?.addEventListener('click', () => switchRepView('notifications'));
+        el('filterStatus')?.addEventListener('change', (event) => toggleStatusSelection(event.target.value));
+        el('filterZone')?.addEventListener('change', (event) => toggleZoneSelection(event.target.value));
+        el('filterSender')?.addEventListener('change', (event) => toggleSenderSelection(event.target.value));
+        el('bulkStatusSelect')?.addEventListener('change', updateBulkActionBar);
+        el('filterDateMenu')?.addEventListener('click', (event) => {
+            if (event.target.closest('.rep-date-option')) {
+                event.stopPropagation();
+            }
+        });
+        el('filterDateMenu')?.addEventListener('change', (event) => {
+            const dateCheckbox = event.target.closest('[data-action="toggle-date-selection"]');
+            if (!dateCheckbox) return;
+            toggleDateSelection(dateCheckbox.dataset.date || '');
+        });
+        el('shipmentsList')?.addEventListener('change', (event) => {
+            const shipmentCheckbox = event.target.closest('[data-action="toggle-shipment-selection"]');
+            if (!shipmentCheckbox) return;
+            toggleShipmentSelection(shipmentCheckbox.dataset.id);
+        });
+        el('shipmentsList')?.addEventListener('click', (event) => {
+            const actionEl = event.target.closest('[data-action]');
+            if (!actionEl || actionEl.disabled) return;
+
+            const action = actionEl.dataset.action;
+            const id = actionEl.dataset.id;
+
+            if (action === 'toggle-shipment-menu') {
+                toggleShipmentMenu(event, id);
+                return;
+            }
+            if (action === 'toggle-favorite-shipment') {
+                toggleFavoriteShipment(id);
+                return;
+            }
+            if (action === 'update-status') {
+                updateStatus(id, actionEl.dataset.status);
+                return;
+            }
+            if (action === 'edit-price') {
+                editPrice(id);
+                return;
+            }
+            if (action === 'reject-shipment') {
+                handleRejectAction(id);
+                return;
+            }
+            if (action === 'load-more-shipments') {
+                loadMoreShipments();
+                return;
+            }
+            if (action === 'send-whatsapp') {
+                sendWhatsApp(id, actionEl.dataset.phoneKey || 'الهاتف');
+                return;
+            }
+            if (action === 'open-map') {
+                openTrackingMap(id);
+                return;
+            }
+        });
+
         document.addEventListener('click', (event) => {
-            const menu = document.getElementById('shipmentMenu');
+            const menu = el('shipmentMenu');
             if (menu && !menu.contains(event.target)) {
                 closeShipmentMenu();
             }
-            const dateBtn = document.getElementById('filterDateBtn');
-            const dateMenu = document.getElementById('filterDateMenu');
-            const zoneBtn = document.getElementById('filterZoneBtn');
-            const zoneMenu = document.getElementById('filterZoneMenu');
-            const senderBtn = document.getElementById('filterSenderBtn');
-            const senderMenu = document.getElementById('filterSenderMenu');
+            const dateBtn = el('filterDateBtn');
+            const dateMenu = el('filterDateMenu');
+            const zoneBtn = el('filterZoneBtn');
+            const zoneMenu = el('filterZoneMenu');
+            const senderBtn = el('filterSenderBtn');
+            const senderMenu = el('filterSenderMenu');
 
             if (dateBtn && dateMenu && !dateBtn.contains(event.target) && !dateMenu.contains(event.target)) {
                 dateMenu.classList.add('hidden');
@@ -1985,7 +2052,7 @@
 
         function toggleTheme() {
             const body = document.body;
-            const icon = document.getElementById('themeIcon');
+            const icon = el('themeIcon');
             const isDark = body.classList.toggle('dark');
 
             icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
@@ -1995,7 +2062,7 @@
         // Apply theme on load
         if (localStorage.getItem('rep-theme') === 'dark') {
             document.body.classList.add('dark');
-            document.getElementById('themeIcon').className = 'fas fa-sun text-xl';
+            el('themeIcon').className = 'fas fa-sun text-xl';
         }
 
         // Real-time listener
@@ -2056,6 +2123,594 @@
             .subscribe();
 
 
+        function toggleShipmentSelection(id) {
+            if (document.getElementById('bulkUpdateBtn')?.dataset.loading === 'true') return;
+            const shipment = allShipments.find(s => String(s.id) === String(id));
+            if (!isShipmentBulkEditable(shipment)) return;
+            const strId = String(id);
+            if (selectedShipmentIdsForBulk.has(strId)) {
+                selectedShipmentIdsForBulk.delete(strId);
+            } else {
+                selectedShipmentIdsForBulk.add(strId);
+            }
+            updateBulkActionBar();
+        }
+
+        function toggleSelectAll(checkbox) {
+            if (document.getElementById('bulkUpdateBtn')?.dataset.loading === 'true') return;
+            const isChecked = checkbox.checked;
+            const currentlyRenderedCheckboxes = document.querySelectorAll('.bulk-item-checkbox:not(:disabled)');
+            
+            currentlyRenderedCheckboxes.forEach(cb => {
+                const id = cb.getAttribute('data-id');
+                if(id) {
+                    cb.checked = isChecked;
+                    if (isChecked) {
+                        selectedShipmentIdsForBulk.add(String(id));
+                    } else {
+                        selectedShipmentIdsForBulk.delete(String(id));
+                    }
+                }
+            });
+            updateBulkActionBar();
+        }
+
+        function updateBulkActionBar() {
+            if (typeof updateBulkActionBar.debouncer !== 'undefined') {
+                clearTimeout(updateBulkActionBar.debouncer);
+            }
+            updateBulkActionBar.debouncer = setTimeout(() => {
+                const countBadge = document.getElementById('selectedCountBadge');
+                if (countBadge) {
+                    countBadge.innerText = selectedShipmentIdsForBulk.size;
+                }
+                
+                const currentlyRenderedCheckboxes = document.querySelectorAll('.bulk-item-checkbox:not(:disabled)');
+                const selectAllCb = document.getElementById('selectAllCheckbox');
+                const bulkStatusSelect = document.getElementById('bulkStatusSelect');
+                const bulkUpdateBtn = document.getElementById('bulkUpdateBtn');
+                if (selectAllCb && currentlyRenderedCheckboxes.length > 0) {
+                    const allChecked = Array.from(currentlyRenderedCheckboxes).every(cb => cb.checked);
+                    const anyChecked = Array.from(currentlyRenderedCheckboxes).some(cb => cb.checked);
+                    selectAllCb.checked = allChecked;
+                    selectAllCb.indeterminate = anyChecked && !allChecked;
+                } else if (selectAllCb) {
+                    selectAllCb.checked = false;
+                    selectAllCb.indeterminate = false;
+                }
+
+                if (bulkUpdateBtn) {
+                    bulkUpdateBtn.disabled = selectedShipmentIdsForBulk.size === 0 || !bulkStatusSelect?.value || bulkUpdateBtn.dataset.loading === 'true';
+                }
+            }, 10);
+        }
+
+        function getBulkEditableSelectedShipments() {
+            return Array.from(selectedShipmentIdsForBulk)
+                .map(id => allShipments.find(s => String(s.id) === String(id)))
+                .filter(Boolean)
+                .filter(isShipmentBulkEditable);
+        }
+
+        function setBulkUpdateLoadingState(isLoading) {
+            const bulkUpdateBtn = document.getElementById('bulkUpdateBtn');
+            const bulkStatusSelect = document.getElementById('bulkStatusSelect');
+            const selectAllCb = document.getElementById('selectAllCheckbox');
+
+            if (bulkUpdateBtn) {
+                bulkUpdateBtn.dataset.loading = isLoading ? 'true' : 'false';
+                bulkUpdateBtn.disabled = isLoading || selectedShipmentIdsForBulk.size === 0 || !bulkStatusSelect?.value;
+                bulkUpdateBtn.textContent = isLoading ? 'جاري التحديث...' : 'تحديث جماعي';
+            }
+            if (bulkStatusSelect) bulkStatusSelect.disabled = isLoading;
+            if (selectAllCb) selectAllCb.disabled = isLoading;
+
+            document.querySelectorAll('.bulk-item-checkbox').forEach(cb => {
+                if (isLoading) {
+                    cb.dataset.prevDisabled = cb.disabled ? 'true' : 'false';
+                    cb.disabled = true;
+                } else {
+                    cb.disabled = cb.dataset.prevDisabled === 'true';
+                    delete cb.dataset.prevDisabled;
+                }
+            });
+        }
+
+        function resetBulkSelectionUi() {
+            selectedShipmentIdsForBulk.clear();
+            const bulkStatusSelect = document.getElementById('bulkStatusSelect');
+            const selectAllCb = document.getElementById('selectAllCheckbox');
+            if (bulkStatusSelect) bulkStatusSelect.value = '';
+            if (selectAllCb) {
+                selectAllCb.checked = false;
+                selectAllCb.indeterminate = false;
+            }
+            updateBulkActionBar();
+        }
+
+        async function applyBulkUpdate() {
+            pruneBulkSelection();
+            if (selectedShipmentIdsForBulk.size === 0) {
+                Swal.fire('تنبيه', 'يرجى تحديد شحنة واحدة على الأقل', 'warning');
+                return;
+            }
+
+            const status = document.getElementById('bulkStatusSelect').value;
+            if (!status) {
+                Swal.fire('تنبيه', 'يرجى اختيار الحالة', 'warning');
+                return;
+            }
+
+            let reason = '';
+            if (status === 'رفض') {
+                const { value: selectedReason } = await Swal.fire({
+                    title: 'سبب الرفض',
+                    input: 'select',
+                    inputOptions: {
+                        'تهرب': 'تهرب ⛔',
+                        'رفض': 'رفض',
+                        'استلم من قبل': 'استلم من قبل',
+                        'رفض دفع شحن': 'رفض دفع شحن',
+                        'رفض المنتج غير مطابق': 'رفض المنتج غير مطابق',
+                        'مؤجل بعيد': 'مؤجل بعيد'
+                    },
+                    inputPlaceholder: 'اختر السبب المخصص',
+                    showCancelButton: true,
+                    confirmButtonText: 'تأكيد',
+                    cancelButtonText: 'إلغاء'
+                });
+                if (!selectedReason) return;
+                reason = selectedReason;
+            }
+
+            let confirmText = `هل أنت متأكد من تحديث حالة (${selectedShipmentIdsForBulk.size}) شحنة إلى "${status === 'تم' ? 'تم التسليم' : status}"؟`;
+            
+            const confirmed = await Swal.fire({
+                title: 'تأكيد التحديث الجماعي',
+                text: confirmText,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، قم بالتحديث',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#4f46e5'
+            });
+
+            if (!confirmed.isConfirmed) return;
+
+            const totalSelectedCount = selectedShipmentIdsForBulk.size;
+            const editableShipments = getBulkEditableSelectedShipments();
+            const skippedCount = totalSelectedCount - editableShipments.length;
+
+            if (editableShipments.length === 0) {
+                Swal.fire('تنبيه', 'لا توجد شحنات قابلة للتحديث ضمن التحديد الحالي', 'warning');
+                resetBulkSelectionUi();
+                return;
+            }
+
+            setBulkUpdateLoadingState(true);
+
+            try {
+                Swal.fire({
+                    title: 'جاري التحديث...',
+                    text: `يتم الآن تحديث ${editableShipments.length} شحنة`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                let successCount = 0;
+                let failedCount = 0;
+                const updates = [];
+                
+                for (const s of editableShipments) {
+                    const id = s.id;
+                    const normalizedStatus = status;
+                    const updatePayload = { الحالة: normalizedStatus };
+                    
+                    if (status === 'رفض' || status === 'الغاء') {
+                        updatePayload.الحالة = 'الغاء';
+                        updatePayload['سبب الحالة'] = reason;
+                    } else if (status === 'مؤجل') {
+                        updatePayload['سبب الحالة'] = 'مؤجل';
+                    } else if (status === 'تم') {
+                        updatePayload.السعر_بعد_التعديل = Number(getShipmentAmount(s)) || 0;
+                    }
+
+                    updates.push(supabaseClient
+                        .from(CONFIG.TABLES.SHIPMENTS)
+                        .update(toServerShipmentPayload(updatePayload))
+                        .eq('id', Number(id) || id)
+                        .then(({error}) => {
+                            if (!error) {
+                                s.الحالة = updatePayload.الحالة;
+                                if (updatePayload['سبب الحالة']) s['سبب الحالة'] = updatePayload['سبب الحالة'];
+                                if (updatePayload.السعر_بعد_التعديل !== undefined) s.السعر_بعد_التعديل = updatePayload.السعر_بعد_التعديل;
+                                if (normalizedStatus === 'تم' || normalizedStatus === 'شحن') lockShipmentForFurtherUpdates(s.id);
+                                successCount++;
+                            } else {
+                                failedCount++;
+                            }
+                        })
+                        .catch(() => {
+                            failedCount++;
+                        }));
+                }
+
+                await Promise.allSettled(updates);
+                resetBulkSelectionUi();
+                await fetchShipments();
+                Swal.close();
+
+                const summaryParts = [];
+                if (successCount > 0) summaryParts.push(`تم تحديث ${successCount} شحنة`);
+                if (skippedCount > 0) summaryParts.push(`تم استبعاد ${skippedCount} شحنة غير قابلة للتعديل`);
+                if (failedCount > 0) summaryParts.push(`فشل تحديث ${failedCount} شحنة`);
+
+                const hasFailures = failedCount > 0;
+                Swal.fire({
+                    icon: hasFailures ? 'warning' : 'success',
+                    title: hasFailures ? 'تم التحديث جزئيًا' : 'تم التحديث بنجاح',
+                    text: summaryParts.join(' | '),
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 4000
+                });
+            } finally {
+                setBulkUpdateLoadingState(false);
+            }
+        }
+
+        // Map Variables
+        let mapInstance = null;
+        let mapRoutingControl = null;
+        let repMarker = null;
+        let destMarker = null;
+        let mapWatchId = null;
+        let mapCurrentShipmentId = null;
+        let isNavigating = false;
+        let mapCurrentRouteCoords = [];
+        let mapSmartTracking = {
+            lastProcTime: 0, lastLat: null, lastLng: null,
+            calcDistMs: function(l1, ln1, l2, ln2) {
+                const R = 6371e3; const p1 = l1 * Math.PI/180; const p2 = l2 * Math.PI/180;
+                const a = Math.sin((l2-l1)*Math.PI/360)**2 + Math.cos(p1)*Math.cos(p2) * Math.sin((ln2-ln1)*Math.PI/360)**2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            }
+        };
+
+        function initMapUI() {
+            if (document.getElementById('map-overlay-container')) return;
+            const mapHtml = `
+                <div id="map-overlay-container" class="fixed inset-0 z-[100] bg-slate-50 dark:bg-slate-900 flex flex-col transition-transform duration-300 translate-y-full will-change-transform">
+                    <div class="bg-white/90 dark:bg-slate-900/90 backdrop-blur-md px-4 py-4 flex items-center justify-between border-b border-slate-200 dark:border-slate-800 shadow-sm z-10 shrink-0">
+                        <div class="flex items-center gap-3">
+                            <button id="close-map-btn" class="w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 hover:bg-slate-200 active:scale-95 transition-all text-xl">
+                                <i class="fas fa-arrow-right"></i>
+                            </button>
+                            <div>
+                                <h3 class="font-black text-slate-900 dark:text-white leading-none">التتبع والملاحة</h3>
+                                <p id="map-shipment-client" class="text-[11px] font-bold text-indigo-600 mt-1">جاري التحميل...</p>
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-2">
+                             <span id="map-distance-badge" class="px-2 py-1 bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 text-[10px] font-black rounded-lg border border-indigo-100 dark:border-indigo-800/50 hidden">0 كم</span>
+                        </div>
+                    </div>
+                    
+                    <div class="relative flex-1 bg-slate-200 dark:bg-slate-800 w-full">
+                        <div id="leaflet-map" class="w-full h-full z-0"></div>
+                        
+                        <div id="map-loading-overlay" class="absolute inset-0 z-50 bg-slate-50/80 dark:bg-slate-900/80 backdrop-blur-sm flex flex-col items-center justify-center">
+                            <div class="w-16 h-16 border-4 border-slate-200 border-t-indigo-600 rounded-full animate-spin"></div>
+                            <p id="map-loading-text" class="mt-4 font-black text-slate-700 dark:text-slate-200 text-sm animate-pulse">جاري تحديد مسار الرحلة...</p>
+                        </div>
+                        
+                        <button id="recenter-map-btn" class="absolute bottom-6 right-4 z-[60] w-12 h-12 rounded-2xl bg-white dark:bg-slate-800 text-indigo-600 drop-shadow-xl flex items-center justify-center text-xl hover:scale-105 active:scale-95 transition-all border border-slate-100 dark:border-slate-700">
+                            <i class="fas fa-crosshairs"></i>
+                        </button>
+                    </div>
+
+                    <div class="bg-white dark:bg-slate-900 p-4 border-t border-slate-200 dark:border-slate-800 shadow-[0_-10px_20px_-10px_rgba(0,0,0,0.1)] shrink-0 z-10">
+                        <div class="flex items-center justify-between gap-3">
+                            <button id="map-start-btn" class="flex-1 bg-indigo-600 text-white rounded-xl py-3.5 font-black text-sm drop-shadow-md hover:bg-indigo-700 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-route"></i>
+                                بدء التحرك
+                            </button>
+                            <button id="map-arrive-btn" class="flex-1 bg-emerald-500 text-white rounded-xl py-3.5 font-black text-sm drop-shadow-md hover:bg-emerald-600 active:scale-95 transition-all flex items-center justify-center gap-2">
+                                <i class="fas fa-check-circle"></i>
+                                تسجيل الوصول
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', mapHtml);
+
+            document.getElementById('close-map-btn').addEventListener('click', closeMapOverlay);
+            document.getElementById('recenter-map-btn').addEventListener('click', recenterMap);
+            document.getElementById('map-arrive-btn').addEventListener('click', async () => {
+                if (!mapCurrentShipmentId) return;
+                const confirmed = await Swal.fire({
+                    title: 'تأكيد الوصول',
+                    text: 'هل أنت متأكد من تسليم الشحنة وتحديث حالتها إلى "تم التسليم"؟',
+                    icon: 'question',
+                    showCancelButton: true,
+                    confirmButtonText: 'نعم، تم التسليم',
+                    cancelButtonText: 'إلغاء'
+                });
+                if (confirmed.isConfirmed) {
+                    await updateStatus(mapCurrentShipmentId, 'تم التسليم');
+                    closeMapOverlay();
+                }
+            });
+            document.getElementById('map-start-btn').addEventListener('click', () => {
+                isNavigating = true;
+                Swal.fire({
+                    toast: true, position: 'top-end', icon: 'success',
+                    title: 'التتبع فائق الدقة مفعل...', showConfirmButton: false, timer: 2000
+                });
+                document.getElementById('map-start-btn').classList.add('opacity-50', 'pointer-events-none');
+                document.getElementById('map-start-btn').innerHTML = '<i class="fas fa-car"></i> في الطريق...';
+                
+                if (mapInstance && repMarker) mapInstance.setView(repMarker.getLatLng(), 18, { animate: true });
+                // Switch watcher to High Accuracy Nav Mode
+                if (window.mapRestartTrackingFn) window.mapRestartTrackingFn(true);
+            });
+        }
+
+        async function geocodeAddress(address) {
+            const normalized = String(address || '').trim().replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g, ' ');
+            if (!normalized || normalized.length < 3) return null;
+            
+            const cacheKey = `geocode_${normalized}`;
+            const cached = localStorage.getItem(cacheKey);
+            if (cached) {
+                try { return JSON.parse(cached); } catch(e){}
+            }
+
+            try {
+                const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(normalized + ' مصر')}&limit=1`;
+                const res = await fetch(url, { headers: { 'Accept-Language': 'ar' }});
+                const data = await res.json();
+                if (data && data.length > 0) {
+                    const result = { lat: parseFloat(data[0].lat), lng: parseFloat(data[0].lon) };
+                    localStorage.setItem(cacheKey, JSON.stringify(result));
+                    return result;
+                }
+            } catch (err) {}
+            return null;
+        }
+
+        function closeMapOverlay() {
+            const container = document.getElementById('map-overlay-container');
+            if (container) {
+                container.classList.add('translate-y-full');
+            }
+            if (mapWatchId) {
+                navigator.geolocation.clearWatch(mapWatchId);
+                mapWatchId = null;
+            }
+            if (mapRoutingControl && mapInstance) {
+                mapInstance.removeControl(mapRoutingControl);
+                mapRoutingControl = null;
+            }
+            mapCurrentShipmentId = null;
+            isNavigating = false;
+            mapCurrentRouteCoords = [];
+            mapSmartTracking.lastProcTime = 0; mapSmartTracking.lastLat = null; mapSmartTracking.lastLng = null;
+            
+            const startBtn = document.getElementById('map-start-btn');
+            if (startBtn) {
+                startBtn.classList.remove('opacity-50', 'pointer-events-none');
+                startBtn.innerHTML = '<i class="fas fa-route"></i> بدء التحرك';
+            }
+        }
+
+        function recenterMap() {
+            if (mapInstance && repMarker) {
+                mapInstance.setView(repMarker.getLatLng(), 15, { animate: true, duration: 1 });
+            }
+        }
+
+        async function openTrackingMap(shipmentId) {
+            initMapUI();
+            
+            const s = allShipments.find(x => String(x.id) === String(shipmentId));
+            if (!s) return;
+            
+            mapCurrentShipmentId = s.id;
+            const overlay = document.getElementById('map-overlay-container');
+            const loadingOverlay = document.getElementById('map-loading-overlay');
+            const clientText = document.getElementById('map-shipment-client');
+            const distanceBadge = document.getElementById('map-distance-badge');
+            
+            overlay.classList.remove('translate-y-full');
+            loadingOverlay.classList.remove('hidden');
+            clientText.innerText = s.اسم_العميل || 'شحنة';
+            distanceBadge.classList.add('hidden');
+            
+            if (!mapInstance) {
+                mapInstance = L.map('leaflet-map', { zoomControl: false }).setView([30.0444, 31.2357], 12);
+                L.control.zoom({ position: 'bottomleft' }).addTo(mapInstance);
+                L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+                    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OSM</a>',
+                    maxZoom: 19
+                }).addTo(mapInstance);
+                setTimeout(() => mapInstance.invalidateSize(), 350);
+            } else {
+                mapInstance.invalidateSize();
+            }
+
+            if (repMarker) mapInstance.removeLayer(repMarker);
+            if (destMarker) mapInstance.removeLayer(destMarker);
+            if (mapRoutingControl) mapInstance.removeControl(mapRoutingControl);
+            if (mapWatchId) navigator.geolocation.clearWatch(mapWatchId);
+            
+            if (!navigator.geolocation) {
+                loadingOverlay.classList.add('hidden');
+                Swal.fire('خطأ', 'التتبع غير مدعوم في متصفحك', 'error');
+                closeMapOverlay();
+                return;
+            }
+
+            try {
+                const pos = await new Promise((resolve, reject) => {
+                    navigator.geolocation.getCurrentPosition(resolve, reject, { enableHighAccuracy: true, timeout: 10000 });
+                });
+                
+                const repLat = pos.coords.latitude;
+                const repLng = pos.coords.longitude;
+                
+                const repIconHtml = `<div id="rep-nav-arrow" class="w-[44px] h-[44px] flex items-center justify-center bg-indigo-600/90 border-[3px] border-white rounded-full shadow-[0_0_15px_rgba(79,70,229,0.5)]" style="transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1);"><i class="fas fa-location-arrow text-white drop-shadow-md text-xl" style="transform: rotate(-45deg);"></i></div>`;
+                const repIcon = L.divIcon({ html: repIconHtml, className: '', iconSize: [44, 44], iconAnchor: [22, 22] });
+                repMarker = L.marker([repLat, repLng], { icon: repIcon, zIndexOffset: 1000 }).addTo(mapInstance);
+                
+                document.getElementById('map-loading-text').innerText = 'جاري تحليل الوجهة...';
+                
+                let destLat, destLng;
+                const manualGeocode = await geocodeAddress(s.العنوان + ' ' + (s.الزون || ''));
+                if (manualGeocode) {
+                    destLat = manualGeocode.lat;
+                    destLng = manualGeocode.lng;
+                } else {
+                    Swal.fire({
+                        toast: true, position: 'top-end', icon: 'info',
+                        title: 'الخريطة تقريبية (لم يتم تحويل العنوان بدقة)',
+                        showConfirmButton: false, timer: 3000
+                    });
+                    destLat = 30.044 + (Math.random() * 0.1 - 0.05);
+                    destLng = 31.235 + (Math.random() * 0.1 - 0.05);
+                }
+
+                const destIconUrl = 'data:image/svg+xml;base64,' + btoa('<svg fill="#f43f5e" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"/></svg>');
+                const destIcon = L.icon({ iconUrl: destIconUrl, iconSize: [36, 48], iconAnchor: [18, 48], popupAnchor: [0, -48] });
+                destMarker = L.marker([destLat, destLng], { icon: destIcon }).addTo(mapInstance);
+                destMarker.bindPopup(`<b>${s.اسم_العميل}</b><br>${s.العنوان}`);
+                
+                mapRoutingControl = L.Routing.control({
+                    waypoints: [ L.latLng(repLat, repLng), L.latLng(destLat, destLng) ],
+                    routeWhileDragging: false,
+                    show: false,
+                    addWaypoints: false,
+                    lineOptions: { styles: [{ color: '#4f46e5', weight: 6, opacity: 0.8 }] },
+                    createMarker: function() { return null; }
+                }).addTo(mapInstance);
+                
+                mapRoutingControl.on('routesfound', function(e) {
+                    const summary = e.routes[0].summary;
+                    mapCurrentRouteCoords = e.routes[0].coordinates || [];
+                    distanceBadge.innerText = (summary.totalDistance / 1000).toFixed(1) + ' كم';
+                    distanceBadge.classList.remove('hidden');
+                    loadingOverlay.classList.add('hidden');
+                });
+
+                mapRoutingControl.on('routingerror', function() {
+                    loadingOverlay.classList.add('hidden');
+                    Swal.fire({
+                        toast: true, position: 'top', icon: 'warning',
+                        title: 'تعذر رسم المسار، سنعرض المواقع فقط',
+                        showConfirmButton: false, timer: 3000
+                    });
+                    mapInstance.fitBounds(L.latLngBounds([repLat, repLng], [destLat, destLng]).pad(0.2));
+                });
+                
+                let lastCalcTime = Date.now();
+                window.mapRestartTrackingFn = (forceHighAcc) => {
+                     if (mapWatchId) navigator.geolocation.clearWatch(mapWatchId);
+                     
+                     let options = {
+                         enableHighAccuracy: forceHighAcc,
+                         maximumAge: forceHighAcc ? 5000 : 30000,
+                         timeout: forceHighAcc ? 10000 : 20000
+                     };
+                     
+                     mapWatchId = navigator.geolocation.watchPosition((pos2) => {
+                          const now = Date.now();
+                          const throttleMs = isNavigating ? 3000 : 12000;
+                          
+                          if (now - mapSmartTracking.lastProcTime < throttleMs) return; // Smart Time Throttle
+                          
+                          let newLat = pos2.coords.latitude;
+                          let newLng = pos2.coords.longitude;
+                          const speed = pos2.coords.speed || 0;
+                          let heading = pos2.coords.heading;
+                          
+                          if (mapSmartTracking.lastLat) {
+                               const movedDist = mapSmartTracking.calcDistMs(mapSmartTracking.lastLat, mapSmartTracking.lastLng, newLat, newLng);
+                               const distThreshold = isNavigating ? 8 : 20; // Smart Distance Throttle
+                               if (movedDist < distThreshold && speed < 1) return;
+                               
+                               if (heading === null || Number.isNaN(heading)) {
+                                   const dLon = (newLng - mapSmartTracking.lastLng) * Math.PI / 180;
+                                   const lat1 = mapSmartTracking.lastLat * Math.PI / 180;
+                                   const lat2 = newLat * Math.PI / 180;
+                                   const y = Math.sin(dLon) * Math.cos(lat2);
+                                   const x = Math.cos(lat1) * Math.sin(lat2) - Math.sin(lat1) * Math.cos(lat2) * Math.cos(dLon);
+                                   heading = (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+                               }
+                          } else {
+                               heading = heading || 0;
+                          }
+                          
+                          mapSmartTracking.lastProcTime = now;
+                          mapSmartTracking.lastLat = newLat;
+                          mapSmartTracking.lastLng = newLng;
+                          
+                          const offRoute = () => {
+                              if(!mapCurrentRouteCoords || mapCurrentRouteCoords.length === 0) return true;
+                              let mDist = Infinity;
+                              for(let pt of mapCurrentRouteCoords) {
+                                   const d = Math.pow(pt.lat - newLat, 2) + Math.pow(pt.lng - newLng, 2);
+                                   if (d < mDist) mDist = d;
+                              }
+                              return mDist > 0.000008; // Significantly off route
+                          };
+                          
+                          if (isNavigating && mapCurrentRouteCoords && mapCurrentRouteCoords.length > 0) {
+                              let minDist = Infinity;
+                              let snappedLat = newLat, snappedLng = newLng;
+                              for (let pt of mapCurrentRouteCoords) {
+                                  const dist = Math.pow(pt.lat - newLat, 2) + Math.pow(pt.lng - newLng, 2);
+                                  if (dist < minDist) { minDist = dist; snappedLat = pt.lat; snappedLng = pt.lng; }
+                              }
+                              // Snap threshold
+                              if (minDist < 0.000001) { newLat = snappedLat; newLng = snappedLng; }
+                          }
+
+                          if (repMarker) {
+                              repMarker.setLatLng([newLat, newLng]);
+                              const arrowEl = document.getElementById('rep-nav-arrow');
+                              if (arrowEl) arrowEl.style.transform = `rotate(${heading}deg)`;
+                          }
+                          
+                          if (isNavigating && mapInstance && repMarker) {
+                              const zoomLvl = speed > 15 ? 16 : (speed > 8 ? 17 : 18);
+                              mapInstance.setView([newLat, newLng], zoomLvl, { animate: true });
+                          }
+                          
+                          // Smart Re-route: Only request new route if heavily off route, no more spamming API!
+                          if (now - lastCalcTime > 15000 && mapRoutingControl && offRoute()) {
+                              mapRoutingControl.setWaypoints([
+                                  L.latLng(newLat, newLng),
+                                  L.latLng(destLat, destLng)
+                              ]);
+                              lastCalcTime = now;
+                          }
+                     }, null, options);
+                };
+                
+                // Start with Idle tracking mode
+                window.mapRestartTrackingFn(false);
+
+            } catch (err) {
+                loadingOverlay.classList.add('hidden');
+                Swal.fire('خطأ', 'تعذر الحصول على موقعك الحالي. تأكد من تفعيل الـ GPS', 'error');
+                closeMapOverlay();
+            }
+        }
+
         function exportToExcel() {
             const data = getFilteredShipments();
             if (!data || data.length === 0) {
@@ -2087,49 +2742,16 @@
         }
 
         function getFilteredShipments() {
-            const searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
-            const dates = getSelectedDates();
-            const statuses = getSelectedStatuses();
-            const zones = getSelectedZones();
-            const senders = getSelectedSenders();
-
-            return allShipments.filter(s => {
-                if (dates.length > 0 && !dates.includes(getShipmentUpdateDate(s))) return false;
-                if (statuses.length > 0) {
-                    let matchStatus = false;
-                    for (const st of statuses) {
-                        if (st === 'قيد التوصيل') {
-                            if (isPendingStatus(s.الحالة)) { matchStatus = true; break; }
-                        } else if (st === 'تم') {
-                            if (isDeliveredStatus(s.الحالة, s)) { matchStatus = true; break; }
-                        } else if (st === 'رفض') {
-                            if (isRejectedStatus(s.الحالة)) { matchStatus = true; break; }
-                        } else if (st === 'تعديل سعر') {
-                            if (isPriceEditShipment(s)) { matchStatus = true; break; }
-                        } else if (st === 'مؤجل' || st === 'مؤجل') {
-                            if (isDelayedStatus(s.الحالة)) { matchStatus = true; break; }
-                        } else if (st === 'شحن') {
-                            if (String(s.الحالة || '').trim() === 'شحن' || String(s.سبب_الحالة || '').includes('شحن')) { matchStatus = true; break; }
-                        } else if (s.الحالة === st) {
-                            matchStatus = true; break;
-                        }
-                    }
-                    if (!matchStatus) return false;
-                }
-                if (zones.length > 0 && !zones.includes(String(s.الزون || '').trim())) return false;
-                if (senders.length > 0 && !senders.includes(String(s.الراسل || '').trim())) return false;
-
-                if (searchQ) {
-                    const idS = String(s.order_id || '').toLowerCase();
-                    const nameS = String(s.اسم_العميل || '').toLowerCase();
-                    const phoneS = String(s.الهاتف || '').toLowerCase();
-                    const altPhoneS = String(s.هاتف_بديل || '').toLowerCase();
-                    if (!idS.includes(searchQ) && !nameS.includes(searchQ) && !phoneS.includes(searchQ) && !altPhoneS.includes(searchQ)) return false;
-                }
-                return true;
+            return filterShipmentsCollection(allShipments, {
+                search: document.getElementById('searchInput').value,
+                dates: getSelectedDates(),
+                statuses: getSelectedStatuses(),
+                zones: getSelectedZones(),
+                senders: getSelectedSenders()
             });
         }
 
+        favoriteShipmentIds = loadFavoriteShipmentIds();
         fetchShipments();
         initUnreadBadge();
         updateRepNotifUI(); // Initialize notification system
@@ -2144,3 +2766,11 @@
 </body>
 
 </html>
+
+
+
+
+
+
+
+
