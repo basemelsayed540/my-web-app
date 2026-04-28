@@ -86,6 +86,11 @@
             color: #64748b;
             font-weight: 600;
         }
+
+        .shipment-swipe-card {
+            touch-action: pan-y;
+            will-change: transform;
+        }
     </style>
 </head>
 
@@ -117,6 +122,12 @@
                 <button id="themeToggleBtn"
                     class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
                     <i id="themeIcon" class="fas fa-moon text-xl"></i>
+                </button>
+                <button id="nav-btn-notifications"
+                    class="relative w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"
+                    title="الإشعارات" aria-label="الإشعارات">
+                    <i class="fas fa-bell text-xl"></i>
+                    <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
                 </button>
                 <button id="logoutBtn"
                     class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
@@ -233,6 +244,18 @@
         </div>
             <div id="shipmentMenu"
                 class="hidden fixed z-50 min-w-[220px] rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
+                <button id="editPriceMenuBtn"
+                    class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100">
+                    تعديل سعر
+                </button>
+                <button id="delayShipmentMenuBtn"
+                    class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-amber-600 transition-colors hover:bg-amber-50">
+                    مؤجل
+                </button>
+                <button id="rejectShipmentMenuBtn"
+                    class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-rose-600 transition-colors hover:bg-rose-50">
+                    رفض
+                </button>
                 <button id="copyShipmentMenuBtn"
                     class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100">
                     نسخ بيانات الشحنة
@@ -240,19 +263,29 @@
             </div>
         </div>
 
-        <!-- Notifications View -->
-        <div id="notifications-view" class="hidden space-y-4">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-black text-slate-900 dark:text-white">سجل الإشعارات</h2>
-                <button id="clearRepNotificationsBtn" class="text-[10px] font-black text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-800">
-                    مسح الكل
-                </button>
+    </main>
+
+    <div id="repNotificationsPanel" class="hidden fixed top-[84px] left-4 right-4 sm:left-auto sm:right-4 sm:w-[380px] z-[70]">
+        <div class="rounded-[1.75rem] border border-slate-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl overflow-hidden">
+            <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
+                <div>
+                    <h2 class="text-sm font-black text-slate-900 dark:text-white">سجل الإشعارات</h2>
+                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400">آخر التحديثات تظهر هنا</p>
+                </div>
+                <div class="flex items-center gap-2">
+                    <button id="markAllRepNotificationsReadBtn" class="text-[10px] font-black text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-800">
+                        تحديد الكل كمقروء
+                    </button>
+                    <button id="clearRepNotificationsBtn" class="text-[10px] font-black text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-800">
+                        مسح الكل
+                    </button>
+                </div>
             </div>
-            <div id="repNotificationsContainer" class="space-y-3">
+            <div id="repNotificationsContainer" class="max-h-[65vh] overflow-y-auto p-3 space-y-3">
                 <!-- Notifications injected here -->
             </div>
         </div>
-    </main>
+    </div>
 
     <!-- Navigation Bottom (Mobile Only) -->
     <nav
@@ -270,12 +303,6 @@
             <i class="fas fa-wallet text-xl"></i>
             <span class="text-[9px] font-black">المحفظة</span>
         </a>
-        <button id="nav-btn-notifications"
-            class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
-            <i class="fas fa-bell text-xl"></i>
-            <span class="text-[9px] font-black">الإشعارات</span>
-            <span id="low-unread-badge" class="hidden absolute -top-1 -right-1 w-4 h-4 rounded-full bg-rose-500 text-white text-[8px] font-black flex items-center justify-center border-2 border-white dark:border-slate-900 animate-pulse">0</span>
-        </button>
         <a href="account.html"
             class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
             <i class="fas fa-user text-xl"></i>
@@ -377,6 +404,9 @@
         let repNotifications = JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
         let currentActiveView = 'dashboard';
         let favoriteShipmentIds = new Set();
+        let shipmentSwipeState = null;
+        let suppressShipmentClickUntil = 0;
+        let isNotificationsPanelOpen = false;
 
         function addRepNotification(type, shipment) {
             const notif = {
@@ -405,7 +435,48 @@
                 badge.classList.toggle('hidden', unreadCount === 0);
                 badge.classList.toggle('flex', unreadCount > 0);
             }
-            if (currentActiveView === 'notifications') renderRepNotifications();
+            if (isNotificationsPanelOpen) renderRepNotifications();
+        }
+
+        function setNotificationsButtonActive(active) {
+            const notifBtn = document.getElementById('nav-btn-notifications');
+            if (!notifBtn) return;
+            notifBtn.classList.toggle('text-indigo-600', active);
+            notifBtn.classList.toggle('text-slate-400', !active);
+        }
+
+        function markAllRepNotificationsAsRead() {
+            repNotifications = repNotifications.map(item => ({ ...item, read: true }));
+            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            renderRepNotifications();
+            updateRepNotifUI();
+        }
+
+        function openRepNotificationsPanel() {
+            const panel = document.getElementById('repNotificationsPanel');
+            if (!panel) return;
+            isNotificationsPanelOpen = true;
+            panel.classList.remove('hidden');
+            setNotificationsButtonActive(true);
+            renderRepNotifications();
+        }
+
+        function closeRepNotificationsPanel() {
+            const panel = document.getElementById('repNotificationsPanel');
+            if (!panel) return;
+            isNotificationsPanelOpen = false;
+            panel.classList.add('hidden');
+            setNotificationsButtonActive(false);
+        }
+
+        function toggleRepNotificationsPanel() {
+            if (isNotificationsPanelOpen) {
+                closeRepNotificationsPanel();
+                return;
+            }
+
+            markAllRepNotificationsAsRead();
+            openRepNotificationsPanel();
         }
 
         function clearRepNotifications() {
@@ -421,7 +492,7 @@
             
             if (repNotifications.length === 0) {
                 container.innerHTML = `
-                    <div class="text-center py-20 glass rounded-[2.5rem]">
+                    <div class="text-center py-14 rounded-[1.75rem] bg-slate-50 dark:bg-slate-800/70 border border-dashed border-slate-200 dark:border-slate-700">
                         <div class="w-16 h-16 bg-slate-100 dark:bg-slate-800 rounded-2xl flex items-center justify-center text-slate-400 mx-auto mb-4">
                             <i class="fas fa-bell-slash text-2xl"></i>
                         </div>
@@ -444,8 +515,8 @@
                 if (n.type === 'updated') { icon = 'fa-edit text-indigo-500 bg-indigo-50'; text = 'تم تحديث بيانات الشحنة'; }
 
                 return `
-                    <div class="glass p-4 rounded-3xl flex items-start gap-3 border ${n.read ? 'border-slate-100' : 'border-indigo-200 bg-indigo-50/20 shadow-sm'}">
-                        <div class="w-10 h-10 ${icon} rounded-2xl flex items-center justify-center flex-shrink-0">
+                    <div class="p-4 rounded-[1.5rem] flex items-start gap-3 border transition-all ${n.read ? 'bg-white dark:bg-slate-900 border-slate-100 dark:border-slate-800' : 'bg-gradient-to-l from-indigo-50 via-sky-50 to-white dark:from-indigo-950/60 dark:via-slate-900 dark:to-slate-900 border-indigo-200 dark:border-indigo-800 shadow-md shadow-indigo-100/60 dark:shadow-none ring-1 ring-indigo-100 dark:ring-indigo-900/50'}">
+                        <div class="w-10 h-10 ${icon} rounded-2xl flex items-center justify-center flex-shrink-0 ${n.read ? '' : 'ring-4 ring-white dark:ring-slate-900'}">
                             <i class="fas ${icon.split(' ')[0]}"></i>
                         </div>
                         <div class="flex-1">
@@ -466,35 +537,82 @@
         function switchRepView(viewId) {
             currentActiveView = viewId;
             const dashboardView = document.getElementById('dashboard-view');
-            const notificationsView = document.getElementById('notifications-view');
             const dashBtn = document.getElementById('nav-btn-dashboard');
             const favoritesBtn = document.getElementById('nav-btn-favorites');
-            const notifBtn = document.getElementById('nav-btn-notifications');
 
             dashboardView?.classList.add('hidden');
-            notificationsView?.classList.add('hidden');
+            closeRepNotificationsPanel();
 
-            [dashBtn, favoritesBtn, notifBtn].forEach(btn => {
+            [dashBtn, favoritesBtn].forEach(btn => {
                 btn?.classList.remove('text-indigo-600');
                 btn?.classList.add('text-slate-400');
             });
 
-            if (viewId === 'notifications') {
-                notificationsView?.classList.remove('hidden');
-                notifBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+            dashboardView?.classList.remove('hidden');
+            if (viewId === 'favorites') favoritesBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+            else dashBtn?.classList.replace('text-slate-400', 'text-indigo-600');
+            renderShipments();
+        }
+
+        function isMobileSwipeViewport() {
+            return window.matchMedia('(max-width: 640px)').matches;
+        }
+
+        function resetShipmentSwipeCard(card, animate = true) {
+            if (!card) return;
+            card.style.transition = animate ? 'transform 180ms ease, background 180ms ease' : '';
+            card.style.transform = 'translateX(0px)';
+            card.style.background = '';
+        }
+
+        function applyShipmentSwipeVisual(card, deltaX) {
+            if (!card) return;
+            const limitedX = Math.max(-120, Math.min(120, deltaX));
+            const progress = Math.min(Math.abs(limitedX) / 120, 1);
+            card.style.transition = 'none';
+            card.style.transform = `translateX(${limitedX}px)`;
+
+            if (limitedX > 0) {
+                card.style.background = `linear-gradient(90deg, rgba(16,185,129,${0.18 + progress * 0.18}) 0%, rgba(255,255,255,0) 65%)`;
+            } else if (limitedX < 0) {
+                card.style.background = `linear-gradient(270deg, rgba(245,158,11,${0.18 + progress * 0.18}) 0%, rgba(255,255,255,0) 65%)`;
             } else {
-                dashboardView?.classList.remove('hidden');
-                if (viewId === 'favorites') favoritesBtn?.classList.replace('text-slate-400', 'text-indigo-600');
-                else dashBtn?.classList.replace('text-slate-400', 'text-indigo-600');
-                renderShipments();
+                card.style.background = '';
             }
-                
-            if (viewId === 'notifications') {
-                // Mark as read
-                repNotifications.forEach(n => n.read = true);
-                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
-                setTimeout(updateRepNotifUI, 1000);
-                renderRepNotifications();
+        }
+
+        function canStartShipmentSwipe(target) {
+            return !target.closest('button, a, input, select, textarea, label, [data-action]');
+        }
+
+        async function handleShipmentSwipeAction(shipmentId, direction) {
+            if (!shipmentId) return;
+
+            if (direction === 'right') {
+                await updateStatus(shipmentId, 'تم التسليم');
+                return;
+            }
+
+            const result = await Swal.fire({
+                title: 'إجراء سريع',
+                text: 'اختر الإجراء المناسب لهذه الشحنة',
+                icon: 'question',
+                showCancelButton: true,
+                showDenyButton: true,
+                confirmButtonText: 'مؤجل',
+                denyButtonText: 'رفض',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#f59e0b',
+                denyButtonColor: '#e11d48',
+                customClass: {
+                    popup: 'rounded-2xl shadow-2xl'
+                }
+            });
+
+            if (result.isConfirmed) {
+                await updateStatus(shipmentId, 'مؤجل');
+            } else if (result.isDenied) {
+                await handleRejectAction(shipmentId);
             }
         }
 
@@ -1445,7 +1563,7 @@
                 const isFavorite = isFavoriteShipment(s.id);
                 const hideUpdateActions = shouldHideShipmentUpdateActions(s, selectedStatuses);
                 return `
-                <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-2.5 sm:mb-3">
+                <div data-shipment-card data-id="${s.id}" data-swipe-enabled="${!hideUpdateActions && !isShipmentUpdateLocked(s) ? 'true' : 'false'}" class="shipment-swipe-card bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-2.5 sm:mb-3">
                     <div class="absolute top-0 right-0 w-1.5 h-full ${getStatusColor(s)}"></div>
                     
                     <div class="flex justify-between items-start mb-2.5 sm:mb-3">
@@ -1506,11 +1624,9 @@
                     </div>
 
                     ${hideUpdateActions ? '' : `
-                    <div class="grid grid-cols-2 gap-2 mt-1">
-                        <button data-action="update-status" data-id="${s.id}" data-status="تم التسليم" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
-                        <button data-action="edit-price" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-slate-800 hover:bg-slate-900 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-slate-100 active:scale-95 transition-all">تعديل سعر</button>
-                        <button data-action="update-status" data-id="${s.id}" data-status="مؤجل" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-amber-100 active:scale-95 transition-all">مؤجل</button>
-                        <button data-action="reject-shipment" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-700 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-rose-100 active:scale-95 transition-all">رفض</button>
+                    <div class="flex items-center gap-2 mt-1">
+                        <button data-action="update-status" data-id="${s.id}" data-status="تم التسليم" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
+                        <button data-action="toggle-shipment-menu" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="min-w-[86px] bg-slate-100 hover:bg-slate-200 text-slate-700 py-2.5 px-3 rounded-lg font-bold text-[11px] leading-none border border-slate-200 active:scale-95 transition-all">المزيد</button>
                     </div>
                     `}
                     ${isShipmentUpdateLocked(s) ? `
@@ -1647,6 +1763,16 @@
             activeShipmentMenuId = null;
         }
 
+        function setShipmentMenuActionState(disabled) {
+            ['editPriceMenuBtn', 'delayShipmentMenuBtn', 'rejectShipmentMenuBtn'].forEach((buttonId) => {
+                const btn = document.getElementById(buttonId);
+                if (!btn) return;
+                btn.disabled = disabled;
+                btn.classList.toggle('opacity-50', disabled);
+                btn.classList.toggle('pointer-events-none', disabled);
+            });
+        }
+
         function toggleShipmentMenu(event, shipmentId) {
             event.stopPropagation();
             const menu = document.getElementById('shipmentMenu');
@@ -1659,9 +1785,10 @@
 
             activeShipmentMenuId = shipmentId;
             menu.classList.remove('hidden');
+            setShipmentMenuActionState(isShipmentUpdateLocked(shipmentId));
 
             const menuWidth = 220;
-            const menuHeight = 64;
+            const menuHeight = menu.offsetHeight || 220;
             const left = Math.max(12, Math.min(event.clientX - menuWidth + 20, window.innerWidth - menuWidth - 12));
             const top = Math.max(12, Math.min(event.clientY + 12, window.innerHeight - menuHeight - 12));
 
@@ -1693,6 +1820,27 @@
         function copyShipmentDataFromMenu() {
             if (!activeShipmentMenuId) return;
             copyShipmentData(activeShipmentMenuId);
+        }
+
+        function editPriceFromMenu() {
+            if (!activeShipmentMenuId) return;
+            const shipmentId = activeShipmentMenuId;
+            closeShipmentMenu();
+            editPrice(shipmentId);
+        }
+
+        function delayShipmentFromMenu() {
+            if (!activeShipmentMenuId) return;
+            const shipmentId = activeShipmentMenuId;
+            closeShipmentMenu();
+            updateStatus(shipmentId, 'مؤجل');
+        }
+
+        function rejectShipmentFromMenu() {
+            if (!activeShipmentMenuId) return;
+            const shipmentId = activeShipmentMenuId;
+            closeShipmentMenu();
+            handleRejectAction(shipmentId);
         }
 
         function getStatusColor(shipment) {
@@ -1957,10 +2105,17 @@
         el('logoutBtn')?.addEventListener('click', logout);
         el('bulkUpdateBtn')?.addEventListener('click', applyBulkUpdate);
         el('copyShipmentMenuBtn')?.addEventListener('click', copyShipmentDataFromMenu);
+        el('editPriceMenuBtn')?.addEventListener('click', editPriceFromMenu);
+        el('delayShipmentMenuBtn')?.addEventListener('click', delayShipmentFromMenu);
+        el('rejectShipmentMenuBtn')?.addEventListener('click', rejectShipmentFromMenu);
+        el('markAllRepNotificationsReadBtn')?.addEventListener('click', markAllRepNotificationsAsRead);
         el('clearRepNotificationsBtn')?.addEventListener('click', clearRepNotifications);
         el('nav-btn-dashboard')?.addEventListener('click', () => switchRepView('dashboard'));
         el('nav-btn-favorites')?.addEventListener('click', () => switchRepView('favorites'));
-        el('nav-btn-notifications')?.addEventListener('click', () => switchRepView('notifications'));
+        el('nav-btn-notifications')?.addEventListener('click', (event) => {
+            event.stopPropagation();
+            toggleRepNotificationsPanel();
+        });
         el('filterStatus')?.addEventListener('change', (event) => toggleStatusSelection(event.target.value));
         el('filterZone')?.addEventListener('change', (event) => toggleZoneSelection(event.target.value));
         el('filterSender')?.addEventListener('change', (event) => toggleSenderSelection(event.target.value));
@@ -1980,7 +2135,72 @@
             if (!shipmentCheckbox) return;
             toggleShipmentSelection(shipmentCheckbox.dataset.id);
         });
+        el('shipmentsList')?.addEventListener('touchstart', (event) => {
+            if (!isMobileSwipeViewport()) return;
+            if (!canStartShipmentSwipe(event.target)) return;
+
+            const card = event.target.closest('[data-shipment-card]');
+            if (!card || card.dataset.swipeEnabled !== 'true') return;
+
+            const touch = event.touches[0];
+            shipmentSwipeState = {
+                card,
+                shipmentId: card.dataset.id,
+                startX: touch.clientX,
+                startY: touch.clientY,
+                deltaX: 0,
+                deltaY: 0,
+                isDragging: false,
+                lockedAxis: null
+            };
+        }, { passive: true });
+
+        el('shipmentsList')?.addEventListener('touchmove', (event) => {
+            if (!shipmentSwipeState || !isMobileSwipeViewport()) return;
+
+            const touch = event.touches[0];
+            shipmentSwipeState.deltaX = touch.clientX - shipmentSwipeState.startX;
+            shipmentSwipeState.deltaY = touch.clientY - shipmentSwipeState.startY;
+
+            if (!shipmentSwipeState.lockedAxis) {
+                if (Math.abs(shipmentSwipeState.deltaX) < 10 && Math.abs(shipmentSwipeState.deltaY) < 10) return;
+                shipmentSwipeState.lockedAxis = Math.abs(shipmentSwipeState.deltaX) > Math.abs(shipmentSwipeState.deltaY) ? 'x' : 'y';
+            }
+
+            if (shipmentSwipeState.lockedAxis !== 'x') return;
+
+            shipmentSwipeState.isDragging = true;
+            if (event.cancelable) event.preventDefault();
+            applyShipmentSwipeVisual(shipmentSwipeState.card, shipmentSwipeState.deltaX);
+        }, { passive: false });
+
+        el('shipmentsList')?.addEventListener('touchend', async () => {
+            if (!shipmentSwipeState) return;
+
+            const { card, shipmentId, deltaX, isDragging, lockedAxis } = shipmentSwipeState;
+            shipmentSwipeState = null;
+
+            if (!card) return;
+
+            const swipeThreshold = 95;
+            if (isDragging && lockedAxis === 'x' && Math.abs(deltaX) >= swipeThreshold) {
+                suppressShipmentClickUntil = Date.now() + 400;
+                resetShipmentSwipeCard(card);
+                await handleShipmentSwipeAction(shipmentId, deltaX > 0 ? 'right' : 'left');
+                return;
+            }
+
+            resetShipmentSwipeCard(card);
+        }, { passive: true });
+
+        el('shipmentsList')?.addEventListener('touchcancel', () => {
+            if (!shipmentSwipeState) return;
+            resetShipmentSwipeCard(shipmentSwipeState.card);
+            shipmentSwipeState = null;
+        }, { passive: true });
+
         el('shipmentsList')?.addEventListener('click', (event) => {
+            if (Date.now() < suppressShipmentClickUntil) return;
             const actionEl = event.target.closest('[data-action]');
             if (!actionEl || actionEl.disabled) return;
 
@@ -2025,6 +2245,11 @@
             const menu = el('shipmentMenu');
             if (menu && !menu.contains(event.target)) {
                 closeShipmentMenu();
+            }
+            const notifPanel = el('repNotificationsPanel');
+            const notifBtn = el('nav-btn-notifications');
+            if (isNotificationsPanelOpen && notifPanel && notifBtn && !notifPanel.contains(event.target) && !notifBtn.contains(event.target)) {
+                closeRepNotificationsPanel();
             }
             const dateBtn = el('filterDateBtn');
             const dateMenu = el('filterDateMenu');
@@ -2759,7 +2984,7 @@
         // Handle direct navigation to notifications
         document.addEventListener('DOMContentLoaded', () => {
             if (window.location.hash === '#notifications') {
-                switchRepView('notifications');
+                openRepNotificationsPanel();
             }
         });
     </script>
