@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
     <title>لوحة التحكم | نظام الإدارة المركزي</title>
@@ -1277,6 +1277,13 @@
                                     <option value="">اختر اليومية</option>
                                 </select>
                             </div>
+                            <div class="col-md-4">
+                                <label class="form-label small fw-bold">اختر الأرشيف</label>
+                                <select id="deleteArchiveFilterSelect"
+                                    class="form-select filter-select rep-date-filter-glow">
+                                    <option value="">اختر الأرشيف</option>
+                                </select>
+                            </div>
                             <div class="col-md-3">
                                 <button onclick="confirmAndDeleteUpdate()"
                                     class="btn btn-danger w-100 rounded-pill py-2 fw-bold">
@@ -1286,7 +1293,7 @@
                         </div>
                         <div class="alert alert-warning mt-4 small fw-bold">
                             <i class="fas fa-exclamation-triangle me-2"></i> تنبيه: ستحتاج إلى إدخال كلمة مرور المدير
-                            لتأكيد حذف جميع الشحنات المرتبطة باليومية المختارة. هذا الإجراء لا يمكن التراجع عنه.
+                            لتأكيد حذف جميع الشحنات المرتبطة بالفلاتر المختارة. هذا الإجراء لا يمكن التراجع عنه.
                         </div>
                     </div>
                 </div>
@@ -1319,6 +1326,9 @@
                             <input type="file" id="housingExcelInput" accept=".xlsx, .xls, .xlsb" style="display: none;" onchange="importHousingExcel(event)">
                             <button type="button" class="btn btn-primary btn-sm rounded-pill fw-bold px-3" onclick="document.getElementById('housingExcelInput').click()" style="background-color: #4f46e5; border: none; color: white;">
                                 <i class="fas fa-file-import me-1"></i> رفع اكسل
+                            </button>
+                            <button id="housingArchiveSelectedBtn" type="button" class="btn btn-secondary btn-sm rounded-pill fw-bold px-3" onclick="archiveSelectedHousingShipments()" disabled style="background-color: #475569; border: none; color: white;">
+                                <i class="fas fa-box-archive me-1"></i> الأرشيف
                             </button>
                             <button id="housingWarehouseSelectedBtn" type="button" class="btn btn-warning btn-sm rounded-pill fw-bold px-3" onclick="moveSelectedToWarehouse()" disabled>
                                 <i class="fas fa-warehouse me-1"></i> المخزن
@@ -1358,10 +1368,24 @@
                                 </div>
                                 <!-- فلتر المندوب -->
                                 <div class="col">
-                                    <div class="w-100">
-                                        <select id="housingRepFilterSelect" class="form-select rounded-pill fw-bold text-primary border-primary shadow-sm" onchange="renderHousingSection(); saveHousingUiState();" style="height: 38px;">
-                                            <option value="">👤 كل المناديب</option>
-                                        </select>
+                                    <div class="dropdown w-100">
+                                        <button id="housingRepFilterBtn"
+                                            class="btn btn-outline-primary w-100 rounded-pill fw-bold dropdown-toggle text-truncate"
+                                            type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside"
+                                            aria-expanded="false">
+                                            <i class="fas fa-user-group me-1"></i> المندوب
+                                            <span class="badge bg-secondary ms-1" id="housingRepFilterBadge">0</span>
+                                        </button>
+                                        <div class="dropdown-menu p-2 shadow-lg housing-editdate-menu"
+                                            style="min-width: 260px;">
+                                            <div class="d-flex gap-2 mb-2">
+                                                <button type="button" class="btn btn-sm btn-outline-secondary flex-fill"
+                                                    onclick="clearHousingRepFilters()">مسح</button>
+                                                <button type="button" class="btn btn-sm btn-primary flex-fill"
+                                                    onclick="selectAllHousingRepFilters()">الكل</button>
+                                            </div>
+                                            <div id="housingRepFilterList" class="d-grid gap-1"></div>
+                                        </div>
                                     </div>
                                 </div>
                                 <!-- فلتر الحالة -->
@@ -2044,6 +2068,7 @@
 
                 filteredData.forEach(s => {
                     let match = true;
+                    const isArchived = !!String(s.ارشيف || s['أرشيف'] || '').trim();
 
                     if (currentFilters.date && col !== 'اليومية' && getShipmentDailyValue(s) !== currentFilters.date) match = false;
                     if (currentFilters.zone && currentFilters.zone.length > 0 && col !== 'الزون' && !currentFilters.zone.includes(s.الزون)) match = false;
@@ -2062,6 +2087,7 @@
                         }
                         if (!finalMatch) match = false;
                     }
+                    if (col === 'اليومية' && isArchived) match = false;
 
                     if (match && s[col]) counts[s[col]] = (counts[s[col]] || 0) + 1;
                 });
@@ -2084,11 +2110,18 @@
         }
 
         function populateDeleteUpdateFilter() {
-            const getUnique = (key) => [...new Set(allShipments.map(s => s[key]).filter(Boolean))].sort();
-            const updates = [...new Set(allShipments.map(s => getShipmentDailyValue(s)).filter(Boolean))].sort();
+            const updates = [...new Set(
+                allShipments
+                    .filter(s => !String(s.ارشيف || s['أرشيف'] || '').trim())
+                    .map(s => getShipmentDailyValue(s))
+                    .filter(Boolean)
+            )].sort();
+            const archives = [...new Set(allShipments.map(s => String(s.ارشيف || s['أرشيف'] || '').trim()).filter(Boolean))].sort();
             const select = document.getElementById('deleteUpdateFilterSelect');
-            if (!select) return;
+            const archiveSelect = document.getElementById('deleteArchiveFilterSelect');
+            if (!select || !archiveSelect) return;
             const currentVal = select.value;
+            const currentArchiveVal = archiveSelect.value;
             select.innerHTML = '<option value="">اختر قيمة اليومية</option>';
             updates.forEach(u => {
                 const opt = document.createElement('option');
@@ -2097,18 +2130,32 @@
                 if (u === currentVal) opt.selected = true;
                 select.appendChild(opt);
             });
+            archiveSelect.innerHTML = '<option value="">اختر قيمة الأرشيف</option>';
+            archives.forEach(a => {
+                const opt = document.createElement('option');
+                opt.value = a;
+                opt.text = a;
+                if (a === currentArchiveVal) opt.selected = true;
+                archiveSelect.appendChild(opt);
+            });
         }
 
         async function confirmAndDeleteUpdate() {
             const updateVal = document.getElementById('deleteUpdateFilterSelect').value;
-            if (!updateVal) {
-                Swal.fire('تنبيه', 'يرجى اختيار قيمة اليومية أولاً.', 'warning');
+            const archiveVal = document.getElementById('deleteArchiveFilterSelect').value;
+            if (!updateVal && !archiveVal) {
+                Swal.fire('تنبيه', 'يرجى اختيار قيمة اليومية أو الأرشيف أولاً.', 'warning');
                 return;
             }
 
+            const filterSummary = [
+                updateVal ? `اليومية: ${updateVal}` : '',
+                archiveVal ? `الأرشيف: ${archiveVal}` : ''
+            ].filter(Boolean).join(' | ');
+
             const { value: password } = await Swal.fire({
                 title: 'تأكيد أمان الإدارة',
-                text: `أدخل كلمة مرور المدير لتأكيد حذف جميع شحنات "${updateVal}" نهائياً من قاعدة البيانات.`,
+                text: `أدخل كلمة مرور المدير لتأكيد حذف جميع الشحنات المطابقة لـ "${filterSummary}" نهائياً من قاعدة البيانات.`,
                 input: 'password',
                 inputPlaceholder: 'كلمة المرور',
                 icon: 'warning',
@@ -2127,14 +2174,22 @@
 
             showLoading(true);
             try {
-                const { error: delError } = await supabaseClient
+                let deleteQuery = supabaseClient
                     .from(CONFIG.TABLES.SHIPMENTS)
-                    .delete()
-                    .eq('اليومية', updateVal);
+                    .delete();
+
+                if (updateVal) {
+                    deleteQuery = deleteQuery.eq('اليومية', updateVal);
+                }
+                if (archiveVal) {
+                    deleteQuery = deleteQuery.eq('ارشيف', archiveVal);
+                }
+
+                const { error: delError } = await deleteQuery;
 
                 if (delError) throw delError;
 
-                Swal.fire('نجاح', `تم حذف جميع سجلات (${updateVal}) بنجاح.`, 'success');
+                Swal.fire('نجاح', `تم حذف جميع الشحنات المطابقة للفلاتر المختارة بنجاح.`, 'success');
 
                 await fetchShipments();
                 populateFilters();
@@ -2301,7 +2356,7 @@
 
             // Housing section main filters
             setFilterVisualState(document.getElementById('housingEditDateFilterSelect'), getHousingEditDateFilters().length > 0);
-            setFilterVisualState(document.getElementById('housingRepFilterSelect'), getHousingRepFilters().length > 0);
+            setFilterVisualState(document.getElementById('housingRepFilterBtn'), getHousingRepFilters().length > 0);
             setFilterVisualState(document.getElementById('housingStatusFilterBtn'), getHousingStatusFilters().length > 0);
             setFilterVisualState(document.getElementById('housingSenderFilterBtn'), getHousingSenderFilters().length > 0);
 
@@ -3602,6 +3657,32 @@
 
                     if (!isConfirmed) return;
 
+                    const { value: uploadedDailyValue, isConfirmed: isDailyConfirmed } = await Swal.fire({
+                        title: 'إضافة اليومية',
+                        text: 'اكتب قيمة اليومية التي تريد ربطها بهذا الملف فقط قبل رفعه إلى قاعدة البيانات.',
+                        input: 'text',
+                        inputLabel: 'قيمة اليومية',
+                        inputPlaceholder: 'مثال: 2026-04-28 أو يومية صباحية',
+                        inputValue: updates[0]?.['اليومية'] || '',
+                        showCancelButton: true,
+                        confirmButtonText: 'متابعة الرفع',
+                        cancelButtonText: 'إلغاء',
+                        confirmButtonColor: '#4f46e5',
+                        inputValidator: (value) => {
+                            if (!String(value || '').trim()) {
+                                return 'يرجى كتابة قيمة اليومية أولاً.';
+                            }
+                            return null;
+                        }
+                    });
+
+                    if (!isDailyConfirmed) return;
+
+                    const normalizedUploadedDailyValue = String(uploadedDailyValue || '').trim();
+                    updates.forEach(item => {
+                        item['اليومية'] = normalizedUploadedDailyValue;
+                    });
+
                     showLoading(true);
                     
                     const isUpsertConstraintError = (err) =>
@@ -4000,10 +4081,9 @@
                 cb.checked = Array.isArray(state.statuses) && state.statuses.includes(cb.value);
             });
 
-            const repSelect = document.getElementById('housingRepFilterSelect');
-            if (repSelect) {
-                repSelect.value = (Array.isArray(state.reps) && state.reps.length > 0) ? state.reps[0] : '';
-            }
+            document.querySelectorAll('.housing-rep-option').forEach(cb => {
+                cb.checked = Array.isArray(state.reps) && state.reps.includes(cb.value);
+            });
 
             document.querySelectorAll('.housing-sender-option').forEach(cb => {
                 cb.checked = Array.isArray(state.senders) && state.senders.includes(cb.value);
@@ -4069,15 +4149,18 @@
         }
 
         function getHousingRepFilters() {
-            const select = document.getElementById('housingRepFilterSelect');
-            if (select && select.value) {
-                return [String(select.value).trim()];
-            }
-            return [];
+            return Array.from(document.querySelectorAll('.housing-rep-option:checked'))
+                .map(el => String(el.value || '').trim())
+                .filter(Boolean);
         }
 
         function updateHousingRepFilterBadge() {
-            // Function functionality moved to dropdown setup
+            const badge = document.getElementById('housingRepFilterBadge');
+            if (!badge) return;
+            const selectedCount = getHousingRepFilters().length;
+            badge.innerText = selectedCount;
+            badge.classList.toggle('bg-secondary', selectedCount === 0);
+            badge.classList.toggle('bg-primary', selectedCount > 0);
         }
 
         function getHousingSubRepFilters() {
@@ -4100,6 +4183,7 @@
             return allShipments.filter(s => {
                 if (String(s.المندوب || '').startsWith('PRIVATE:')) return false;
                 const d = getHousingDisplayShipmentData(s);
+                if (String(d.ارشيف || d['أرشيف'] || '').trim()) return false;
 
                 if (housingDashStatFilter) {
                     const disp = getHousingDashboardDisplayStatus(d);
@@ -4142,9 +4226,10 @@
             if (!select) return;
 
             const selectedVal = select.value;
-            const dates = [...new Set(allShipments.map(s => getShipmentDailyValue(s)).filter(Boolean))]
+            const visibleHousingShipments = allShipments.filter(s => !String(s.ارشيف || s['أرشيف'] || '').trim());
+            const dates = [...new Set(visibleHousingShipments.map(s => getShipmentDailyValue(s)).filter(Boolean))]
                 .sort((a, b) => b.localeCompare(a));
-            const hasEmptyUpdateDate = allShipments.some(s => !getShipmentDailyValue(s));
+            const hasEmptyUpdateDate = visibleHousingShipments.some(s => !getShipmentDailyValue(s));
 
             const showCounts = getHousingEditDateFilters().length > 0;
             const counts = {};
@@ -4221,13 +4306,19 @@
         }
 
         function populateHousingRepFilter() {
-            const select = document.getElementById('housingRepFilterSelect');
-            if (!select) return;
+            const list = document.getElementById('housingRepFilterList');
+            if (!list) return;
 
-            const selectedVal = select.value;
+            const selected = new Set(getHousingRepFilters());
             const baseShipments = getHousingShipmentsFilteredBy(['rep']);
             const reps = [...new Set(baseShipments.map(s => String(s.المندوب || '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b));
+
+            if (!reps.length) {
+                list.innerHTML = `<div class="text-center text-secondary small fw-bold py-2">لا توجد قيم</div>`;
+                updateHousingRepFilterBadge();
+                return;
+            }
 
             const showCounts = getHousingEditDateFilters().length > 0;
             const counts = {};
@@ -4239,13 +4330,25 @@
                 });
             }
 
-            let html = '<option value="">👤 كل المناديب</option>';
-            reps.forEach(rep => {
-                const countStr = (showCounts && counts[rep]) ? ` (${counts[rep]})` : '';
-                html += `<option value="${escapeAttr(rep)}" ${selectedVal === rep ? 'selected' : ''}>${escapeHtml(rep)}${escapeHtml(countStr)}</option>`;
+            list.innerHTML = reps.map(rep => {
+                const countStr = showCounts ? ` <span class="text-primary ms-1 opacity-75">(${counts[rep] || 0})</span>` : '';
+                return `
+                <label class="form-check housing-editdate-item d-flex align-items-center gap-2 px-2 py-1 rounded-3 mb-0">
+                    <input class="form-check-input housing-rep-option m-0" type="checkbox" value="${escapeAttr(rep)}" ${selected.has(rep) ? 'checked' : ''}>
+                    <span class="small fw-bold">${escapeHtml(rep)}${countStr}</span>
+                </label>
+            `;
+            }).join('');
+
+            list.querySelectorAll('.housing-rep-option').forEach(cb => {
+                cb.addEventListener('change', () => {
+                    updateHousingRepFilterBadge();
+                    renderHousingSection();
+                    saveHousingUiState();
+                });
             });
 
-            select.innerHTML = html;
+            updateHousingRepFilterBadge();
         }
 
         function populateHousingSubRepFilter() {
@@ -4307,13 +4410,17 @@
         }
 
         function clearHousingRepFilters() {
-            const select = document.getElementById('housingRepFilterSelect');
-            if (select) select.value = '';
+            document.querySelectorAll('.housing-rep-option').forEach(cb => cb.checked = false);
+            updateHousingRepFilterBadge();
             renderHousingSection();
+            saveHousingUiState();
         }
 
         function selectAllHousingRepFilters() {
-            // Not applicable
+            document.querySelectorAll('.housing-rep-option').forEach(cb => cb.checked = true);
+            updateHousingRepFilterBadge();
+            renderHousingSection();
+            saveHousingUiState();
         }
 
         function getHousingSenderFilters() {
@@ -4512,6 +4619,9 @@
 
             const filtered = allShipments.filter(s => {
                 const currentData = getHousingDisplayShipmentData(s);
+                const archiveValue = String(currentData.ارشيف || currentData['أرشيف'] || '').trim();
+
+                if (archiveValue) return false;
 
                 const matchesSearch = !searchActive ||
                     `${currentData.اسم_العميل || ''} ${currentData.الهاتف || ''} ${currentData.هاتف_بديل || ''} ${currentData.order_id || ''} ${currentData.كود_الشحنة || ''}`
@@ -5613,13 +5723,14 @@
                 if (altPhoneValue && (phoneCounts.get(altPhoneValue) || 0) > 1) hasAnotherShipment = true;
 
                 const newRepName = (document.getElementById('housingNewRepName')?.value || '').trim();
+                const shipmentDbId = getShipmentDatabaseId(s);
                 const draft = housingDrafts.get(String(s.id));
                 const isMjashDraft = draft && draft.الحالة === 'مجاش';
 
                 return `
                     <tr class="${hasAnotherShipment ? 'housing-duplicate-row' : ''}" title="${hasAnotherShipment ? 'له شحنة أخرى بنفس رقم الهاتف' : ''}">
                         <td class="text-center">
-                            <input class="form-check-input housing-row-checkbox border-secondary" type="checkbox" value="${escapeAttr(s.id)}" data-shipment-code="${escapeAttr(s['كود الشحنة'] || s.order_id || '')}" onclick="updateHousingRowSelection()">
+                            <input class="form-check-input housing-row-checkbox border-secondary" type="checkbox" value="${escapeAttr(s.id)}" data-db-id="${escapeAttr(shipmentDbId)}" data-shipment-code="${escapeAttr(s['كود الشحنة'] || s.order_id || '')}" ${shipmentDbId ? '' : 'disabled title="لا يمكن تنفيذ عمليات جماعية لأن معرف قاعدة البيانات غير متوفر لهذه الشحنة"'} onclick="updateHousingRowSelection()">
                         </td>
                         <td>
                             ${newRepName
@@ -5735,6 +5846,8 @@
                 if (valEl) valEl.innerText = checkedCount;
                 else selectedCountEl.innerHTML = `<i class="fas fa-check-double me-1"></i> <span id="housingSelectedCountValue">${checkedCount}</span>`;
                 if (deleteBtnEl) deleteBtnEl.disabled = checkedCount === 0;
+                const archiveBtnEl = document.getElementById('housingArchiveSelectedBtn');
+                if (archiveBtnEl) archiveBtnEl.disabled = checkedCount === 0;
                 const warehouseBtnEl = document.getElementById('housingWarehouseSelectedBtn');
                 if (warehouseBtnEl) {
                     warehouseBtnEl.disabled = checkedCount === 0;
@@ -5754,6 +5867,30 @@
                 selectAll.checked = false;
                 selectAll.indeterminate = false;
             }
+        }
+
+        function getSelectedHousingDatabaseIds() {
+            const checkboxes = document.querySelectorAll('.housing-row-checkbox:checked');
+            const selectedDbIds = Array.from(checkboxes)
+                .map(cb => String(cb.dataset.dbId || '').trim())
+                .filter(Boolean);
+            const selectedCodes = Array.from(checkboxes)
+                .map(cb => String(cb.dataset.shipmentCode || cb.value || '').trim())
+                .filter(Boolean);
+
+            return {
+                selectedDbIds,
+                selectedCodes,
+                hasMissingDbIds: selectedDbIds.length !== checkboxes.length
+            };
+        }
+
+        function getArchiveDateValue() {
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
         }
 
 
@@ -5953,11 +6090,15 @@
         }
 
         async function moveSelectedToWarehouse() {
-            const checkboxes = document.querySelectorAll('.housing-row-checkbox:checked');
-            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+            const { selectedDbIds: selectedIds, hasMissingDbIds } = getSelectedHousingDatabaseIds();
 
             if (selectedIds.length === 0) {
                 Swal.fire('تنبيه', 'يرجى تحديد شحنات أولاً', 'warning');
+                return;
+            }
+
+            if (hasMissingDbIds) {
+                Swal.fire('خطأ', 'بعض الشحنات المحددة لا تحتوي على id حقيقي من قاعدة البيانات، لذلك تم إيقاف العملية حفاظاً على البيانات.', 'error');
                 return;
             }
 
@@ -5975,7 +6116,7 @@
 
             // --- Undo Snapshot ---
             const snapshots = selectedIds.map(id => {
-                const s = allShipments.find(sh => String(sh.id) === String(id));
+                const s = allShipments.find(sh => getShipmentDatabaseId(sh) === String(id));
                 return { id, fields: { المندوب: s ? (s.المندوب ?? null) : null } };
             });
             housingUndoStack.push({ label: `تحويل للمخزن لـ ${selectedIds.length} شحنة`, snapshots });
@@ -6000,7 +6141,7 @@
 
                 // Update local data
                 allShipments = allShipments.map(s => {
-                    if (selectedIds.includes(String(s.id))) {
+                    if (selectedIds.includes(getShipmentDatabaseId(s))) {
                         return { ...s, المندوب: 'مخزن' };
                     }
                     return s;
@@ -6023,12 +6164,79 @@
             showLoading(false);
         }
 
+        async function archiveSelectedHousingShipments() {
+            const { selectedDbIds: selectedIds, hasMissingDbIds } = getSelectedHousingDatabaseIds();
+
+            if (selectedIds.length === 0) {
+                Swal.fire('تنبيه', 'يرجى تحديد شحنات للأرشفة أولاً', 'warning');
+                return;
+            }
+
+            if (hasMissingDbIds) {
+                Swal.fire('خطأ', 'بعض الشحنات المحددة لا تحتوي على id حقيقي من قاعدة البيانات، لذلك تم إيقاف الأرشفة حفاظاً على البيانات.', 'error');
+                return;
+            }
+
+            const archiveDate = getArchiveDateValue();
+            const { isConfirmed } = await Swal.fire({
+                title: 'تأكيد أرشفة الشحنات المحددة',
+                html: `سيتم كتابة تاريخ الأرشفة <b>${archiveDate}</b> داخل عمود <b>ارشيف</b> لعدد <b>${selectedIds.length}</b> شحنة، وبعدها لن تظهر مرة أخرى داخل صفحة تسكين الشحنات.`,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonColor: '#475569',
+                confirmButtonText: 'تأكيد الأرشفة',
+                cancelButtonText: 'إلغاء'
+            });
+
+            if (!isConfirmed) return;
+
+            showLoading(true);
+            try {
+                const { error } = await supabaseClient
+                    .from(CONFIG.TABLES.SHIPMENTS)
+                    .update({ ارشيف: archiveDate })
+                    .in('id', selectedIds);
+
+                if (error) throw error;
+
+                allShipments = allShipments.map(s => {
+                    if (selectedIds.includes(getShipmentDatabaseId(s))) {
+                        return { ...s, ارشيف: archiveDate };
+                    }
+                    return s;
+                });
+
+                document.querySelectorAll('.housing-row-checkbox').forEach(cb => cb.checked = false);
+                const selectAll = document.getElementById('housingSelectAll');
+                if (selectAll) selectAll.checked = false;
+                updateHousingRowSelection();
+                markHousingDataChanged();
+                refreshDashboard();
+
+                Swal.fire({
+                    icon: 'success',
+                    title: 'تمت الأرشفة بنجاح',
+                    text: `تمت أرشفة ${selectedIds.length} شحنة بتاريخ ${archiveDate} وإخفاؤها من صفحة التسكين.`,
+                    timer: 2500,
+                    showConfirmButton: false
+                });
+            } catch (err) {
+                console.error("Archive Selected Error:", err);
+                Swal.fire('خطأ في العملية', 'فشلت الأرشفة: ' + err.message, 'error');
+            }
+            showLoading(false);
+        }
+
         async function moveSelectedToInDelivery() {
-            const checkboxes = document.querySelectorAll('.housing-row-checkbox:checked');
-            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+            const { selectedDbIds: selectedIds, hasMissingDbIds } = getSelectedHousingDatabaseIds();
 
             if (selectedIds.length === 0) {
                 Swal.fire('تنبيه', 'يرجى تحديد شحنات أولاً', 'warning');
+                return;
+            }
+
+            if (hasMissingDbIds) {
+                Swal.fire('خطأ', 'بعض الشحنات المحددة لا تحتوي على id حقيقي من قاعدة البيانات، لذلك تم إيقاف العملية حفاظاً على البيانات.', 'error');
                 return;
             }
 
@@ -6046,7 +6254,7 @@
 
             // --- Undo Snapshot ---
             const snapshots = selectedIds.map(id => {
-                const s = allShipments.find(sh => String(sh.id) === String(id));
+                const s = allShipments.find(sh => getShipmentDatabaseId(sh) === String(id));
                 return { id, fields: { الحالة: s ? (s.الحالة ?? null) : null } };
             });
             housingUndoStack.push({ label: `تغيير الحالة لـ قيد التوصيل لـ ${selectedIds.length} شحنة`, snapshots });
@@ -6071,7 +6279,7 @@
 
                 // Update local data
                 allShipments = allShipments.map(s => {
-                    if (selectedIds.includes(String(s.id))) {
+                    if (selectedIds.includes(getShipmentDatabaseId(s))) {
                         return { ...s, الحالة: 'قيد التوصيل' };
                     }
                     return s;
@@ -6095,11 +6303,15 @@
         }
 
         async function deleteSelectedHousingShipments() {
-            const checkboxes = document.querySelectorAll('.housing-row-checkbox:checked');
-            const selectedIds = Array.from(checkboxes).map(cb => cb.value);
+            const { selectedDbIds: selectedIds, selectedCodes, hasMissingDbIds } = getSelectedHousingDatabaseIds();
 
             if (selectedIds.length === 0) {
                 Swal.fire('تنبيه', 'يرجى تحديد شحنات للحذف أولاً', 'warning');
+                return;
+            }
+
+            if (hasMissingDbIds) {
+                Swal.fire('خطأ', 'بعض الشحنات المحددة لا تحتوي على id حقيقي من قاعدة البيانات، لذلك تم إيقاف الحذف حفاظاً على البيانات.', 'error');
                 return;
             }
 
@@ -6126,12 +6338,16 @@
                 const { error } = await supabaseClient
                     .from(CONFIG.TABLES.SHIPMENTS)
                     .delete()
-                    .in('ID', selectedIds);
+                    .in('id', selectedIds);
 
                 if (error) throw error;
 
                 const beforeCount = allShipments.length;
-                allShipments = allShipments.filter(s => !selectedIds.includes(String(s.id || s.ID || '')));
+                allShipments = allShipments.filter(s => {
+                    const shipmentDbId = getShipmentDatabaseId(s);
+                    const shipmentCode = String(s['كود الشحنة'] || s.order_id || '').trim();
+                    return !selectedIds.includes(shipmentDbId) && !selectedCodes.includes(shipmentCode);
+                });
                 const afterCount = allShipments.length;
                 const actuallyFiltered = beforeCount - afterCount;
 
@@ -6140,7 +6356,7 @@
                     title: actuallyFiltered > 0 ? 'تم الحذف بنجاح' : 'تنبيه: تم الحذف من السيرفر فقط',
                     text: actuallyFiltered > 0 
                         ? `تم حذف ${selectedIds.length} شحنة بنجاح من قاعدة البيانات والجدول.`
-                        : `تم الحذف من قاعدة البيانات، ولكن لم يتم مسح ${selectedIds.length} شحنة من الجدول الحالي. يرجى تحديث الصفحة أو مراجعة تطابق المعرفات (ID).`,
+                        : `تم الحذف من قاعدة البيانات، ولكن لم يتم مسح ${selectedIds.length} شحنة من الجدول الحالي. يرجى تحديث الصفحة أو مراجعة تطابق المعرفات.`,
                     timer: 5000,
                     showConfirmButton: true
                 });
@@ -6425,14 +6641,17 @@
         }
 
         function clearHousingRepFilters(silent = false) {
-            const select = document.getElementById('housingRepFilterSelect');
-            if (select) select.value = '';
+            document.querySelectorAll('.housing-rep-option').forEach(cb => cb.checked = false);
+            updateHousingRepFilterBadge();
             if (!silent) renderHousingSection();
             saveHousingUiState();
         }
 
         function selectAllHousingRepFilters(silent = false) {
-            // Not applicable
+            document.querySelectorAll('.housing-rep-option').forEach(cb => cb.checked = true);
+            updateHousingRepFilterBadge();
+            if (!silent) renderHousingSection();
+            saveHousingUiState();
         }
 
         function clearHousingSenderFilters(silent = false) {

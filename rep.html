@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org https://router.project-osrm.org; frame-ancestors 'none'; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org https://router.project-osrm.org; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
     <title>لوحة المندوب | نظام الشحن الاحترافي</title>
@@ -1445,31 +1445,31 @@
                 const isFavorite = isFavoriteShipment(s.id);
                 const hideUpdateActions = shouldHideShipmentUpdateActions(s, selectedStatuses);
                 return `
-                <div class="bg-white dark:bg-slate-900 p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-3">
+                <div class="bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-2.5 sm:mb-3">
                     <div class="absolute top-0 right-0 w-1.5 h-full ${getStatusColor(s)}"></div>
                     
-                    <div class="flex justify-between items-start mb-3">
+                    <div class="flex justify-between items-start mb-2.5 sm:mb-3">
                         <div class="flex-1">
-                            <div class="flex items-center gap-2 mb-1">
-                                <label class="flex h-9 w-9 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 ${canBulkEdit ? 'bg-white dark:bg-slate-900 cursor-pointer' : 'bg-slate-100 dark:bg-slate-800 opacity-50 cursor-not-allowed'}" title="${canBulkEdit ? 'تحديد الشحنة' : 'هذه الشحنة مغلقة أو تمت تسويتها'}">
+                            <div class="flex items-center gap-1.5 sm:gap-2 mb-1">
+                                <label class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg border border-slate-200 dark:border-slate-700 ${canBulkEdit ? 'bg-white dark:bg-slate-900 cursor-pointer' : 'bg-slate-100 dark:bg-slate-800 opacity-50 cursor-not-allowed'}" title="${canBulkEdit ? 'تحديد الشحنة' : 'هذه الشحنة مغلقة أو تمت تسويتها'}">
                                     <input
                                         type="checkbox"
-                                        class="bulk-item-checkbox w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 cursor-pointer"
+                                        class="bulk-item-checkbox w-3.5 h-3.5 sm:w-4 sm:h-4 rounded text-indigo-600 focus:ring-indigo-500 border-slate-300 cursor-pointer"
                                         data-id="${s.id}"
                                         data-action="toggle-shipment-selection"
                                         ${isSelected ? 'checked' : ''}
                                         ${canBulkEdit ? '' : 'disabled'}
                                     >
                                 </label>
-                                <button data-action="toggle-shipment-menu" data-id="${s.id}" class="flex h-9 w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
+                                <button data-action="toggle-shipment-menu" data-id="${s.id}" class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <button data-action="toggle-favorite-shipment" data-id="${s.id}" class="flex h-9 w-9 items-center justify-center rounded-lg ${isFavorite ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 border-slate-100 dark:border-slate-700'} border transition-all" title="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}" aria-label="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">
+                                <button data-action="toggle-favorite-shipment" data-id="${s.id}" class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${isFavorite ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 border-slate-100 dark:border-slate-700'} border transition-all" title="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}" aria-label="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">
                                     <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
                                 </button>
                                 <span class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-tight border border-indigo-100/50 dark:border-indigo-800/50">#${s.order_id}</span>
                             </div>
-                            <h3 class="text-base font-bold text-slate-900 dark:text-white leading-tight">${s.اسم_العميل || 'غير مسجل'}</h3>
+                            <h3 class="text-[15px] sm:text-base font-bold text-slate-900 dark:text-white leading-tight">${s.اسم_العميل || 'غير مسجل'}</h3>
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm border border-white dark:border-slate-800 ${getStatusBadgeClass(s)}">
@@ -1481,22 +1481,22 @@
                         </div>
                     </div>
 
-                    <div class="space-y-2.5 mb-5">
-                        <div data-action="open-map" data-id="${s.id}" class="flex items-start gap-2.5 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-2 rounded-xl transition-colors -mx-2 relative z-10 group/map">
-                            <i class="fas fa-map-marked-alt text-base mt-0.5 text-indigo-500 group-hover/map:animate-bounce"></i>
-                            <span class="text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">${s.العنوان || 'بدون عنوان'}</span>
+                    <div class="space-y-2 mb-4 sm:space-y-2.5 sm:mb-5">
+                        <div data-action="open-map" data-id="${s.id}" class="flex items-start gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 sm:p-2 rounded-xl transition-colors -mx-1 sm:-mx-2 relative z-10 group/map">
+                            <i class="fas fa-map-marked-alt text-sm sm:text-base mt-0.5 text-indigo-500 group-hover/map:animate-bounce"></i>
+                            <span class="text-[12px] sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">${s.العنوان || 'بدون عنوان'}</span>
                         </div>
-                        <div class="flex items-center gap-2.5 text-slate-500 dark:text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
                             <i class="fas fa-cube text-xs"></i>
                             <span class="text-xs font-semibold">${s.المنتج || s.المنتجات || 'بدون منتج'}</span>
                         </div>
                         
-                        <div class="flex items-center justify-between gap-2 mt-2 pt-2 border-t border-slate-50 dark:border-slate-800">
-                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                        <div class="flex items-center justify-between gap-2 mt-1.5 pt-2 border-t border-slate-50 dark:border-slate-800">
+                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700">
                                 <i class="fas fa-wallet text-sm text-slate-400"></i>
                                 <div class="flex flex-col">
                                     <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">المبلغ</span>
-                                    <span class="text-base font-bold text-slate-900 dark:text-white">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[10px] font-bold opacity-40">ج.م</small></span>
+                                    <span class="text-[15px] sm:text-base font-bold text-slate-900 dark:text-white">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[9px] sm:text-[10px] font-bold opacity-40">ج.م</small></span>
                                 </div>
                             </div>
                             <div class="flex gap-1.5 flex-wrap justify-end">
@@ -1506,11 +1506,11 @@
                     </div>
 
                     ${hideUpdateActions ? '' : `
-                    <div class="grid grid-cols-2 gap-3 mt-1">
-                        <button data-action="update-status" data-id="${s.id}" data-status="تم التسليم" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
-                        <button data-action="edit-price" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-slate-800 hover:bg-slate-900 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-slate-100 active:scale-95 transition-all">تعديل سعر</button>
-                        <button data-action="update-status" data-id="${s.id}" data-status="مؤجل" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-amber-100 active:scale-95 transition-all">مؤجل</button>
-                        <button data-action="reject-shipment" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-700 text-white py-3.5 rounded-xl font-bold text-sm shadow-md shadow-rose-100 active:scale-95 transition-all">رفض</button>
+                    <div class="grid grid-cols-2 gap-2 mt-1">
+                        <button data-action="update-status" data-id="${s.id}" data-status="تم التسليم" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-indigo-100 active:scale-95 transition-all">تم التسليم</button>
+                        <button data-action="edit-price" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-slate-800 hover:bg-slate-900 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-slate-100 active:scale-95 transition-all">تعديل سعر</button>
+                        <button data-action="update-status" data-id="${s.id}" data-status="مؤجل" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-amber-500 hover:bg-amber-600 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-amber-100 active:scale-95 transition-all">مؤجل</button>
+                        <button data-action="reject-shipment" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="bg-rose-600 hover:bg-rose-700 text-white py-2.5 px-2 rounded-lg font-bold text-[11px] leading-none shadow-sm shadow-rose-100 active:scale-95 transition-all">رفض</button>
                     </div>
                     `}
                     ${isShipmentUpdateLocked(s) ? `

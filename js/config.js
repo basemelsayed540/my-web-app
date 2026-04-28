@@ -60,6 +60,7 @@ CONFIG.SHIPMENT_SERVER_FIELDS = [
     'المندوب الفرعي',
     'حدث',
     'اليومية',
+    'ارشيف',
 ];
 
 function getFirstDefinedShipmentValue(record, keys) {
@@ -105,20 +106,28 @@ function normalizeShipmentRecordHeaders(record) {
         // Fallback or keep empty? The user wants it explicitly set by code.
     }
 
-    const stableShipmentId = String(
-        normalized.id ??
-        normalized.ID ??
-        normalized['كود الشحنة'] ??
-        normalized.order_id ??
-        normalized['كود_الشحنة'] ??
-        ''
-    ).trim();
-    if (stableShipmentId) {
-        normalized.id = stableShipmentId;
-        normalized.ID = stableShipmentId;
+    const realServerIdCandidate = normalized.id ?? normalized.ID;
+    const hasRealServerId =
+        realServerIdCandidate !== null &&
+        realServerIdCandidate !== undefined &&
+        String(realServerIdCandidate).trim() !== '' &&
+        !Number.isNaN(Number(realServerIdCandidate));
+
+    if (hasRealServerId) {
+        normalized.id = String(realServerIdCandidate).trim();
+        normalized.ID = normalized.id;
     }
 
     return normalized;
+}
+
+function getShipmentDatabaseId(record) {
+    if (!record || typeof record !== 'object') return '';
+    const rawId = record.id ?? record.ID;
+    if (rawId === null || rawId === undefined) return '';
+    const normalizedId = String(rawId).trim();
+    if (!normalizedId || Number.isNaN(Number(normalizedId))) return '';
+    return normalizedId;
 }
 
 function buildShipmentServerPayload(payload) {
