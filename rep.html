@@ -116,21 +116,21 @@
             </div>
             <div class="flex items-center gap-1">
                 <button id="trackingToggleBtn"
-                    class="hidden w-12 h-12 flex items-center justify-center text-slate-400 hover:text-emerald-500 transition-colors" title="بدء/إنهاء الشيفت">
+                    class="hidden w-12 h-12 flex items-center justify-center text-slate-400 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors" title="بدء/إنهاء الشيفت">
                     <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
                 </button>
                 <button id="themeToggleBtn"
-                    class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
+                    class="w-12 h-12 flex items-center justify-center text-slate-400 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors">
                     <i id="themeIcon" class="fas fa-moon text-xl"></i>
                 </button>
                 <button id="nav-btn-notifications"
-                    class="relative w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors"
+                    class="relative w-12 h-12 flex items-center justify-center text-slate-400 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
                     title="الإشعارات" aria-label="الإشعارات">
                     <i class="fas fa-bell text-xl"></i>
                     <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
                 </button>
                 <button id="logoutBtn"
-                    class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
+                    class="w-12 h-12 flex items-center justify-center text-slate-400 dark:text-slate-200 hover:text-rose-500 dark:hover:text-rose-400 transition-colors">
                     <i class="fas fa-power-off text-xl"></i>
                 </button>
             </div>
@@ -139,16 +139,16 @@
 
     <main class="max-w-4xl mx-auto px-4 pb-24">
         <div
-            class="sticky top-[66px] z-40 mb-4 -mx-4 px-4 py-2 bg-white/95 dark:bg-slate-950/95 border-b border-slate-100 dark:border-slate-800">
+            class="sticky top-[66px] z-40 mb-3 sm:mb-4 -mx-4 px-4 py-1.5 sm:py-2 bg-white/95 dark:bg-slate-950/95 border-b border-slate-100 dark:border-slate-800">
             <div
-                class="bg-slate-50 dark:bg-slate-900 rounded-2xl p-3 shadow-md border border-slate-200 dark:border-slate-800">
-                <div class="flex items-start justify-between gap-3 mb-2">
+                class="bg-slate-50 dark:bg-slate-900 rounded-2xl p-2.5 sm:p-3 shadow-md border border-slate-200 dark:border-slate-800">
+                <div class="flex items-start justify-between gap-2 sm:gap-3 mb-1.5 sm:mb-2">
                     <div class="min-w-0">
                         <p class="text-[9px] font-black uppercase tracking-widest text-indigo-700 dark:text-indigo-400">
                             نسبة الإنجاز</p>
-                        <h2 class="text-xl font-black text-black dark:text-white leading-none"><span
+                        <h2 class="text-lg sm:text-xl font-black text-black dark:text-white leading-none"><span
                                 id="progressPercent">0</span>%</h2>
-                        <p class="text-[11px] font-black text-slate-800 dark:text-slate-200">تم <span
+                        <p class="text-[10px] sm:text-[11px] font-black text-slate-800 dark:text-slate-200">تم <span
                                 id="progressDelivered" class="text-emerald-600">0</span> | شحن <span
                                 id="progressShipping" class="text-sky-600">0</span> من <span
                                 id="progressTotal">0</span></p>
@@ -157,13 +157,13 @@
                         <p class="text-[9px] font-black uppercase tracking-widest text-emerald-600 mb-0.5">عمولة المندوب
                         </p>
                         <h2 id="repCommissionTotal"
-                            class="text-xl font-black text-black dark:text-white leading-none mb-0.5">0 <span
+                            class="text-lg sm:text-xl font-black text-black dark:text-white leading-none mb-0.5">0 <span
                                 class="text-[10px]">ج.م</span></h2>
-                        <p id="repShippingStats" class="text-[10px] font-black text-slate-700 dark:text-slate-300">
+                        <p id="repShippingStats" class="text-[9px] sm:text-[10px] font-black text-slate-700 dark:text-slate-300">
                             توريد: 0 ش | 0 ج.م</p>
                     </div>
                 </div>
-                <div class="w-full h-3 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden">
+                <div class="w-full h-2.5 sm:h-3 bg-slate-200/80 dark:bg-slate-800 rounded-full overflow-hidden">
                     <div id="progressBar"
                         class="h-full bg-gradient-to-l from-emerald-500 to-indigo-600 rounded-full transition-all duration-500"
                         style="width: 0%"></div>
@@ -182,8 +182,8 @@
                     class="w-full bg-white dark:bg-slate-800 pl-4 pr-12 py-3.5 rounded-xl text-sm font-black text-black dark:text-white outline-none border border-slate-200 dark:border-slate-700 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all shadow-sm">
             </div>
 
-            <div class="flex gap-2 w-full flex-wrap">
-                <div class="relative flex-1 min-w-[100px]">
+            <div class="flex gap-2 w-full flex-nowrap overflow-x-auto pb-1">
+                <div class="relative min-w-[108px] flex-[0_0_108px] sm:flex-1">
                     <button id="filterDateBtn"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-black dark:text-white dark:bg-slate-800 outline-none border border-slate-200 dark:border-slate-700 text-center flex items-center justify-between transition-all">
                         <span id="filterDateLabel" class="truncate">اليومية</span>
@@ -193,7 +193,7 @@
                         class="hidden absolute top-full right-0 mt-1 min-w-[200px] w-full bg-white rounded-xl shadow-2xl border border-slate-200 dark:bg-slate-900 dark:border-slate-700 max-h-60 overflow-y-auto z-[60] p-2 flex flex-col gap-1 text-right">
                     </div>
                 </div>
-                <div class="relative flex-1 min-w-[100px]">
+                <div class="relative min-w-[108px] flex-[0_0_108px] sm:flex-1">
                     <select id="filterStatus"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
                         <option value="قيد التوصيل">قيد التوصيل</option>
@@ -201,14 +201,14 @@
                     </select>
                     <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
-                <div class="relative flex-1 min-w-[100px]">
+                <div class="relative min-w-[108px] flex-[0_0_108px] sm:flex-1">
                     <select id="filterZone"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
                         <option value="الكل">الزون: الكل</option>
                     </select>
                     <i class="fas fa-chevron-down absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
                 </div>
-                <div class="relative flex-1 min-w-[100px]">
+                <div class="relative min-w-[108px] flex-[0_0_108px] sm:flex-1">
                     <select id="filterSender"
                         class="w-full bg-white px-3 py-3 rounded-xl text-[12px] font-black text-slate-700 dark:text-slate-200 dark:bg-slate-800 outline-none appearance-none border border-slate-200 dark:border-slate-700 transition-all cursor-pointer">
                         <option value="الكل">الراسل: الكل</option>
@@ -235,7 +235,7 @@
                 </button>
             </div>
         </div>
-        <div id="shipmentsList" class="space-y-4">
+        <div id="shipmentsList" class="space-y-3">
             <!-- Shimmers/Loading -->
             <div class="animate-pulse space-y-4">
                 <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
@@ -270,7 +270,7 @@
             <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
                 <div>
                     <h2 class="text-sm font-black text-slate-900 dark:text-white">سجل الإشعارات</h2>
-                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-400">آخر التحديثات تظهر هنا</p>
+                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-300">آخر التحديثات تظهر هنا</p>
                 </div>
                 <div class="flex items-center gap-2">
                     <button id="markAllRepNotificationsReadBtn" class="text-[10px] font-black text-indigo-600 bg-indigo-50 dark:bg-indigo-900/30 px-3 py-1.5 rounded-xl border border-indigo-100 dark:border-indigo-800">
@@ -407,6 +407,8 @@
         let shipmentSwipeState = null;
         let suppressShipmentClickUntil = 0;
         let isNotificationsPanelOpen = false;
+        let shipmentsDataVersion = 0;
+        let searchRenderTimer = null;
 
         function addRepNotification(type, shipment) {
             const notif = {
@@ -425,6 +427,18 @@
             if (repNotifications.length > 50) repNotifications.pop();
             localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
             updateRepNotifUI();
+        }
+
+        function invalidateShipmentRenderCache() {
+            lastFilterSignature = '';
+            lastMetaSignature = '';
+            cachedFilteredShipments = [];
+            cachedScopedShipments = [];
+        }
+
+        function bumpShipmentsDataVersion() {
+            shipmentsDataVersion += 1;
+            invalidateShipmentRenderCache();
         }
 
         function updateRepNotifUI() {
@@ -497,7 +511,7 @@
                             <i class="fas fa-bell-slash text-2xl"></i>
                         </div>
                         <h3 class="font-bold text-slate-800 dark:text-white">لا توجد إشعارات</h3>
-                        <p class="text-[10px] text-slate-400 mt-1">سيتم إخطارك بكل جديد هنا</p>
+                        <p class="text-[10px] text-slate-400 dark:text-slate-300 mt-1">سيتم إخطارك بكل جديد هنا</p>
                     </div>
                 `;
                 return;
@@ -522,10 +536,10 @@
                         <div class="flex-1">
                             <div class="flex justify-between items-start">
                                 <h4 class="text-xs font-black text-slate-800 dark:text-white">${text}</h4>
-                                <span class="text-[9px] text-slate-400 font-bold">${n.time}</span>
+                                <span class="text-[9px] text-slate-400 dark:text-slate-300 font-bold">${n.time}</span>
                             </div>
-                            <p class="text-[11px] text-slate-600 dark:text-slate-400 mt-1">المعرف: <span class="font-black text-black dark:text-white">${n.order_id}</span> | العميل: ${n.client}</p>
-                            <p class="text-[10px] text-indigo-500 font-bold mt-1 leading-none flex items-center gap-1">
+                            <p class="text-[11px] text-slate-600 dark:text-slate-300 mt-1">المعرف: <span class="font-black text-black dark:text-white">${n.order_id}</span> | العميل: ${n.client}</p>
+                            <p class="text-[10px] text-indigo-500 dark:text-indigo-300 font-bold mt-1 leading-none flex items-center gap-1">
                                 <i class="fas fa-user-edit text-[9px]"></i> بواسطة: ${n.employee}
                             </p>
                         </div>
@@ -808,6 +822,138 @@
             return String(value || '').replace(/\s+/g, ' ').trim();
         }
 
+        function getShipmentClientIdentity(shipment) {
+            const primaryPhone = normalizeComparableValue(shipment?.الهاتف || shipment?.['رقم الهاتف'] || '');
+            const secondaryPhone = normalizeComparableValue(shipment?.['هاتف_بديل'] || shipment?.هاتف_بديل || '');
+            const clientName = normalizeComparableValue(shipment?.اسم_العميل || shipment?.['اسم العميل'] || '');
+            return primaryPhone || secondaryPhone || clientName || '';
+        }
+
+        function buildClientShipmentFrequencyMap(shipments) {
+            const frequencyMap = new Map();
+            (shipments || []).forEach((shipment) => {
+                const identity = getShipmentClientIdentity(shipment);
+                if (!identity) return;
+                frequencyMap.set(identity, (frequencyMap.get(identity) || 0) + 1);
+            });
+            return frequencyMap;
+        }
+
+        function getShipmentImportantNote(shipment) {
+            const explicitNote = normalizeComparableValue(shipment?.ملاحظات || shipment?.['ملاحظات'] || shipment?.notes || '');
+            if (explicitNote) return explicitNote;
+
+            const reason = normalizeComparableValue(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '');
+            if (!reason) return '';
+
+            const genericReasons = new Set(['مؤجل', 'رفض', 'الغاء', 'إلغاء', 'تم', 'تم التسليم', 'تعديل سعر', 'شحن']);
+            return genericReasons.has(reason) ? '' : reason;
+        }
+
+        function getCachedShipmentCoordinates(shipment) {
+            const directLat = Number(shipment?.lat ?? shipment?.latitude ?? shipment?.['خط العرض']);
+            const directLng = Number(shipment?.lng ?? shipment?.longitude ?? shipment?.['خط الطول']);
+            if (!Number.isNaN(directLat) && !Number.isNaN(directLng) && directLat && directLng) {
+                return { lat: directLat, lng: directLng };
+            }
+
+            const addressCandidates = [
+                `${shipment?.العنوان || ''} ${shipment?.الزون || ''}`.trim(),
+                String(shipment?.العنوان || '').trim()
+            ].filter(Boolean);
+
+            for (const candidate of addressCandidates) {
+                const normalized = candidate.replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g, ' ').trim();
+                if (!normalized || normalized.length < 3) continue;
+                const cacheKey = `geocode_${normalized}`;
+                const cached = localStorage.getItem(cacheKey);
+                if (!cached) continue;
+                try {
+                    const parsed = JSON.parse(cached);
+                    const lat = Number(parsed?.lat);
+                    const lng = Number(parsed?.lng);
+                    if (!Number.isNaN(lat) && !Number.isNaN(lng)) {
+                        return { lat, lng };
+                    }
+                } catch (error) { }
+            }
+
+            return null;
+        }
+
+        function getShipmentDistanceBadge(shipment) {
+            const repLat = trackingSystem?.lastReportedLocation?.latitude;
+            const repLng = trackingSystem?.lastReportedLocation?.longitude;
+            if (typeof repLat !== 'number' || typeof repLng !== 'number') return null;
+
+            const destination = getCachedShipmentCoordinates(shipment);
+            if (!destination) return null;
+
+            const distanceCalculator = typeof trackingSystem?.calculateDistance === 'function'
+                ? trackingSystem.calculateDistance.bind(trackingSystem)
+                : null;
+            if (!distanceCalculator) return null;
+
+            const distanceMeters = distanceCalculator(repLat, repLng, destination.lat, destination.lng);
+            if (!Number.isFinite(distanceMeters)) return null;
+
+            if (distanceMeters <= 800) {
+                return { label: 'قريب', className: 'bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800' };
+            }
+            if (distanceMeters <= 2500) {
+                return { label: 'بالقرب', className: 'bg-sky-50 dark:bg-sky-950/30 text-sky-700 dark:text-sky-300 border-sky-200 dark:border-sky-800' };
+            }
+            return null;
+        }
+
+        function renderShipmentInsightBadges(shipment, clientFrequencyMap) {
+            const badges = [];
+
+            if (isPriceEditShipment(shipment)) {
+                badges.push({
+                    label: 'معدلة السعر',
+                    className: 'bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300 border-cyan-200 dark:border-cyan-800'
+                });
+            }
+
+            if (isFavoriteShipment(shipment?.id)) {
+                badges.push({
+                    label: 'عميل مفضل',
+                    className: 'bg-rose-50 dark:bg-rose-950/30 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-800'
+                });
+            } else {
+                const clientIdentity = getShipmentClientIdentity(shipment);
+                if (clientIdentity && (clientFrequencyMap.get(clientIdentity) || 0) > 1) {
+                    badges.push({
+                        label: 'عميل متكرر',
+                        className: 'bg-violet-50 dark:bg-violet-950/30 text-violet-700 dark:text-violet-300 border-violet-200 dark:border-violet-800'
+                    });
+                }
+            }
+
+            if (getShipmentImportantNote(shipment)) {
+                badges.push({
+                    label: 'ملاحظة مهمة',
+                    className: 'bg-amber-50 dark:bg-amber-950/30 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-800'
+                });
+            }
+
+            const distanceBadge = getShipmentDistanceBadge(shipment);
+            if (distanceBadge) badges.push(distanceBadge);
+
+            if (badges.length === 0) return '';
+
+            return `
+                <div class="flex flex-wrap items-center gap-1.5 mt-1.5">
+                    ${badges.map(badge => `
+                        <span class="inline-flex items-center rounded-full border px-2 py-0.5 text-[9px] font-black leading-none ${badge.className}">
+                            ${badge.label}
+                        </span>
+                    `).join('')}
+                </div>
+            `;
+        }
+
         function getUnreadSessionKey() {
             const repKey = normalizeComparableValue(user?.username || user?.phone || user?.full_name || 'rep');
             return `${REP_UNREAD_SESSION_KEY}${repKey}`;
@@ -945,6 +1091,7 @@
             if (favoriteShipmentIds.has(strId)) favoriteShipmentIds.delete(strId);
             else favoriteShipmentIds.add(strId);
             saveFavoriteShipmentIds(favoriteShipmentIds);
+            invalidateShipmentRenderCache();
             renderShipments();
         }
 
@@ -1058,6 +1205,7 @@
                 [...favoriteShipmentIds].filter(id => currentShipments.some(shipment => String(shipment.id) === String(id)))
             );
             saveFavoriteShipmentIds(favoriteShipmentIds);
+            bumpShipmentsDataVersion();
             pruneBulkSelection();
             saveSeenShipmentIds(currentSeenIds);
 
@@ -1070,8 +1218,6 @@
 
             await fetchLockedShipmentIds();
             restoreRepUiState();
-            populateDropdowns();
-            updateFilterCounters();
             renderShipments();
         }
 
@@ -1085,6 +1231,7 @@
             if (error) {
                 console.error(error);
                 lockedShipmentIds = new Set();
+                bumpShipmentsDataVersion();
                 return;
             }
 
@@ -1097,6 +1244,7 @@
             });
 
             lockedShipmentIds = lockedIds;
+            bumpShipmentsDataVersion();
         }
 
         function isShipmentLocked(id) {
@@ -1250,7 +1398,7 @@
 
             if (!items || items.length === 0) {
                 menu.innerHTML = `
-                    <div class="px-2 py-3 text-center text-[11px] font-bold text-slate-500 dark:text-slate-300">
+                    <div class="px-2 py-3 text-center text-[11px] font-bold text-slate-500 dark:text-slate-200">
                         لا يوجد يومية متاحة
                     </div>
                 `;
@@ -1495,31 +1643,150 @@
             el('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
         }
 
-        let currentDisplayLimit = 20;
+        const ARABIC_DIGIT_MAP = {
+            '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
+            '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
+        };
+        let currentDisplayLimit = 40;
+        let lastFilterSignature = '';
+        let lastMetaSignature = '';
+        let cachedFilteredShipments = [];
+        let cachedScopedShipments = [];
+
+        function normalizeArabicDigits(value) {
+            return String(value || '').replace(/[٠-٩]/g, (digit) => ARABIC_DIGIT_MAP[digit] || digit);
+        }
+
+        function parseShipmentSortTimestamp(value) {
+            const raw = normalizeArabicDigits(value).trim();
+            if (!raw) return 0;
+
+            const numericDate = raw.match(/^(\d{1,4})[\/\-](\d{1,2})[\/\-](\d{1,4})(?:\s+(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?)?$/);
+            if (numericDate) {
+                let first = Number(numericDate[1]);
+                const second = Number(numericDate[2]);
+                let third = Number(numericDate[3]);
+                const hours = Number(numericDate[4] || 0);
+                const minutes = Number(numericDate[5] || 0);
+                const seconds = Number(numericDate[6] || 0);
+
+                let year;
+                let month;
+                let day;
+                if (String(first).length === 4) {
+                    year = first;
+                    month = second;
+                    day = third;
+                } else if (String(third).length === 4) {
+                    day = first;
+                    month = second;
+                    year = third;
+                } else {
+                    year = third;
+                    month = second;
+                    day = first;
+                }
+
+                return new Date(year, Math.max(month - 1, 0), day, hours, minutes, seconds).getTime() || 0;
+            }
+
+            return Date.parse(raw) || 0;
+        }
+
+        function getShipmentSortTimestamp(shipment) {
+            return parseShipmentSortTimestamp(
+                shipment?.['تاريخ التحديث'] ||
+                shipment?.تاريخ_التحديث ||
+                shipment?.updated_at ||
+                shipment?.created_at ||
+                getShipmentUpdateValue(shipment)
+            );
+        }
+
+        function getShipmentSortPriority(shipment) {
+            if (isShipmentUpdateLocked(shipment?.id)) return 5;
+            if (isPendingStatus(shipment?.الحالة)) return 0;
+            if (isDelayedStatus(shipment?.الحالة)) return 1;
+            if (isRejectedStatus(shipment?.الحالة)) return 2;
+            if (isPriceEditShipment(shipment)) return 3;
+            if (isDeliveredStatus(shipment?.الحالة, shipment) || isShippingFeeShipment(shipment)) return 4;
+            return 6;
+        }
+
+        function sortShipmentsSmart(shipments) {
+            return [...shipments].sort((a, b) => {
+                const priorityDiff = getShipmentSortPriority(a) - getShipmentSortPriority(b);
+                if (priorityDiff !== 0) return priorityDiff;
+
+                const timeDiff = getShipmentSortTimestamp(b) - getShipmentSortTimestamp(a);
+                if (timeDiff !== 0) return timeDiff;
+
+                const amountDiff = getShipmentAmount(b) - getShipmentAmount(a);
+                if (amountDiff !== 0) return amountDiff;
+
+                const codeA = Number(normalizeArabicDigits(a?.order_id || a?.['كود الشحنة'] || a?.الكود || a?.id || 0));
+                const codeB = Number(normalizeArabicDigits(b?.order_id || b?.['كود الشحنة'] || b?.الكود || b?.id || 0));
+                return codeB - codeA;
+            });
+        }
+
+        function buildRenderFilters() {
+            return {
+                search: document.getElementById('searchInput').value,
+                dates: getSelectedDates(),
+                zones: getSelectedZones(),
+                senders: getSelectedSenders(),
+                statuses: getSelectedStatuses()
+            };
+        }
+
+        function getFilterSignature(filters) {
+            return JSON.stringify({
+                search: String(filters.search || '').trim().toLowerCase(),
+                dates: [...(filters.dates || [])].sort(),
+                zones: [...(filters.zones || [])].sort(),
+                senders: [...(filters.senders || [])].sort(),
+                statuses: [...(filters.statuses || [])].sort(),
+                view: currentActiveView,
+                favorites: [...favoriteShipmentIds].sort(),
+                version: shipmentsDataVersion
+            });
+        }
+
+        function getMetaSignature(filters) {
+            return JSON.stringify({
+                dates: [...(filters.dates || [])].sort(),
+                zones: [...(filters.zones || [])].sort(),
+                senders: [...(filters.senders || [])].sort(),
+                statuses: [...(filters.statuses || [])].sort(),
+                shipments: allShipments.length,
+                locked: lockedShipmentIds.size,
+                version: shipmentsDataVersion
+            });
+        }
+
         function loadMoreShipments() {
-            currentDisplayLimit += 20;
+            currentDisplayLimit += 40;
             renderShipments(true);
         }
 
         function renderShipments(append = false) {
-            if (append !== true) currentDisplayLimit = 20;
-            populateDropdowns();
-            updateFilterCounters();
+            if (append !== true) currentDisplayLimit = 40;
             pruneBulkSelection();
 
             const list = el('shipmentsList');
             const bulkActionBar = el('bulkActionBar');
-            const selectedDates = getSelectedDates();
-            const selectedZones = getSelectedZones();
-            const selectedSenders = getSelectedSenders();
-            const selectedStatuses = getSelectedStatuses();
-            const filters = {
-                search: document.getElementById('searchInput').value,
-                dates: selectedDates,
-                zones: selectedZones,
-                senders: selectedSenders,
-                statuses: selectedStatuses
-            };
+            const filters = buildRenderFilters();
+            const selectedDates = filters.dates;
+            const selectedStatuses = filters.statuses;
+            const filterSignature = getFilterSignature(filters);
+            const metaSignature = getMetaSignature(filters);
+
+            if (append !== true && metaSignature !== lastMetaSignature) {
+                populateDropdowns();
+                updateFilterCounters();
+                lastMetaSignature = metaSignature;
+            }
 
             if (selectedDates.length === 0 && selectedStatuses.length === 0) {
                 list.innerHTML = `
@@ -1531,10 +1798,15 @@
                 return;
             }
 
-            const filtered = filterShipmentsCollection(allShipments, filters);
-            const scopedFiltered = currentActiveView === 'favorites'
-                ? filtered.filter(s => isFavoriteShipment(s.id))
-                : filtered;
+            if (filterSignature !== lastFilterSignature) {
+                cachedFilteredShipments = sortShipmentsSmart(filterShipmentsCollection(allShipments, filters));
+                cachedScopedShipments = currentActiveView === 'favorites'
+                    ? cachedFilteredShipments.filter(s => isFavoriteShipment(s.id))
+                    : cachedFilteredShipments;
+                lastFilterSignature = filterSignature;
+            }
+
+            const scopedFiltered = cachedScopedShipments;
 
             if (scopedFiltered.length === 0) {
                 selectedShipmentIdsForBulk.clear();
@@ -1549,6 +1821,7 @@
             }
 
             const itemsToRender = scopedFiltered.slice(0, currentDisplayLimit);
+            const clientFrequencyMap = buildClientShipmentFrequencyMap(scopedFiltered);
             const hasEditableItems = itemsToRender.some(isShipmentBulkEditable);
             if(bulkActionBar) {
                 if(hasEditableItems) {
@@ -1563,7 +1836,7 @@
                 const isFavorite = isFavoriteShipment(s.id);
                 const hideUpdateActions = shouldHideShipmentUpdateActions(s, selectedStatuses);
                 return `
-                <div data-shipment-card data-id="${s.id}" data-swipe-enabled="${!hideUpdateActions && !isShipmentUpdateLocked(s) ? 'true' : 'false'}" class="shipment-swipe-card bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-2.5 sm:mb-3">
+                <div data-shipment-card data-id="${s.id}" data-swipe-enabled="${!hideUpdateActions && !isShipmentUpdateLocked(s) ? 'true' : 'false'}" class="shipment-swipe-card bg-white dark:bg-slate-900 p-3 sm:p-4 rounded-2xl relative overflow-hidden group transition-all duration-300 border border-slate-100 dark:border-slate-800 shadow-sm hover:shadow-md mb-2 sm:mb-2.5">
                     <div class="absolute top-0 right-0 w-1.5 h-full ${getStatusColor(s)}"></div>
                     
                     <div class="flex justify-between items-start mb-2.5 sm:mb-3">
@@ -1579,42 +1852,43 @@
                                         ${canBulkEdit ? '' : 'disabled'}
                                     >
                                 </label>
-                                <button data-action="toggle-shipment-menu" data-id="${s.id}" class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-indigo-600 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
+                                <button data-action="toggle-shipment-menu" data-id="${s.id}" class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-300 border border-slate-100 dark:border-slate-700 transition-all" title="خيارات" aria-label="خيارات">
                                     <i class="fas fa-ellipsis-h"></i>
                                 </button>
-                                <button data-action="toggle-favorite-shipment" data-id="${s.id}" class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${isFavorite ? 'bg-rose-50 text-rose-500 border-rose-100' : 'bg-slate-50 dark:bg-slate-800 text-slate-400 hover:text-rose-500 border-slate-100 dark:border-slate-700'} border transition-all" title="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}" aria-label="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">
+                                <button data-action="toggle-favorite-shipment" data-id="${s.id}" class="flex h-8 w-8 sm:h-9 sm:w-9 items-center justify-center rounded-lg ${isFavorite ? 'bg-rose-50 dark:bg-rose-950/40 text-rose-500 dark:text-rose-300 border-rose-100 dark:border-rose-800' : 'bg-slate-50 dark:bg-slate-800 text-slate-500 dark:text-slate-200 hover:text-rose-500 dark:hover:text-rose-300 border-slate-100 dark:border-slate-700'} border transition-all" title="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}" aria-label="${isFavorite ? 'إزالة من المفضلة' : 'إضافة إلى المفضلة'}">
                                     <i class="${isFavorite ? 'fas' : 'far'} fa-heart"></i>
                                 </button>
                                 <span class="bg-indigo-50 dark:bg-indigo-900/30 text-indigo-700 dark:text-indigo-300 px-2 py-0.5 rounded text-[10px] font-bold tracking-tight border border-indigo-100/50 dark:border-indigo-800/50">#${s.order_id}</span>
                             </div>
                             <h3 class="text-[15px] sm:text-base font-bold text-slate-900 dark:text-white leading-tight">${s.اسم_العميل || 'غير مسجل'}</h3>
+                            ${renderShipmentInsightBadges(s, clientFrequencyMap)}
                         </div>
                         <div class="flex flex-col items-end gap-1">
                             <span class="px-2 py-1 rounded-lg text-[10px] font-bold shadow-sm border border-white dark:border-slate-800 ${getStatusBadgeClass(s)}">
                                 ${getShipmentStatusLabel(s)}
                             </span>
-                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-400">
+                            <span class="text-[10px] font-bold text-slate-500 dark:text-slate-300">
                                 الراسل: ${s.الراسل || '---'}
                             </span>
                         </div>
                     </div>
 
-                    <div class="space-y-2 mb-4 sm:space-y-2.5 sm:mb-5">
+                    <div class="space-y-1.5 mb-3 sm:space-y-2 sm:mb-4">
                         <div data-action="open-map" data-id="${s.id}" class="flex items-start gap-2 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800 p-1.5 sm:p-2 rounded-xl transition-colors -mx-1 sm:-mx-2 relative z-10 group/map">
                             <i class="fas fa-map-marked-alt text-sm sm:text-base mt-0.5 text-indigo-500 group-hover/map:animate-bounce"></i>
                             <span class="text-[12px] sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">${s.العنوان || 'بدون عنوان'}</span>
                         </div>
-                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                        <div class="flex items-center gap-2 text-slate-500 dark:text-slate-300">
                             <i class="fas fa-cube text-xs"></i>
                             <span class="text-xs font-semibold">${s.المنتج || s.المنتجات || 'بدون منتج'}</span>
                         </div>
                         
                         <div class="flex items-center justify-between gap-2 mt-1.5 pt-2 border-t border-slate-50 dark:border-slate-800">
-                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/50 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700">
-                                <i class="fas fa-wallet text-sm text-slate-400"></i>
+                            <div class="flex items-center gap-2 bg-slate-50 dark:bg-slate-800/80 px-2.5 sm:px-3 py-1.5 rounded-xl border border-slate-100 dark:border-slate-700">
+                                <i class="fas fa-wallet text-sm text-slate-400 dark:text-slate-300"></i>
                                 <div class="flex flex-col">
-                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-tighter">المبلغ</span>
-                                    <span class="text-[15px] sm:text-base font-bold text-slate-900 dark:text-white">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[9px] sm:text-[10px] font-bold opacity-40">ج.م</small></span>
+                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-tighter">المبلغ</span>
+                                    <span class="text-[15px] sm:text-base font-bold text-slate-900 dark:text-white">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[9px] sm:text-[10px] font-bold opacity-60 dark:opacity-80">ج.م</small></span>
                                 </div>
                             </div>
                             <div class="flex gap-1.5 flex-wrap justify-end">
@@ -1630,7 +1904,7 @@
                     </div>
                     `}
                     ${isShipmentUpdateLocked(s) ? `
-                        <div class="mt-2 rounded-xl border border-amber-100/50 bg-amber-50/50 px-3 py-1.5 text-center text-[10px] font-bold text-amber-600">
+                        <div class="mt-2 rounded-xl border border-amber-200/70 dark:border-amber-800/70 bg-amber-50/70 dark:bg-amber-950/30 px-3 py-1.5 text-center text-[10px] font-bold text-amber-700 dark:text-amber-300">
                             هذه الشحنة لا يمكن تعديلها مرة أخرى
                         </div>
                     ` : ''}
@@ -1708,19 +1982,19 @@
 
                 if (!isNumeric) {
                     return `
-                        <div class="flex-1 flex items-center justify-center p-2 bg-slate-100 rounded-xl border border-slate-200">
-                            <span class="text-[10px] font-black text-slate-600 text-center leading-tight">${val}</span>
+                        <div class="flex-1 flex items-center justify-center p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="text-[10px] font-black text-slate-600 dark:text-slate-200 text-center leading-tight">${val}</span>
                         </div>
                     `;
                 }
 
                 return `
-                    <div class="flex gap-2">
-                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="w-11 h-11 rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
-                            <i class="fab fa-whatsapp text-lg"></i>
+                    <div class="flex gap-1.5 sm:gap-2">
+                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
+                            <i class="fab fa-whatsapp text-base sm:text-lg"></i>
                         </button>
-                        <a href="tel:${callNumber}" class="w-11 h-11 rounded-full bg-white border border-slate-200 text-indigo-600 shadow-sm active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
-                            <i class="fas fa-phone-alt text-base"></i>
+                        <a href="tel:${callNumber}" class="w-9 h-9 sm:w-11 sm:h-11 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
+                            <i class="fas fa-phone-alt text-sm sm:text-base"></i>
                         </a>
                     </div>
                 `;
@@ -1730,7 +2004,7 @@
             const secondary = renderField('هاتف_بديل', 'الهاتف البديل');
 
             return `
-                <div class="flex flex-wrap items-center justify-center gap-3 w-full">
+                <div class="flex flex-wrap items-center justify-center gap-2 sm:gap-3 w-full">
                     ${primary}
                     ${secondary}
                 </div>
@@ -1925,7 +2199,7 @@
             if (normalizedStatus === 'تم' || normalizedStatus === 'شحن') {
                 lockShipmentForFurtherUpdates(id);
             }
-            updateFilterCounters();
+            bumpShipmentsDataVersion();
             renderShipments();
         }
 
@@ -2052,6 +2326,7 @@
             if (newStatus === 'تم' || newStatus === 'شحن' || newStatus === 'تعديل سعر') {
                 lockShipmentForFurtherUpdates(id);
             }
+            bumpShipmentsDataVersion();
 
             Swal.fire({
                 icon: 'success',
@@ -2091,7 +2366,10 @@
         }
 
         el('searchInput').addEventListener('input', () => {
-            renderShipments();
+            clearTimeout(searchRenderTimer);
+            searchRenderTimer = setTimeout(() => {
+                renderShipments();
+            }, 180);
             saveRepUiState();
         });
 
