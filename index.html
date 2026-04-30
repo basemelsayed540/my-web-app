@@ -86,8 +86,6 @@
                     <label for="signupRole" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">نوع الحساب</label>
                     <select id="signupRole" required class="input-field bg-white dark:bg-slate-800 text-slate-900 dark:text-white border-slate-200 dark:border-slate-700 w-full py-4 px-4 text-base rounded-xl outline-none focus:border-indigo-500">
                         <option value="rep">مندوب عادي</option>
-                        <option value="sub-rep">مندوب فرعي</option>
-                        <option value="rep">مندوب متقدم</option>
                         <option value="follower">متابعة</option>
                         <option value="sender">الراسل</option>
                     </select>
@@ -211,11 +209,12 @@
                     timer: 1500,
                     showConfirmButton: false
                 }).then(() => {
-                    if (data.role === 'admin' || data.role === 'housing') window.location.href = 'admin.html';
+                    if (data.role === 'admin') window.location.href = 'admin.html';
+                    else if (data.role === 'housing') throw new Error('تم إلغاء قسم تسكين الشحنات من هذه النسخة.');
                     else if (data.role === 'rep' || data.role === 'مندوب فرعي') window.location.href = 'rep.html';
                     else if (data.role === 'sender') window.location.href = 'sender.html';
                     else if (data.role === 'follower') window.location.href = 'follower.html';
-                    else if (data.role === 'sub-rep') window.location.href = 'sub-rep.html';
+                    else if (data.role === 'sub-rep') throw new Error('تم إلغاء قسم المندوب المتقدم من هذه النسخة.');
                     else throw new Error('دور المستخدم غير معروف');
                 });
 

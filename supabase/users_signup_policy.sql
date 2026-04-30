@@ -16,5 +16,5 @@ with check (
     and coalesce(email, '') <> 'admin@admin.com'
     and phone <> 'admin'
     and approved = false
-    and role in ('rep', 'sub-rep', 'sender', 'follower')
+    and role in ('rep', 'sender', 'follower')
 );
