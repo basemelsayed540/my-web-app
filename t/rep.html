@@ -413,6 +413,88 @@
             return !error;
         }
 
+        const CONTACT_RESULT_OPTIONS = [
+            'تم الرد',
+            'لم يرد',
+            'رقم غير صحيح',
+            'تم التواصل واتساب'
+        ];
+        let pendingContactOutcomePrompt = null;
+        let isContactOutcomePromptOpen = false;
+
+        async function promptForContactOutcome(context) {
+            if (!context || isContactOutcomePromptOpen) return;
+            isContactOutcomePromptOpen = true;
+
+            try {
+                const shipment = getShipmentById(context.shipmentId);
+                if (!shipment) return;
+
+                const { value: result } = await Swal.fire({
+                    title: 'ما نتيجة التواصل؟',
+                    html: `
+                        <div class="space-y-3 text-right" dir="rtl">
+                            <p class="text-sm font-bold text-slate-600">الشحنة: <span class="text-slate-900">#${shipment.order_id || shipment['كود الشحنة'] || shipment.id}</span></p>
+                            <select id="swal-contact-result" class="swal2-input !m-0 !w-full border border-slate-200 rounded-lg">
+                                <option value="">اختر النتيجة</option>
+                                ${CONTACT_RESULT_OPTIONS.map((option) => `<option value="${option}">${option}</option>`).join('')}
+                            </select>
+                        </div>
+                    `,
+                    showCancelButton: true,
+                    confirmButtonText: 'حفظ المحاولة',
+                    cancelButtonText: 'تخطي',
+                    preConfirm: () => {
+                        const selectedResult = document.getElementById('swal-contact-result')?.value || '';
+                        if (!selectedResult) {
+                            Swal.showValidationMessage('يرجى اختيار نتيجة التواصل');
+                            return false;
+                        }
+                        return selectedResult;
+                    }
+                });
+
+                if (!result) return;
+
+                const success = await recordShipmentContactAttempt(context.shipmentId, {
+                    method: context.method,
+                    result
+                });
+
+                if (success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم تسجيل نتيجة التواصل',
+                        toast: true,
+                        position: 'top-end',
+                        showConfirmButton: false,
+                        timer: 1800
+                    });
+                }
+            } finally {
+                isContactOutcomePromptOpen = false;
+            }
+        }
+
+        function queueContactOutcomePrompt(context) {
+            pendingContactOutcomePrompt = {
+                ...context,
+                queuedAt: Date.now()
+            };
+        }
+
+        async function flushPendingContactOutcomePrompt() {
+            if (!pendingContactOutcomePrompt || isContactOutcomePromptOpen) return;
+            const context = pendingContactOutcomePrompt;
+            pendingContactOutcomePrompt = null;
+            await promptForContactOutcome(context);
+        }
+
+        function openContactChannelAndWaitForOutcome(context, openCallback) {
+            queueContactOutcomePrompt(context);
+            openCallback();
+        }
+
         let user = JSON.parse(localStorage.getItem('user'));
         if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي')) {
             window.location.href = 'index.html';
@@ -2496,16 +2578,15 @@
 
 *برجاء الاستعداد لاستلامه*`;
 
-            recordShipmentContactAttempt(id, {
-                method: phoneKey === 'هاتف بديل' ? 'واتساب هاتف بديل' : 'واتساب العميل',
-                phoneKey,
-                result: 'opened'
-            }).finally(() => {
+            openContactChannelAndWaitForOutcome({
+                shipmentId: id,
+                method: phoneKey === 'هاتف بديل' ? 'واتساب هاتف بديل' : 'واتساب العميل'
+            }, () => {
                 window.open(`https://wa.me/${phone}?text=${encodeURIComponent(text)}`, '_blank');
             });
         }
 
-        async function makePhoneCall(id, phoneKey = 'الهاتف') {
+        function makePhoneCall(id, phoneKey = 'الهاتف') {
             const s = allShipments.find(x => x.id == id);
             if (!s) return;
 
@@ -2515,32 +2596,20 @@
                 return;
             }
 
-            await recordShipmentContactAttempt(id, {
-                method: phoneKey === 'هاتف بديل' ? 'اتصال هاتف بديل' : 'اتصال العميل',
-                phoneKey,
-                result: 'opened'
+            openContactChannelAndWaitForOutcome({
+                shipmentId: id,
+                method: phoneKey === 'هاتف بديل' ? 'اتصال هاتف بديل' : 'اتصال العميل'
+            }, () => {
+                window.location.href = `tel:${phone}`;
             });
-
-            window.location.href = `tel:${phone}`;
         }
 
         async function logShipmentContactAttempt(id, method = 'تسجيل يدوي') {
-            const success = await recordShipmentContactAttempt(id, {
-                method,
-                result: 'manual'
+            closeShipmentMenu();
+            await promptForContactOutcome({
+                shipmentId: id,
+                method
             });
-
-            if (success) {
-                closeShipmentMenu();
-                Swal.fire({
-                    icon: 'success',
-                    title: 'تم تسجيل المحاولة',
-                    toast: true,
-                    position: 'top-end',
-                    showConfirmButton: false,
-                    timer: 1800
-                });
-            }
         }
 
         el('searchInput').addEventListener('input', () => {
@@ -2712,6 +2781,18 @@
             }
             if (senderBtn && senderMenu && !senderBtn.contains(event.target) && !senderMenu.contains(event.target)) {
                 senderMenu.classList.add('hidden');
+            }
+        });
+        window.addEventListener('focus', () => {
+            setTimeout(() => {
+                flushPendingContactOutcomePrompt();
+            }, 250);
+        });
+        document.addEventListener('visibilitychange', () => {
+            if (!document.hidden) {
+                setTimeout(() => {
+                    flushPendingContactOutcomePrompt();
+                }, 250);
             }
         });
         window.addEventListener('resize', closeShipmentMenu);
