@@ -365,11 +365,11 @@
 
             const { error } = await supabaseClient
                 .from(CONFIG.TABLES.SHIPMENTS)
-                .update(buildShipmentServerPayload({
-                    'عدد المحاولات': attempts,
-                    'آخر محاولة تواصل': attemptedAt,
-                    'آخر وسيلة تواصل': method
-                }))
+                .update({
+                    call_attempts: attempts,
+                    last_contact_at: attemptedAt,
+                    last_contact_method: method
+                })
                 .eq('id', Number(shipmentId) || shipmentId);
 
             if (!error) {
