@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <title>تحويل إلى صفحة الماسح</title>
+    <script>
+        window.location.replace(`admin/mobile.html${window.location.search || ''}${window.location.hash || ''}`);
+    </script>
+</head>
+<body style="font-family: Cairo, sans-serif; margin: 0; padding: 2rem; text-align: center; direction: rtl;">
+    <noscript>
+        هذه الصفحة أصبحت بوابة تحويل فقط. يرجى فتح
+        <a href="admin/mobile.html">صفحة الماسح داخل المجلد admin</a>.
+    </noscript>
+</body>
+</html>
