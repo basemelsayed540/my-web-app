@@ -362,7 +362,6 @@
             const attempts = getShipmentCallAttempts(shipment) + 1;
             const attemptedAt = new Date().toISOString();
             const method = options.method || 'تسجيل تواصل';
-            const contactPhone = options.phoneKey ? getShipmentPhone(shipment, options.phoneKey) : '';
 
             const { error } = await supabaseClient
                 .from(CONFIG.TABLES.SHIPMENTS)
@@ -389,13 +388,9 @@
                 const { error: logError } = await supabaseClient
                     .from(CONFIG.TABLES.CALLS_LOG)
                     .insert({
-                        shipment_id: Number(shipmentId) || null,
                         shipment_code: shipment['كود الشحنة'] || shipment.order_id || null,
                         rep_name: shipment.المندوب || null,
-                        actor_name: user.full_name || user.username || user.phone || null,
-                        actor_role: user.role || null,
-                        contact_method: method,
-                        contact_phone: contactPhone || null,
+                        method,
                         result: options.result || 'opened',
                         created_at: attemptedAt
                     });
