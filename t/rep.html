@@ -391,24 +391,24 @@
         <div id="dashboard-view">
             <!-- Search and Filter -->
             <div class="mb-6 space-y-4 filter-strip rounded-[1.75rem] p-4 sm:p-5">
-            <div class="flex flex-col gap-2 sm:flex-row sm:items-stretch">
-                <div class="relative group flex-1">
+            <div class="flex items-stretch gap-1.5 sm:gap-2 flex-nowrap">
+                <div class="relative group min-w-0 flex-1">
                     <i
-                        class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors text-base"></i>
+                        class="fas fa-search absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-indigo-500 transition-colors text-sm sm:text-base"></i>
                     <input type="text" id="searchInput" placeholder="بحث برقم الشحنة أو الموبايل..."
-                        class="w-full soft-control pl-4 pr-12 py-4 rounded-2xl text-sm font-black text-black dark:text-white outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all">
+                        class="w-full soft-control pl-3 sm:pl-4 pr-10 sm:pr-12 py-3 sm:py-4 rounded-2xl text-[12px] sm:text-sm font-black text-black dark:text-white outline-none focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 transition-all">
                 </div>
-                <div class="relative sm:w-[220px] sm:min-w-[220px]">
+                <div class="relative w-[112px] min-w-[112px] sm:w-[220px] sm:min-w-[220px]">
                     <select id="bulkStatusSelect"
-                        class="w-full soft-control px-4 py-4 rounded-2xl text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
+                        class="w-full soft-control px-3 sm:px-4 py-3 sm:py-4 rounded-2xl text-[11px] sm:text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
                         <option value="">اختر الحالة...</option>
                         <option value="تم">تم التسليم</option>
                         <option value="مؤجل">مؤجل</option>
                         <option value="رفض">رفض</option>
                     </select>
-                    <i class="fas fa-chevron-down absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                    <i class="fas fa-chevron-down absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px] sm:text-xs"></i>
                 </div>
-                <button id="bulkUpdateBtn" class="sm:w-[150px] sm:min-w-[150px] bg-gradient-to-l from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white px-4 py-4 rounded-2xl text-sm font-black shadow-lg shadow-indigo-200/60 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
+                <button id="bulkUpdateBtn" class="w-[98px] min-w-[98px] sm:w-[150px] sm:min-w-[150px] bg-gradient-to-l from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white px-2.5 sm:px-4 py-3 sm:py-4 rounded-2xl text-[11px] sm:text-sm font-black shadow-lg shadow-indigo-200/60 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
                     تحديث جماعي
                 </button>
             </div>
@@ -917,7 +917,7 @@
         }
 
         function isMobileSwipeViewport() {
-            return window.matchMedia('(max-width: 640px)').matches;
+            return false;
         }
 
         function resetShipmentSwipeCard(card, animate = true) {
@@ -2363,12 +2363,9 @@
                     </div>
 
                     ${hideUpdateActions ? '' : `
-                    <div class="hidden sm:flex items-center gap-2 mt-1.5 relative z-10">
+                    <div class="flex items-center gap-2 mt-1.5 relative z-10">
                         <button data-action="update-status" data-id="${s.id}" data-status="تم التسليم" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="flex-1 bg-gradient-to-l from-indigo-600 to-indigo-500 hover:from-indigo-700 hover:to-indigo-600 text-white py-3 px-2 rounded-2xl font-black text-[11px] leading-none shadow-lg shadow-indigo-100/80 active:scale-95 transition-all">تم التسليم</button>
                         <button data-action="toggle-shipment-menu" data-id="${s.id}" ${isShipmentUpdateLocked(s) ? 'disabled' : ''} class="min-w-[92px] bg-white/86 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-100 py-3 px-3 rounded-2xl font-black text-[11px] leading-none border border-slate-200 dark:border-slate-700 active:scale-95 transition-all shadow-sm">المزيد</button>
-                    </div>
-                    <div class="sm:hidden mt-2 relative z-10 rounded-2xl border border-dashed border-slate-200/90 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/70 px-3 py-2 text-center text-[10px] font-black text-slate-500 dark:text-slate-300">
-                        اسحب يمينًا للتسليم، واسحب يسارًا للمزيد
                     </div>
                     `}
                     ${isShipmentUpdateLocked(s) ? `
