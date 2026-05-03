@@ -14,84 +14,254 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        .wallet-hero {
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background:
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 26%),
+                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.16), transparent 26%),
+                linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,250,252,0.92));
+            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
+        }
+
+        .dark .wallet-hero {
+            border-color: rgba(148, 163, 184, 0.14);
+            background:
+                radial-gradient(circle at top right, rgba(16, 185, 129, 0.18), transparent 28%),
+                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.16), transparent 28%),
+                linear-gradient(145deg, rgba(15,23,42,0.92), rgba(2,6,23,0.92));
+            box-shadow: 0 24px 70px rgba(2, 6, 23, 0.48);
+        }
+
+        .wallet-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 0.9rem;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.72);
+            border: 1px solid rgba(16, 185, 129, 0.16);
+            color: #047857;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .dark .wallet-chip {
+            background: rgba(15, 23, 42, 0.7);
+            border-color: rgba(16, 185, 129, 0.24);
+            color: #a7f3d0;
+        }
+
+        .wallet-icon {
+            width: 4rem;
+            height: 4rem;
+            border-radius: 1.5rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            background: linear-gradient(135deg, #059669, #0ea5e9);
+            box-shadow: 0 18px 40px rgba(5, 150, 105, 0.26);
+        }
+
+        .wallet-action {
+            width: 3rem;
+            height: 3rem;
+            border-radius: 1rem;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: rgba(255,255,255,0.7);
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            transition: 0.25s ease;
+        }
+
+        .wallet-action:hover {
+            transform: translateY(-2px);
+            color: #059669;
+            box-shadow: 0 14px 28px rgba(16, 185, 129, 0.18);
+        }
+
+        .dark .wallet-action {
+            background: rgba(15, 23, 42, 0.78);
+            border-color: rgba(148, 163, 184, 0.14);
+            color: #cbd5e1;
+        }
+
+        .wallet-panel {
+            border: 1px solid rgba(148, 163, 184, 0.14);
+            background: rgba(255,255,255,0.76);
+            box-shadow: 0 20px 50px rgba(15, 23, 42, 0.08);
+            backdrop-filter: blur(18px);
+        }
+
+        .dark .wallet-panel {
+            border-color: rgba(148, 163, 184, 0.10);
+            background: rgba(15,23,42,0.78);
+            box-shadow: 0 24px 64px rgba(2, 6, 23, 0.42);
+        }
+
+        .wallet-summary {
+            border-radius: 1.35rem;
+            border: 1px solid rgba(148, 163, 184, 0.12);
+            background: linear-gradient(180deg, rgba(255,255,255,0.88), rgba(248,250,252,0.78));
+            padding: 1rem 1.1rem;
+        }
+
+        .dark .wallet-summary {
+            border-color: rgba(148, 163, 184, 0.10);
+            background: linear-gradient(180deg, rgba(30,41,59,0.88), rgba(15,23,42,0.84));
+        }
+
+        .wallet-filter-btn {
+            border-radius: 1.1rem;
+            min-height: 3.25rem;
+            background: rgba(255,255,255,0.88);
+            border: 1px solid rgba(148, 163, 184, 0.16);
+        }
+
+        .dark .wallet-filter-btn {
+            background: rgba(15,23,42,0.82);
+            border-color: rgba(148, 163, 184, 0.14);
+        }
+
+        .wallet-stat {
+            position: relative;
+            overflow: hidden;
+            border-radius: 1.5rem;
+            padding: 1rem;
+            border-width: 1px;
+            box-shadow: 0 16px 34px rgba(15, 23, 42, 0.07);
+        }
+
+        .wallet-stat::after {
+            content: '';
+            position: absolute;
+            inset: auto -10% -45% auto;
+            width: 110px;
+            height: 110px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.3);
+            filter: blur(8px);
+        }
+
+        .bottom-dock {
+            border: 1px solid rgba(148, 163, 184, 0.16);
+            background: rgba(255,255,255,0.82);
+            backdrop-filter: blur(20px);
+            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.14);
+        }
+
+        .dark .bottom-dock {
+            border-color: rgba(148, 163, 184, 0.12);
+            background: rgba(15,23,42,0.84);
+            box-shadow: 0 24px 60px rgba(2, 6, 23, 0.48);
+        }
     </style>
 </head>
 <body class="bg-indigo-50/50 dark:bg-slate-950 min-h-screen transition-colors duration-300">
 
-    <!-- Header -->
-    <header class="glass sticky top-0 z-50 px-4 py-4 mb-6">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white shadow-md">
-                    <i class="fas fa-wallet"></i>
+    <header class="px-4 pt-5 pb-2">
+        <div class="max-w-4xl mx-auto">
+            <div class="wallet-hero rounded-[2rem] p-5 md:p-7">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div class="space-y-3">
+                        <span class="wallet-chip">
+                            <i class="fas fa-chart-line"></i>
+                            متابعة مالية أوضح للمندوب
+                        </span>
+                        <div class="flex items-center gap-4">
+                            <div class="wallet-icon">
+                                <i class="fas fa-wallet text-2xl"></i>
+                            </div>
+                            <div>
+                                <h1 class="text-2xl md:text-3xl font-black text-slate-900 dark:text-white">المحفظة</h1>
+                                <p class="text-sm md:text-base font-bold text-slate-600 dark:text-slate-300 mt-1">
+                                    أرقامك الأساسية، اليومية، والعمولات في واجهة أسرع وأوضح.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 self-start">
+                        <button onclick="toggleTheme()" class="wallet-action" aria-label="تبديل الثيم">
+                            <i id="themeIcon" class="fas fa-moon text-lg"></i>
+                        </button>
+                        <button onclick="logout()" class="wallet-action hover:!text-rose-500" aria-label="تسجيل الخروج">
+                            <i class="fas fa-power-off text-lg"></i>
+                        </button>
+                    </div>
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold text-slate-800 dark:text-white">المحفظة</h1>
-                    <p class="text-xs font-bold text-indigo-600" id="repName">مندوب توصيل</p>
+
+                <div class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <div class="wallet-summary">
+                        <p class="text-[11px] font-black text-slate-500 dark:text-slate-400 mb-2">الحساب النشط</p>
+                        <p class="text-base md:text-lg font-black text-slate-900 dark:text-white" id="repName">مندوب توصيل</p>
+                    </div>
+                    <div class="wallet-summary">
+                        <p class="text-[11px] font-black text-slate-500 dark:text-slate-400 mb-2">حالة المتابعة</p>
+                        <p class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400 flex items-center gap-2">
+                            <i class="fas fa-circle-check"></i>
+                            الإحصائيات تتحدث مباشرة حسب اليومية المختارة
+                        </p>
+                    </div>
                 </div>
-            </div>
-            <div class="flex items-center gap-1">
-                <button onclick="toggleTheme()" class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-indigo-600 transition-colors">
-                    <i id="themeIcon" class="fas fa-moon text-xl"></i>
-                </button>
-                <button onclick="logout()" class="w-12 h-12 flex items-center justify-center text-slate-400 hover:text-rose-500 transition-colors">
-                    <i class="fas fa-power-off text-xl"></i>
-                </button>
             </div>
         </div>
     </header>
 
-    <main class="max-w-4xl mx-auto px-4 pb-24">
+    <main class="max-w-4xl mx-auto px-4 pb-28">
         
-        <div class="glass p-6 rounded-3xl space-y-6">
+        <div class="wallet-panel p-6 rounded-[2rem] space-y-6">
             <div>
                 <label class="block text-sm font-bold text-slate-600 dark:text-slate-400 mb-2">تصفية حسب اليومية</label>
                 <div class="relative">
-                    <button id="filterDateBtn" onclick="document.getElementById('filterDateMenu').classList.toggle('hidden');" class="w-full glass px-4 py-3 rounded-xl text-sm font-bold text-slate-600 dark:text-white outline-none border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center flex items-center justify-between transition-all duration-300">
+                    <button id="filterDateBtn" onclick="document.getElementById('filterDateMenu').classList.toggle('hidden');" class="wallet-filter-btn w-full px-4 py-3 text-sm font-bold text-slate-600 dark:text-white outline-none text-center flex items-center justify-between transition-all duration-300">
                         <span id="filterDateLabel" class="truncate">اختر اليومية</span>
                         <i class="fas fa-chevron-down text-xs opacity-60"></i>
                     </button>
-                    <div id="filterDateMenu" class="hidden absolute top-full right-0 mt-1 w-full glass rounded-xl shadow-lg border border-slate-200 dark:bg-slate-800 dark:border-slate-700 max-h-48 overflow-y-auto z-[60] p-2 flex flex-col gap-1 text-right text-xs"></div>
+                    <div id="filterDateMenu" class="hidden absolute top-full right-0 mt-2 w-full wallet-panel rounded-2xl max-h-48 overflow-y-auto z-[60] p-2 flex flex-col gap-1 text-right text-xs"></div>
                 </div>
             </div>
             
             <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-                <div class="bg-indigo-50 dark:bg-indigo-900/30 p-4 rounded-2xl border border-indigo-100 dark:border-indigo-800/50 text-center">
+                <div class="wallet-stat bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-100 dark:border-indigo-800/50 text-center">
                     <p class="text-xs font-black text-indigo-600 dark:text-indigo-400 mb-2">إجمالي الشحنات</p>
                     <h4 id="walletTotalCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                 </div>
-                <div class="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50 text-center">
+                <div class="wallet-stat bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/50 text-center">
                     <p class="text-xs font-black text-emerald-600 dark:text-emerald-400 mb-2">تم</p>
                     <h4 id="walletDeliveredCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                     <p id="walletDeliveredAmount" class="mt-1 text-xs font-bold text-slate-600 dark:text-slate-300">0 ج.م</p>
                 </div>
-                <div class="bg-cyan-50 dark:bg-cyan-900/30 p-4 rounded-2xl border border-cyan-100 dark:border-cyan-800/50 text-center">
+                <div class="wallet-stat bg-cyan-50 dark:bg-cyan-900/30 border border-cyan-100 dark:border-cyan-800/50 text-center">
                     <p class="text-xs font-black text-cyan-600 dark:text-cyan-400 mb-2">تعديل سعر</p>
                     <h4 id="walletPriceEditedCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                     <p id="walletPriceEditedAmount" class="mt-1 text-xs font-bold text-slate-600 dark:text-slate-300">0 ج.م</p>
                 </div>
-                <div class="bg-rose-50 dark:bg-rose-900/30 p-4 rounded-2xl border border-rose-100 dark:border-rose-800/50 text-center">
+                <div class="wallet-stat bg-rose-50 dark:bg-rose-900/30 border border-rose-100 dark:border-rose-800/50 text-center">
                     <p class="text-xs font-black text-rose-600 dark:text-rose-400 mb-2">رفض</p>
                     <h4 id="walletRejectedCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                 </div>
-                <div class="bg-sky-50 dark:bg-sky-900/30 p-4 rounded-2xl border border-sky-100 dark:border-sky-800/50 text-center">
+                <div class="wallet-stat bg-sky-50 dark:bg-sky-900/30 border border-sky-100 dark:border-sky-800/50 text-center">
                     <p class="text-xs font-black text-sky-600 dark:text-sky-400 mb-2">شحن</p>
                     <h4 id="walletShippingCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                     <p id="walletShippingAmount" class="mt-1 text-xs font-bold text-slate-600 dark:text-slate-300">0 ج.م</p>
                 </div>
-                <div class="bg-amber-50 dark:bg-amber-900/30 p-4 rounded-2xl border border-amber-100 dark:border-amber-800/50 text-center">
+                <div class="wallet-stat bg-amber-50 dark:bg-amber-900/30 border border-amber-100 dark:border-amber-800/50 text-center">
                     <p class="text-xs font-black text-amber-600 dark:text-amber-400 mb-2">قيد التوصيل</p>
                     <h4 id="walletInTransitCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                 </div>
-                <div class="bg-violet-50 dark:bg-violet-900/30 p-4 rounded-2xl border border-violet-100 dark:border-violet-800/50 text-center">
+                <div class="wallet-stat bg-violet-50 dark:bg-violet-900/30 border border-violet-100 dark:border-violet-800/50 text-center">
                     <p class="text-xs font-black text-violet-600 dark:text-violet-400 mb-2">مؤجل</p>
                     <h4 id="walletDelayedCount" class="text-3xl font-black text-slate-800 dark:text-white">0</h4>
                 </div>
-                <div class="bg-emerald-50 dark:bg-emerald-900/30 p-4 rounded-2xl border border-emerald-100 dark:border-emerald-800/50 text-center">
+                <div class="wallet-stat bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-100 dark:border-emerald-800/50 text-center">
                     <p class="text-xs font-black text-emerald-600 dark:text-emerald-400 mb-2">إجمالي التحصيل</p>
                     <h4 id="walletTotalMoney" class="text-2xl font-black text-slate-800 dark:text-white truncate">0 <span class="text-xs">ج.م</span></h4>
                 </div>
-                <div class="bg-teal-50 dark:bg-teal-900/30 p-4 rounded-2xl border border-teal-100 dark:border-teal-800/50 text-center">
+                <div class="wallet-stat bg-teal-50 dark:bg-teal-900/30 border border-teal-100 dark:border-teal-800/50 text-center">
                     <p class="text-xs font-black text-teal-600 dark:text-teal-400 mb-2">عمولة المندوب</p>
                     <h4 id="walletCommissionTotal" class="text-2xl font-black text-slate-800 dark:text-white truncate">0 <span class="text-xs">ج.م</span></h4>
                 </div>
@@ -101,19 +271,19 @@
     </main>
 
     <!-- Navigation Bottom (Mobile Only) -->
-    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-lg glass rounded-full px-4 py-3 flex items-center justify-around shadow-2xl z-50">
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-lg bottom-dock rounded-full px-4 py-3 flex items-center justify-around z-50">
         <a href="rep.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
             <i class="fas fa-box text-xl"></i>
             <span class="text-[9px] font-black">شحناتي</span>
+        </a>
+        <a href="rep.html#favorites" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
+            <i class="fas fa-heart text-xl"></i>
+            <span class="text-[9px] font-black">المفضلة</span>
         </a>
         <button class="flex flex-col items-center gap-1 text-indigo-600 transition-colors relative">
             <i class="fas fa-wallet text-xl"></i>
             <span class="text-[9px] font-black">المحفظة</span>
         </button>
-        <a href="rep.html#notifications" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
-            <i class="fas fa-bell text-xl"></i>
-            <span class="text-[9px] font-black">الإشعارات</span>
-        </a>
         <a href="account.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
             <i class="fas fa-user text-xl"></i>
             <span class="text-[9px] font-black">الحساب</span>
