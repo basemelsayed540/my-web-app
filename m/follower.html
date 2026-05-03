@@ -376,11 +376,11 @@
 
         let user = JSON.parse(localStorage.getItem('user'));
         if (!user || user.role !== 'follower') {
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
         startStoredUserSessionGuard(supabaseClient, {
             allowedRoles: ['follower'],
-            redirectTo: 'index.html',
+            redirectTo: '../index.html',
             onValidUser: (latestUser) => {
                 user = latestUser;
                 const followerName = document.getElementById('followerName');
@@ -482,10 +482,14 @@
             return normalized;
         }
 
+        function normalizeComparableValue(value) {
+            return String(value ?? '').trim().toLowerCase();
+        }
+
         async function loadRepContacts() {
             const { data, error } = await supabaseClient
                 .from(CONFIG.TABLES.USERS)
-                .select('username, full_name, phone, role, approved');
+                .select('username, phone, role, approved');
 
             if (error) {
                 console.error(error);
@@ -502,7 +506,7 @@
                 const phone = normalizeWhatsAppPhone(account?.phone);
                 if (!phone) return;
 
-                [account?.username, account?.full_name, account?.phone].forEach((key) => {
+                [account?.username, account?.phone].forEach((key) => {
                     const normalizedKey = normalizeComparableValue(key);
                     if (normalizedKey) contactMap.set(normalizedKey, phone);
                 });
@@ -586,14 +590,49 @@
             return !error;
         }
 
-        const CONTACT_RESULT_OPTIONS = [
-            'تم الرد',
-            'لم يرد',
-            'رقم غير صحيح',
-            'تم التواصل واتساب'
-        ];
+        const CONTACT_RESULT_PRESETS = {
+            whatsapp: [
+                'تم التواصل واتساب',
+                'الرقم غير مسجل واتساب',
+                'رقم غير صحيح'
+            ],
+            call: [
+                'تم الرد',
+                'لم يرد',
+                'رقم غير صحيح'
+            ],
+            manual: [
+                'تم الرد',
+                'لم يرد',
+                'تم التواصل واتساب',
+                'الرقم غير مسجل واتساب',
+                'رقم غير صحيح'
+            ]
+        };
         let pendingContactOutcomePrompt = null;
         let isContactOutcomePromptOpen = false;
+
+        function getContactResultOptions(method) {
+            const normalizedMethod = String(method || '').trim();
+            if (normalizedMethod.includes('واتساب')) {
+                return {
+                    title: 'ما نتيجة التواصل عبر واتساب؟',
+                    options: CONTACT_RESULT_PRESETS.whatsapp
+                };
+            }
+
+            if (normalizedMethod.includes('اتصال')) {
+                return {
+                    title: 'ما نتيجة الاتصال؟',
+                    options: CONTACT_RESULT_PRESETS.call
+                };
+            }
+
+            return {
+                title: 'ما نتيجة التواصل؟',
+                options: CONTACT_RESULT_PRESETS.manual
+            };
+        }
 
         async function promptForContactOutcome(context) {
             if (!context || isContactOutcomePromptOpen) return;
@@ -602,15 +641,16 @@
             try {
                 const shipment = getShipmentById(context.shipmentId);
                 if (!shipment) return;
+                const { title, options } = getContactResultOptions(context.method);
 
                 const { value: result } = await Swal.fire({
-                    title: 'ما نتيجة التواصل؟',
+                    title,
                     html: `
                         <div class="space-y-3 text-right" dir="rtl">
                             <p class="text-sm font-bold text-slate-600">الشحنة: <span class="text-slate-900">#${shipment.order_id || shipment['كود الشحنة'] || shipment.id}</span></p>
                             <select id="swal-contact-result" class="swal2-input !m-0 !w-full border border-slate-200 rounded-lg">
                                 <option value="">اختر النتيجة</option>
-                                ${CONTACT_RESULT_OPTIONS.map((option) => `<option value="${option}">${option}</option>`).join('')}
+                                ${options.map((option) => `<option value="${option}">${option}</option>`).join('')}
                             </select>
                         </div>
                     `,
@@ -774,6 +814,15 @@
             const fSender = document.getElementById('filterSender').value;
             const fUpdate = document.getElementById('filterUpdate').value;
             const searchQ = document.getElementById('searchInput').value.trim().toLowerCase();
+            const tbody = document.getElementById('shipmentsTableBody');
+            const pagination = document.getElementById('paginationContainer');
+
+            if (!fUpdate) {
+                tbody.innerHTML = `<tr><td colspan="11" class="text-center p-8 text-amber-600 font-bold">يرجى اختيار فلتر اليومية أولاً لعرض الشحنات</td></tr>`;
+                pagination.innerHTML = '';
+                saveFollowerUiState();
+                return;
+            }
 
             const filtered = allShipments.filter(s => {
                 if (fRep && s.المندوب !== fRep) return false;
@@ -795,9 +844,6 @@
 
                 return true;
             });
-
-            const tbody = document.getElementById('shipmentsTableBody');
-            const pagination = document.getElementById('paginationContainer');
 
             if (filtered.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="11" class="text-center p-8 text-slate-500 font-bold">لا توجد شحنات مطابقة للفلاتر</td></tr>`;
@@ -1089,7 +1135,7 @@
         }
 
         function logout() {
-            clearStoredUserSession();
+            clearStoredUserSession('../index.html');
         }
 
         function toggleTheme() {

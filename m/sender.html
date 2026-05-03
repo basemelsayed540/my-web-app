@@ -258,11 +258,11 @@
 
         let user = JSON.parse(localStorage.getItem('user'));
         if (!user || user.role !== 'sender') {
-            window.location.href = 'index.html';
+            window.location.href = '../index.html';
         }
         startStoredUserSessionGuard(supabaseClient, {
             allowedRoles: ['sender'],
-            redirectTo: 'index.html',
+            redirectTo: '../index.html',
             onValidUser: (latestUser) => {
                 user = latestUser;
                 const senderName = document.getElementById('senderName');
@@ -502,6 +502,12 @@
             const selectedRep = document.getElementById('filterRep')?.value || '';
             const selectedDaily = document.getElementById('filterDaily')?.value || '';
             const selectedProduct = document.getElementById('filterProduct')?.value || '';
+
+            if (!selectedDaily) {
+                list.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-amber-600 font-bold">يرجى اختيار فلتر اليومية أولاً لعرض الشحنات</td></tr>';
+                saveSenderUiState();
+                return;
+            }
             
             const filtered = myShipments.filter(s => 
                 (
@@ -591,7 +597,7 @@
         });
 
         function logout() {
-            clearStoredUserSession();
+            clearStoredUserSession('../index.html');
         }
 
         function toggleTheme() {

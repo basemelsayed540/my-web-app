@@ -4698,6 +4698,29 @@
             return filtered;
         }
 
+        function isHousingResultsSelectionReady() {
+            return getHousingEditDateFilters().length > 0 && getHousingRepFilters().length > 0;
+        }
+
+        function getHousingResultsSelectionMessage() {
+            const hasDate = getHousingEditDateFilters().length > 0;
+            const hasRep = getHousingRepFilters().length > 0;
+
+            if (!hasDate && !hasRep) {
+                return 'يرجى اختيار اليومية أولاً ثم اختيار المندوب لعرض الشحنات.';
+            }
+
+            if (!hasDate) {
+                return 'يرجى اختيار اليومية أولاً لعرض الشحنات.';
+            }
+
+            if (!hasRep) {
+                return 'يرجى اختيار المندوب بعد تحديد اليومية لعرض الشحنات.';
+            }
+
+            return '';
+        }
+
         function normalizeHousingComparableValue(key, value) {
             if (['المبلغ', 'السعر_بعد_التعديل'].includes(key)) {
                 return String(value ?? '').trim();
@@ -4898,6 +4921,84 @@
                     changedFields: getHousingChangedFields(shipment, payload)
                 };
             }).filter(entry => entry.changedFields.length);
+        }
+
+        function getHousingFieldDisplayLabel(field) {
+            const labels = {
+                اسم_العميل: 'اسم العميل',
+                الهاتف: 'الهاتف',
+                هاتف_بديل: 'هاتف بديل',
+                الزون: 'الزون',
+                الراسل: 'الراسل',
+                المبلغ: 'المبلغ',
+                السعر_بعد_التعديل: 'السعر بعد التعديل',
+                المندوب: 'المندوب',
+                الفرع: 'الفرع',
+                'المندوب الفرعي': 'المندوب الفرعي',
+                الحالة: 'الحالة',
+                'سبب الحالة': 'سبب الحالة'
+            };
+            return labels[field] || field;
+        }
+
+        function formatHousingChangeValue(value) {
+            const normalized = String(value ?? '').trim();
+            return normalized || '---';
+        }
+
+        function getHousingChangesReviewHtml(entries) {
+            const cardsHtml = entries.map((entry, index) => {
+                const shipmentCode = entry.shipment['كود الشحنة'] || entry.shipment.order_id || entry.id || index + 1;
+                const customerName = entry.payload.اسم_العميل || entry.shipment.اسم_العميل || '---';
+                const beforeAfterRows = entry.changedFields.map(field => {
+                    const beforeValue = formatHousingChangeValue(entry.shipment?.[field]);
+                    const afterValue = formatHousingChangeValue(entry.payload?.[field]);
+                    return `
+                        <div class="border rounded-4 p-3 mb-2" style="background:#f8fafc;">
+                            <div class="fw-bold text-dark mb-2">${escapeHtml(getHousingFieldDisplayLabel(field))}</div>
+                            <div class="row g-2">
+                                <div class="col-md-6">
+                                    <div class="rounded-4 border border-danger-subtle bg-danger-subtle p-2 h-100">
+                                        <div class="small fw-bold text-danger mb-1">قبل</div>
+                                        <div class="fw-semibold text-dark">${escapeHtml(beforeValue)}</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="rounded-4 border border-success-subtle bg-success-subtle p-2 h-100">
+                                        <div class="small fw-bold text-success mb-1">بعد</div>
+                                        <div class="fw-semibold text-dark">${escapeHtml(afterValue)}</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+                return `
+                    <div class="border rounded-4 p-3 mb-3 text-end" style="background:#ffffff;">
+                        <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+                            <span class="badge rounded-pill text-bg-primary px-3 py-2">كود الشحنة: ${escapeHtml(String(shipmentCode))}</span>
+                            <span class="fw-bold text-dark">${escapeHtml(customerName)}</span>
+                        </div>
+                        ${beforeAfterRows}
+                    </div>
+                `;
+            }).join('');
+
+            return `
+                <div class="text-end">
+                    <div class="alert alert-warning rounded-4 mb-3 fw-bold">
+                        راجع التعديلات التالية قبل الحفظ النهائي. سيتم عرض كل حقل تم تغييره مع القيمة قبل وبعد.
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 justify-content-between align-items-center mb-3">
+                        <div class="badge text-bg-dark rounded-pill px-3 py-2">عدد الشحنات المعدلة: ${entries.length}</div>
+                        <div class="badge text-bg-secondary rounded-pill px-3 py-2">عدد الخانات المعدلة: ${entries.reduce((sum, entry) => sum + entry.changedFields.length, 0)}</div>
+                    </div>
+                    <div style="max-height: 55vh; overflow-y: auto; padding-inline-end: 4px;">
+                        ${cardsHtml}
+                    </div>
+                </div>
+            `;
         }
 
         function updateHousingSaveButtonState() {
@@ -5152,13 +5253,14 @@
             }
 
             const { isConfirmed } = await Swal.fire({
-                title: 'تأكيد الحفظ الجماعي',
-                text: `هل أنت متأكد من حفظ ${entries.length} تغيير في قاعدة البيانات؟ سيتم تحديث الجدول الرئيسي في السيرفر.`,
+                title: 'مراجعة التغيرات قبل الحفظ',
+                html: getHousingChangesReviewHtml(entries),
                 icon: 'question',
                 showCancelButton: true,
                 confirmButtonText: 'نعم، حفظ الكل الآن',
                 cancelButtonText: 'إلغاء',
-                confirmButtonColor: '#28a745'
+                confirmButtonColor: '#28a745',
+                width: 960
             });
 
             if (!isConfirmed) return;
@@ -5662,7 +5764,8 @@
             updateHousingDashboardStats(baseStatsFiltered);
 
             // Now get the actual filtered data exactly for the table displaying it
-            const filtered = getHousingFilteredShipments();
+            const canRenderHousingResults = isHousingResultsSelectionReady();
+            const filtered = canRenderHousingResults ? getHousingFilteredShipments() : [];
             updateAdminFiltersVisualState();
 
             const actualRepsOpts = allUsers
@@ -5677,17 +5780,23 @@
                 }).join('');
             assignRepEl.innerHTML = `<option value="">اختر مندوباً للتعيين</option>${actualRepsOpts}`;
 
-            if (!filtered.length) {
+            if (!canRenderHousingResults) {
                 housingCurrentPage = 1;
-                const editDateFilters = getHousingEditDateFilters();
-                if (editDateFilters.length === 0) {
-                    tableEl.innerHTML = `<tr><td colspan="14" class="text-center py-4 text-warning fw-bold"><i class="fas fa-exclamation-triangle me-2"></i>يرجى تحديد فلتر "اليومية" أولاً لعرض الشحنات.</td></tr>`;
-                } else {
-                    tableEl.innerHTML = `<tr><td colspan="14" class="text-center py-4 text-secondary fw-bold">لا توجد شحنات مطابقة.</td></tr>`;
-                }
+                tableEl.innerHTML = `<tr><td colspan="14" class="text-center py-4 text-warning fw-bold"><i class="fas fa-filter me-2"></i>${escapeHtml(getHousingResultsSelectionMessage())}</td></tr>`;
                 paginationEl.innerHTML = '';
                 saveHousingUiState();
                 updateHousingSaveButtonState();
+                updateHousingRowSelection();
+                return;
+            }
+
+            if (!filtered.length) {
+                housingCurrentPage = 1;
+                tableEl.innerHTML = `<tr><td colspan="14" class="text-center py-4 text-secondary fw-bold">لا توجد شحنات مطابقة.</td></tr>`;
+                paginationEl.innerHTML = '';
+                saveHousingUiState();
+                updateHousingSaveButtonState();
+                updateHousingRowSelection();
                 return;
             }
 
@@ -6064,6 +6173,11 @@
                 text: `تم تعيين المندوب "${rep}" لعدد ${targetIds.length} شحنة في الجدول الرئيسي.`,
                 confirmButtonText: 'حسناً'
             });
+
+            showWhatsAppSummaryModal(
+                targetIds.map(id => ({ id, المندوب: rep })),
+                { mode: 'assigned' }
+            );
 
             refreshDashboard();
         }
@@ -6722,7 +6836,42 @@
             );
             showAdminSection(initialAdminSection, matchBtn || null);
         });
-        function showWhatsAppSummaryModal(updatedPayloads) {
+        function normalizeWhatsAppPhone(phone) {
+            const digits = String(phone || '').replace(/\D/g, '');
+            if (!digits) return '';
+            if (digits.startsWith('00')) return digits.slice(2);
+            if (digits.startsWith('2') && digits.length >= 12) return digits;
+            if (digits.startsWith('0') && digits.length >= 11) return `2${digits}`;
+            return digits;
+        }
+
+        function formatShipmentCountLabel(count) {
+            return count === 1 ? 'شحنة واحدة' : `${count} شحنة`;
+        }
+
+        function buildRepWhatsAppMessage(repName, items, options = {}) {
+            const countLabel = formatShipmentCountLabel(items.length);
+            const mode = options.mode || 'updated';
+            const customMessage = String(options.customMessage || '').trim();
+            if (customMessage) {
+                return customMessage
+                    .replace(/\{repName\}/g, repName)
+                    .replace(/\{count\}/g, String(items.length))
+                    .replace(/\{countLabel\}/g, countLabel);
+            }
+
+            if (mode === 'assigned') {
+                return `مرحباً ${repName}، تمت إضافة ${countLabel} إلى حسابك. يرجى مراجعة التطبيق.`;
+            }
+
+            if (mode === 'transferred') {
+                return `مرحباً ${repName}، تم تحويل ${countLabel} إلى حسابك. يرجى مراجعة التطبيق.`;
+            }
+
+            return `مرحباً ${repName}، تم تحديث ${countLabel} في حسابك. يرجى مراجعة التطبيق.`;
+        }
+
+        function showWhatsAppSummaryModal(updatedPayloads, options = {}) {
             const groups = {};
             updatedPayloads.forEach(p => {
                 const repName = String(p.المندوب || '').trim();
@@ -6737,26 +6886,27 @@
             const listHtml = repNames.map(repName => {
                 const items = groups[repName];
                 const user = allUsers.find(u => (u.username === repName || u.full_name === repName));
-                const phone = user ? user.phone : '';
-
-                let message = `مرحباً ${repName}، تم تحديث ${items.length} شحنة لحسابك:\n`;
-                items.forEach((it, idx) => {
-                    if (idx < 5) message += `- ${it.اسم_العميل || 'شحنة'} (${it.الحالة || 'بدون حالة'})\n`;
-                });
-                if (items.length > 5) message += `... والمزيد\n`;
-                message += `يرجى مراجعة السيستم.`;
-
-                const url = `https://wa.me/${phone.replace(/\D/g, '')}?text=${encodeURIComponent(message)}`;
+                const phone = normalizeWhatsAppPhone(user ? user.phone : '');
+                const countLabel = formatShipmentCountLabel(items.length);
+                const message = buildRepWhatsAppMessage(repName, items, options);
+                const url = phone ? `https://wa.me/${phone}?text=${encodeURIComponent(message)}` : '';
+                const actionButtonHtml = phone ? `
+                        <a href="${url}" target="_blank" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
+                            <i class="fab fa-whatsapp me-1"></i> إرسال واتساب
+                        </a>
+                ` : `
+                        <span class="badge bg-warning-subtle text-warning-emphasis rounded-pill px-3 py-2">
+                            لا يوجد رقم واتساب
+                        </span>
+                `;
 
                 return `
                     <div class="d-flex align-items-center justify-content-between p-3 border rounded-4 mb-2 bg-light shadow-sm">
                         <div>
                             <div class="fw-bold text-primary">${repName}</div>
-                            <div class="small text-secondary">${items.length} تحديثات</div>
+                            <div class="small text-secondary">${countLabel}</div>
                         </div>
-                        <a href="${url}" target="_blank" class="btn btn-success btn-sm rounded-pill px-3 fw-bold">
-                            <i class="fab fa-whatsapp me-1"></i> إرسال واتساب
-                        </a>
+                        ${actionButtonHtml}
                     </div>
                 `;
             }).join('');
@@ -6764,7 +6914,7 @@
             Swal.fire({
                 title: 'إرسال ملخص الواتساب',
                 html: `
-                    <p class="text-secondary small mb-3">يمكنك إرسال رسالة لكل مندوب تحتوي على ملخص التحديثات التي تمت لحسابه.</p>
+                    <p class="text-secondary small mb-3">يمكنك إرسال رسالة مختصرة وجاهزة لكل مندوب حسب عدد الشحنات التي أضيفت أو تم تحديثها في حسابه.</p>
                     <div style="max-height: 400px; overflow-y: auto;">
                         ${listHtml}
                     </div>
