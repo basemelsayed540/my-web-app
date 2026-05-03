@@ -1293,6 +1293,122 @@
             return null;
         }
 
+        function normalizeAddressCacheKey(value) {
+            return String(value || '')
+                .replace(/[^a-zA-Z0-9\u0600-\u06FF\s]/g, ' ')
+                .replace(/\s+/g, ' ')
+                .trim();
+        }
+
+        function buildShipmentGeocodeQueries(shipment) {
+            const address = String(shipment?.العنوان || '').trim();
+            const zone = String(shipment?.الزون || '').trim();
+            const sender = String(shipment?.الراسل || '').trim();
+            const cityHints = [zone, sender].filter(Boolean).join(' ');
+
+            return [
+                [address, zone, 'مصر'].filter(Boolean).join('، '),
+                [address, cityHints, 'مصر'].filter(Boolean).join('، '),
+                [address, 'مصر'].filter(Boolean).join('، ')
+            ].map(normalizeAddressCacheKey).filter((value, index, arr) => value && arr.indexOf(value) === index);
+        }
+
+        async function fetchGeocodeCandidates(query) {
+            const normalized = normalizeAddressCacheKey(query);
+            if (!normalized || normalized.length < 3) return [];
+
+            const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&q=${encodeURIComponent(normalized)}&limit=5&countrycodes=eg&addressdetails=1`;
+
+            try {
+                const res = await fetch(url, { headers: { 'Accept-Language': 'ar' } });
+                const data = await res.json();
+                if (!Array.isArray(data)) return [];
+
+                const seen = new Set();
+                return data
+                    .map((item) => ({
+                        lat: Number(item?.lat),
+                        lng: Number(item?.lon),
+                        label: item?.display_name || normalized,
+                        raw: item
+                    }))
+                    .filter((item) => !Number.isNaN(item.lat) && !Number.isNaN(item.lng))
+                    .filter((item) => {
+                        const key = `${item.lat.toFixed(5)}_${item.lng.toFixed(5)}`;
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                    });
+            } catch (err) {
+                return [];
+            }
+        }
+
+        async function chooseGeocodeCandidate(shipment, candidates) {
+            if (!Array.isArray(candidates) || candidates.length === 0) return null;
+            if (candidates.length === 1) return candidates[0];
+
+            const optionsHtml = candidates.map((candidate, index) => `
+                <label class="flex items-start gap-3 rounded-2xl border border-slate-200 dark:border-slate-700 px-3 py-3 text-right cursor-pointer hover:border-indigo-300 hover:bg-indigo-50/60 dark:hover:bg-slate-800 transition-colors">
+                    <input type="radio" name="geocodeCandidate" value="${index}" ${index === 0 ? 'checked' : ''} class="mt-1 w-4 h-4 text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                    <span class="text-xs font-bold text-slate-700 dark:text-slate-200 leading-6">${candidate.label}</span>
+                </label>
+            `).join('');
+
+            const { value: selectedIndex } = await Swal.fire({
+                title: 'اختر الموقع الصحيح',
+                html: `
+                    <div class="space-y-3 text-right" dir="rtl">
+                        <p class="text-sm font-bold text-slate-600">العنوان المدخل: <span class="text-slate-900">${shipment?.العنوان || '---'}</span></p>
+                        <div class="max-h-72 overflow-y-auto space-y-2 pr-1">${optionsHtml}</div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: 'فتح الخريطة',
+                cancelButtonText: 'إلغاء',
+                focusConfirm: false,
+                customClass: {
+                    popup: 'rounded-2xl shadow-2xl'
+                },
+                preConfirm: () => {
+                    const selected = document.querySelector('input[name="geocodeCandidate"]:checked');
+                    if (!selected) {
+                        Swal.showValidationMessage('اختر الموقع الصحيح أولاً');
+                        return false;
+                    }
+                    return Number(selected.value);
+                }
+            });
+
+            if (selectedIndex === undefined) return null;
+            return candidates[selectedIndex] || null;
+        }
+
+        async function resolveShipmentDestinationCoords(shipment) {
+            const cachedCoords = getCachedShipmentCoordinates(shipment);
+            if (cachedCoords) return cachedCoords;
+
+            const queries = buildShipmentGeocodeQueries(shipment);
+            let candidates = [];
+            for (const query of queries) {
+                const result = await fetchGeocodeCandidates(query);
+                if (result.length > 0) {
+                    candidates = result;
+                    break;
+                }
+            }
+
+            const chosenCandidate = await chooseGeocodeCandidate(shipment, candidates);
+            if (!chosenCandidate) return null;
+
+            const result = { lat: chosenCandidate.lat, lng: chosenCandidate.lng };
+            for (const query of queries) {
+                const cacheKey = `geocode_${normalizeAddressCacheKey(query)}`;
+                localStorage.setItem(cacheKey, JSON.stringify(result));
+            }
+            return result;
+        }
+
         const REJECTION_REASON_OPTIONS = {
             'مطلبش حاجه': 'مطلبش حاجه',
             'مكرر': 'مكرر',
@@ -3549,7 +3665,7 @@
                 document.getElementById('map-loading-text').innerText = 'جاري تحليل الوجهة...';
                 
                 let destLat, destLng;
-                const manualGeocode = await geocodeAddress(s.العنوان + ' ' + (s.الزون || ''));
+                const manualGeocode = await resolveShipmentDestinationCoords(s);
                 if (manualGeocode) {
                     destLat = manualGeocode.lat;
                     destLng = manualGeocode.lng;
