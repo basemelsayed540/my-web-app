@@ -125,6 +125,34 @@
         .dark .table-shell tbody tr:hover {
             background: rgba(99, 102, 241, 0.08);
         }
+
+        .table-fit {
+            table-layout: fixed;
+        }
+
+        .table-container {
+            overflow-x: hidden;
+        }
+
+        .table-fit th,
+        .table-fit td {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            vertical-align: top;
+        }
+
+        .table-fit .cell-compact {
+            white-space: normal;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .table-fit th,
+            .table-fit td {
+                padding: 0.7rem 0.55rem;
+                font-size: 0.72rem;
+            }
+        }
     </style>
 </head>
 <body class="bg-indigo-50/30 dark:bg-slate-950 min-h-screen transition-colors duration-300">
@@ -223,7 +251,7 @@
             </div>
             
             <div class="table-container">
-                <table class="w-full text-right">
+                <table class="table-fit w-full text-right">
                     <thead class="bg-slate-50/50">
                         <tr class="text-slate-400 text-[11px] font-black uppercase tracking-wider">
                             <th class="p-4">رقم الأوردر</th>
@@ -530,30 +558,30 @@
 
             list.innerHTML = filtered.map(s => `
                 <tr class="transition-colors border-b border-slate-50 dark:border-slate-800 last:border-0">
-                    <td class="p-4 text-sm font-black text-slate-800">#${s.order_id}</td>
-                    <td class="p-4 text-xs font-bold text-slate-600">${s.اسم_العميل || '---'}</td>
-                    <td class="p-4 text-[10px] font-bold text-slate-400 max-w-[150px] truncate">${s.العنوان || '---'}</td>
-                    <td class="p-4 text-sm font-black text-indigo-600">${s.المبلغ || 0} ج.م</td>
-                    <td class="p-4 text-sm font-black text-cyan-600">${s['السعر بعد التعديل'] || s.السعر_بعد_التعديل || '---'}${(s['السعر بعد التعديل'] || s.السعر_بعد_التعديل) ? ' ج.م' : ''}</td>
+                    <td class="p-4 text-sm font-black text-slate-800 cell-compact">#${s.order_id}</td>
+                    <td class="p-4 text-xs font-bold text-slate-600 cell-compact">${s.اسم_العميل || '---'}</td>
+                    <td class="p-4 text-[10px] font-bold text-slate-400 cell-compact">${s.العنوان || '---'}</td>
+                    <td class="p-4 text-sm font-black text-indigo-600 cell-compact">${s.المبلغ || 0} ج.م</td>
+                    <td class="p-4 text-sm font-black text-cyan-600 cell-compact">${s['السعر بعد التعديل'] || s.السعر_بعد_التعديل || '---'}${(s['السعر بعد التعديل'] || s.السعر_بعد_التعديل) ? ' ج.م' : ''}</td>
                     <td class="p-4">
                         <span class="px-2.5 py-1 rounded-xl text-[9px] font-black ${getStatusBadgeClass(s.الحالة)}">
                             ${isPendingStatus(s.الحالة) ? 'قيد التوصيل' : (['الغاء', 'إلغاء', 'رفض'].includes(s.الحالة) ? 'رفض' : s.الحالة)}
                         </span>
                     </td>
-                    <td class="p-4 text-[10px] font-bold text-slate-500 max-w-[160px] truncate">${s['سبب الحالة'] || s.سبب_الحالة || '---'}</td>
+                    <td class="p-4 text-[10px] font-bold text-slate-500 cell-compact">${s['سبب الحالة'] || s.سبب_الحالة || '---'}</td>
                     <td class="p-4">
                         <div class="flex flex-col gap-1">
                             <span class="inline-flex w-fit items-center rounded-full bg-amber-50 dark:bg-amber-950/30 px-2 py-1 text-[10px] font-black text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/40">${getShipmentCallAttempts(s)} محاولة</span>
-                            <span class="text-[9px] font-bold text-slate-400 leading-relaxed">${formatAttemptsMeta(s).slice(1).join(' • ') || 'لا يوجد سجل تواصل بعد'}</span>
+                            <span class="text-[9px] font-bold text-slate-400 leading-relaxed cell-compact">${formatAttemptsMeta(s).slice(1).join(' • ') || 'لا يوجد سجل تواصل بعد'}</span>
                         </div>
                     </td>
                     <td class="p-4">
-                        <div class="flex items-center gap-2">
-                            <div class="w-7 h-7 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] text-slate-500 dark:text-slate-300">
+                        <div class="flex flex-wrap items-start gap-2">
+                            <div class="w-7 h-7 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] text-slate-500 dark:text-slate-300">
                                 <i class="fas fa-truck"></i>
                             </div>
-                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-300">${s.المندوب || 'غير محدد'}</span>
-                            <button type="button" onclick="openRepWhatsApp('${s.id}')" class="w-9 h-9 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md hover:bg-[#1fb458] transition-colors" title="واتساب المندوب" aria-label="واتساب المندوب">
+                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-300 cell-compact flex-1 min-w-0">${s.المندوب || 'غير محدد'}</span>
+                            <button type="button" onclick="openRepWhatsApp('${s.id}')" class="w-9 h-9 shrink-0 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md hover:bg-[#1fb458] transition-colors" title="واتساب المندوب" aria-label="واتساب المندوب">
                                 <i class="fab fa-whatsapp text-sm"></i>
                             </button>
                             <button type="button" onclick="copyShipmentData('${s.id}')" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 flex items-center justify-center shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="نسخ بيانات الشحنة" aria-label="نسخ بيانات الشحنة">

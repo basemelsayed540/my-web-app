@@ -88,6 +88,686 @@
             margin-bottom: 8px;
         }
 
+        .rep-performance-shell {
+            display: grid;
+            gap: 12px;
+        }
+
+        .rep-performance-toolbar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .rep-performance-toolbar.compact {
+            gap: 8px;
+            margin-bottom: 8px;
+            padding: 6px 8px;
+            border-radius: 12px;
+            background: rgba(248, 250, 252, 0.88);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+        }
+
+        .rep-performance-toolbar.compact .rep-sort-select {
+            min-width: 170px;
+            padding: 8px 34px 8px 10px;
+            font-size: 0.74rem;
+            border-radius: 10px;
+        }
+
+        .rep-performance-meta {
+            color: #64748b;
+            font-size: 0.88rem;
+            font-weight: 700;
+        }
+
+        .rep-performance-meta.compact {
+            font-size: 0.72rem;
+            line-height: 1.2;
+        }
+
+        .rep-section-title-compact {
+            font-size: 0.96rem;
+            margin-bottom: 10px !important;
+            line-height: 1.2;
+        }
+
+        .rep-leaderboards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 12px;
+            margin: 10px 0 4px;
+        }
+
+        .stats-collapsible {
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.82);
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.04);
+            overflow: hidden;
+        }
+
+        .stats-collapsible + .stats-collapsible {
+            margin-top: 14px;
+        }
+
+        .stats-collapsible-summary {
+            list-style: none;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            cursor: pointer;
+            padding: 13px 16px;
+            font-size: 0.92rem;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .stats-collapsible-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .stats-collapsible-summary small {
+            color: #64748b;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .stats-collapsible-summary i {
+            color: #64748b;
+            transition: transform 0.2s ease;
+        }
+
+        .stats-collapsible[open] .stats-collapsible-summary i {
+            transform: rotate(180deg);
+        }
+
+        .stats-collapsible-body {
+            padding: 0 14px 14px;
+        }
+
+        .rep-leaderboard-card {
+            border-radius: 24px;
+            padding: 20px;
+            border: 1px solid rgba(148, 163, 184, 0.2);
+            box-shadow: 0 14px 36px rgba(15, 23, 42, 0.08);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rep-leaderboard-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.18), transparent 45%);
+        }
+
+        .rep-leaderboard-card.top {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.14), rgba(236, 253, 245, 0.96));
+        }
+
+        .rep-leaderboard-card.low {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.14), rgba(254, 242, 242, 0.96));
+        }
+
+        .rep-leaderboard-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 14px;
+        }
+
+        .rep-leaderboard-title {
+            margin: 0;
+            font-size: 1.02rem;
+            font-weight: 900;
+            color: var(--text-color);
+        }
+
+        .rep-leaderboard-subtitle {
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+
+        .rep-leaderboard-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .rep-leaderboard-card.top .rep-leaderboard-icon {
+            background: rgba(16, 185, 129, 0.16);
+            color: #059669;
+        }
+
+        .rep-leaderboard-card.low .rep-leaderboard-icon {
+            background: rgba(239, 68, 68, 0.16);
+            color: #dc2626;
+        }
+
+        .rep-leaderboard-list {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            gap: 10px;
+        }
+
+        .rep-leaderboard-item {
+            display: grid;
+            grid-template-columns: auto 1fr auto;
+            align-items: center;
+            gap: 10px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.66);
+            padding: 11px 12px;
+        }
+
+        .rep-leaderboard-rank {
+            width: 28px;
+            height: 28px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(15, 23, 42, 0.07);
+            color: var(--text-color);
+            font-size: 0.74rem;
+            font-weight: 900;
+        }
+
+        .rep-leaderboard-name {
+            color: var(--text-color);
+            font-size: 0.86rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .rep-leaderboard-meta {
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 700;
+            margin-top: 3px;
+        }
+
+        .rep-leaderboard-score {
+            text-align: left;
+            font-size: 0.92rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .rep-leaderboard-score small {
+            display: block;
+            margin-top: 3px;
+            font-size: 0.64rem;
+            color: #64748b;
+            font-weight: 800;
+        }
+
+        .rep-leaderboard-empty {
+            position: relative;
+            z-index: 1;
+            border-radius: 18px;
+            background: rgba(255, 255, 255, 0.64);
+            padding: 20px 16px;
+            text-align: center;
+            color: #64748b;
+            font-size: 0.85rem;
+            font-weight: 800;
+        }
+
+        .rep-sort-select {
+            min-width: 210px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(241, 245, 249, 0.92));
+            border: 1px solid rgba(148, 163, 184, 0.35);
+            border-radius: 16px;
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+            color: var(--text-color);
+            font-weight: 700;
+            padding: 0.75rem 1rem;
+        }
+
+        .rep-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .rep-stat-card {
+            position: relative;
+            overflow: hidden;
+            background:
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.12), transparent 36%),
+                linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            border-radius: 20px;
+            padding: 16px;
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.08);
+            transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+        }
+
+        .rep-stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
+            border-color: rgba(59, 130, 246, 0.28);
+        }
+
+        .rep-stat-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 45%);
+        }
+
+        .rep-card-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .rep-card-name {
+            margin: 0;
+            color: var(--text-color);
+            font-size: 0.96rem;
+            font-weight: 800;
+            line-height: 1.5;
+            word-break: break-word;
+        }
+
+        .rep-card-role {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 4px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.12);
+            color: #2563eb;
+            font-size: 0.68rem;
+            font-weight: 800;
+            padding: 0.22rem 0.6rem;
+        }
+
+        .rep-progress-ring {
+            --progress: 0;
+            --ring-color: #ef4444;
+            position: relative;
+            width: 68px;
+            height: 68px;
+            border-radius: 50%;
+            background: conic-gradient(var(--ring-color) calc(var(--progress) * 1%), rgba(226, 232, 240, 0.92) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.55);
+        }
+
+        .rep-progress-ring::after {
+            content: "";
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--card-bg);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+        }
+
+        .rep-progress-value {
+            position: absolute;
+            text-align: center;
+            color: var(--text-color);
+            font-size: 0.82rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .rep-progress-value small {
+            display: block;
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 0.56rem;
+            font-weight: 800;
+        }
+
+        .rep-card-grid {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .rep-metric {
+            border-radius: 14px;
+            padding: 10px 11px;
+            background: rgba(248, 250, 252, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.85);
+        }
+
+        .rep-metric-label {
+            display: block;
+            color: #64748b;
+            font-size: 0.66rem;
+            font-weight: 800;
+            margin-bottom: 3px;
+        }
+
+        .rep-metric-value {
+            display: block;
+            color: var(--text-color);
+            font-size: 0.92rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .rep-metric-success .rep-metric-value {
+            color: #059669;
+        }
+
+        .rep-metric-danger .rep-metric-value {
+            color: #dc2626;
+        }
+
+        .rep-metric-warning .rep-metric-value {
+            color: #d97706;
+        }
+
+        .rep-metric-info .rep-metric-value {
+            color: #0891b2;
+        }
+
+        .rep-card-total {
+            position: relative;
+            z-index: 1;
+            border-radius: 16px;
+            padding: 12px 14px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.92), rgba(30, 41, 59, 0.92));
+            color: #f8fafc;
+        }
+
+        .rep-card-total-label {
+            color: rgba(248, 250, 252, 0.75);
+            font-size: 0.68rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .rep-card-total-value {
+            font-size: 1rem;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+
+        .rep-rows-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .rep-stat-row {
+            display: grid;
+            grid-template-columns: minmax(150px, 1.2fr) 88px repeat(5, minmax(72px, 0.72fr)) minmax(120px, 0.9fr);
+            align-items: center;
+            gap: 10px;
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
+            border-radius: 18px;
+            padding: 12px 14px;
+            box-shadow: 0 8px 22px rgba(15, 23, 42, 0.06);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        }
+
+        .rep-stat-row:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
+            border-color: rgba(59, 130, 246, 0.24);
+        }
+
+        .rep-stat-row-main {
+            min-width: 0;
+        }
+
+        .rep-stat-row-name {
+            color: var(--text-color);
+            font-size: 0.92rem;
+            font-weight: 900;
+            line-height: 1.35;
+            word-break: break-word;
+        }
+
+        .rep-stat-row-badge {
+            display: inline-flex;
+            align-items: center;
+            margin-top: 4px;
+            border-radius: 999px;
+            background: rgba(59, 130, 246, 0.1);
+            color: #2563eb;
+            font-size: 0.66rem;
+            font-weight: 800;
+            padding: 0.2rem 0.52rem;
+        }
+
+        .rep-stat-row-rate {
+            text-align: center;
+            border-radius: 14px;
+            padding: 10px 8px;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        .rep-stat-row-rate-bar {
+            width: 100%;
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(226, 232, 240, 0.95);
+            overflow: hidden;
+            margin: 0 auto 6px;
+        }
+
+        .rep-stat-row-rate-fill {
+            height: 100%;
+            border-radius: 999px;
+            transition: width 0.25s ease;
+        }
+
+        .rep-stat-row-rate-value {
+            font-size: 0.88rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .rep-stat-row-rate-label {
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 0.62rem;
+            font-weight: 800;
+        }
+
+        .rep-stat-row-metric {
+            text-align: center;
+            border-radius: 14px;
+            padding: 10px 8px;
+            background: rgba(248, 250, 252, 0.9);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        .rep-stat-row-metric-label {
+            color: #64748b;
+            font-size: 0.62rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .rep-stat-row-metric-value {
+            font-size: 0.9rem;
+            font-weight: 900;
+            line-height: 1;
+            color: var(--text-color);
+        }
+
+        .rep-stat-row-metric.success .rep-stat-row-metric-value {
+            color: #059669;
+        }
+
+        .rep-stat-row-metric.warning .rep-stat-row-metric-value {
+            color: #d97706;
+        }
+
+        .rep-stat-row-metric.danger .rep-stat-row-metric-value {
+            color: #dc2626;
+        }
+
+        .rep-stat-row-metric.info .rep-stat-row-metric-value {
+            color: #0891b2;
+        }
+
+        .rep-stat-row-total {
+            text-align: center;
+            border-radius: 14px;
+            padding: 10px 10px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.94), rgba(30, 41, 59, 0.94));
+            color: #f8fafc;
+        }
+
+        .rep-stat-row-total-label {
+            color: rgba(248, 250, 252, 0.74);
+            font-size: 0.62rem;
+            font-weight: 800;
+            margin-bottom: 4px;
+        }
+
+        .rep-stat-row-total-value {
+            font-size: 0.92rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .rep-cards-empty {
+            border: 1px dashed rgba(148, 163, 184, 0.55);
+            border-radius: 22px;
+            padding: 32px 18px;
+            text-align: center;
+            color: #64748b;
+            font-weight: 800;
+            background: rgba(248, 250, 252, 0.82);
+        }
+
+        [data-bs-theme="dark"] .rep-sort-select,
+        .dark .rep-sort-select {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.94), rgba(15, 23, 42, 0.92));
+            border-color: rgba(148, 163, 184, 0.22);
+        }
+
+        [data-bs-theme="dark"] .rep-stat-card,
+        .dark .rep-stat-card {
+            background:
+                radial-gradient(circle at top right, rgba(59, 130, 246, 0.16), transparent 34%),
+                linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
+            border-color: rgba(148, 163, 184, 0.18);
+        }
+
+        [data-bs-theme="dark"] .rep-metric,
+        .dark .rep-metric {
+            background: rgba(15, 23, 42, 0.82);
+            border-color: rgba(51, 65, 85, 0.9);
+        }
+
+        [data-bs-theme="dark"] .rep-cards-empty,
+        .dark .rep-cards-empty {
+            background: rgba(15, 23, 42, 0.7);
+            color: #cbd5e1;
+        }
+
+        @media (max-width: 767.98px) {
+            .admin-inline-stats,
+            .rep-analytics-grid,
+            .rep-chart-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .rep-archive-chart {
+                padding: 16px 14px;
+            }
+
+            .rep-archive-chart-stage {
+                grid-template-columns: 38px minmax(0, 1fr);
+                gap: 10px;
+            }
+
+            .rep-archive-chart-axis,
+            .rep-archive-chart-bars {
+                height: 280px;
+            }
+
+            .rep-overview-card-body,
+            .rep-status-card-body {
+                grid-template-columns: 1fr;
+            }
+
+            .rep-donut-gauge {
+                width: 118px;
+                height: 118px;
+            }
+
+            .rep-donut-gauge::after {
+                width: 82px;
+                height: 82px;
+            }
+
+            .rep-performance-toolbar {
+                align-items: stretch;
+            }
+
+            .rep-sort-select {
+                width: 100%;
+                min-width: 0;
+            }
+
+            .rep-card-head {
+                align-items: center;
+            }
+
+            .rep-progress-ring {
+                width: 62px;
+                height: 62px;
+            }
+
+            .rep-progress-ring::after {
+                width: 46px;
+                height: 46px;
+            }
+
+            .rep-stat-row {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+                gap: 8px;
+                padding: 12px;
+            }
+
+            .rep-stat-row-main,
+            .rep-stat-row-total {
+                grid-column: 1 / -1;
+            }
+        }
+
         .table thead th {
             background: transparent;
             border: none;
@@ -821,6 +1501,113 @@
             color: white !important;
         }
 
+        .admin-inline-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(155px, 1fr));
+            gap: 14px;
+            margin-top: 14px;
+        }
+
+        .admin-inline-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            justify-content: center;
+            text-align: right;
+            border: 1px solid rgba(226, 232, 240, 0.98);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 250, 252, 0.98));
+            border-radius: 20px;
+            padding: 14px 16px;
+            min-height: 110px;
+            box-shadow: 0 14px 30px rgba(15, 23, 42, 0.05);
+            transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .admin-inline-stat:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+        }
+
+        .admin-inline-stat.active {
+            border-color: rgba(59, 130, 246, 0.45);
+            box-shadow: 0 14px 30px rgba(59, 130, 246, 0.16);
+        }
+
+        .admin-inline-stat::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 48%);
+            pointer-events: none;
+        }
+
+        .admin-inline-stat-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1rem;
+            margin-bottom: 12px;
+        }
+
+        .admin-inline-stat-label {
+            color: #64748b;
+            font-size: 0.78rem;
+            font-weight: 800;
+            margin-bottom: 5px;
+            line-height: 1.2;
+        }
+
+        .admin-inline-stat-value {
+            color: var(--text-color);
+            font-size: 1.45rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .admin-inline-stat-meta {
+            margin-top: 8px;
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 800;
+        }
+
+        .admin-inline-stat-total .admin-inline-stat-icon {
+            background: rgba(59, 130, 246, 0.14);
+            color: #2563eb;
+        }
+
+        .admin-inline-stat-done .admin-inline-stat-icon {
+            background: rgba(16, 185, 129, 0.14);
+            color: #059669;
+        }
+
+        .admin-inline-stat-reject .admin-inline-stat-icon {
+            background: rgba(239, 68, 68, 0.14);
+            color: #dc2626;
+        }
+
+        .admin-inline-stat-cancel .admin-inline-stat-icon {
+            background: rgba(245, 158, 11, 0.16);
+            color: #d97706;
+        }
+
+        .admin-inline-stat-shipping .admin-inline-stat-icon {
+            background: rgba(6, 182, 212, 0.14);
+            color: #0891b2;
+        }
+
+        .admin-inline-stat-amended .admin-inline-stat-icon {
+            background: rgba(99, 102, 241, 0.14);
+            color: #4f46e5;
+        }
+
         .stat-amount-card {
             background: linear-gradient(135deg, #4f46e5, #312e81);
             color: white;
@@ -833,6 +1620,401 @@
             min-width: 130px;
             flex-shrink: 0;
             box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+        }
+
+        .stats-actions-bar {
+            display: flex;
+            justify-content: flex-end;
+            margin: -6px 0 10px;
+        }
+
+        .general-stats-report-btn {
+            border-radius: 999px;
+            font-size: 0.82rem;
+            font-weight: 800;
+            padding: 0.55rem 1rem;
+            box-shadow: 0 10px 22px rgba(37, 99, 235, 0.12);
+        }
+
+        .admin-analytics-shell {
+            display: grid;
+            gap: 16px;
+            margin-top: 18px;
+        }
+
+        .rep-analytics-grid,
+        .rep-chart-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 16px;
+        }
+
+        .rep-chart-grid {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+
+        .rep-analytics-card,
+        .rep-chart-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(248, 250, 252, 0.98));
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            border-radius: 24px;
+            padding: 18px;
+            box-shadow: 0 18px 40px rgba(15, 23, 42, 0.05);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .rep-analytics-card.full-width {
+            width: 100%;
+        }
+
+        .rep-analytics-card::before,
+        .rep-chart-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 34%);
+            pointer-events: none;
+        }
+
+        .rep-analytics-card-head,
+        .rep-chart-card-head {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .rep-analytics-card-title,
+        .rep-chart-card-title {
+            margin: 0;
+            color: #2563eb;
+            font-size: 1rem;
+            font-weight: 900;
+        }
+
+        .rep-card-head-inline-filter {
+            position: relative;
+            z-index: 1;
+            min-width: 210px;
+            max-width: 260px;
+            flex: 1 1 220px;
+        }
+
+        .rep-card-head-inline-filter .filter-select {
+            min-height: 44px;
+            font-size: 0.9rem;
+            font-weight: 800;
+        }
+
+        .rep-analytics-card-subtitle,
+        .rep-chart-card-subtitle {
+            margin-top: 3px;
+            color: #64748b;
+            font-size: 0.74rem;
+            font-weight: 700;
+        }
+
+        .rep-panel-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(59, 130, 246, 0.12);
+            color: #2563eb;
+            flex-shrink: 0;
+        }
+
+        .rep-overview-card-body,
+        .rep-status-card-body {
+            position: relative;
+            z-index: 1;
+            display: grid;
+            grid-template-columns: 132px minmax(0, 1fr);
+            gap: 18px;
+            align-items: center;
+        }
+
+        .rep-donut-gauge {
+            --progress: 0;
+            --accent: #10b981;
+            width: 132px;
+            height: 132px;
+            border-radius: 50%;
+            background: conic-gradient(var(--accent) calc(var(--progress) * 1%), rgba(226, 232, 240, 0.92) 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .rep-donut-gauge::after {
+            content: "";
+            width: 92px;
+            height: 92px;
+            border-radius: 50%;
+            background: #fff;
+            box-shadow: inset 0 2px 10px rgba(15, 23, 42, 0.06);
+        }
+
+        .rep-donut-gauge-value {
+            position: absolute;
+            text-align: center;
+            z-index: 1;
+            font-size: 1.7rem;
+            font-weight: 900;
+            color: #1e293b;
+            line-height: 1;
+        }
+
+        .rep-donut-gauge-value small {
+            display: block;
+            margin-top: 6px;
+            color: #64748b;
+            font-size: 0.7rem;
+            font-weight: 800;
+        }
+
+        .rep-band-list,
+        .rep-status-legend,
+        .rep-evaluation-list {
+            display: grid;
+            gap: 10px;
+        }
+
+        .rep-evaluation-list.archive-comparison-row {
+            display: grid;
+            gap: 14px;
+        }
+
+        .rep-band-item,
+        .rep-status-legend-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            border-radius: 16px;
+            padding: 10px 12px;
+            background: rgba(248, 250, 252, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+        }
+
+        .rep-band-label,
+        .rep-status-legend-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #475569;
+            font-size: 0.76rem;
+            font-weight: 800;
+        }
+
+        .rep-band-dot,
+        .rep-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .rep-band-count,
+        .rep-status-legend-value {
+            color: #2563eb;
+            font-size: 0.86rem;
+            font-weight: 900;
+        }
+
+        .rep-evaluation-item {
+            border-radius: 18px;
+            padding: 14px;
+            background: rgba(248, 250, 252, 0.95);
+            border: 1px solid rgba(226, 232, 240, 0.92);
+        }
+
+        .rep-archive-chart {
+            border-radius: 24px;
+            padding: 20px;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.995), rgba(248, 250, 252, 0.98));
+            border: 1px solid rgba(226, 232, 240, 0.95);
+            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.05);
+        }
+
+        .rep-archive-chart-stage {
+            display: grid;
+            grid-template-columns: 52px minmax(0, 1fr);
+            gap: 14px;
+            align-items: stretch;
+        }
+
+        .rep-archive-chart-axis {
+            position: relative;
+            height: 320px;
+            display: grid;
+            grid-template-rows: repeat(4, 1fr);
+            align-items: end;
+            padding-bottom: 34px;
+        }
+
+        .rep-archive-chart-axis-label {
+            color: #94a3b8;
+            font-size: 0.72rem;
+            font-weight: 800;
+            transform: translateY(50%);
+        }
+
+        .rep-archive-chart-plot {
+            position: relative;
+            min-width: 0;
+        }
+
+        .rep-archive-chart-grid {
+            position: absolute;
+            inset: 0 0 34px 0;
+            display: grid;
+            grid-template-rows: repeat(4, 1fr);
+            pointer-events: none;
+        }
+
+        .rep-archive-chart-grid-line {
+            border-top: 1px dashed rgba(226, 232, 240, 0.95);
+        }
+
+        .rep-archive-chart-grid-line:last-child {
+            border-bottom: 1px solid rgba(226, 232, 240, 0.95);
+        }
+
+        .rep-archive-chart-bars {
+            position: relative;
+            height: 320px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-start;
+            gap: 18px;
+            overflow-x: auto;
+            padding: 8px 4px 0;
+            scrollbar-width: thin;
+        }
+
+        .rep-archive-chart-item {
+            width: 72px;
+            min-width: 72px;
+            display: grid;
+            grid-template-rows: 1fr auto;
+            gap: 10px;
+            height: 100%;
+        }
+
+        .rep-archive-chart-column-wrap {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: flex-end;
+            justify-content: center;
+        }
+
+        .rep-archive-chart-value {
+            position: absolute;
+            bottom: calc(var(--bar-height, 0%) + 10px);
+            left: 50%;
+            transform: translateX(-50%);
+            color: #64748b;
+            font-size: 0.74rem;
+            font-weight: 900;
+            white-space: nowrap;
+        }
+
+        .rep-archive-chart-column {
+            --bar-height: 0%;
+            width: 100%;
+            max-width: 42px;
+            height: var(--bar-height);
+            min-height: 18px;
+            border-radius: 12px 12px 4px 4px;
+            background: linear-gradient(180deg, #3b82f6 0%, #2563eb 100%);
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+            transition: height 0.25s ease;
+        }
+
+        .rep-archive-chart-item.is-active .rep-archive-chart-column {
+            background: linear-gradient(180deg, #10b981 0%, #059669 100%);
+            box-shadow: 0 12px 24px rgba(16, 185, 129, 0.22);
+        }
+
+        .rep-archive-chart-label {
+            text-align: center;
+        }
+
+        .rep-archive-chart-name {
+            color: #1e293b;
+            font-size: 0.78rem;
+            font-weight: 900;
+            line-height: 1.25;
+            word-break: break-word;
+        }
+
+        .rep-archive-chart-meta {
+            margin-top: 4px;
+            color: #64748b;
+            font-size: 0.65rem;
+            font-weight: 800;
+            line-height: 1.35;
+        }
+
+        .rep-evaluation-item-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .rep-evaluation-label {
+            color: #475569;
+            font-size: 0.8rem;
+            font-weight: 800;
+        }
+
+        .rep-evaluation-value {
+            color: #1e293b;
+            font-size: 1.45rem;
+            font-weight: 900;
+            line-height: 1;
+        }
+
+        .rep-evaluation-track {
+            height: 8px;
+            border-radius: 999px;
+            background: rgba(226, 232, 240, 0.95);
+            overflow: hidden;
+        }
+
+        .rep-evaluation-fill {
+            height: 100%;
+            border-radius: inherit;
+        }
+
+        .rep-evaluation-note {
+            margin-top: 8px;
+            color: #94a3b8;
+            font-size: 0.68rem;
+            font-weight: 700;
+        }
+
+        .rep-chart-canvas {
+            position: relative;
+            z-index: 1;
+            width: 100% !important;
+            height: 220px !important;
+        }
+
+        .rep-chart-card.wide {
+            grid-column: span 2;
         }
     </style>
 </head>
@@ -893,6 +2075,8 @@
                 <button class="btn text-start sidebar-tab active-tab text-primary shadow-sm fw-bold"
                     onclick="showAdminSection('stats', this)"><i class="fas fa-chart-line me-2"></i> احصائية
                     المندوب</button>
+                <button class="btn text-start sidebar-tab text-secondary fw-bold admin-only"
+                    onclick="showGeneralPerformanceReport()"><i class="fas fa-chart-simple me-2"></i> إحصائية عامة</button>
                 <button id="usersSidebarBtn" class="btn text-start sidebar-tab text-secondary fw-bold admin-only"
                     onclick="showAdminSection('users', this)"><i class="fas fa-users-cog me-2"></i> إدارة
                     الحسابات</button>
@@ -907,8 +2091,6 @@
                     <i class="fas fa-chart-pie me-2"></i> عرض احصائية التغيرات
                 </button>
                 <hr class="text-secondary opacity-25">
-                <button class="btn btn-primary w-100 fw-bold shadow-sm admin-only" onclick="openAddUserModal()"><i
-                        class="fas fa-user-plus me-2"></i> إنشاء حسابات</button>
             </div>
         </aside>
 
@@ -927,6 +2109,8 @@
                     <button class="btn text-start sidebar-tab active-tab text-primary shadow-sm fw-bold"
                         onclick="showAdminSection('stats', this, true)"><i class="fas fa-chart-line me-2"></i> احصائية
                         المندوب</button>
+                    <button class="btn text-start sidebar-tab text-secondary fw-bold admin-only"
+                        onclick="showGeneralPerformanceReport()"><i class="fas fa-chart-simple me-2"></i> إحصائية عامة</button>
                     <button id="usersMobileBtn" class="btn text-start sidebar-tab text-secondary fw-bold admin-only"
                         onclick="showAdminSection('users', this, true)"><i class="fas fa-users-cog me-2"></i> إدارة
                         الحسابات</button>
@@ -942,9 +2126,6 @@
                         <i class="fas fa-chart-pie me-2"></i> عرض احصائية التغيرات
                     </button>
                     <hr class="text-secondary opacity-25">
-                    <button class="btn btn-primary w-100 fw-bold shadow-sm admin-only"
-                        onclick="openAddUserModal(); bootstrap.Offcanvas.getInstance(document.getElementById('mobileSidebar')).hide()"><i
-                            class="fas fa-user-plus me-2"></i> إنشاء حسابات</button>
                 </div>
             </div>
         </div>
@@ -962,7 +2143,7 @@
                                 <option value="">كل اليوميات</option>
                             </select>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" style="display: none;">
                             <label class="form-label small fw-bold">📍 المنطقة</label>
                             <div class="dropdown w-100">
                                 <button id="filterZoneBtn"
@@ -977,7 +2158,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" style="display: none;">
                             <label class="form-label small fw-bold">🤝 المندوب</label>
                             <div class="dropdown w-100">
                                 <button id="filterRepBtn"
@@ -992,7 +2173,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" style="display: none;">
                             <label class="form-label small fw-bold">🏢 الراسل</label>
                             <div class="dropdown w-100">
                                 <button id="filterOfficeBtn"
@@ -1007,7 +2188,7 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-2">
+                        <div class="col-md-2" style="display: none;">
                             <label class="form-label small fw-bold">🔴 الحالة</label>
                             <div class="dropdown w-100">
                                 <button id="filterStatusBtn"
@@ -1029,65 +2210,81 @@
                     </div>
                 </div>
 
-                <!-- الإحصائيات (منطق المندوب المتقدم) -->
-                <div class="admin-stats-container no-scrollbar" id="adminDashboardStatsContainer" style="display: none;">
-                    <!-- ستقوم الجافاسكريبت بحقن الأزرار هنا -->
+                <div class="admin-analytics-shell admin-only">
+                    <div class="rep-analytics-grid">
+                    </div>
+
                 </div>
 
-                <div class="row g-4">
+                <details class="stats-collapsible admin-only">
+                    <summary class="stats-collapsible-summary">
+                        <span>تفاصيل أداء المناديب <small>البطاقات والجداول الكاملة</small></span>
+                        <i class="fas fa-chevron-down"></i>
+                    </summary>
+                    <div class="stats-collapsible-body">
+                        <div class="rep-leaderboards-grid">
+                            <div class="col-12 p-0">
+                                <div class="small text-secondary fw-bold px-1">
+                                    تم نقل العرض المختصر للأعلى، وهذا القسم مخصص للتفاصيل الكاملة والفرز.
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row g-4 mt-1">
                     <!-- أداء المناديب -->
                     <div class="col-12 admin-only">
                         <div class="order-card p-4 shadow-sm">
-                            <h5 class="fw-bold mb-4 text-primary"><i class="fas fa-users-cog me-2"></i>تحليلات أداء
+                            <h5 class="fw-bold text-primary rep-section-title-compact"><i class="fas fa-users-cog me-2"></i>تحليلات أداء
                                 المناديب</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle m-0">
-                                    <thead>
-                                        <tr>
-                                            <th>المندوب</th>
-                                            <th class="text-center">إجمالي</th>
-                                            <th>تم</th>
-                                            <th>مؤجل</th>
-                                            <th>مرفوض</th>
-                                            <th>قيد</th>
-                                            <th>تحصيل</th>
-                                            <th>نسبة النجاح</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="repsStatsTable">
-                                        <!-- Dynamic dynamic rows -->
-                                    </tbody>
-                                </table>
+                            <div class="rep-performance-shell">
+                                <div class="rep-performance-toolbar compact">
+                                    <div class="rep-performance-meta compact" id="repsStatsSummary">يتم تحديث البطاقات حسب الفلاتر الحالية</div>
+                                    <select id="repsStatsSort" class="rep-sort-select" onchange="handleStatsSortChange('rep', this.value)">
+                                        <option value="success_desc">الترتيب: نسبة النجاح الأعلى</option>
+                                        <option value="success_asc">الترتيب: نسبة النجاح الأقل</option>
+                                        <option value="total_desc">الترتيب: إجمالي الشحنات الأعلى</option>
+                                        <option value="amount_desc">الترتيب: إجمالي المبلغ الأعلى</option>
+                                        <option value="name_asc">الترتيب: الاسم أ-ي</option>
+                                    </select>
+                                </div>
+                                <div id="repsStatsTable" class="rep-cards-grid">
+                                    <!-- Dynamic cards -->
+                                </div>
                             </div>
                         </div>
                     </div>
                     <!-- أداء المناديب المتقدمين -->
                     <div class="col-12 admin-only">
-                        <div class="order-card p-4 shadow-sm">
+                        <details class="stats-collapsible">
+                            <summary class="stats-collapsible-summary">
+                                <span>تحليلات أداء المندوب المتقدم <small>افتح هذا القسم عند الحاجة</small></span>
+                                <i class="fas fa-chevron-down"></i>
+                            </summary>
+                            <div class="stats-collapsible-body">
+                        <div class="order-card p-4 shadow-sm mb-0">
                             <h5 class="fw-bold mb-4 text-primary"><i class="fas fa-user-check me-2"></i>تحليلات أداء
                                 المندوب المتقدم</h5>
-                            <div class="table-responsive">
-                                <table class="table table-hover align-middle m-0">
-                                    <thead>
-                                        <tr>
-                                            <th>المندوب المتقدم</th>
-                                            <th class="text-center">إجمالي</th>
-                                            <th>تم</th>
-                                            <th>مؤجل</th>
-                                            <th>مرفوض</th>
-                                            <th>قيد</th>
-                                            <th>تحصيل</th>
-                                            <th>نسبة النجاح</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody id="subRepsStatsTable">
-                                        <!-- Dynamic rows -->
-                                    </tbody>
-                                </table>
+                            <div class="rep-performance-shell">
+                                <div class="rep-performance-toolbar">
+                                    <div class="rep-performance-meta" id="subRepsStatsSummary">يعرض البطاقات بنفس البيانات الحالية بدون تغيير في الحسابات</div>
+                                    <select id="subRepsStatsSort" class="rep-sort-select" onchange="handleStatsSortChange('subRep', this.value)">
+                                        <option value="success_desc">الترتيب: نسبة النجاح الأعلى</option>
+                                        <option value="success_asc">الترتيب: نسبة النجاح الأقل</option>
+                                        <option value="total_desc">الترتيب: إجمالي الشحنات الأعلى</option>
+                                        <option value="amount_desc">الترتيب: إجمالي المبلغ الأعلى</option>
+                                        <option value="name_asc">الترتيب: الاسم أ-ي</option>
+                                    </select>
+                                </div>
+                                <div id="subRepsStatsTable" class="rep-cards-grid">
+                                    <!-- Dynamic cards -->
+                                </div>
                             </div>
                         </div>
+                            </div>
+                        </details>
                     </div>
-                </div>
+                        </div>
+                    </div>
+                </details>
             </div>
 
             <div id="section-users" style="display: none;">
@@ -1361,8 +2558,16 @@
                                 <!-- اليومية -->
                                 <div class="col">
                                     <div class="w-100">
-                                        <select id="housingEditDateFilterSelect" class="form-select rounded-pill fw-bold text-secondary border-secondary shadow-sm rep-date-filter-glow" onchange="renderHousingSection(); saveHousingUiState();" style="height: 38px;">
+                                        <select id="housingEditDateFilterSelect" class="form-select rounded-pill fw-bold text-secondary border-secondary shadow-sm rep-date-filter-glow" onchange="handleHousingEditDateFilterChange()" style="height: 38px;">
                                             <option value="">📅 كل اليوميات</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <!-- الأرشيف -->
+                                <div class="col">
+                                    <div class="w-100">
+                                        <select id="housingArchiveFilterSelect" class="form-select rounded-pill fw-bold text-secondary border-secondary shadow-sm" onchange="handleHousingArchiveFilterChange()" style="height: 38px;">
+                                            <option value="">🗂️ كل الأرشيفات</option>
                                         </select>
                                     </div>
                                 </div>
@@ -1836,6 +3041,12 @@
             return normalizeShipmentRecordHeaders(record);
         }
 
+        function getArchivedShipmentDailyValue(shipment) {
+            const archiveValue = String(shipment?.ارشيف || shipment?.['أرشيف'] || '').trim();
+            if (!archiveValue) return '';
+            return String(getShipmentDailyValue(shipment) || '').trim();
+        }
+
         function toServerShipmentPayload(payload) {
             return buildShipmentServerPayload(payload);
         }
@@ -1882,6 +3093,91 @@
         const savedAdminSection = localStorage.getItem('adminActiveSection') || 'stats';
         const validAdminSections = ['stats', 'users', 'recent', 'housing', 'deleteUpdate'];
         const initialAdminSection = validAdminSections.includes(savedAdminSection) ? savedAdminSection : 'stats';
+        const GPS_ENFORCEMENT_SYSTEM_PHONE_PREFIX = '__gps_enforcement_rep__:';
+        const GPS_ENFORCEMENT_SYSTEM_EMAIL_PREFIX = 'gps-enforcement+';
+
+        function isGpsEnforcementSystemUser(user) {
+            return String(user?.phone || '').trim().startsWith(GPS_ENFORCEMENT_SYSTEM_PHONE_PREFIX);
+        }
+
+        function getVisibleUsers() {
+            return allUsers.filter(user => !isGpsEnforcementSystemUser(user));
+        }
+
+        function getRepGpsEnforcementSystemPhone(userId) {
+            return `${GPS_ENFORCEMENT_SYSTEM_PHONE_PREFIX}${String(userId)}`;
+        }
+
+        function getRepGpsEnforcementSystemEmail(userId) {
+            return `${GPS_ENFORCEMENT_SYSTEM_EMAIL_PREFIX}${String(userId)}@system.local`;
+        }
+
+        function isRepGpsEnforced(userId) {
+            return allUsers.some(user =>
+                isGpsEnforcementSystemUser(user) &&
+                String(user.phone || '').trim() === getRepGpsEnforcementSystemPhone(userId) &&
+                Boolean(user.approved)
+            );
+        }
+
+        async function syncGpsEnforcementStateFromUsers() {
+            return;
+        }
+
+        async function toggleRepGpsEnforcement(userId, repName) {
+            const nextState = !isRepGpsEnforced(userId);
+            const actionLabel = nextState ? 'تشغيل' : 'إيقاف';
+            const promptText = nextState
+                ? `سيتم إجبار المندوب "${repName}" على تشغيل GPS قبل فتح الحساب.`
+                : `سيتم السماح للمندوب "${repName}" بفتح الحساب حتى لو كان GPS متوقفًا.`;
+
+            const confirmation = await Swal.fire({
+                title: `${actionLabel} إجبار GPS`,
+                text: promptText,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: actionLabel,
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: nextState ? '#dc2626' : '#16a34a'
+            });
+            if (!confirmation.isConfirmed) return;
+
+            showLoading(true);
+            try {
+                const existing = allUsers.find(user =>
+                    isGpsEnforcementSystemUser(user) &&
+                    String(user.phone || '').trim() === getRepGpsEnforcementSystemPhone(userId)
+                );
+                if (existing) {
+                    await invokeUsersAdminAction('admin_toggle_approval', {
+                        targetUserId: Number(existing.id) || existing.id,
+                        newStatus: nextState
+                    }, currentUser);
+                    allUsers = allUsers.map(user => (
+                        String(user.id) === String(existing.id)
+                            ? { ...user, approved: nextState }
+                            : user
+                    ));
+                } else {
+                    const created = await invokeUsersAdminAction('admin_upsert_user', {
+                        username: `GPS Enforcement: ${repName || userId}`,
+                        full_name: `GPS Enforcement: ${repName || userId}`,
+                        phone: getRepGpsEnforcementSystemPhone(userId),
+                        email: getRepGpsEnforcementSystemEmail(userId),
+                        role: 'admin',
+                        approved: nextState,
+                        password: await hashPassword('gps-enforcement::system::do-not-login')
+                    }, currentUser);
+                    if (created?.user) allUsers = [...allUsers, created.user];
+                }
+
+                renderUsers();
+                Swal.fire('نجاح', `تم ${actionLabel === 'تشغيل' ? 'تشغيل' : 'إيقاف'} إجبار GPS للمندوب بنجاح.`, 'success');
+            } catch (error) {
+                Swal.fire('خطأ', error.message || 'تعذر تحديث إعداد GPS', 'error');
+            }
+            showLoading(false);
+        }
 
         function invalidateHousingDerivedCaches() {
             housingDisplayDataCache.clear();
@@ -1910,6 +3206,7 @@
                     if (hName) hName.innerText = `${currentUser.username || currentUser.full_name || 'المدير العام'}`;
                 }
                 await Promise.all([fetchShipments(), fetchUsers()]);
+                await syncGpsEnforcementStateFromUsers();
                 applyRoleAccess();
                 populateFilters();
                 populateQrRepList(); // Add this
@@ -1928,6 +3225,7 @@
             showLoading(true);
             try {
                 await Promise.all([fetchShipments(), fetchUsers()]);
+                await syncGpsEnforcementStateFromUsers();
                 populateFilters();
                 populateQrRepList();
                 refreshDashboard();
@@ -2061,10 +3359,10 @@
         function updateFilterDropdowns(filteredData = allShipments) {
             const filters = {
                 date: document.getElementById('filterDate').value,
-                zone: getAdminSelectedZones(),
-                rep: getAdminSelectedReps(),
-                office: getAdminSelectedOffices(),
-                status: getAdminSelectedStatuses()
+                zone: [],
+                rep: [],
+                office: [],
+                status: []
             };
 
             const getCounts = (col, currentFilters) => {
@@ -2073,6 +3371,7 @@
                 filteredData.forEach(s => {
                     let match = true;
                     const isArchived = !!String(s.ارشيف || s['أرشيف'] || '').trim();
+                    const archivedDailyValue = getArchivedShipmentDailyValue(s);
 
                     if (currentFilters.date && col !== 'اليومية' && getShipmentDailyValue(s) !== currentFilters.date) match = false;
                     if (currentFilters.zone && currentFilters.zone.length > 0 && col !== 'الزون' && !currentFilters.zone.includes(s.الزون)) match = false;
@@ -2093,7 +3392,8 @@
                     }
                     if (col === 'اليومية' && isArchived) match = false;
 
-                    if (match && s[col]) counts[s[col]] = (counts[s[col]] || 0) + 1;
+                    const countValue = col === '__ARCHIVED_DAILY__' ? archivedDailyValue : s[col];
+                    if (match && countValue) counts[countValue] = (counts[countValue] || 0) + 1;
                 });
 
                 return counts;
@@ -2352,6 +3652,7 @@
         function updateAdminFiltersVisualState() {
             // Stats section filters
             setFilterVisualState(document.getElementById('filterDate'), !!document.getElementById('filterDate')?.value);
+            setFilterVisualState(document.getElementById('filterArchive'), !!document.getElementById('filterArchive')?.value);
             setFilterVisualState(document.getElementById('filterZoneBtn'), getAdminSelectedZones().length > 0);
             setFilterVisualState(document.getElementById('filterRepBtn'), getAdminSelectedReps().length > 0);
             setFilterVisualState(document.getElementById('filterOfficeBtn'), getAdminSelectedOffices().length > 0);
@@ -2359,6 +3660,7 @@
 
             // Housing section main filters
             setFilterVisualState(document.getElementById('housingEditDateFilterSelect'), getHousingEditDateFilters().length > 0);
+            setFilterVisualState(document.getElementById('housingArchiveFilterSelect'), !!getHousingArchiveFilterValue());
             setFilterVisualState(document.getElementById('housingRepFilterBtn'), getHousingRepFilters().length > 0);
             setFilterVisualState(document.getElementById('housingStatusFilterBtn'), getHousingStatusFilters().length > 0);
             setFilterVisualState(document.getElementById('housingSenderFilterBtn'), getHousingSenderFilters().length > 0);
@@ -2398,11 +3700,11 @@
             populateHousingSenderFilter();
         }
 
-        function fillSelect(id, countsMap, currentVal, reverse = false) {
+        function fillSelect(id, countsMap, currentVal, reverse = false, fallbackPlaceholder = 'اختر') {
             const select = document.getElementById(id);
             if (!select) return;
 
-            const placeholder = select.options[0] ? select.options[0].text : 'اختر';
+            const placeholder = select.options[0] ? select.options[0].text : fallbackPlaceholder;
             select.innerHTML = `<option value="">${placeholder}</option>`;
 
             let keys = Object.keys(countsMap).sort();
@@ -2476,6 +3778,7 @@
             fillDatalist('dl-housingSubRep', cached.subReps);
             fillDatalist('dl-housingStatus', cached.statuses);
             fillDatalist('dl-housingReason', cached.reasons);
+            populateHousingArchiveFilter();
             populateHousingEditDateFilter();
             populateHousingStatusFilter();
             populateHousingRepFilter();
@@ -2499,13 +3802,39 @@
             refreshDashboard();
         }
 
+        function isAdminShippingOnlyShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
+            return normalizedStatus === 'شحن' || normalizedReason === 'شحن';
+        }
+
+        function isAdminPriceEditOnlyShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            const normalizedReason = String(shipment?.['سبب الحالة'] || shipment?.سبب_الحالة || '').trim();
+            return normalizedStatus === 'تعديل سعر' || normalizedReason === 'تعديل سعر';
+        }
+
+        function isAdminPureDeliveredShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            return ['تم', 'تم التسليم', 'استلم جزئي'].includes(normalizedStatus);
+        }
+
+        function isAdminExplicitRejectShipment(shipment) {
+            return String(shipment?.الحالة || '').trim() === 'رفض';
+        }
+
+        function isAdminCancelShipment(shipment) {
+            const normalizedStatus = String(shipment?.الحالة || '').trim();
+            return normalizedStatus === 'الغاء' || normalizedStatus === 'إلغاء';
+        }
+
         function refreshDashboard() {
             const filters = {
                 date: document.getElementById('filterDate').value,
-                zone: getAdminSelectedZones(),
-                rep: getAdminSelectedReps(),
-                office: getAdminSelectedOffices(),
-                status: getAdminSelectedStatuses()
+                zone: [],
+                rep: [],
+                office: [],
+                status: []
             };
 
             // الخطوة الأولى: الفلترة حسب الفلاتر العادية (دروب داون)
@@ -2540,6 +3869,11 @@
             if (adminDashStatFilter) {
                 finalFiltered = baseFiltered.filter(s => {
                     const status = getAdminDisplayStatus(s);
+                    if (adminDashStatFilter === 'تم') return isAdminPureDeliveredShipment(s);
+                    if (adminDashStatFilter === 'رفض') return isAdminExplicitRejectShipment(s);
+                    if (adminDashStatFilter === 'الغاء') return isAdminCancelShipment(s);
+                    if (adminDashStatFilter === 'شحن') return isAdminShippingOnlyShipment(s);
+                    if (adminDashStatFilter === 'تعديل سعر') return isAdminPriceEditOnlyShipment(s);
                     if (adminDashStatFilter === 'بدون مندوب') return !s.المندوب;
                     if (adminDashStatFilter === 'بدون مبلغ') {
                         const amt = String(s.المبلغ || '').trim();
@@ -2567,80 +3901,38 @@
             const container = document.getElementById('adminDashboardStatsContainer');
             if (!container) return;
 
-            const noDelegate = shipments.filter(s => !s.المندوب).length;
-            const noAmountCount = shipments.filter(s => {
-                const amt = String(s.المبلغ || '').trim();
-                return !amt || amt === '0' || amt === '0.0';
-            }).length;
-            const warehouseCount = shipments.filter(s => String(s.المندوب || '').trim() === 'مخزن').length;
-            const doneCount = shipments.filter(s => getAdminDisplayStatus(s) === 'تم التوصيل').length;
-            const amendedCount = shipments.filter(s => getAdminDisplayStatus(s) === 'تعديل سعر').length;
-            const rejectedCount = shipments.filter(s => getAdminDisplayStatus(s) === 'رفض').length;
-            const postponedCount = shipments.filter(s => getAdminDisplayStatus(s) === 'مؤجل').length;
-            const inDeliveryCount = shipments.filter(s => getAdminDisplayStatus(s) === 'قيد التوصيل').length;
+            const totalCount = shipments.length;
+            const doneCount = shipments.filter(isAdminPureDeliveredShipment).length;
+            const rejectCount = shipments.filter(isAdminExplicitRejectShipment).length;
+            const cancelCount = shipments.filter(isAdminCancelShipment).length;
+            const shippingCount = shipments.filter(isAdminShippingOnlyShipment).length;
+            const amendedCount = shipments.filter(isAdminPriceEditOnlyShipment).length;
+            const getActiveClass = (key) => adminDashStatFilter === key || (!adminDashStatFilter && key === 'الكل') ? 'active' : '';
+            const getShareLabel = (value) => totalCount ? `${Number(((value / totalCount) * 100).toFixed(1))}% من الإجمالي` : '0% من الإجمالي';
 
-            let totalCollected = 0;
-            shipments.forEach(s => {
-                if (isAdminDeliveredShipment(s)) {
-                    const price = parseFloat(s.السعر_بعد_التعديل || s.المبلغ || 0);
-                    totalCollected += price;
-                }
-            });
+            const cards = [
+                { key: 'الكل', label: 'إجمالي الشحنات', value: totalCount, meta: getShareLabel(totalCount), icon: 'fas fa-boxes-stacked', className: 'admin-inline-stat-total' },
+                { key: 'تم', label: 'تم', value: doneCount, meta: getShareLabel(doneCount), icon: 'fas fa-circle-check', className: 'admin-inline-stat-done' },
+                { key: 'رفض', label: 'رفض', value: rejectCount, meta: getShareLabel(rejectCount), icon: 'fas fa-circle-xmark', className: 'admin-inline-stat-reject' },
+                { key: 'الغاء', label: 'إلغاء', value: cancelCount, meta: getShareLabel(cancelCount), icon: 'fas fa-ban', className: 'admin-inline-stat-cancel' },
+                { key: 'شحن', label: 'شحن', value: shippingCount, meta: getShareLabel(shippingCount), icon: 'fas fa-truck-fast', className: 'admin-inline-stat-shipping' },
+                { key: 'تعديل سعر', label: 'تعديل سعر', value: amendedCount, meta: getShareLabel(amendedCount), icon: 'fas fa-pen-to-square', className: 'admin-inline-stat-amended' }
+            ];
 
-            const getActiveClass = (s) => adminDashStatFilter === s ? 'active' : '';
-
-            container.innerHTML = `
-                <button type="button" onclick="resetAdminDashStatsFilter()" class="stat-card-btn border-primary ${getActiveClass('')}">
-                    <i class="fas fa-layer-group text-primary mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">الكل</small>
-                    <span class="fw-bold fs-6">${shipments.length}</span>
+            container.innerHTML = cards.map(card => `
+                <button type="button"
+                    onclick="${card.key === 'الكل' ? 'resetAdminDashStatsFilter()' : `toggleAdminDashStatFilter('${card.key}')`}"
+                    class="admin-inline-stat ${card.className} ${getActiveClass(card.key)}">
+                    <div class="admin-inline-stat-icon">
+                        <i class="${card.icon}"></i>
+                    </div>
+                    <div>
+                        <div class="admin-inline-stat-label">${card.label}</div>
+                        <div class="admin-inline-stat-value">${card.value}</div>
+                        <div class="admin-inline-stat-meta">${card.meta}</div>
+                    </div>
                 </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('بدون مندوب')" class="stat-card-btn border-danger ${getActiveClass('بدون مندوب')}">
-                    <i class="fas fa-user-slash text-danger mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">بدون مندوب</small>
-                    <span class="fw-bold fs-6">${noDelegate}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('بدون مبلغ')" class="stat-card-btn border-danger ${getActiveClass('بدون مبلغ')}">
-                    <i class="fas fa-comment-dollar text-danger mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">بدون مبلغ</small>
-                    <span class="fw-bold fs-6">${noAmountCount}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('المخزن')" class="stat-card-btn border-warning ${getActiveClass('المخزن')}">
-                    <i class="fas fa-warehouse text-warning mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">المخزن</small>
-                    <span class="fw-bold fs-6">${warehouseCount}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('تم التوصيل')" class="stat-card-btn border-success ${getActiveClass('تم التوصيل')}">
-                    <i class="fas fa-check-circle text-success mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">تم التوصيل</small>
-                    <span class="fw-bold fs-6">${doneCount}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('تعديل سعر')" class="stat-card-btn border-primary ${getActiveClass('تعديل سعر')}">
-                    <i class="fas fa-edit text-primary mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">تعديل سعر</small>
-                    <span class="fw-bold fs-6">${amendedCount}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('مرفوض/مرتجع')" class="stat-card-btn border-danger ${getActiveClass('مرفوض/مرتجع')}">
-                    <i class="fas fa-times-circle text-danger mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">مرفوض/مرتجع</small>
-                    <span class="fw-bold fs-6">${rejectedCount}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('مؤجل')" class="stat-card-btn border-warning ${getActiveClass('مؤجل')}">
-                    <i class="fas fa-clock text-warning mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">مؤجل</small>
-                    <span class="fw-bold fs-6">${postponedCount}</span>
-                </button>
-                <button type="button" onclick="toggleAdminDashStatFilter('قيد التوصيل')" class="stat-card-btn border-info ${getActiveClass('قيد التوصيل')}">
-                    <i class="fas fa-truck text-info mb-1"></i>
-                    <small class="text-muted fw-bold" style="font-size:0.7rem;">قيد التوصيل</small>
-                    <span class="fw-bold fs-6">${inDeliveryCount}</span>
-                </button>
-                <div class="stat-amount-card">
-                    <i class="fas fa-money-bill-wave mb-1" style="font-size:1.1rem;opacity:0.9;"></i>
-                    <small class="fw-bold" style="font-size:0.7rem;opacity:0.9;">التوريد</small>
-                    <span class="fw-bold fs-6" dir="ltr">${Math.round(totalCollected).toLocaleString()} ج</span>
-                </div>
-            `;
+            `).join('');
         }
 
         function isSubRep(name) {
@@ -2652,6 +3944,779 @@
                  String(u.full_name || '').trim() === nameStr || 
                  String(u.phone || '').trim() === nameStr)
             );
+        }
+
+        let latestRepStatsEntries = [];
+        let latestSubRepStatsEntries = [];
+        let repStatsSortMode = 'success_desc';
+        let subRepStatsSortMode = 'success_desc';
+        let repStatusChart = null;
+        let repBandChart = null;
+        let topRepsTrendChart = null;
+        let lowRepsTrendChart = null;
+
+        function getStatsSortMode(type) {
+            return type === 'subRep' ? subRepStatsSortMode : repStatsSortMode;
+        }
+
+        function setStatsSortMode(type, value) {
+            if (type === 'subRep') subRepStatsSortMode = value;
+            else repStatsSortMode = value;
+        }
+
+        function handleStatsSortChange(type, value) {
+            setStatsSortMode(type, value);
+            if (type === 'subRep') {
+                renderStatsCards('subRepsStatsTable', latestSubRepStatsEntries, {
+                    emptyMessage: 'لا توجد بيانات للمندوب المتقدم ضمن الفلاتر الحالية.',
+                    summaryId: 'subRepsStatsSummary',
+                    type: 'subRep'
+                });
+                return;
+            }
+
+            renderStatsCards('repsStatsTable', latestRepStatsEntries, {
+                emptyMessage: 'لا توجد بيانات للمناديب ضمن الفلاتر الحالية.',
+                summaryId: 'repsStatsSummary',
+                type: 'rep',
+                layout: 'row'
+            });
+        }
+
+        function getSuccessRate(stats) {
+            return stats.total > 0 ? Number(((stats.delivered / stats.total) * 100).toFixed(1)) : 0;
+        }
+
+        function formatPercent(value) {
+            return `${Number(value || 0).toFixed(1).replace(/\.0$/, '')}%`;
+        }
+
+        function getCurrentAdminFilters() {
+            return {
+                date: document.getElementById('filterDate')?.value || '',
+                zone: getAdminSelectedZones(),
+                rep: getAdminSelectedReps(),
+                office: getAdminSelectedOffices(),
+                status: getAdminSelectedStatuses()
+            };
+        }
+
+        function matchesAdminStatusFilters(shipment, statuses = []) {
+            if (!statuses.length) return true;
+            for (const st of statuses) {
+                if (st === 'pending' && isAdminPendingStatus(shipment?.الحالة)) return true;
+                if (st === 'الغاء' && isAdminRejectedStatus(shipment?.الحالة)) return true;
+                if (shipment?.الحالة === st) return true;
+            }
+            return false;
+        }
+
+        function matchesAdminDashboardStatFilter(shipment) {
+            if (!adminDashStatFilter) return true;
+            const status = getAdminDisplayStatus(shipment);
+            if (adminDashStatFilter === 'تم') return isAdminPureDeliveredShipment(shipment);
+            if (adminDashStatFilter === 'رفض') return isAdminExplicitRejectShipment(shipment);
+            if (adminDashStatFilter === 'الغاء') return isAdminCancelShipment(shipment);
+            if (adminDashStatFilter === 'شحن') return isAdminShippingOnlyShipment(shipment);
+            if (adminDashStatFilter === 'تعديل سعر') return isAdminPriceEditOnlyShipment(shipment);
+            if (adminDashStatFilter === 'بدون مندوب') return !shipment?.المندوب;
+            if (adminDashStatFilter === 'بدون مبلغ') {
+                const amt = String(shipment?.المبلغ || '').trim();
+                return !amt || amt === '0' || amt === '0.0';
+            }
+            if (adminDashStatFilter === 'المخزن') return String(shipment?.المندوب || '').trim() === 'مخزن';
+            if (adminDashStatFilter === 'مرفوض/مرتجع') return status === 'رفض';
+            return status === adminDashStatFilter;
+        }
+
+        function matchesAdminFiltersForReport(shipment, filters = getCurrentAdminFilters(), excludeFields = []) {
+            if (String(shipment?.المندوب || '').startsWith('PRIVATE:')) return false;
+            if (!excludeFields.includes('date') && filters.date && getShipmentDailyValue(shipment) !== filters.date) return false;
+            if (!excludeFields.includes('zone') && filters.zone.length > 0 && !filters.zone.includes(shipment?.الزون)) return false;
+            if (!excludeFields.includes('rep') && filters.rep.length > 0 && !filters.rep.includes(shipment?.المندوب)) return false;
+            if (!excludeFields.includes('office') && filters.office.length > 0 && !filters.office.includes(shipment?.الراسل)) return false;
+            if (!excludeFields.includes('status') && !matchesAdminStatusFilters(shipment, filters.status)) return false;
+            if (!excludeFields.includes('dashboard') && !matchesAdminDashboardStatFilter(shipment)) return false;
+            return true;
+        }
+
+        function buildGroupedPerformanceEntries(groupKey, excludeFields = [], options = {}) {
+            const filters = getCurrentAdminFilters();
+            const grouped = new Map();
+            const requireArchiveValue = !!options.requireArchiveValue;
+
+            allShipments.forEach(shipment => {
+                if (!matchesAdminFiltersForReport(shipment, filters, excludeFields)) return;
+                if (requireArchiveValue && !getArchivedShipmentDailyValue(shipment)) return;
+                const rawValue = groupKey === 'archive'
+                    ? getArchivedShipmentDailyValue(shipment)
+                    : String(shipment?.الراسل || '').trim();
+                const key = String(rawValue || '').trim();
+                if (!key) return;
+
+                if (!grouped.has(key)) {
+                    grouped.set(key, { name: key, total: 0, delivered: 0, resolved: 0, rejected: 0 });
+                }
+
+                const item = grouped.get(key);
+                item.total += 1;
+                if (isAdminPureDeliveredShipment(shipment)) item.delivered += 1;
+                if (isAdminRejectedStatus(shipment?.الحالة)) item.rejected += 1;
+                if (!isAdminPendingStatus(shipment?.الحالة)) item.resolved += 1;
+            });
+
+            return [...grouped.values()]
+                .map(item => ({
+                    ...item,
+                    successRate: item.total ? Number(((item.delivered / item.total) * 100).toFixed(1)) : 0,
+                    resolvedRate: item.total ? Number(((item.resolved / item.total) * 100).toFixed(1)) : 0
+                }))
+                .sort((a, b) => {
+                    if (b.total !== a.total) return b.total - a.total;
+                    if (b.successRate !== a.successRate) return b.successRate - a.successRate;
+                    return a.name.localeCompare(b.name, 'ar');
+                });
+        }
+
+        function getGeneralShipmentPerformanceSummary() {
+            const filters = getCurrentAdminFilters();
+            const shipments = allShipments.filter(shipment =>
+                matchesAdminFiltersForReport(shipment, filters, []) &&
+                !!getArchivedShipmentDailyValue(shipment)
+            );
+            const archiveEntries = buildGroupedPerformanceEntries('archive', [], { requireArchiveValue: true });
+            const senderEntries = buildGroupedPerformanceEntries('sender', [], { requireArchiveValue: true });
+
+            const total = shipments.length;
+            const delivered = shipments.filter(isAdminPureDeliveredShipment).length;
+            const resolved = shipments.filter(shipment => !isAdminPendingStatus(shipment?.الحالة)).length;
+            const successRate = total ? Number(((delivered / total) * 100).toFixed(1)) : 0;
+            const resolvedRate = total ? Number(((resolved / total) * 100).toFixed(1)) : 0;
+            const avgPerArchive = archiveEntries.length ? Number((archiveEntries.reduce((sum, item) => sum + item.total, 0) / archiveEntries.length).toFixed(1)) : 0;
+            const avgPerSender = senderEntries.length ? Number((senderEntries.reduce((sum, item) => sum + item.total, 0) / senderEntries.length).toFixed(1)) : 0;
+
+            return {
+                total,
+                delivered,
+                resolved,
+                successRate,
+                resolvedRate,
+                avgPerArchive,
+                avgPerSender,
+                topArchive: archiveEntries[0] || null,
+                topSender: senderEntries[0] || null,
+                archiveEntries,
+                senderEntries
+            };
+        }
+
+        function renderPerformanceRows(entries, emptyMessage) {
+            if (!entries.length) {
+                return `<tr><td colspan="6" class="text-center py-4 text-secondary fw-bold">${escapeHtml(emptyMessage)}</td></tr>`;
+            }
+
+            return entries.map((item, index) => `
+                <tr>
+                    <td>${index + 1}</td>
+                    <td class="fw-bold text-primary">${escapeHtml(item.name)}</td>
+                    <td>${item.total}</td>
+                    <td>${item.delivered}</td>
+                    <td>${formatPercent(item.successRate)}</td>
+                    <td>${item.resolved} (${formatPercent(item.resolvedRate)})</td>
+                </tr>
+            `).join('');
+        }
+
+        function showGeneralPerformanceReport() {
+            const summary = getGeneralShipmentPerformanceSummary();
+
+            Swal.fire({
+                title: 'الإحصائية العامة',
+                width: '1180px',
+                confirmButtonText: 'إغلاق',
+                html: `
+                    <div class="text-end">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-3">
+                                <div class="border rounded-4 p-3 h-100" style="background:#eff6ff;">
+                                    <div class="small fw-bold text-primary mb-1">إجمالي الشحنات</div>
+                                    <div class="fs-4 fw-bolder text-dark">${summary.total}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border rounded-4 p-3 h-100" style="background:#ecfdf5;">
+                                    <div class="small fw-bold text-success mb-1">نسبة النجاح</div>
+                                    <div class="fs-4 fw-bolder text-dark">${formatPercent(summary.successRate)}</div>
+                                    <div class="small text-secondary">تم التسليم: ${summary.delivered}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border rounded-4 p-3 h-100" style="background:#f8fafc;">
+                                    <div class="small fw-bold text-dark mb-1">متوسط الشحنات لكل أرشيف</div>
+                                    <div class="fs-4 fw-bolder text-dark">${summary.avgPerArchive.toString().replace(/\.0$/, '')}</div>
+                                    <div class="small text-secondary">${summary.topArchive ? `الأعلى: ${escapeHtml(summary.topArchive.name)} (${summary.topArchive.total})` : 'لا توجد أرشيفات'}</div>
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="border rounded-4 p-3 h-100" style="background:#fff7ed;">
+                                    <div class="small fw-bold text-warning mb-1">متوسط الشحنات لكل راسل</div>
+                                    <div class="fs-4 fw-bolder text-dark">${summary.avgPerSender.toString().replace(/\.0$/, '')}</div>
+                                    <div class="small text-secondary">${summary.topSender ? `الأعلى: ${escapeHtml(summary.topSender.name)} (${summary.topSender.total})` : 'لا يوجد راسلون'}</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-4">
+                            <div class="col-lg-6">
+                                <div class="border rounded-4 p-3 h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold text-primary m-0">أداء كل فلتر الأرشيف</h6>
+                                        <span class="badge text-bg-primary rounded-pill">${summary.archiveEntries.length}</span>
+                                    </div>
+                                    <div class="table-responsive" style="max-height:380px;">
+                                        <table class="table table-sm align-middle text-center mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>الأرشيف</th>
+                                                    <th>إجمالي</th>
+                                                    <th>تم</th>
+                                                    <th>النجاح</th>
+                                                    <th>المحسوم</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>${renderPerformanceRows(summary.archiveEntries, 'لا توجد قيم أرشيف مطابقة للفلاتر الحالية.')}</tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="border rounded-4 p-3 h-100">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6 class="fw-bold text-primary m-0">أداء الراسل</h6>
+                                        <span class="badge text-bg-secondary rounded-pill">${summary.senderEntries.length}</span>
+                                    </div>
+                                    <div class="table-responsive" style="max-height:380px;">
+                                        <table class="table table-sm align-middle text-center mb-0">
+                                            <thead class="table-light">
+                                                <tr>
+                                                    <th>#</th>
+                                                    <th>الراسل</th>
+                                                    <th>إجمالي</th>
+                                                    <th>تم</th>
+                                                    <th>النجاح</th>
+                                                    <th>المحسوم</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>${renderPerformanceRows(summary.senderEntries, 'لا توجد بيانات أداء للراسل ضمن الفلاتر الحالية.')}</tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `
+            });
+        }
+
+        function getPerformanceTone(pct) {
+            if (pct >= 75) return { color: '#10b981', className: 'success' };
+            if (pct >= 40) return { color: '#f59e0b', className: 'warning' };
+            return { color: '#ef4444', className: 'danger' };
+        }
+
+        function createOrUpdateChart(instance, canvasId, config) {
+            const canvas = document.getElementById(canvasId);
+            if (!canvas || typeof Chart === 'undefined') return instance;
+            if (instance) instance.destroy();
+            return new Chart(canvas, config);
+        }
+
+        function getArchiveComparisonEntries() {
+            const dateFilter = String(document.getElementById('filterDate')?.value || '').trim();
+            const archiveFilter = String(document.getElementById('filterArchive')?.value || '').trim();
+            const selectedZones = getAdminSelectedZones();
+            const selectedReps = getAdminSelectedReps();
+            const selectedOffices = getAdminSelectedOffices();
+            const selectedStatuses = getAdminSelectedStatuses();
+
+            const matchesStatusSelection = (shipment) => {
+                if (!selectedStatuses.length) return true;
+                for (const st of selectedStatuses) {
+                    if (st === 'pending' && isAdminPendingStatus(shipment?.الحالة)) return true;
+                    if (st === 'الغاء' && isAdminRejectedStatus(shipment?.الحالة)) return true;
+                    if (shipment?.الحالة === st) return true;
+                }
+                return false;
+            };
+
+            const matchesDashboardStatFilter = (shipment) => {
+                if (!adminDashStatFilter) return true;
+                const status = getAdminDisplayStatus(shipment);
+                if (adminDashStatFilter === 'تم') return isAdminPureDeliveredShipment(shipment);
+                if (adminDashStatFilter === 'رفض') return isAdminExplicitRejectShipment(shipment);
+                if (adminDashStatFilter === 'الغاء') return isAdminCancelShipment(shipment);
+                if (adminDashStatFilter === 'شحن') return isAdminShippingOnlyShipment(shipment);
+                if (adminDashStatFilter === 'تعديل سعر') return isAdminPriceEditOnlyShipment(shipment);
+                if (adminDashStatFilter === 'بدون مندوب') return !shipment.المندوب;
+                if (adminDashStatFilter === 'بدون مبلغ') {
+                    const amt = String(shipment?.المبلغ || '').trim();
+                    return !amt || amt === '0' || amt === '0.0';
+                }
+                if (adminDashStatFilter === 'المخزن') return String(shipment?.المندوب || '').trim() === 'مخزن';
+                if (adminDashStatFilter === 'مرفوض/مرتجع') return status === 'رفض';
+                return status === adminDashStatFilter;
+            };
+
+            const grouped = new Map();
+
+            allShipments.forEach(shipment => {
+                if (String(shipment?.المندوب || '').startsWith('PRIVATE:')) return;
+                const archiveValue = getArchivedShipmentDailyValue(shipment);
+                if (!archiveValue) return;
+
+                if (dateFilter && getShipmentDailyValue(shipment) !== dateFilter) return;
+                if (selectedZones.length && !selectedZones.includes(shipment?.الزون)) return;
+                if (selectedReps.length && !selectedReps.includes(shipment?.المندوب)) return;
+                if (selectedOffices.length && !selectedOffices.includes(shipment?.الراسل)) return;
+                if (!matchesStatusSelection(shipment)) return;
+                if (!matchesDashboardStatFilter(shipment)) return;
+
+                if (!grouped.has(archiveValue)) {
+                    grouped.set(archiveValue, {
+                        archiveValue,
+                        total: 0,
+                        delivered: 0,
+                        resolved: 0
+                    });
+                }
+
+                const bucket = grouped.get(archiveValue);
+                bucket.total += 1;
+                if (isAdminPureDeliveredShipment(shipment)) bucket.delivered += 1;
+                if (!isAdminPendingStatus(shipment?.الحالة)) bucket.resolved += 1;
+            });
+
+            return [...grouped.values()]
+                .map(item => ({
+                    ...item,
+                    successRate: item.total ? Number(((item.delivered / item.total) * 100).toFixed(1)) : 0,
+                    resolvedRate: item.total ? Number(((item.resolved / item.total) * 100).toFixed(1)) : 0,
+                    isActive: !!archiveFilter && archiveFilter === item.archiveValue
+                }))
+                .sort((a, b) => {
+                    if (b.total !== a.total) return b.total - a.total;
+                    return b.archiveValue.localeCompare(a.archiveValue, 'ar');
+                });
+        }
+
+        function renderRepInsights(shipments, entries) {
+            const performanceGaugeEl = document.getElementById('repPerformanceGauge');
+            const performanceBandsEl = document.getElementById('repPerformanceBands');
+            const dailyEvaluationEl = document.getElementById('repDailyEvaluation');
+            const statusGaugeEl = document.getElementById('repStatusGauge');
+            const statusLegendEl = document.getElementById('repStatusLegend');
+
+            if (!performanceGaugeEl || !performanceBandsEl || !dailyEvaluationEl || !statusGaugeEl || !statusLegendEl) return;
+
+            const sortedEntries = sortStatsEntries(entries, 'success_desc');
+            const avgSuccessRate = sortedEntries.length
+                ? Number((sortedEntries.reduce((sum, [, stats]) => sum + getSuccessRate(stats), 0) / sortedEntries.length).toFixed(1))
+                : 0;
+
+            const totalCount = shipments.length;
+            const doneCount = shipments.filter(isAdminPureDeliveredShipment).length;
+            const rejectCount = shipments.filter(isAdminExplicitRejectShipment).length;
+            const cancelCount = shipments.filter(isAdminCancelShipment).length;
+            const shippingCount = shipments.filter(isAdminShippingOnlyShipment).length;
+            const amendedCount = shipments.filter(isAdminPriceEditOnlyShipment).length;
+            const pendingCount = Math.max(totalCount - (doneCount + rejectCount + cancelCount + shippingCount + amendedCount), 0);
+            const resolvedCount = doneCount + rejectCount + cancelCount + shippingCount + amendedCount;
+            const resolutionRate = totalCount ? Number(((resolvedCount / totalCount) * 100).toFixed(1)) : 0;
+
+            const performanceBands = [
+                { label: 'ممتاز (80% فأكثر)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 80).length, color: '#22c55e' },
+                { label: 'جيد (60% - 79%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 60 && getSuccessRate(stats) < 80).length, color: '#3b82f6' },
+                { label: 'متوسط (40% - 59%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 40 && getSuccessRate(stats) < 60).length, color: '#f59e0b' },
+                { label: 'ضعيف (أقل من 40%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) < 40).length, color: '#ef4444' }
+            ];
+
+            performanceGaugeEl.style.setProperty('--progress', avgSuccessRate);
+            performanceGaugeEl.style.setProperty('--accent', getPerformanceTone(avgSuccessRate).color);
+            performanceGaugeEl.innerHTML = `<div class="rep-donut-gauge-value">${formatPercent(avgSuccessRate)}<small>متوسط أداء المناديب</small></div>`;
+
+            performanceBandsEl.innerHTML = performanceBands.map(item => `
+                <div class="rep-band-item">
+                    <div class="rep-band-label">
+                        <span class="rep-band-dot" style="background:${item.color};"></span>
+                        <span>${item.label}</span>
+                    </div>
+                    <div class="rep-band-count">${item.count}</div>
+                </div>
+            `).join('');
+
+            const archiveComparisonEntries = getArchiveComparisonEntries();
+            dailyEvaluationEl.className = archiveComparisonEntries.length
+                ? 'rep-evaluation-list archive-comparison-row'
+                : 'rep-evaluation-list';
+
+            dailyEvaluationEl.innerHTML = archiveComparisonEntries.length
+                ? (() => {
+                    const maxTotal = Math.max(...archiveComparisonEntries.map(item => item.total), 1);
+                    const axisValues = [maxTotal, Math.round(maxTotal * 0.66), Math.round(maxTotal * 0.33), 0];
+                    return `
+                    <div class="rep-archive-chart">
+                        <div class="rep-archive-chart-stage">
+                            <div class="rep-archive-chart-axis">
+                                ${axisValues.map(value => `<div class="rep-archive-chart-axis-label">${value}</div>`).join('')}
+                            </div>
+                            <div class="rep-archive-chart-plot">
+                                <div class="rep-archive-chart-grid">
+                                    <div class="rep-archive-chart-grid-line"></div>
+                                    <div class="rep-archive-chart-grid-line"></div>
+                                    <div class="rep-archive-chart-grid-line"></div>
+                                    <div class="rep-archive-chart-grid-line"></div>
+                                </div>
+                                <div class="rep-archive-chart-bars">
+                            ${archiveComparisonEntries.map(item => {
+                        const height = Math.max((item.total / maxTotal) * 100, 14);
+                        return `
+                            <div class="rep-archive-chart-item ${item.isActive ? 'is-active' : ''}">
+                                <div class="rep-archive-chart-column-wrap">
+                                    <div class="rep-archive-chart-value">${item.total}</div>
+                                    <div class="rep-archive-chart-column" style="--bar-height:${height}%;"></div>
+                                </div>
+                                <div class="rep-archive-chart-label">
+                                    <div class="rep-archive-chart-name">${escapeHtml(item.archiveValue)}</div>
+                                    <div class="rep-archive-chart-meta">نجاح ${formatPercent(item.successRate)}</div>
+                                </div>
+                            </div>
+                `;
+                    }).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    `;
+                })()
+                : `<div class="rep-cards-empty w-100">لا توجد قيم أرشيف مطابقة للفلاتر الحالية لعرض المقارنة.</div>`;
+
+            const statusItems = [
+                { label: 'تم', value: doneCount, color: '#22c55e' },
+                { label: 'إلغاء', value: cancelCount, color: '#fb923c' },
+                { label: 'شحن', value: shippingCount, color: '#3b82f6' },
+                { label: 'رفض', value: rejectCount, color: '#f43f5e' },
+                { label: 'تعديل سعر', value: amendedCount, color: '#8b5cf6' },
+                { label: 'قيد التنفيذ', value: pendingCount, color: '#94a3b8' }
+            ];
+
+            statusGaugeEl.style.setProperty('--progress', resolutionRate);
+            statusGaugeEl.style.setProperty('--accent', '#10b981');
+            statusGaugeEl.innerHTML = `<div class="rep-donut-gauge-value">${formatPercent(resolutionRate)}<small>نسبة الإنجاز</small></div>`;
+
+            statusLegendEl.innerHTML = statusItems.map(item => `
+                <div class="rep-status-legend-item">
+                    <div class="rep-status-legend-label">
+                        <span class="rep-status-dot" style="background:${item.color};"></span>
+                        <span>${item.label}</span>
+                    </div>
+                    <div class="rep-status-legend-value">${item.value}</div>
+                </div>
+            `).join('');
+
+            repStatusChart = createOrUpdateChart(repStatusChart, 'repStatusChartCanvas', {
+                type: 'doughnut',
+                data: {
+                    labels: statusItems.map(item => item.label),
+                    datasets: [{
+                        data: statusItems.map(item => item.value),
+                        backgroundColor: statusItems.map(item => item.color),
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '68%',
+                    plugins: {
+                        legend: { display: false }
+                    }
+                }
+            });
+
+            repBandChart = createOrUpdateChart(repBandChart, 'repBandChartCanvas', {
+                type: 'bar',
+                data: {
+                    labels: performanceBands.map(item => item.label.split(' ')[0]),
+                    datasets: [{
+                        data: performanceBands.map(item => item.count),
+                        backgroundColor: performanceBands.map(item => item.color),
+                        borderRadius: 10,
+                        maxBarThickness: 42
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Cairo' } } },
+                        y: { beginAtZero: true, ticks: { precision: 0, font: { family: 'Cairo' } } }
+                    }
+                }
+            });
+
+            const topFive = sortStatsEntries(entries, 'success_desc').slice(0, 5);
+            const lowFive = sortStatsEntries(entries, 'success_asc').slice(0, 5);
+
+            topRepsTrendChart = createOrUpdateChart(topRepsTrendChart, 'topRepsTrendChartCanvas', {
+                type: 'line',
+                data: {
+                    labels: topFive.map(([name]) => name),
+                    datasets: [{
+                        data: topFive.map(([, stats]) => getSuccessRate(stats)),
+                        borderColor: '#10b981',
+                        backgroundColor: 'rgba(16,185,129,0.12)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#10b981'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Cairo' }, maxRotation: 0, autoSkip: false } },
+                        y: { beginAtZero: true, max: 100, ticks: { callback: (value) => `${value}%`, font: { family: 'Cairo' } } }
+                    }
+                }
+            });
+
+            lowRepsTrendChart = createOrUpdateChart(lowRepsTrendChart, 'lowRepsTrendChartCanvas', {
+                type: 'line',
+                data: {
+                    labels: lowFive.map(([name]) => name),
+                    datasets: [{
+                        data: lowFive.map(([, stats]) => getSuccessRate(stats)),
+                        borderColor: '#fb7185',
+                        backgroundColor: 'rgba(251,113,133,0.08)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#fb7185'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        x: { grid: { display: false }, ticks: { font: { family: 'Cairo' }, maxRotation: 0, autoSkip: false } },
+                        y: { beginAtZero: true, max: 100, ticks: { callback: (value) => `${value}%`, font: { family: 'Cairo' } } }
+                    }
+                }
+            });
+        }
+
+        function sortStatsEntries(entries, mode) {
+            const sorted = [...entries];
+            sorted.sort((a, b) => {
+                const pctA = getSuccessRate(a[1]);
+                const pctB = getSuccessRate(b[1]);
+
+                if (mode === 'success_asc') {
+                    if (pctA !== pctB) return pctA - pctB;
+                    if (a[1].total !== b[1].total) return b[1].total - a[1].total;
+                    return a[0].localeCompare(b[0], 'ar');
+                }
+                if (mode === 'total_desc') {
+                    if (b[1].total !== a[1].total) return b[1].total - a[1].total;
+                    if (pctB !== pctA) return pctB - pctA;
+                    return a[0].localeCompare(b[0], 'ar');
+                }
+                if (mode === 'amount_desc') {
+                    if (b[1].collected !== a[1].collected) return b[1].collected - a[1].collected;
+                    if (pctB !== pctA) return pctB - pctA;
+                    return a[0].localeCompare(b[0], 'ar');
+                }
+                if (mode === 'name_asc') {
+                    return a[0].localeCompare(b[0], 'ar');
+                }
+
+                if (pctB !== pctA) return pctB - pctA;
+                if (b[1].total !== a[1].total) return b[1].total - a[1].total;
+                return a[0].localeCompare(b[0], 'ar');
+            });
+            return sorted;
+        }
+
+        function buildLeaderboardItems(entries, mode) {
+            const sorted = sortStatsEntries(entries, mode).slice(0, 5);
+            if (!sorted.length) {
+                return `<div class="rep-leaderboard-empty">لا توجد بيانات كافية لعرض القائمة حالياً.</div>`;
+            }
+
+            return sorted.map(([name, stats], index) => {
+                const pct = getSuccessRate(stats);
+                return `
+                    <div class="rep-leaderboard-item">
+                        <div class="rep-leaderboard-rank">#${index + 1}</div>
+                        <div>
+                            <div class="rep-leaderboard-name">${escapeHtml(name || 'غير محدد')}</div>
+                            <div class="rep-leaderboard-meta">إجمالي ${stats.total} شحنة • تم ${stats.delivered} • مرفوض ${stats.rejected}</div>
+                        </div>
+                        <div class="rep-leaderboard-score">
+                            ${pct}%
+                            <small>نسبة النجاح</small>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function renderRepLeaderboards(entries) {
+            const topEl = document.getElementById('topRepsLeaderboard');
+            const lowEl = document.getElementById('lowRepsLeaderboard');
+            if (!topEl || !lowEl) return;
+
+            topEl.innerHTML = buildLeaderboardItems(entries, 'success_desc');
+            lowEl.innerHTML = buildLeaderboardItems(entries, 'success_asc');
+        }
+
+        function buildRepStatCard(name, stats, options = {}) {
+            const pct = getSuccessRate(stats);
+            const tone = getPerformanceTone(pct);
+            const roleBadge = options.isSubRep
+                ? `<span class="rep-card-role">مندوب متقدم</span>`
+                : '';
+
+            return `
+                <article class="rep-stat-card">
+                    <div class="rep-card-head">
+                        <div>
+                            <h6 class="rep-card-name">${escapeHtml(name || 'غير محدد')}</h6>
+                            ${roleBadge}
+                        </div>
+                        <div class="rep-progress-ring" style="--progress:${pct}; --ring-color:${tone.color};">
+                            <div class="rep-progress-value">
+                                ${pct}%
+                                <small>نسبة النجاح</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="rep-card-grid">
+                        <div class="rep-metric">
+                            <span class="rep-metric-label">إجمالي الشحنات</span>
+                            <span class="rep-metric-value">${stats.total}</span>
+                        </div>
+                        <div class="rep-metric rep-metric-success">
+                            <span class="rep-metric-label">تم</span>
+                            <span class="rep-metric-value">${stats.delivered}</span>
+                        </div>
+                        <div class="rep-metric rep-metric-danger">
+                            <span class="rep-metric-label">مرفوض</span>
+                            <span class="rep-metric-value">${stats.rejected}</span>
+                        </div>
+                        <div class="rep-metric rep-metric-warning">
+                            <span class="rep-metric-label">مؤجل</span>
+                            <span class="rep-metric-value">${stats.postponed}</span>
+                        </div>
+                        <div class="rep-metric rep-metric-info">
+                            <span class="rep-metric-label">قيد التنفيذ</span>
+                            <span class="rep-metric-value">${stats.pending}</span>
+                        </div>
+                        <div class="rep-metric">
+                            <span class="rep-metric-label">مؤشر الأداء</span>
+                            <span class="rep-metric-value" style="color:${tone.color};">${tone.className === 'success' ? 'مرتفع' : tone.className === 'warning' ? 'متوسط' : 'منخفض'}</span>
+                        </div>
+                    </div>
+                    <div class="rep-card-total">
+                        <div class="rep-card-total-label">إجمالي المبلغ</div>
+                        <div class="rep-card-total-value">${Math.round(stats.collected).toLocaleString('en-US')} ج</div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function buildRepStatRow(name, stats, options = {}) {
+            const pct = getSuccessRate(stats);
+            const tone = getPerformanceTone(pct);
+            const roleBadge = options.isSubRep
+                ? `<span class="rep-stat-row-badge">مندوب متقدم</span>`
+                : '';
+
+            return `
+                <article class="rep-stat-row">
+                    <div class="rep-stat-row-main">
+                        <div class="rep-stat-row-name">${escapeHtml(name || 'غير محدد')}</div>
+                        ${roleBadge}
+                    </div>
+                    <div class="rep-stat-row-rate">
+                        <div class="rep-stat-row-rate-bar">
+                            <div class="rep-stat-row-rate-fill" style="width:${pct}%; background:${tone.color};"></div>
+                        </div>
+                        <div class="rep-stat-row-rate-value" style="color:${tone.color};">${pct}%</div>
+                        <div class="rep-stat-row-rate-label">نسبة النجاح</div>
+                    </div>
+                    <div class="rep-stat-row-metric">
+                        <div class="rep-stat-row-metric-label">إجمالي</div>
+                        <div class="rep-stat-row-metric-value">${stats.total}</div>
+                    </div>
+                    <div class="rep-stat-row-metric success">
+                        <div class="rep-stat-row-metric-label">تم</div>
+                        <div class="rep-stat-row-metric-value">${stats.delivered}</div>
+                    </div>
+                    <div class="rep-stat-row-metric warning">
+                        <div class="rep-stat-row-metric-label">مؤجل</div>
+                        <div class="rep-stat-row-metric-value">${stats.postponed}</div>
+                    </div>
+                    <div class="rep-stat-row-metric danger">
+                        <div class="rep-stat-row-metric-label">مرفوض</div>
+                        <div class="rep-stat-row-metric-value">${stats.rejected}</div>
+                    </div>
+                    <div class="rep-stat-row-metric info">
+                        <div class="rep-stat-row-metric-label">قيد</div>
+                        <div class="rep-stat-row-metric-value">${stats.pending}</div>
+                    </div>
+                    <div class="rep-stat-row-total">
+                        <div class="rep-stat-row-total-label">إجمالي المبلغ</div>
+                        <div class="rep-stat-row-total-value">${Math.round(stats.collected).toLocaleString('en-US')} ج</div>
+                    </div>
+                </article>
+            `;
+        }
+
+        function renderStatsCards(containerId, entries, options = {}) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const sorted = sortStatsEntries(entries, getStatsSortMode(options.type));
+            const summaryEl = options.summaryId ? document.getElementById(options.summaryId) : null;
+
+            if (summaryEl) {
+                const totalCards = sorted.length;
+                const totalShipments = sorted.reduce((sum, [, stats]) => sum + stats.total, 0);
+                summaryEl.innerText = totalCards
+                    ? `عدد البطاقات: ${totalCards} • إجمالي الشحنات: ${totalShipments}`
+                    : 'لا توجد بيانات مطابقة للفلاتر الحالية';
+            }
+
+            if (!sorted.length) {
+                container.innerHTML = `<div class="rep-cards-empty">${escapeHtml(options.emptyMessage || 'لا توجد بيانات متاحة حالياً.')}</div>`;
+                return;
+            }
+
+            const itemBuilder = options.layout === 'row' ? buildRepStatRow : buildRepStatCard;
+            container.className = options.layout === 'row' ? 'rep-rows-list' : 'rep-cards-grid';
+
+            container.innerHTML = sorted.map(([name, stats]) => itemBuilder(name, stats, {
+                isSubRep: !!options.isSubRep
+            })).join('');
         }
 
         function renderRepsStats(data) {
@@ -2672,39 +4737,15 @@
                 else repsData[name].pending++;
             });
 
-            const sorted = Object.entries(repsData).sort((a, b) => b[1].total - a[1].total);
-            document.getElementById('repsStatsTable').innerHTML = sorted.map(([name, stats]) => {
-                const pct = stats.total > 0 ? (stats.delivered / stats.total * 100).toFixed(1) : 0;
-                let progressColor = 'bg-danger';
-                if (pct >= 80) progressColor = 'bg-success';
-                else if (pct >= 50) progressColor = 'bg-warning';
-                else if (pct >= 30) progressColor = 'bg-orange'; // Note: bg-orange might need custom CSS or use bg-secondary/info
-
-                // Better mapping for standard bootstrap classes:
-                if (pct >= 75) progressColor = 'bg-success';
-                else if (pct >= 40) progressColor = 'bg-warning';
-                else progressColor = 'bg-danger';
-
-                return `
-                    <tr>
-                        <td class="fw-bold">${name}</td>
-                        <td class="text-center"><span class="badge bg-light text-dark border">${stats.total}</span></td>
-                        <td class="text-success fw-bold">${stats.delivered}</td>
-                        <td class="text-warning fw-bold">${stats.postponed}</td>
-                        <td class="text-danger fw-bold">${stats.rejected}</td>
-                        <td class="text-info fw-bold">${stats.pending}</td>
-                        <td class="fw-bold">${Math.round(stats.collected)} ج</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height:8px; background-color: #e9ecef;">
-                                    <div class="progress-bar ${progressColor}" style="width:${pct}%"></div>
-                                </div>
-                                <small class="fw-bold">${pct}%</small>
-                            </div>
-                        </td>
-                    </tr>
-                    `;
-            }).join('');
+            latestRepStatsEntries = Object.entries(repsData);
+            renderRepInsights(data, latestRepStatsEntries);
+            renderRepLeaderboards(latestRepStatsEntries);
+            renderStatsCards('repsStatsTable', latestRepStatsEntries, {
+                emptyMessage: 'لا توجد بيانات للمناديب ضمن الفلاتر الحالية.',
+                summaryId: 'repsStatsSummary',
+                type: 'rep',
+                layout: 'row'
+            });
         }
 
         function renderSubRepsStats(data) {
@@ -2739,47 +4780,13 @@
                 else subRepsData[name].pending++;
             });
 
-            const tableBody = document.getElementById('subRepsStatsTable');
-            if (!tableBody) return;
-
-            const sorted = Object.entries(subRepsData).sort((a, b) => {
-                const totalDiff = b[1].total - a[1].total;
-                if (totalDiff !== 0) return totalDiff;
-                return a[0].localeCompare(b[0], 'ar');
+            latestSubRepStatsEntries = Object.entries(subRepsData);
+            renderStatsCards('subRepsStatsTable', latestSubRepStatsEntries, {
+                emptyMessage: 'لا توجد بيانات للمندوب المتقدم ضمن الفلاتر الحالية.',
+                summaryId: 'subRepsStatsSummary',
+                type: 'subRep',
+                isSubRep: true
             });
-            if (!sorted.length) {
-                tableBody.innerHTML = `<tr><td colspan="8" class="text-center py-3 text-secondary fw-bold">لا توجد بيانات للمندوب المتقدم ضمن الفلاتر الحالية.</td></tr>`;
-                return;
-            }
-
-            tableBody.innerHTML = sorted.map(([name, stats]) => {
-                const pct = stats.total > 0 ? (stats.delivered / stats.total * 100).toFixed(1) : 0;
-                let progressColor = 'bg-danger';
-                if (pct >= 75) progressColor = 'bg-success';
-                else if (pct >= 40) progressColor = 'bg-warning';
-
-                return `
-                    <tr>
-                        <td class="fw-bold d-flex align-items-center gap-2">
-                            <span>${name}${isSubRep(name) ? ' <span class="text-primary small">(متقدم)</span>' : ''}</span>
-                        </td>
-                        <td class="text-center"><span class="badge bg-light text-dark border">${stats.total}</span></td>
-                        <td class="text-success fw-bold">${stats.delivered}</td>
-                        <td class="text-warning fw-bold">${stats.postponed}</td>
-                        <td class="text-danger fw-bold">${stats.rejected}</td>
-                        <td class="text-info fw-bold">${stats.pending}</td>
-                        <td class="fw-bold">${Math.round(stats.collected)} ج</td>
-                        <td>
-                            <div class="d-flex align-items-center gap-2">
-                                <div class="progress flex-grow-1" style="height:8px; background-color: #e9ecef;">
-                                    <div class="progress-bar ${progressColor}" style="width:${pct}%"></div>
-                                </div>
-                                <small class="fw-bold">${pct}%</small>
-                            </div>
-                        </td>
-                    </tr>
-                    `;
-            }).join('');
         }
 
         function renderUsers() {
@@ -2815,16 +4822,27 @@
             const approvalAction = user.approved
                 ? `<button onclick="toggleUserApproval('${user.id}', false)" class="btn-action bg-danger-subtle text-danger" title="تعطيل الحساب"><i class="fas fa-user-slash"></i></button>`
                 : `<button onclick="toggleUserApproval('${user.id}', true)" class="btn-action bg-success-subtle text-success" title="تفعيل الحساب"><i class="fas fa-user-check"></i></button>`;
+            const isRepAccount = user.role === 'rep' || user.role === 'مندوب فرعي';
+            const gpsBadge = isRepAccount
+                ? (isRepGpsEnforced(user.id)
+                    ? '<span class="badge bg-danger-subtle text-danger" title="إجبار GPS مفعل لهذا المندوب"><i class="fas fa-location-crosshairs me-1"></i>GPS إجباري</span>'
+                    : '<span class="badge bg-secondary-subtle text-secondary" title="إجبار GPS غير مفعل لهذا المندوب"><i class="fas fa-location-dot me-1"></i>GPS اختياري</span>')
+                : '';
+            const safeRepName = JSON.stringify(String(user.username || user.full_name || user.phone || 'المندوب'));
+            const gpsAction = isRepAccount
+                ? `<button onclick='toggleRepGpsEnforcement(${JSON.stringify(String(user.id))}, ${safeRepName})' class="btn-action ${isRepGpsEnforced(user.id) ? 'bg-danger-subtle text-danger' : 'bg-info-subtle text-info'}" title="${isRepGpsEnforced(user.id) ? 'إلغاء إجبار GPS' : 'تشغيل إجبار GPS'}"><i class="fas ${isRepGpsEnforced(user.id) ? 'fa-location-xmark' : 'fa-location-crosshairs'}"></i></button>`
+                : '';
 
             return `
                 <tr>
                     <td><strong>${user.username || user.full_name || '---'}</strong></td>
                     <td>${user.phone || '---'}</td>
                     <td><span class="badge bg-light text-dark">${getUserRoleLabel(user.role)}</span></td>
-                    <td>${approvalBadge}</td>
+                    <td class="d-flex flex-wrap gap-1 align-items-center">${approvalBadge}${gpsBadge}</td>
                     <td class="text-center">
                         <div class="d-flex justify-content-center gap-2">
                             ${approvalAction}
+                            ${gpsAction}
                             <button onclick="changeUserRole('${user.id}', '${user.username || user.full_name || ''}', '${user.role}')" class="btn-action bg-warning-subtle text-warning" title="تغيير الصلاحية"><i class="fas fa-shield-halved"></i></button>
                             <button onclick="editUser(${JSON.stringify(user).replace(/"/g, '&quot;')})" class="btn-action bg-primary-subtle text-primary" title="تعديل"><i class="fas fa-edit"></i></button>
                             <button onclick="deleteUser('${user.id}', '${user.username}')" class="btn-action bg-danger-subtle text-danger" title="حذف"><i class="fas fa-trash"></i></button>
@@ -2871,11 +4889,12 @@
         }
 
         function renderUsers() {
-            const repUsers = allUsers.filter(u => u.role === 'rep' || u.role === 'مندوب فرعي');
-            const subRepUsers = allUsers.filter(u => u.role === 'sub-rep');
-            const followerUsers = allUsers.filter(u => u.role === 'follower');
-            const housingUsers = allUsers.filter(u => u.role === 'housing');
-            const otherUsers = allUsers.filter(u => !['rep', 'sub-rep', 'follower', 'housing'].includes(u.role));
+            const visibleUsers = getVisibleUsers();
+            const repUsers = visibleUsers.filter(u => u.role === 'rep' || u.role === 'مندوب فرعي');
+            const subRepUsers = visibleUsers.filter(u => u.role === 'sub-rep');
+            const followerUsers = visibleUsers.filter(u => u.role === 'follower');
+            const housingUsers = visibleUsers.filter(u => u.role === 'housing');
+            const otherUsers = visibleUsers.filter(u => !['rep', 'sub-rep', 'follower', 'housing'].includes(u.role));
 
             renderUsersSection('repUsersTable', 'repUsersCount', repUsers, 'لا توجد حسابات داخل قسم المناديب.');
             renderUsersSection('subRepUsersTable', 'subRepUsersCount', subRepUsers, 'لا توجد حسابات داخل قسم المندوب المتقدم.');
@@ -2884,7 +4903,7 @@
             renderUsersSection('otherUsersTable', 'otherUsersCount', otherUsers, 'لا توجد حسابات أخرى حالياً.');
 
             // Pulse effect for pending approvals (only for users without a parent_id, as sub-reps manage their own)
-            const hasPending = allUsers.some(u => !u.approved && !u.parent_id);
+            const hasPending = visibleUsers.some(u => !u.approved && !u.parent_id);
             const usersBtns = [document.getElementById('usersSidebarBtn'), document.getElementById('usersMobileBtn')];
             usersBtns.forEach(btn => {
                 if (btn) {
@@ -4029,6 +6048,7 @@
                 rep: (document.getElementById('housingFilterRep')?.value || '').trim(),
                 status: (document.getElementById('housingFilterStatus')?.value || '').trim(),
                 editDates: getHousingEditDateFilters(),
+                archive: getHousingArchiveFilterValue(),
                 statuses: getHousingStatusFilters(),
                 reps: getHousingRepFilters(),
                 subReps: getHousingSubRepFilters(),
@@ -4080,6 +6100,11 @@
                 editDateSelect.value = (Array.isArray(state.editDates) && state.editDates.length > 0) ? state.editDates[0] : '';
             }
 
+            const archiveSelect = document.getElementById('housingArchiveFilterSelect');
+            if (archiveSelect) {
+                archiveSelect.value = state.archive || '';
+            }
+
             document.querySelectorAll('.housing-status-option').forEach(cb => {
                 cb.checked = Array.isArray(state.statuses) && state.statuses.includes(cb.value);
             });
@@ -4105,6 +6130,31 @@
                 return [String(select.value).trim()];
             }
             return [];
+        }
+
+        function getHousingArchiveFilterValue() {
+            const select = document.getElementById('housingArchiveFilterSelect');
+            return select && select.value ? String(select.value).trim() : '';
+        }
+
+        function handleHousingEditDateFilterChange() {
+            const editDateSelect = document.getElementById('housingEditDateFilterSelect');
+            const archiveSelect = document.getElementById('housingArchiveFilterSelect');
+            if (editDateSelect && archiveSelect && editDateSelect.value) {
+                archiveSelect.value = '';
+            }
+            renderHousingSection();
+            saveHousingUiState();
+        }
+
+        function handleHousingArchiveFilterChange() {
+            const archiveSelect = document.getElementById('housingArchiveFilterSelect');
+            const editDateSelect = document.getElementById('housingEditDateFilterSelect');
+            if (archiveSelect && editDateSelect && archiveSelect.value) {
+                editDateSelect.value = '';
+            }
+            renderHousingSection();
+            saveHousingUiState();
         }
 
         const HOUSING_EMPTY_UPDATE_DATE_FILTER = '__EMPTY_UPDATE_DATE__';
@@ -4186,7 +6236,15 @@
             return allShipments.filter(s => {
                 if (String(s.المندوب || '').startsWith('PRIVATE:')) return false;
                 const d = getHousingDisplayShipmentData(s);
-                if (String(d.ارشيف || d['أرشيف'] || '').trim()) return false;
+                const archiveValue = String(d.ارشيف || d['أرشيف'] || '').trim();
+                const archivedDailyValue = getArchivedShipmentDailyValue(d);
+                if (!excludeFields.includes('archive')) {
+                    if (filters.archive) {
+                        if (archivedDailyValue !== filters.archive) return false;
+                    } else if (archiveValue) {
+                        return false;
+                    }
+                }
 
                 if (housingDashStatFilter) {
                     const disp = getHousingDashboardDisplayStatus(d);
@@ -4224,13 +6282,38 @@
             });
         }
 
+        function populateHousingArchiveFilter() {
+            const select = document.getElementById('housingArchiveFilterSelect');
+            if (!select) return;
+
+            const currentValue = getHousingArchiveFilterValue() || select.value || '';
+            const baseShipments = getHousingShipmentsFilteredBy(['archive', 'editDate']);
+            const archives = [...new Set(
+                baseShipments
+                    .map(s => {
+                        const data = getHousingDisplayShipmentData(s);
+                        return getArchivedShipmentDailyValue(data);
+                    })
+                    .filter(Boolean)
+            )].sort((a, b) => b.localeCompare(a));
+
+            let html = '<option value="">🗂️ كل الأرشيفات</option>';
+            archives.forEach(value => {
+                html += `<option value="${escapeAttr(value)}" ${currentValue === value ? 'selected' : ''}>${escapeHtml(value)}</option>`;
+            });
+
+            select.innerHTML = html;
+            if (currentValue) select.value = currentValue;
+        }
+
         function populateHousingEditDateFilter() {
             const select = document.getElementById('housingEditDateFilterSelect');
             if (!select) return;
 
             const selectedVal = getHousingEditDateFilters()[0] || select.value || '';
             const visibleHousingShipments = allShipments
-                .map(s => getHousingDisplayShipmentData(s));
+                .map(s => getHousingDisplayShipmentData(s))
+                .filter(data => !String(data.ارشيف || data['أرشيف'] || '').trim());
             const dates = [...new Set(visibleHousingShipments.map(data => getShipmentDailyValue(data)).filter(Boolean))]
                 .sort((a, b) => b.localeCompare(a));
             const hasEmptyUpdateDate = visibleHousingShipments.some(data => !getShipmentDailyValue(data));
@@ -4238,7 +6321,11 @@
             const showCounts = getHousingEditDateFilters().length > 0;
             const counts = {};
             if (showCounts) {
-                const baseShipments = getHousingShipmentsFilteredBy(['editDate']);
+                const baseShipments = getHousingShipmentsFilteredBy(['editDate', 'archive'])
+                    .filter(s => {
+                        const currentData = getHousingDisplayShipmentData(s);
+                        return !String(currentData.ارشيف || currentData['أرشيف'] || '').trim();
+                    });
                 baseShipments.forEach(s => {
                     const currentData = getHousingDisplayShipmentData(s);
                     const val = getShipmentDailyValue(currentData);
@@ -4512,6 +6599,7 @@
                 subRep: (document.getElementById('housingFilterSubRep')?.value || '').trim().toLowerCase(),
                 status: (document.getElementById('housingFilterStatus')?.value || '').trim().toLowerCase(),
                 editDates: getHousingEditDateFilters(),
+                archive: getHousingArchiveFilterValue(),
                 statuses: getHousingStatusFilters(),
                 reps: getHousingRepFilters(),
                 subReps: getHousingSubRepFilters(),
@@ -4521,7 +6609,7 @@
 
         function getHousingFilteredShipments() {
             const filters = getHousingColumnFilters();
-            if (filters.editDates.length === 0) {
+            if (filters.editDates.length === 0 && !filters.archive) {
                 return [];
             }
 
@@ -4530,12 +6618,19 @@
 
             return allShipments.filter(s => {
                 const currentData = getHousingDisplayShipmentData(s);
+                const archiveValue = String(currentData.ارشيف || currentData['أرشيف'] || '').trim();
+                const archivedDailyValue = getArchivedShipmentDailyValue(currentData);
 
                 const matchesSearch = !searchActive || 
                     `${currentData.اسم_العميل || ''} ${currentData.الهاتف || ''} ${currentData.هاتف_بديل || ''} ${currentData.order_id || ''} ${currentData.كود_الشحنة || ''}`
                     .toLowerCase().includes(search);
 
                 if (!matchesSearch) return false;
+                if (filters.archive) {
+                    if (archivedDailyValue !== filters.archive) return false;
+                } else if (archiveValue) {
+                    return false;
+                }
 
                 const updateDateValue = getShipmentDailyValue(currentData);
                 const matchesEditDate = !filters.editDates.length || (
@@ -4607,7 +6702,7 @@
 
         function getHousingFilteredShipments() {
             const filters = getHousingColumnFilters();
-            if (filters.editDates.length === 0) {
+            if (filters.editDates.length === 0 && !filters.archive) {
                 return [];
             }
 
@@ -4628,8 +6723,13 @@
             const filtered = allShipments.filter(s => {
                 const currentData = getHousingDisplayShipmentData(s);
                 const archiveValue = String(currentData.ارشيف || currentData['أرشيف'] || '').trim();
+                const archivedDailyValue = getArchivedShipmentDailyValue(currentData);
 
-                if (archiveValue) return false;
+                if (filters.archive) {
+                    if (archivedDailyValue !== filters.archive) return false;
+                } else if (archiveValue) {
+                    return false;
+                }
 
                 const matchesSearch = !searchActive ||
                     `${currentData.اسم_العميل || ''} ${currentData.الهاتف || ''} ${currentData.هاتف_بديل || ''} ${currentData.order_id || ''} ${currentData.كود_الشحنة || ''}`
@@ -4699,23 +6799,24 @@
         }
 
         function isHousingResultsSelectionReady() {
-            return getHousingEditDateFilters().length > 0 && getHousingRepFilters().length > 0;
+            return (getHousingEditDateFilters().length > 0 || !!getHousingArchiveFilterValue()) && getHousingRepFilters().length > 0;
         }
 
         function getHousingResultsSelectionMessage() {
             const hasDate = getHousingEditDateFilters().length > 0;
+            const hasArchive = !!getHousingArchiveFilterValue();
             const hasRep = getHousingRepFilters().length > 0;
 
-            if (!hasDate && !hasRep) {
-                return 'يرجى اختيار اليومية أولاً ثم اختيار المندوب لعرض الشحنات.';
+            if ((!hasDate && !hasArchive) && !hasRep) {
+                return 'يرجى اختيار اليومية أو الأرشيف أولاً ثم اختيار المندوب لعرض الشحنات.';
             }
 
-            if (!hasDate) {
-                return 'يرجى اختيار اليومية أولاً لعرض الشحنات.';
+            if (!hasDate && !hasArchive) {
+                return 'يرجى اختيار اليومية أو الأرشيف أولاً لعرض الشحنات.';
             }
 
             if (!hasRep) {
-                return 'يرجى اختيار المندوب بعد تحديد اليومية لعرض الشحنات.';
+                return 'يرجى اختيار المندوب أولاً بعد تحديد اليومية أو الأرشيف لعرض الشحنات.';
             }
 
             return '';
@@ -5609,14 +7710,12 @@
 
         function getHousingFinancialFilteredShipments() {
             const editDates = getHousingEditDateFilters();
-            const reps = getHousingRepFilters();
 
             if (!editDates.length) {
                 return { error: 'يرجى اختيار اليومية أولاً.' };
             }
 
             const selectedDate = String(editDates[0] || '').trim();
-            const selectedRep = String(reps[0] || '').trim();
 
             const shipments = allShipments.filter(shipment => {
                 const data = getHousingDisplayShipmentData(shipment);
@@ -5627,12 +7726,10 @@
                     ? !updateDateValue
                     : updateDateValue === selectedDate;
                 if (!matchesDate) return false;
-
-                if (selectedRep && String(data.المندوب || '').trim() !== selectedRep) return false;
                 return true;
             });
 
-            return { shipments, selectedDate, selectedRep };
+            return { shipments, selectedDate };
         }
 
         function formatFinancialCurrency(value) {
@@ -5656,36 +7753,8 @@
                 return;
             }
 
-            const { shipments, selectedDate, selectedRep } = result;
+            const { shipments, selectedDate } = result;
             const dateLabel = selectedDate === HOUSING_EMPTY_UPDATE_DATE_FILTER ? 'بدون تاريخ تحديث' : selectedDate;
-
-            if (selectedRep) {
-                const summary = getFinancialStatusSummary(shipments);
-                Swal.fire({
-                    title: `المالية | ${escapeHtml(selectedRep)}`,
-                    width: '1200px',
-                    confirmButtonText: 'إغلاق',
-                    html: `
-                        <div class="text-start small text-secondary mb-3">
-                            اليومية: <b>${escapeHtml(dateLabel || '---')}</b> | المندوب: <b>${escapeHtml(selectedRep)}</b>
-                        </div>
-                        <div class="row g-3 text-center">
-                            <div class="col-6 col-md-4 col-xl-3">${buildFinancialStatCard('إجمالي الشحنات', summary.totalShipments, 'background:linear-gradient(135deg,#1d4ed8,#1e3a8a);', 'fas fa-boxes-stacked')}</div>
-                            <div class="col-6 col-md-4 col-xl-3">${buildFinancialStatCard('تم التوصيل', summary.deliveredCount, 'background:linear-gradient(135deg,#10b981,#065f46);', 'fas fa-check-circle')}</div>
-                            <div class="col-6 col-md-4 col-xl-3">${buildFinancialStatCard('تعديل سعر', summary.amendedCount, 'background:linear-gradient(135deg,#2563eb,#1d4ed8);', 'fas fa-pen-to-square')}</div>
-                            <div class="col-6 col-md-4 col-xl-3">${buildFinancialStatCard('شحن', summary.shippingCount, 'background:linear-gradient(135deg,#06b6d4,#0f766e);', 'fas fa-truck-fast')}</div>
-                            <div class="col-6 col-md-4 col-xl-3">${buildFinancialStatCard('مؤجل', summary.postponedCount, 'background:linear-gradient(135deg,#f59e0b,#b45309);', 'fas fa-clock')}</div>
-                            <div class="col-6 col-md-4 col-xl-3">${buildFinancialStatCard('رفض', summary.rejectedCount, 'background:linear-gradient(135deg,#ef4444,#991b1b);', 'fas fa-circle-xmark')}</div>
-                        </div>
-                        <div class="row g-3 text-center mt-1">
-                            <div class="col-12 col-md-4">${buildFinancialStatCard('إجمالي التوريد', formatFinancialCurrency(summary.totalRemittance), 'background:linear-gradient(135deg,#7c3aed,#4c1d95);', 'fas fa-money-bill-wave')}</div>
-                            <div class="col-12 col-md-4">${buildFinancialStatCard('عمولة المندوب', formatFinancialCurrency(summary.totalCommission), 'background:linear-gradient(135deg,#f97316,#9a3412);', 'fas fa-hand-holding-dollar')}</div>
-                            <div class="col-12 col-md-4">${buildFinancialStatCard('المبلغ المتبقي', formatFinancialCurrency(summary.netAmount), 'background:linear-gradient(135deg,#059669,#064e3b);', 'fas fa-scale-balanced')}</div>
-                        </div>
-                    `
-                });
-                return;
-            }
 
             const groupedByRep = new Map();
             shipments.forEach(shipment => {
@@ -6724,7 +8793,8 @@
 
         function resetFilters() {
             document.querySelectorAll('.filter-select').forEach(s => s.value = '');
-            document.getElementById('filterStatus').value = '';
+            const legacyFilterStatus = document.getElementById('filterStatus');
+            if (legacyFilterStatus) legacyFilterStatus.value = '';
             saveDateFilter('');
             refreshDashboard();
         }
