@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
+    <title>لوحة الراسل | نظام الشحن الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body {
+            background-image:
+                radial-gradient(at top right, rgba(99, 102, 241, 0.08) 0px, transparent 42%),
+                radial-gradient(at bottom left, rgba(16, 185, 129, 0.05) 0px, transparent 38%);
+            background-attachment: fixed;
+        }
+
+        .hero-shell {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-shell::before {
+            content: "";
+            position: absolute;
+            top: -70px;
+            right: -30px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.16), transparent 68%);
+            pointer-events: none;
+        }
+
+        .hero-shell::after {
+            content: "";
+            position: absolute;
+            bottom: -90px;
+            left: -40px;
+            width: 210px;
+            height: 210px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.12), transparent 70%);
+            pointer-events: none;
+        }
+
+        .header-chip {
+            background: rgba(255, 255, 255, 0.74);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        }
+
+        .dark .header-chip {
+            background: rgba(15, 23, 42, 0.74);
+            border-color: rgba(148, 163, 184, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
+
+        .stat-card {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 250, 252, 0.92));
+            border: 1px solid rgba(226, 232, 240, 0.88);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.07);
+        }
+
+        .dark .stat-card {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.84));
+            border-color: rgba(51, 65, 85, 0.88);
+        }
+
+        .panel-surface {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(248, 250, 252, 0.94));
+            border: 1px solid rgba(226, 232, 240, 0.88);
+            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.07);
+        }
+
+        .dark .panel-surface {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.84));
+            border-color: rgba(51, 65, 85, 0.88);
+        }
+
+        .soft-control {
+            background: rgba(255, 255, 255, 0.82);
+            border: 1px solid rgba(148, 163, 184, 0.18);
+            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        .dark .soft-control {
+            background: rgba(15, 23, 42, 0.88);
+            border-color: rgba(148, 163, 184, 0.16);
+        }
+
+        .table-shell {
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
+            border: 1px solid rgba(226, 232, 240, 0.92);
+            box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+        }
+
+        .dark .table-shell {
+            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
+            border-color: rgba(51, 65, 85, 0.92);
+        }
+
+        .table-shell thead th {
+            background: rgba(99, 102, 241, 0.08);
+            color: #3730a3;
+        }
+
+        .dark .table-shell thead th {
+            background: rgba(99, 102, 241, 0.14);
+            color: #c7d2fe;
+        }
+
+        .table-shell tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .table-shell tbody tr:hover {
+            background: rgba(99, 102, 241, 0.04);
+        }
+
+        .dark .table-shell tbody tr:hover {
+            background: rgba(99, 102, 241, 0.08);
+        }
+
+        .table-fit {
+            table-layout: fixed;
+        }
+
+        .table-container {
+            overflow-x: hidden;
+        }
+
+        .table-fit th,
+        .table-fit td {
+            word-break: break-word;
+            overflow-wrap: anywhere;
+            vertical-align: top;
+        }
+
+        .table-fit .cell-compact {
+            white-space: normal;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 1024px) {
+            .table-fit th,
+            .table-fit td {
+                padding: 0.7rem 0.55rem;
+                font-size: 0.72rem;
+            }
+        }
+    </style>
+</head>
+<body class="bg-indigo-50/30 dark:bg-slate-950 min-h-screen transition-colors duration-300">
+
+    <!-- Header -->
+    <header class="glass hero-shell sticky top-0 z-50 px-6 py-4 mb-8">
+        <div class="max-w-5xl mx-auto flex items-center justify-between">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-500 rounded-[1.1rem] flex items-center justify-center text-white shadow-xl ring-4 ring-white/70 dark:ring-slate-900/40 relative z-10">
+                    <i class="fas fa-store text-xl"></i>
+                </div>
+                <div class="relative z-10">
+                    <h1 id="senderName" class="text-xl font-black text-slate-800 dark:text-white tracking-tight">جاري التحميل...</h1>
+                    <div class="mt-1 inline-flex items-center gap-2 rounded-full px-3 py-1 header-chip">
+                        <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                        <p class="text-xs font-black text-indigo-700 dark:text-indigo-300 italic">عميل مميز</p>
+                    </div>
+                </div>
+            </div>
+            <div class="flex items-center gap-2 relative z-10">
+                <button onclick="toggleTheme()" class="p-3 rounded-2xl header-chip text-slate-400 dark:text-slate-300 hover:text-indigo-500 transition-all">
+                    <i id="themeIcon" class="fas fa-moon"></i>
+                </button>
+                <button onclick="logout()" class="p-3 rounded-2xl header-chip text-slate-400 dark:text-slate-300 hover:text-rose-500 transition-all" title="خروج">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto px-6 pb-12">
+        <!-- Dashboard Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-10">
+            <div class="glass stat-card p-6 rounded-3xl">
+                <p class="text-slate-400 text-sm font-bold mb-1">إجمالي شحناتك</p>
+                <h2 id="totalOrders" class="text-3xl font-black text-slate-800">0</h2>
+            </div>
+            <div class="glass stat-card p-6 rounded-3xl">
+                <p class="text-slate-400 text-sm font-bold mb-1">تم تسليمها</p>
+                <h2 id="deliveredOrders" class="text-3xl font-black text-emerald-500">0</h2>
+            </div>
+            <div class="glass stat-card p-6 rounded-3xl">
+                <p class="text-slate-400 text-sm font-bold mb-1">قيد التوصيل</p>
+                <h2 id="pendingOrders" class="text-3xl font-black text-indigo-500">0</h2>
+            </div>
+            <div class="glass stat-card p-6 rounded-3xl">
+                <p class="text-slate-400 text-sm font-bold mb-1">مؤجل</p>
+                <h2 id="delayedOrders" class="text-3xl font-black text-amber-500">0</h2>
+            </div>
+            <div class="glass stat-card p-6 rounded-3xl">
+                <p class="text-slate-400 text-sm font-bold mb-1">رفض</p>
+                <h2 id="rejectedOrders" class="text-3xl font-black text-rose-500">0</h2>
+            </div>
+        </div>
+
+        <div class="glass panel-surface p-4 sm:p-5 rounded-3xl mb-6">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+                <div class="relative">
+                    <select id="filterStatus" class="w-full soft-control px-4 py-3 rounded-xl text-xs font-black text-slate-700 dark:text-slate-200 outline-none appearance-none">
+                        <option value="">الحالة: الكل</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+                <div class="relative">
+                    <select id="filterRep" class="w-full soft-control px-4 py-3 rounded-xl text-xs font-black text-slate-700 dark:text-slate-200 outline-none appearance-none">
+                        <option value="">المندوب: الكل</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+                <div class="relative">
+                    <select id="filterDaily" class="w-full soft-control px-4 py-3 rounded-xl text-xs font-black text-slate-700 dark:text-slate-200 outline-none appearance-none">
+                        <option value="">اليومية: الكل</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+                <div class="relative">
+                    <select id="filterProduct" class="w-full soft-control px-4 py-3 rounded-xl text-xs font-black text-slate-700 dark:text-slate-200 outline-none appearance-none">
+                        <option value="">المنتج: الكل</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px]"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Tracking Table -->
+        <div class="glass table-shell rounded-3xl overflow-hidden shadow-xl">
+            <div class="p-6 border-b border-slate-100 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <h3 class="text-lg font-black text-slate-800 flex items-center gap-2">
+                    <i class="fas fa-list-ul text-indigo-500"></i>
+                    سجل الشحنات
+                </h3>
+                <div class="relative w-full md:w-64">
+                    <i class="fas fa-search absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="orderSearch" placeholder="بحث برقم الأوردر..." class="input-field soft-control pr-12 text-xs font-bold shadow-sm">
+                </div>
+            </div>
+            
+            <div class="table-container">
+                <table class="table-fit w-full text-right">
+                    <thead class="bg-slate-50/50">
+                        <tr class="text-slate-400 text-[11px] font-black uppercase tracking-wider">
+                            <th class="p-4">رقم الأوردر</th>
+                            <th class="p-4">العميل</th>
+                            <th class="p-4">العنوان</th>
+                            <th class="p-4">المبلغ</th>
+                            <th class="p-4">السعر بعد التعديل</th>
+                            <th class="p-4">الحالة</th>
+                            <th class="p-4">سبب الحالة</th>
+                            <th class="p-4">عدد المحاولات</th>
+                            <th class="p-4">المندوب</th>
+                        </tr>
+                    </thead>
+                    <tbody id="senderShipmentsTable">
+                        <!-- Dynamic rows -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </main>
+
+    <script src="assets/js/config.js"></script>
+    <script>
+        const { createClient } = supabase;
+        const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
+        const SHIPMENT_CODE_FIELD = 'كود الشحنة';
+        const SHIPMENT_CODE_FIELD_LEGACY = 'order_id';
+
+        function normalizeShipmentRecord(record) {
+            return normalizeShipmentRecordHeaders(record);
+        }
+
+        let user = JSON.parse(localStorage.getItem('user'));
+        if (!user || user.role !== 'sender') {
+            window.location.href = 'login.html';
+        }
+        startStoredUserSessionGuard(supabaseClient, {
+            allowedRoles: ['sender'],
+            redirectTo: 'login.html',
+            onValidUser: (latestUser) => {
+                user = latestUser;
+                const senderName = document.getElementById('senderName');
+                if (senderName) senderName.innerText = latestUser.full_name || latestUser.username || latestUser.phone;
+            }
+        });
+
+        document.getElementById('senderName').innerText = user.full_name || user.username || user.phone;
+
+        let myShipments = [];
+        let repContactsMap = new Map();
+        const SENDER_UI_STATE_KEY = 'senderUiState';
+
+        function saveSenderUiState() {
+            try {
+                localStorage.setItem(SENDER_UI_STATE_KEY, JSON.stringify({
+                    search: document.getElementById('orderSearch')?.value || '',
+                    status: document.getElementById('filterStatus')?.value || '',
+                    rep: document.getElementById('filterRep')?.value || '',
+                    daily: document.getElementById('filterDaily')?.value || '',
+                    product: document.getElementById('filterProduct')?.value || ''
+                }));
+            } catch (error) {}
+        }
+
+        function restoreSenderUiState() {
+            let state = null;
+            try {
+                state = JSON.parse(localStorage.getItem(SENDER_UI_STATE_KEY) || 'null');
+            } catch (error) {
+                state = null;
+            }
+
+            if (!state) return;
+            const search = document.getElementById('orderSearch');
+            if (search) search.value = state.search || '';
+            const filterStatus = document.getElementById('filterStatus');
+            const filterRep = document.getElementById('filterRep');
+            const filterDaily = document.getElementById('filterDaily');
+            const filterProduct = document.getElementById('filterProduct');
+            if (filterStatus) filterStatus.value = state.status || '';
+            if (filterRep) filterRep.value = state.rep || '';
+            if (filterDaily) filterDaily.value = state.daily || '';
+            if (filterProduct) filterProduct.value = state.product || '';
+        }
+
+        function populateSenderFilters() {
+            const buildOptions = (elementId, placeholder, values) => {
+                const select = document.getElementById(elementId);
+                if (!select) return;
+                const currentValue = select.value;
+                const uniqueValues = [...new Set(values.map(value => String(value || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b, 'ar'));
+                select.innerHTML = `<option value="">${placeholder}</option>` + uniqueValues.map(value => `<option value="${value}">${value}</option>`).join('');
+                if (uniqueValues.includes(currentValue)) {
+                    select.value = currentValue;
+                }
+            };
+
+            buildOptions('filterStatus', 'الحالة: الكل', myShipments.map(s => s.الحالة));
+            buildOptions('filterRep', 'المندوب: الكل', myShipments.map(s => s.المندوب));
+            buildOptions('filterDaily', 'اليومية: الكل', myShipments.map(s => s['اليومية'] || s.اليومية));
+            buildOptions('filterProduct', 'المنتج: الكل', myShipments.map(s => s.المنتج));
+        }
+
+        function isPendingStatus(status) {
+            const normalizedStatus = String(status || '').trim();
+            return normalizedStatus === '' || normalizedStatus === 'قيد' || normalizedStatus === 'قيد التنفيذ' || normalizedStatus === 'قيد التوصيل';
+        }
+
+        function isDelayedStatus(status) {
+            const normalizedStatus = String(status || '').trim();
+            return normalizedStatus === 'مؤجل' || normalizedStatus === 'تأجيل';
+        }
+
+        function isRejectedStatus(status) {
+            const normalizedStatus = String(status || '').trim();
+            return normalizedStatus === 'رفض' || normalizedStatus === 'الغاء' || normalizedStatus === 'إلغاء';
+        }
+
+        function normalizeComparableValue(value) {
+            return String(value || '').replace(/\s+/g, ' ').trim().toLowerCase();
+        }
+
+        function normalizeWhatsAppPhone(phone) {
+            let normalized = String(phone || '').replace(/\D/g, '');
+            if (!normalized) return '';
+            if (normalized.startsWith('00')) normalized = normalized.slice(2);
+            if (normalized.startsWith('0')) normalized = `2${normalized}`;
+            return normalized;
+        }
+
+        async function loadRepContacts() {
+            const { data, error } = await supabaseClient
+                .from(CONFIG.TABLES.USERS)
+                .select('username, full_name, phone, role, approved');
+
+            if (error) {
+                console.error(error);
+                repContactsMap = new Map();
+                return;
+            }
+
+            const contactMap = new Map();
+            (data || []).forEach((account) => {
+                const role = String(account?.role || '').trim();
+                const isRepAccount = role === 'rep' || role === 'مندوب فرعي';
+                if (!isRepAccount || account?.approved === false) return;
+
+                const phone = normalizeWhatsAppPhone(account?.phone);
+                if (!phone) return;
+
+                [account?.username, account?.full_name, account?.phone].forEach((key) => {
+                    const normalizedKey = normalizeComparableValue(key);
+                    if (normalizedKey) contactMap.set(normalizedKey, phone);
+                });
+            });
+
+            repContactsMap = contactMap;
+        }
+
+        function getShipmentRepWhatsAppPhone(shipment) {
+            const repKeys = [
+                shipment?.المندوب,
+                shipment?.['المندوب الفرعي'],
+                shipment?.['المندوب الرعي']
+            ];
+
+            for (const key of repKeys) {
+                const normalizedKey = normalizeComparableValue(key);
+                if (!normalizedKey) continue;
+                const phone = repContactsMap.get(normalizedKey);
+                if (phone) return phone;
+            }
+
+            return '';
+        }
+
+        function openRepWhatsApp(shipmentId) {
+            const shipment = myShipments.find((item) => String(item.id) === String(shipmentId));
+            if (!shipment) return;
+
+            const phone = getShipmentRepWhatsAppPhone(shipment);
+            if (!phone) {
+                Swal.fire('تنبيه', 'رقم واتساب المندوب غير متوفر لهذه الشحنة', 'warning');
+                return;
+            }
+
+            window.open(`https://wa.me/${phone}`, '_blank');
+        }
+
+        function formatAttemptsMeta(shipment) {
+            const attempts = getShipmentCallAttempts(shipment);
+            const method = getShipmentLastContactMethod(shipment);
+            const lastContactAt = getShipmentLastContactAt(shipment);
+            const parts = [`${attempts} محاولة`];
+
+            if (method) parts.push(method);
+            if (lastContactAt) {
+                const parsed = new Date(lastContactAt);
+                if (!Number.isNaN(parsed.getTime())) {
+                    parts.push(parsed.toLocaleString('ar-EG', {
+                        dateStyle: 'short',
+                        timeStyle: 'short'
+                    }));
+                }
+            }
+
+            return parts;
+        }
+
+        function formatShipmentCopyText(shipment) {
+            const getValue = (value) => {
+                if (value === null || value === undefined || value === '') return '---';
+                return String(value);
+            };
+
+            return [
+                `اسم العميل: ${getValue(shipment['اسم العميل'] || shipment.اسم_العميل)}`,
+                `العنوان: ${getValue(shipment.العنوان)}`,
+                `الزون: ${getValue(shipment.الزون)}`,
+                `المنتج: ${getValue(shipment.المنتج)}`,
+                `الهاتف: ${getValue(shipment.الهاتف)}`,
+                `هاتف بديل: ${getValue(shipment['هاتف بديل'] || shipment.هاتف_بديل)}`,
+                `المبلغ: ${getValue(shipment.المبلغ)}`,
+                `الكود: ${getValue(shipment['كود الشحنة'] || shipment.order_id || shipment.الكود)}`,
+                `الراسل: ${getValue(shipment.الراسل)}`,
+                `المندوب: ${getValue(shipment.المندوب)}`,
+                `عدد المحاولات: ${getShipmentCallAttempts(shipment)}`,
+                `الحالة: ${getValue(shipment.الحالة)}`,
+                `سبب الحالة: ${getValue(shipment['سبب الحالة'] || shipment.سبب_الحالة)}`
+            ].join('\n');
+        }
+
+        async function copyShipmentData(shipmentId) {
+            const shipment = myShipments.find((item) => String(item.id) === String(shipmentId));
+            if (!shipment) return;
+
+            try {
+                await navigator.clipboard.writeText(formatShipmentCopyText(shipment));
+                Swal.fire({
+                    toast: true,
+                    position: 'top-end',
+                    icon: 'success',
+                    title: 'تم نسخ بيانات الشحنة',
+                    showConfirmButton: false,
+                    timer: 1800
+                });
+            } catch (error) {
+                Swal.fire('خطأ', 'فشل نسخ بيانات الشحنة', 'error');
+            }
+        }
+
+        async function fetchMyShipments() {
+            const { data, error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .select('*')
+                .eq('الراسل', user.username || user.phone) // Match sender name/phone
+                .order('id', { ascending: false });
+
+            if (error) {
+                console.error(error);
+                return;
+            }
+
+            myShipments = (data || []).map(normalizeShipmentRecord);
+            await loadRepContacts();
+            populateSenderFilters();
+            restoreSenderUiState();
+            renderTable();
+            updateStats();
+        }
+
+        function renderTable() {
+            const list = document.getElementById('senderShipmentsTable');
+            const search = document.getElementById('orderSearch').value.toLowerCase();
+            const selectedStatus = document.getElementById('filterStatus')?.value || '';
+            const selectedRep = document.getElementById('filterRep')?.value || '';
+            const selectedDaily = document.getElementById('filterDaily')?.value || '';
+            const selectedProduct = document.getElementById('filterProduct')?.value || '';
+
+            if (!selectedDaily) {
+                list.innerHTML = '<tr><td colspan="9" class="p-10 text-center text-amber-600 font-bold">يرجى اختيار فلتر اليومية أولاً لعرض الشحنات</td></tr>';
+                saveSenderUiState();
+                return;
+            }
+            
+            const filtered = myShipments.filter(s => 
+                (
+                    String(s.order_id || s['كود الشحنة'] || '').toLowerCase().includes(search) || 
+                    String(s.اسم_العميل || s['اسم العميل'] || '').toLowerCase().includes(search) ||
+                    String(s.الهاتف || '').toLowerCase().includes(search) ||
+                    String(s['هاتف بديل'] || s.هاتف_بديل || '').toLowerCase().includes(search)
+                ) &&
+                (!selectedStatus || String(s.الحالة || '').trim() === selectedStatus) &&
+                (!selectedRep || String(s.المندوب || '').trim() === selectedRep) &&
+                (!selectedDaily || String(s['اليومية'] || s.اليومية || '').trim() === selectedDaily) &&
+                (!selectedProduct || String(s.المنتج || '').trim() === selectedProduct)
+            );
+
+            if (filtered.length === 0) {
+                list.innerHTML = '<tr><td colspan="9" class="p-10 text-center opacity-40 font-bold">لا توجد بيانات</td></tr>';
+                saveSenderUiState();
+                return;
+            }
+
+            list.innerHTML = filtered.map(s => `
+                <tr class="transition-colors border-b border-slate-50 dark:border-slate-800 last:border-0">
+                    <td class="p-4 text-sm font-black text-slate-800 cell-compact">#${s.order_id}</td>
+                    <td class="p-4 text-xs font-bold text-slate-600 cell-compact">${s.اسم_العميل || '---'}</td>
+                    <td class="p-4 text-[10px] font-bold text-slate-400 cell-compact">${s.العنوان || '---'}</td>
+                    <td class="p-4 text-sm font-black text-indigo-600 cell-compact">${s.المبلغ || 0} ج.م</td>
+                    <td class="p-4 text-sm font-black text-cyan-600 cell-compact">${s['السعر بعد التعديل'] || s.السعر_بعد_التعديل || '---'}${(s['السعر بعد التعديل'] || s.السعر_بعد_التعديل) ? ' ج.م' : ''}</td>
+                    <td class="p-4">
+                        <span class="px-2.5 py-1 rounded-xl text-[9px] font-black ${getStatusBadgeClass(s.الحالة)}">
+                            ${isPendingStatus(s.الحالة) ? 'قيد التوصيل' : (['الغاء', 'إلغاء', 'رفض'].includes(s.الحالة) ? 'رفض' : s.الحالة)}
+                        </span>
+                    </td>
+                    <td class="p-4 text-[10px] font-bold text-slate-500 cell-compact">${s['سبب الحالة'] || s.سبب_الحالة || '---'}</td>
+                    <td class="p-4">
+                        <div class="flex flex-col gap-1">
+                            <span class="inline-flex w-fit items-center rounded-full bg-amber-50 dark:bg-amber-950/30 px-2 py-1 text-[10px] font-black text-amber-700 dark:text-amber-300 border border-amber-100 dark:border-amber-900/40">${getShipmentCallAttempts(s)} محاولة</span>
+                            <span class="text-[9px] font-bold text-slate-400 leading-relaxed cell-compact">${formatAttemptsMeta(s).slice(1).join(' • ') || 'لا يوجد سجل تواصل بعد'}</span>
+                        </div>
+                    </td>
+                    <td class="p-4">
+                        <div class="flex flex-wrap items-start gap-2">
+                            <div class="w-7 h-7 shrink-0 bg-slate-100 dark:bg-slate-800 rounded-full flex items-center justify-center text-[10px] text-slate-500 dark:text-slate-300">
+                                <i class="fas fa-truck"></i>
+                            </div>
+                            <span class="text-[10px] font-black text-slate-500 dark:text-slate-300 cell-compact flex-1 min-w-0">${s.المندوب || 'غير محدد'}</span>
+                            <button type="button" onclick="openRepWhatsApp('${s.id}')" class="w-9 h-9 shrink-0 rounded-full bg-[#25D366] text-white flex items-center justify-center shadow-md hover:bg-[#1fb458] transition-colors" title="واتساب المندوب" aria-label="واتساب المندوب">
+                                <i class="fab fa-whatsapp text-sm"></i>
+                            </button>
+                            <button type="button" onclick="copyShipmentData('${s.id}')" class="w-9 h-9 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-200 flex items-center justify-center shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors" title="نسخ بيانات الشحنة" aria-label="نسخ بيانات الشحنة">
+                                <i class="fas fa-copy text-sm"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+            saveSenderUiState();
+        }
+
+        function updateStats() {
+            document.getElementById('totalOrders').innerText = myShipments.length;
+            document.getElementById('deliveredOrders').innerText = myShipments.filter(s => s.الحالة === 'تم التسليم' || s.الحالة === 'تم').length;
+            document.getElementById('pendingOrders').innerText = myShipments.filter(s => isPendingStatus(s.الحالة)).length;
+            document.getElementById('delayedOrders').innerText = myShipments.filter(s => isDelayedStatus(s.الحالة)).length;
+            document.getElementById('rejectedOrders').innerText = myShipments.filter(s => isRejectedStatus(s.الحالة)).length;
+        }
+
+        function getStatusBadgeClass(status) {
+            switch(status) {
+                case 'تم التسليم': return 'bg-emerald-100 text-emerald-700';
+                case 'تأجيل': return 'bg-amber-100 text-amber-700';
+                case 'رفض':
+                case 'الغاء':
+                case 'إلغاء': return 'bg-rose-100 text-rose-700';
+                default: return 'bg-indigo-100 text-indigo-700';
+            }
+        }
+
+        document.getElementById('orderSearch').addEventListener('input', () => {
+            renderTable();
+            saveSenderUiState();
+        });
+        ['filterStatus', 'filterRep', 'filterDaily', 'filterProduct'].forEach((id) => {
+            document.getElementById(id)?.addEventListener('change', () => {
+                renderTable();
+                saveSenderUiState();
+            });
+        });
+
+        function logout() {
+            clearStoredUserSession('login.html');
+        }
+
+        function toggleTheme() {
+            const isDark = document.body.classList.toggle('dark');
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+            localStorage.setItem('rep-theme', isDark ? 'dark' : 'light');
+        }
+
+        if (localStorage.getItem('rep-theme') === 'dark') {
+            document.body.classList.add('dark');
+            const icon = document.getElementById('themeIcon');
+            if (icon) icon.className = 'fas fa-sun';
+        }
+
+        // Real-time listener
+        supabaseClient
+            .channel('sender_changes')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'elsayed' }, fetchMyShipments)
+            .subscribe();
+
+        fetchMyShipments();
+    </script>
+</body>
+</html>
