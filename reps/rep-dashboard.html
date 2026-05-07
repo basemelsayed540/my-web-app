@@ -100,7 +100,7 @@
 
         .hero-shell {
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .hero-shell::before {
@@ -549,13 +549,87 @@
                 </div>
                 <div class="relative z-10">
                     <div class="flex items-center gap-2">
-                        <h1 id="repName" class="text-base font-black text-slate-900 dark:text-white">جاري التحميل...</h1>
+                        <h1 id="repName" class="hidden text-base font-black text-slate-900 dark:text-white">جاري التحميل...</h1>
+                        <button id="nav-btn-notifications"
+                            class="relative h-11 w-11 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
+                            title="الإشعارات" aria-label="الإشعارات">
+                            <i class="fas fa-bell text-lg"></i>
+                        </button>
+                        <button id="quickActionsToggleBtn"
+                            class="relative h-11 w-11 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
+                            title="القائمة" aria-label="القائمة">
+                            <i class="fas fa-bars text-lg"></i>
+                            <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
+                        </button>
                         <span id="repUnreadBadge"
                             class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
                     </div>
                     <div class="mt-1 inline-flex items-center gap-2 rounded-full px-3 py-1 header-chip">
                         <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                         <p id="repRoleLabel" class="text-[10px] font-black text-sky-800 dark:text-cyan-300 uppercase tracking-[0.18em]">مندوب توصيل محترف</p>
+                    </div>
+                    <div id="quickActionsMenu" class="hidden absolute right-0 top-[calc(100%+10px)] z-[90] w-[250px] max-w-[calc(100vw-2rem)] rounded-[1.5rem] border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-2xl backdrop-blur-xl">
+                        <button id="menuDashboardBtn"
+                            class="flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-box text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span>شحناتي</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
+                        <button id="menuFavoritesBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-heart text-[15px] text-rose-500 dark:text-rose-300"></i>
+                                <span>المفضلة</span>
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <span id="favoritesCountBadge" class="hidden min-w-5 h-5 px-1.5 rounded-full bg-cyan-600 text-white text-[9px] font-black leading-5 text-center shadow-md">0</span>
+                                <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                            </span>
+                        </button>
+                        <a href="wallet.html"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-wallet text-[15px] text-emerald-600 dark:text-emerald-300"></i>
+                                <span>المحفظة</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </a>
+                        <a href="account.html"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-user text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span>الحساب</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </a>
+                        <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
+                        <button id="themeToggleBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i id="themeIcon" class="fas fa-moon text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span>الوضع الليلي</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
+                        <button id="gpsToggleBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                            title="تفعيل صلاحية الموقع" aria-label="تفعيل صلاحية الموقع">
+                            <span class="flex items-center gap-3">
+                                <i id="gpsToggleIcon" class="fas fa-location-dot text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span id="gpsToggleLabel">GPS</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
+                        <button id="logoutBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-rose-600 dark:text-rose-300 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-power-off text-[15px]"></i>
+                                <span>تسجيل الخروج</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-rose-300 dark:text-rose-400"></i>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -564,84 +638,6 @@
                     class="hidden w-12 h-12 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors" title="بدء/إنهاء الشيفت">
                     <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
                 </button>
-                <button id="quickActionsToggleBtn"
-                    class="relative w-12 h-12 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
-                    title="القائمة" aria-label="القائمة">
-                    <i class="fas fa-ellipsis-v text-xl"></i>
-                    <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
-                </button>
-                <div id="quickActionsMenu" class="hidden absolute left-0 top-[calc(100%+10px)] z-[80] w-[220px] rounded-[1.5rem] border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-2xl backdrop-blur-xl">
-                    <button id="menuDashboardBtn"
-                        class="flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <span class="flex items-center gap-3">
-                            <i class="fas fa-box text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                            <span>شحناتي</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                    </button>
-                    <button id="menuFavoritesBtn"
-                        class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <span class="flex items-center gap-3">
-                            <i class="fas fa-heart text-[15px] text-rose-500 dark:text-rose-300"></i>
-                            <span>المفضلة</span>
-                        </span>
-                        <span class="flex items-center gap-2">
-                            <span id="favoritesCountBadge" class="hidden min-w-5 h-5 px-1.5 rounded-full bg-cyan-600 text-white text-[9px] font-black leading-5 text-center shadow-md">0</span>
-                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                        </span>
-                    </button>
-                    <a href="wallet.html"
-                        class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <span class="flex items-center gap-3">
-                            <i class="fas fa-wallet text-[15px] text-emerald-600 dark:text-emerald-300"></i>
-                            <span>المحفظة</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                    </a>
-                    <a href="account.html"
-                        class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <span class="flex items-center gap-3">
-                            <i class="fas fa-user text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                            <span>الحساب</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                    </a>
-                    <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
-                    <button id="nav-btn-notifications"
-                        class="flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-                        title="الإشعارات" aria-label="الإشعارات">
-                        <span class="flex items-center gap-3">
-                            <i class="fas fa-bell text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                            <span>الإشعارات</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                    </button>
-                    <button id="themeToggleBtn"
-                        class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                        <span class="flex items-center gap-3">
-                            <i id="themeIcon" class="fas fa-moon text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                            <span>الوضع الليلي</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                    </button>
-                    <button id="gpsToggleBtn"
-                        class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
-                        title="تفعيل صلاحية الموقع" aria-label="تفعيل صلاحية الموقع">
-                        <span class="flex items-center gap-3">
-                            <i id="gpsToggleIcon" class="fas fa-location-dot text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                            <span id="gpsToggleLabel">GPS</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                    </button>
-                    <button id="logoutBtn"
-                        class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-rose-600 dark:text-rose-300 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30">
-                        <span class="flex items-center gap-3">
-                            <i class="fas fa-power-off text-[15px]"></i>
-                            <span>تسجيل الخروج</span>
-                        </span>
-                        <i class="fas fa-angle-left text-[11px] text-rose-300 dark:text-rose-400"></i>
-                    </button>
-                </div>
             </div>
         </div>
     </header>
