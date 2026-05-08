@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 
 <head>
@@ -3211,26 +3211,24 @@
                             <span class="text-xs font-semibold">${s.المنتج || s.المنتجات || 'بدون منتج'}</span>
                         </div>
                         
-                        <div class="flex items-center justify-between gap-2 mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                        <div class="flex items-center justify-between gap-1 mt-2 pt-2 border-t border-slate-100 dark:border-slate-800">
                             <div class="flex shrink-0 gap-1 justify-start">
                                 ${renderShipmentContactActions(s)}
                             </div>
-                            <div class="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2 bg-white/80 dark:bg-slate-800/90 px-2 sm:px-3.5 py-1.5 sm:py-2 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                                <div class="w-7.5 h-7.5 sm:w-9 sm:h-9 shrink-0 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-                                    <i class="fas fa-wallet text-sm text-emerald-600 dark:text-emerald-300"></i>
+                            <div class="flex min-w-0 flex-1 items-center justify-between bg-slate-50/80 dark:bg-slate-800/60 px-1.5 sm:px-2.5 py-1.5 sm:py-2 rounded-[14px] border border-slate-100/50 dark:border-slate-700/50 shadow-sm">
+                                <div class="flex flex-col items-center px-1">
+                                    <span class="text-[8px] font-bold text-slate-400 dark:text-slate-400">المبلغ</span>
+                                    <span class="text-[11px] sm:text-[13px] font-black text-emerald-600 dark:text-emerald-400 truncate">${s.السعر_بعد_التعديل || s.المبلغ || 0}</span>
                                 </div>
-                                <div class="flex min-w-[50px] sm:min-w-[56px] shrink-0 flex-col">
-                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-tighter">المبلغ</span>
-                                    <span class="text-[12px] sm:text-[17px] font-black text-slate-900 dark:text-white leading-tight">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[8px] sm:text-[10px] font-bold opacity-60 dark:opacity-80">ج.م</small></span>
+                                <div class="w-px h-5 bg-slate-200/80 dark:bg-slate-700/70"></div>
+                                <div class="flex min-w-0 flex-1 flex-col items-center px-1">
+                                    <span class="text-[8px] font-bold text-slate-400 dark:text-slate-400">الراسل</span>
+                                    <span class="block w-full text-center text-[9px] sm:text-[11px] font-bold text-slate-700 dark:text-slate-200 truncate">${s.الراسل || '---'}</span>
                                 </div>
-                                <div class="shipment-metric-divider"></div>
-                                <div class="flex min-w-0 flex-[0.8] sm:flex-1 flex-col">
-                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-300">الراسل</span>
-                                    <span class="block max-w-[72px] sm:max-w-[140px] text-[9px] sm:text-[12px] font-black text-slate-700 dark:text-slate-100 truncate">${s.الراسل || '---'}</span>
-                                </div>
-                                <div class="flex shrink-0 flex-col items-center gap-0.5 min-w-[52px] sm:min-w-[68px]">
-                                    <span class="text-[9px] font-bold text-slate-400 dark:text-slate-300">الكود</span>
-                                    <span class="shrink-0 rounded-full bg-cyan-50 dark:bg-cyan-950/30 px-1.5 sm:px-2 py-0.5 text-[8px] sm:text-[9px] font-black text-sky-800 dark:text-cyan-300 border border-cyan-100/70 dark:border-cyan-800/50">#${s.order_id || s['كود الشحنة'] || s.id || '---'}</span>
+                                <div class="w-px h-5 bg-slate-200/80 dark:bg-slate-700/70"></div>
+                                <div class="flex shrink-0 flex-col items-center px-1">
+                                    <span class="text-[8px] font-bold text-slate-400 dark:text-slate-400">الكود</span>
+                                    <span class="text-[9px] sm:text-[10px] font-black text-sky-700 dark:text-sky-400 truncate">#${s.order_id || s['كود الشحنة'] || s.id || '---'}</span>
                                 </div>
                             </div>
                         </div>
@@ -3354,11 +3352,11 @@
 
                 return `
                     <div class="flex gap-1 sm:gap-2">
-                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="w-8.5 h-8.5 sm:w-11 sm:h-11 rounded-full bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
-                            <i class="fab fa-whatsapp text-[15px] sm:text-lg"></i>
+                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-[14px] bg-[#25D366] text-white shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
+                            <i class="fab fa-whatsapp text-[22px] sm:text-[24px]"></i>
                         </button>
-                        <button data-action="call-phone" data-id="${shipment.id}" data-phone-key="${key}" class="w-8.5 h-8.5 sm:w-11 sm:h-11 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sky-800 dark:text-cyan-300 shadow-sm active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
-                            <i class="fas fa-phone-alt text-[11px] sm:text-base"></i>
+                        <button data-action="call-phone" data-id="${shipment.id}" data-phone-key="${key}" class="w-11 h-11 sm:w-12 sm:h-12 rounded-[14px] bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sky-700 dark:text-cyan-400 shadow-md hover:shadow-lg active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
+                            <i class="fas fa-phone-alt text-[16px] sm:text-[18px]"></i>
                         </button>
                     </div>
                 `;
