@@ -162,13 +162,6 @@
 
     <header class="px-4 pt-5 pb-2">
         <div class="max-w-4xl mx-auto">
-            <div class="flex items-center justify-between gap-3 mb-4">
-                <button onclick="window.location.href='rep-dashboard.html'" class="h-11 w-11 flex items-center justify-center rounded-2xl bg-white/80 dark:bg-slate-800/80 backdrop-blur-sm border border-slate-200/80 dark:border-slate-700 text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors">
-                    <i class="fas fa-arrow-right text-lg"></i>
-                </button>
-                <h1 class="text-xl font-black text-slate-800 dark:text-white">الحساب</h1>
-                <div class="h-11 w-11"></div>
-            </div>
             <div class="account-hero rounded-[2rem] p-5 md:p-7">
                 <div class="flex items-start justify-between gap-4 flex-wrap">
                     <div class="space-y-3">
@@ -283,6 +276,29 @@
         </div>
         
     </main>
+
+    <!-- Navigation Bottom (Mobile Only) -->
+    <nav class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[95%] max-w-lg bottom-dock rounded-full px-4 py-3 flex items-center justify-around z-50">
+        <a href="rep-dashboard.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors">
+            <i class="fas fa-box text-xl"></i>
+            <span class="text-[9px] font-black">شحناتي</span>
+        </a>
+
+        <a href="rep-dashboard.html#favorites" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
+            <i class="fas fa-heart text-xl"></i>
+            <span class="text-[9px] font-black">المفضلة</span>
+        </a>
+
+        <a href="wallet.html" class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-600 transition-colors relative">
+            <i class="fas fa-wallet text-xl"></i>
+            <span class="text-[9px] font-black">المحفظة</span>
+        </a>
+
+        <button class="flex flex-col items-center gap-1 text-indigo-600 transition-colors">
+            <i class="fas fa-user text-xl"></i>
+            <span class="text-[9px] font-black">الحساب</span>
+        </button>
+    </nav>
 
     <script src="assets/js/config.js"></script>
     <script>

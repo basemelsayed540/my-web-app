@@ -559,33 +559,22 @@
     <header
         class="hero-shell bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50 px-4 py-4 mb-4 border-b border-slate-200/80 dark:border-slate-800 shadow-sm">
         <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
-            <div class="relative z-10 flex w-[98px] shrink-0 items-center justify-start gap-2">
+            <div class="flex min-w-0 flex-1 items-center">
+                <h1 id="repName" class="hidden text-base font-black text-slate-900 dark:text-white">جاري التحميل...</h1>
+                <span id="repUnreadBadge"
+                    class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
+            </div>
+            <div class="relative z-10 flex w-[98px] shrink-0 items-center justify-end gap-2">
                 <button id="quickActionsToggleBtn"
                     class="relative order-1 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
                     title="القائمة" aria-label="القائمة">
                     <i class="fas fa-bars text-lg"></i>
-                </button>
-                <button id="nav-btn-favorites"
-                    class="relative order-2 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                    title="المفضلة" aria-label="المفضلة">
-                    <i class="fas fa-heart text-lg"></i>
-                    <span id="favoritesCountBadge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
-                </button>
-                <button id="themeToggleBtn"
-                    class="relative order-3 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                    title="الوضع الليلي" aria-label="الوضع الليلي">
-                    <i id="themeIcon" class="fas fa-moon text-lg"></i>
-                </button>
-                <button id="gpsToggleBtn"
-                    class="relative order-4 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                    title="GPS" aria-label="GPS">
-                    <i id="gpsToggleIcon" class="fas fa-location-dot text-lg"></i>
+                    <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
                 </button>
                 <button id="nav-btn-notifications"
-                    class="relative order-5 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
+                    class="relative order-2 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
                     title="الإشعارات" aria-label="الإشعارات">
                     <i class="fas fa-bell text-lg"></i>
-                    <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
                 </button>
                 <div id="quickActionsMenu" class="hidden absolute right-0 top-[calc(100%+10px)] z-[90] w-[250px] max-w-[calc(100vw-2rem)] rounded-[1.5rem] border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-2xl backdrop-blur-xl">
                         <button id="menuDashboardBtn"
@@ -596,6 +585,25 @@
                             </span>
                             <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
                         </button>
+                        <button id="menuFavoritesBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-heart text-[15px] text-rose-500 dark:text-rose-300"></i>
+                                <span>المفضلة</span>
+                            </span>
+                            <span class="flex items-center gap-2">
+                                <span id="favoritesCountBadge" class="hidden min-w-5 h-5 px-1.5 rounded-full bg-cyan-600 text-white text-[9px] font-black leading-5 text-center shadow-md">0</span>
+                                <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                            </span>
+                        </button>
+                        <a href="wallet.html"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-wallet text-[15px] text-emerald-600 dark:text-emerald-300"></i>
+                                <span>المحفظة</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </a>
                         <a href="account.html"
                             class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
                             <span class="flex items-center gap-3">
@@ -605,6 +613,23 @@
                             <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
                         </a>
                         <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
+                        <button id="themeToggleBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i id="themeIcon" class="fas fa-moon text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span>الوضع الليلي</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
+                        <button id="gpsToggleBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800"
+                            title="تفعيل صلاحية الموقع" aria-label="تفعيل صلاحية الموقع">
+                            <span class="flex items-center gap-3">
+                                <i id="gpsToggleIcon" class="fas fa-location-dot text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span id="gpsToggleLabel">GPS</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
                         <button id="logoutBtn"
                             class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-rose-600 dark:text-rose-300 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30">
                             <span class="flex items-center gap-3">
@@ -620,11 +645,6 @@
                     class="hidden w-12 h-12 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors" title="بدء/إنهاء الشيفت">
                     <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
                 </button>
-            </div>
-            <div class="flex min-w-0 flex-1 items-center justify-end">
-                <h1 id="repName" class="hidden text-base font-black text-slate-900 dark:text-white">جاري التحميل...</h1>
-                <span id="repUnreadBadge"
-                    class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
             </div>
         </div>
     </header>
@@ -1444,9 +1464,7 @@
         }
 
         function getSelectedDates() {
-            return Array.from(dateFilterSelections)
-                .map(date => String(date || '').trim())
-                .filter(Boolean);
+            return Array.from(dateFilterSelections);
         }
 
         function setGpsRequiredMessage(message) {
@@ -1636,20 +1654,20 @@
             renderShipments();
         }
 
-function toggleDateSelection(value) {
-            const select = el('filterDateSelect');
-            if (!select) return;
+        function toggleDateSelection(value) {
+            setDateSelection(value);
+        }
 
-            dateFilterSelections.clear();
-            
-            const normalizedValue = value ? String(value).trim() : '';
-            if (normalizedValue) {
-                dateFilterSelections.add(normalizedValue);
+        function toggleZoneSelection(value) {
+            const normalizedValue = String(value || '').trim();
+            if (!normalizedValue) return;
+
+            zoneFilterSelections.clear();
+            if (normalizedValue !== 'الكل') {
+                zoneFilterSelections.add(normalizedValue);
             }
-            
-            saveDateFilter(normalizedValue);
+
             saveRepUiState();
-            stopDateFilterGlow();
             renderShipments();
         }
 
@@ -1787,18 +1805,11 @@ function toggleDateSelection(value) {
 
             if (state && state.date) {
                 const dates = Array.isArray(state.date) ? state.date : [state.date];
-                dateFilterSelections.clear();
-                const firstDate = dates.map(d => String(d || '').trim()).filter(Boolean)[0];
-                if (firstDate) dateFilterSelections.add(firstDate);
+                dates.map(d => String(d || '').trim()).filter(Boolean).forEach(d => dateFilterSelections.add(d));
             } else {
                 const legacyDate = getSavedDateFilter();
                 const normalizedLegacyDate = String(legacyDate || '').trim();
-                dateFilterSelections.clear();
-                if (normalizedLegacyDate) {
-                    // Handle multiple dates from legacy storage - take first one for single select
-                    const firstDate = normalizedLegacyDate.split(',')[0].trim();
-                    dateFilterSelections.add(firstDate);
-                }
+                if (normalizedLegacyDate) dateFilterSelections.add(normalizedLegacyDate);
             }
 
             if (state && state.status) {
@@ -2423,19 +2434,6 @@ function toggleDateSelection(value) {
                 if (normalized) return normalized;
             }
 
-            // Fallback to date field if اليومية is not available
-            const dateValue = shipment?.['تاريخ التحديث'] ?? shipment?.تاريخ_التحديث ?? shipment?.updated_at;
-            if (dateValue) {
-                const date = new Date(dateValue);
-                if (!isNaN(date.getTime())) {
-                    // Format date as YYYY-MM-DD for filtering
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                }
-            }
-
             if (!shipment || typeof shipment !== 'object') return '';
             const fallbackKey = Object.keys(shipment).find((key) => {
                 const normalizedKey = String(key || '').replace(/\s+/g, '').trim();
@@ -2706,12 +2704,16 @@ function toggleDateSelection(value) {
             const select = el('filterDateSelect');
             if (!select) return;
 
-            const selectedValues = getSelectedDates();
-            const selectedValue = selectedValues.length > 0 ? selectedValues[0] : '';
+            const selectedValue = getSelectedDates()[0] || '';
+            const narrowedData = filterShipmentsCollection(allShipments, {
+                zones: getSingleSelectFilter('filterZone'),
+                senders: getSingleSelectFilter('filterSender'),
+                statuses: getSelectedStatuses()
+            });
+
             const dateCounts = {};
-            
-            (items || []).forEach(item => {
-                const d = getShipmentUpdateValue(item);
+            narrowedData.forEach(s => {
+                const d = getShipmentDailyFilterValue(s);
                 if (d) dateCounts[d] = (dateCounts[d] || 0) + 1;
             });
 
@@ -2719,73 +2721,73 @@ function toggleDateSelection(value) {
             if (!items || items.length === 0) {
                 optionsHtml += '<option value="" disabled>لا يوجد يومية متاحة</option>';
             } else {
-                Object.keys(dateCounts).sort().forEach(date => {
-                    const count = dateCounts[date];
-                    const isSelected = selectedValue === date;
-                    optionsHtml += `<option value="${date}" ${isSelected ? 'selected' : ''}>${date} (${count})</option>`;
+                items.forEach(item => {
+                    const count = dateCounts[item] || 0;
+                    optionsHtml += `<option value="${item.replace(/"/g, '&quot;')}" class="text-slate-800 bg-white">${item} (${count})</option>`;
                 });
             }
-            
+
             select.innerHTML = optionsHtml;
+            applyActiveSelectState(select, selectedValue ? [selectedValue] : [], '');
         }
 
-function fillZoneDropdown(items) {
-    const select = el('filterZone');
-    if (!select) return;
+        function fillZoneDropdown(items) {
+            const select = el('filterZone');
+            if (!select) return;
 
-    const selectedArr = getSelectedZones();
-    
-    const narrowedData = filterShipmentsCollection(allShipments, {
-        dates: getSelectedDates(),
-        senders: getSingleSelectFilter('filterSender'),
-        statuses: getSelectedStatuses()
-    });
-    const zoneCounts = {};
-    narrowedData.forEach(s => {
-        const z = s.الزون;
-        if (z) zoneCounts[z] = (zoneCounts[z] || 0) + 1;
-    });
+            const selectedArr = getSelectedZones();
+            
+            const narrowedData = filterShipmentsCollection(allShipments, {
+                dates: getSelectedDates(),
+                senders: getSingleSelectFilter('filterSender'),
+                statuses: getSelectedStatuses()
+            });
+            const zoneCounts = {};
+            narrowedData.forEach(s => {
+                const z = s.الزون;
+                if (z) zoneCounts[z] = (zoneCounts[z] || 0) + 1;
+            });
 
-    let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الزون: الكل</option>`;
-    if (items && items.length > 0) {
-        items.forEach(item => {
-            const count = zoneCounts[item] || 0;
-            optionsHtml += `<option value="${item}" class="text-slate-800 bg-white">${item} (${count})</option>`;
-        });
-    }
+            let optionsHtml = `<option value="الكل" class="text-slate-800 bg-white">الزون: الكل</option>`;
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    const count = zoneCounts[item] || 0;
+                    optionsHtml += `<option value="${item}" class="text-slate-800 bg-white">${item} (${count})</option>`;
+                });
+            }
 
-    select.innerHTML = optionsHtml;
-    applyActiveSelectState(select, selectedArr);
-}
+            select.innerHTML = optionsHtml;
+            applyActiveSelectState(select, selectedArr);
+        }
 
-function fillSenderDropdown(items) {
-    const select = el('filterSender');
-    if (!select) return;
+        function fillSenderDropdown(items) {
+            const select = el('filterSender');
+            if (!select) return;
 
-    const selectedArr = getSelectedSenders();
-    
-    const narrowedData = filterShipmentsCollection(allShipments, {
-        dates: getSelectedDates(),
-        zones: getSingleSelectFilter('filterZone'),
-        statuses: getSelectedStatuses()
-    });
-    const senderCounts = {};
-    narrowedData.forEach(s => {
-        const sn = s.الراسل;
-        if (sn) senderCounts[sn] = (senderCounts[sn] || 0) + 1;
-    });
+            const selectedArr = getSelectedSenders();
+            
+            const narrowedData = filterShipmentsCollection(allShipments, {
+                dates: getSelectedDates(),
+                zones: getSingleSelectFilter('filterZone'),
+                statuses: getSelectedStatuses()
+            });
+            const senderCounts = {};
+            narrowedData.forEach(s => {
+                const sn = s.الراسل;
+                if (sn) senderCounts[sn] = (senderCounts[sn] || 0) + 1;
+            });
 
-    let optionsHtml = '<option value="الكل" class="text-slate-800 bg-white">الراسل: الكل</option>';
-    if (items && items.length > 0) {
-        items.forEach(item => {
-            const count = senderCounts[item] || 0;
-            optionsHtml += `<option value="${item}" class="text-slate-800 bg-white">${item} (${count})</option>`;
-        });
-    }
+            let optionsHtml = '<option value="الكل" class="text-slate-800 bg-white">الراسل: الكل</option>';
+            if (items && items.length > 0) {
+                items.forEach(item => {
+                    const count = senderCounts[item] || 0;
+                    optionsHtml += `<option value="${item}" class="text-slate-800 bg-white">${item} (${count})</option>`;
+                });
+            }
 
-    select.innerHTML = optionsHtml;
-    applyActiveSelectState(select, selectedArr);
-}
+            select.innerHTML = optionsHtml;
+            applyActiveSelectState(select, selectedArr);
+        }
 
         function isPriceEditShipment(shipment) {
             const normalizedStatus = String(shipment?.الحالة || '').trim();
@@ -3088,21 +3090,6 @@ function fillSenderDropdown(items) {
             const selectedStatuses = filters.statuses;
             const filterSignature = getFilterSignature(filters);
             const metaSignature = getMetaSignature(filters);
-
-            // عدم إظهار الشحنات إلا عند اختيار يومية
-            if (selectedDates.length === 0) {
-                selectedShipmentIdsForBulk.clear();
-                if(bulkActionBar) bulkActionBar.classList.add('hidden');
-                if (listSummaryBar) listSummaryBar.classList.add('hidden');
-                list.innerHTML = `
-                    <div class="text-center py-10 opacity-40">
-                        <i class="fas fa-calendar-days text-5xl mb-3"></i>
-                        <p class="font-bold text-slate-600 dark:text-slate-300">يرجى اختيار يومية لعرض الشحنات</p>
-                        <p class="text-sm text-slate-500 dark:text-slate-400 mt-2">استخدم فلتر اليومية أعلاه لاختيار اليومية المطلوبة</p>
-                    </div>
-                `;
-                return;
-            }
 
             if (append !== true && metaSignature !== lastMetaSignature) {
                 populateDropdowns();
@@ -3778,9 +3765,6 @@ function fillSenderDropdown(items) {
         el('menuDashboardBtn')?.addEventListener('click', () => {
             switchRepView('dashboard');
             closeQuickActionsMenu();
-        });
-        el('nav-btn-favorites')?.addEventListener('click', () => {
-            switchRepView('favorites');
         });
         el('menuFavoritesBtn')?.addEventListener('click', () => {
             switchRepView('favorites');
@@ -4716,6 +4700,9 @@ function fillSenderDropdown(items) {
 </body>
 
 </html>
+
+
+
 
 
 
