@@ -1,797 +1,20 @@
-﻿<!DOCTYPE html>
-<html lang="ar" dir="rtl">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com https://unpkg.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co https://nominatim.openstreetmap.org https://router.project-osrm.org; object-src 'none'; base-uri 'self'; form-action 'self';">
-    <meta name="referrer" content="strict-origin-when-cross-origin">
-    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
-    <title>لوحة المندوب | نظام الشحن الاحترافي</title>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="assets/css/style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Leaflet Map Libraries -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
-    <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
-    <style>
-        body {
-            background-color: #f8fafc;
-            color: #0f172a;
-            font-family: 'Cairo', sans-serif;
-            overflow-x: hidden;
-            background-image:
-                radial-gradient(at 0% 0%, rgba(15, 76, 129, 0.08) 0px, transparent 44%),
-                radial-gradient(at 100% 100%, rgba(20, 184, 166, 0.06) 0px, transparent 42%),
-                linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(246, 248, 252, 1) 100%);
-            background-attachment: fixed;
-        }
 
-        html {
-            overflow-x: hidden;
-        }
 
-        /* Premium Card Style */
-        .glass {
-            background: rgba(255, 255, 255, 0.88);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            box-shadow: 0 20px 44px rgba(15, 23, 42, 0.08);
-            border-radius: 1.5rem;
-            transition: all 0.3s ease;
-        }
 
-        .dark .glass {
-            background: #0f172a;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-        }
 
-        /* High Visibility Status Badges */
-        .badge-solid {
-            padding: 0.4rem 0.8rem;
-            border-radius: 0.75rem;
-            font-weight: 800;
-            font-size: 0.7rem;
-            letter-spacing: 0.025em;
-        }
 
-        @keyframes repDateFilterGlow {
 
-            0%,
-            100% {
-                border-color: #e2e8f0;
-            }
 
-            50% {
-                border-color: #0f4c81;
-                box-shadow: 0 0 0 4px rgba(15, 76, 129, 0.12);
-            }
-        }
 
-        .rep-date-filter-glow {
-            animation: repDateFilterGlow 2.5s ease-in-out infinite;
-        }
 
-        .card-shadow {
-            box-shadow: 0 14px 28px rgba(15, 23, 42, 0.08);
-        }
 
-        .text-main {
-            color: #0f172a;
-            font-weight: 800;
-        }
 
-        .text-sub {
-            color: #64748b;
-            font-weight: 600;
-        }
 
-        .shipment-swipe-card {
-            touch-action: pan-y;
-            will-change: transform;
-        }
 
-        .shipment-swipe-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 18px 34px rgba(15, 23, 42, 0.09);
-        }
 
-        .hero-shell {
-            position: relative;
-            overflow: visible;
-        }
 
-        .hero-shell::before {
-            content: "";
-            position: absolute;
-            top: -70px;
-            right: -30px;
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, rgba(15, 76, 129, 0.2), transparent 68%);
-            pointer-events: none;
-        }
-
-        .hero-shell::after {
-            content: "";
-            position: absolute;
-            bottom: -80px;
-            left: -40px;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.14), transparent 70%);
-            pointer-events: none;
-        }
-
-        .header-chip {
-            background: rgba(255, 255, 255, 0.74);
-            border: 1px solid rgba(255, 255, 255, 0.7);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
-        }
-
-        .dark .header-chip {
-            background: rgba(15, 23, 42, 0.74);
-            border-color: rgba(148, 163, 184, 0.14);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
-        }
-
-        .stats-panel {
-            background: linear-gradient(135deg, rgba(15, 76, 129, 0.14), rgba(255, 255, 255, 0.88) 45%, rgba(20, 184, 166, 0.1) 100%);
-            border: 1px solid rgba(15, 76, 129, 0.18);
-        }
-
-        .dark .stats-panel {
-            background: linear-gradient(135deg, rgba(15, 76, 129, 0.24), rgba(15, 23, 42, 0.92) 40%, rgba(20, 184, 166, 0.14) 100%);
-            border-color: rgba(20, 184, 166, 0.18);
-        }
-
-        .soft-control {
-            background: rgba(255, 255, 255, 0.82);
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
-        }
-
-        .dark .soft-control {
-            background: rgba(15, 23, 42, 0.88);
-            border-color: rgba(148, 163, 184, 0.16);
-        }
-
-        .filter-strip {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.86), rgba(248, 250, 252, 0.92));
-            border: 1px solid rgba(226, 232, 240, 0.88);
-            box-shadow: 0 18px 36px rgba(15, 23, 42, 0.06);
-        }
-
-        .dark .filter-strip {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(15, 23, 42, 0.84));
-            border-color: rgba(51, 65, 85, 0.88);
-        }
-
-        .filter-summary-chip {
-            display: inline-flex;
-            align-items: center;
-            border-radius: 9999px;
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            background: rgba(255, 255, 255, 0.94);
-            padding: 0.42rem 0.72rem;
-            font-size: 0.65rem;
-            font-weight: 900;
-            color: #475569;
-            box-shadow: 0 8px 18px rgba(15, 23, 42, 0.05);
-        }
-
-        .dark .filter-summary-chip {
-            background: rgba(15, 23, 42, 0.94);
-            border-color: rgba(51, 65, 85, 0.88);
-            color: #e2e8f0;
-        }
-
-        .shipment-surface {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.94));
-            border: 1px solid rgba(226, 232, 240, 0.92);
-            box-shadow: 0 18px 38px rgba(15, 23, 42, 0.08);
-        }
-
-        .dark .shipment-surface {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
-            border-color: rgba(51, 65, 85, 0.92);
-            box-shadow: 0 22px 44px rgba(2, 6, 23, 0.38);
-        }
-
-        .shipment-accent {
-            position: absolute;
-            inset: 0 0 auto 0;
-            height: 72px;
-            background: linear-gradient(180deg, rgba(15, 76, 129, 0.08), transparent);
-            pointer-events: none;
-        }
-
-        .dark .shipment-accent {
-            background: linear-gradient(180deg, rgba(15, 76, 129, 0.13), transparent);
-        }
-
-        .shipment-metric-divider {
-            height: 2.25rem;
-            width: 1px;
-            background: linear-gradient(180deg, rgba(148, 163, 184, 0.08), rgba(148, 163, 184, 0.5), rgba(148, 163, 184, 0.08));
-        }
-
-        .shipment-action-btn {
-            min-height: 2.85rem;
-            letter-spacing: 0.01em;
-        }
-
-        .shipment-status-watermark {
-            position: absolute;
-            left: 50%;
-            top: 50%;
-            font-size: clamp(2rem, 6vw, 3.4rem);
-            font-weight: 900;
-            letter-spacing: 0.08em;
-            color: rgba(15, 76, 129, 0.12);
-            pointer-events: none;
-            user-select: none;
-            white-space: nowrap;
-            transform: translate(-50%, -50%) rotate(-14deg);
-            transform-origin: center;
-            z-index: 0;
-            text-transform: none;
-        }
-
-        .dark .shipment-status-watermark {
-            color: rgba(34, 211, 238, 0.12);
-        }
-
-        .shipment-status-ribbon {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.35rem;
-            border-radius: 9999px;
-            padding: 0.38rem 0.7rem;
-            font-size: 0.62rem;
-            font-weight: 900;
-            line-height: 1;
-            border: 1px solid transparent;
-            box-shadow: 0 10px 20px rgba(15, 23, 42, 0.07);
-        }
-
-        .shipment-status-band {
-            position: absolute;
-            inset: 0 0 auto 0;
-            height: 0.34rem;
-            opacity: 0.95;
-            z-index: 1;
-        }
-
-        .shipment-theme-pending {
-            background:
-                radial-gradient(circle at top left, rgba(20, 184, 166, 0.18), transparent 30%),
-                linear-gradient(180deg, rgba(236, 253, 250, 0.98), rgba(255, 255, 255, 0.98) 32%, rgba(248, 250, 252, 0.96) 100%);
-            border-color: rgba(20, 184, 166, 0.34) !important;
-            box-shadow: 0 18px 38px rgba(20, 184, 166, 0.08);
-        }
-
-        .shipment-theme-pending .shipment-status-ribbon {
-            background: rgba(20, 184, 166, 0.16);
-            color: #0f766e;
-            border-color: rgba(20, 184, 166, 0.24);
-        }
-
-        .shipment-theme-delivered {
-            background:
-                radial-gradient(circle at top left, rgba(16, 185, 129, 0.2), transparent 30%),
-                linear-gradient(180deg, rgba(236, 253, 245, 0.98), rgba(255, 255, 255, 0.98) 32%, rgba(248, 250, 252, 0.96) 100%);
-            border-color: rgba(16, 185, 129, 0.34) !important;
-            box-shadow: 0 18px 38px rgba(16, 185, 129, 0.08);
-        }
-
-        .shipment-theme-delivered .shipment-status-ribbon {
-            background: rgba(16, 185, 129, 0.16);
-            color: #047857;
-            border-color: rgba(16, 185, 129, 0.24);
-        }
-
-        .shipment-theme-delayed {
-            background:
-                radial-gradient(circle at top left, rgba(245, 158, 11, 0.2), transparent 30%),
-                linear-gradient(180deg, rgba(255, 251, 235, 0.99), rgba(255, 255, 255, 0.98) 32%, rgba(248, 250, 252, 0.96) 100%);
-            border-color: rgba(245, 158, 11, 0.34) !important;
-            box-shadow: 0 18px 38px rgba(245, 158, 11, 0.08);
-        }
-
-        .shipment-theme-delayed .shipment-status-ribbon {
-            background: rgba(245, 158, 11, 0.17);
-            color: #b45309;
-            border-color: rgba(245, 158, 11, 0.25);
-        }
-
-        .shipment-theme-rejected {
-            background:
-                radial-gradient(circle at top left, rgba(244, 63, 94, 0.2), transparent 30%),
-                linear-gradient(180deg, rgba(255, 241, 242, 0.99), rgba(255, 255, 255, 0.98) 32%, rgba(248, 250, 252, 0.96) 100%);
-            border-color: rgba(244, 63, 94, 0.34) !important;
-            box-shadow: 0 18px 38px rgba(244, 63, 94, 0.08);
-        }
-
-        .shipment-theme-rejected .shipment-status-ribbon {
-            background: rgba(244, 63, 94, 0.16);
-            color: #be123c;
-            border-color: rgba(244, 63, 94, 0.24);
-        }
-
-        .shipment-theme-price {
-            background:
-                radial-gradient(circle at top left, rgba(14, 165, 233, 0.2), transparent 30%),
-                linear-gradient(180deg, rgba(240, 249, 255, 0.99), rgba(255, 255, 255, 0.98) 32%, rgba(248, 250, 252, 0.96) 100%);
-            border-color: rgba(14, 165, 233, 0.34) !important;
-            box-shadow: 0 18px 38px rgba(14, 165, 233, 0.08);
-        }
-
-        .shipment-theme-price .shipment-status-ribbon {
-            background: rgba(14, 165, 233, 0.16);
-            color: #0369a1;
-            border-color: rgba(14, 165, 233, 0.25);
-        }
-
-        .shipment-theme-shipping {
-            background:
-                radial-gradient(circle at top left, rgba(15, 76, 129, 0.2), transparent 30%),
-                linear-gradient(180deg, rgba(239, 246, 255, 0.99), rgba(255, 255, 255, 0.98) 32%, rgba(248, 250, 252, 0.96) 100%);
-            border-color: rgba(15, 76, 129, 0.34) !important;
-            box-shadow: 0 18px 38px rgba(15, 76, 129, 0.08);
-        }
-
-        .shipment-theme-shipping .shipment-status-ribbon {
-            background: rgba(15, 76, 129, 0.16);
-            color: #0f4c81;
-            border-color: rgba(15, 76, 129, 0.24);
-        }
-
-        .dark .shipment-theme-pending,
-        .dark .shipment-theme-delivered,
-        .dark .shipment-theme-delayed,
-        .dark .shipment-theme-rejected,
-        .dark .shipment-theme-price,
-        .dark .shipment-theme-shipping {
-            background:
-                linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.93) 45%, rgba(15, 23, 42, 0.92) 100%);
-        }
-
-        .floating-nav {
-            background: rgba(255, 255, 255, 0.86);
-            backdrop-filter: blur(18px);
-            border: 1px solid rgba(226, 232, 240, 0.88);
-            box-shadow: 0 20px 38px rgba(15, 23, 42, 0.12);
-        }
-
-        .dark .floating-nav {
-            background: rgba(15, 23, 42, 0.9);
-            border-color: rgba(51, 65, 85, 0.88);
-        }
-
-        #shipmentMenu {
-            background: rgba(255, 255, 255, 0.92);
-            backdrop-filter: blur(18px);
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            box-shadow: 0 20px 44px rgba(15, 23, 42, 0.14);
-        }
-
-        .dark #shipmentMenu {
-            background: rgba(15, 23, 42, 0.96);
-            border-color: rgba(51, 65, 85, 0.92);
-            box-shadow: 0 26px 56px rgba(2, 6, 23, 0.5);
-        }
-
-        #shipmentMenu button {
-            border-radius: 1rem;
-        }
-
-        #repNotificationsPanel > div {
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
-            border-color: rgba(226, 232, 240, 0.9);
-            box-shadow: 0 24px 54px rgba(15, 23, 42, 0.16);
-        }
-
-        .dark #repNotificationsPanel > div {
-            background:
-                linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
-            border-color: rgba(51, 65, 85, 0.92);
-            box-shadow: 0 28px 62px rgba(2, 6, 23, 0.54);
-        }
-
-        #repNotificationsContainer::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #repNotificationsContainer::-webkit-scrollbar-thumb {
-            background: rgba(15, 76, 129, 0.3);
-            border-radius: 999px;
-        }
-
-        .swal2-popup {
-            border-radius: 1.6rem !important;
-            border: 1px solid rgba(226, 232, 240, 0.9) !important;
-            box-shadow: 0 24px 54px rgba(15, 23, 42, 0.16) !important;
-            padding-top: 1.4rem !important;
-        }
-
-        .swal2-title {
-            font-weight: 900 !important;
-            color: #0f172a !important;
-        }
-
-        .swal2-html-container {
-            color: #475569 !important;
-            font-weight: 700 !important;
-        }
-
-        .swal2-input,
-        .swal2-select {
-            border-radius: 1rem !important;
-            border: 1px solid rgba(148, 163, 184, 0.28) !important;
-            box-shadow: none !important;
-        }
-
-        .swal2-confirm {
-            background: linear-gradient(135deg, #4f46e5, #6366f1) !important;
-            border-radius: 0.9rem !important;
-            font-weight: 900 !important;
-            box-shadow: 0 14px 24px rgba(79, 70, 229, 0.24) !important;
-        }
-
-        .swal2-cancel,
-        .swal2-deny {
-            border-radius: 0.9rem !important;
-            font-weight: 800 !important;
-        }
-
-        body.dark .swal2-popup {
-            background: linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.94)) !important;
-            border-color: rgba(51, 65, 85, 0.92) !important;
-            box-shadow: 0 28px 60px rgba(2, 6, 23, 0.56) !important;
-        }
-
-        body.dark .swal2-title,
-        body.dark .swal2-html-container {
-            color: #e2e8f0 !important;
-        }
-
-        body.dark .swal2-input,
-        body.dark .swal2-select {
-            background: rgba(15, 23, 42, 0.96) !important;
-            color: #f8fafc !important;
-            border-color: rgba(15, 76, 129, 0.26) !important;
-        }
-
-        @media (max-width: 640px) {
-            .hero-shell .max-w-4xl {
-                gap: 0.5rem;
-            }
-
-            #dashboard-view {
-                overflow-x: hidden;
-            }
-
-            .filter-strip {
-                padding: 0.9rem;
-                border-radius: 1.4rem;
-            }
-
-            #quickActionsMenu {
-                width: min(250px, calc(100vw - 1rem));
-            }
-
-            .shipment-surface {
-                border-radius: 1.35rem;
-                box-shadow: 0 14px 28px rgba(15, 23, 42, 0.07);
-            }
-
-            .shipment-accent {
-                height: 58px;
-            }
-
-            .shipment-action-btn {
-                min-height: 2.65rem;
-                font-size: 0.68rem;
-            }
-
-            .shipment-metric-divider {
-                display: none;
-            }
-
-            #listSummaryBar {
-                padding: 0.7rem 0.85rem;
-                border-radius: 1rem;
-            }
-
-            #bulkActionBar {
-                border-radius: 1rem;
-            }
-
-            #activeFiltersSummary {
-                gap: 0.35rem;
-            }
-
-            .filter-summary-chip {
-                padding: 0.35rem 0.6rem;
-                font-size: 0.6rem;
-            }
-
-            #shipmentMenu {
-                min-width: 190px;
-            }
-
-            .shipment-status-watermark {
-                font-size: 1.65rem;
-            }
-        }
-    </style>
-</head>
-
-<body class="min-h-screen transition-colors duration-300">
-
-    <div id="gpsRequiredOverlay" class="fixed inset-0 z-[120] bg-slate-950/75 backdrop-blur-md flex items-center justify-center px-4">
-        <div class="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/95 dark:bg-slate-900/95 p-6 shadow-2xl text-center">
-            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-cyan-100 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300">
-                <i class="fas fa-location-crosshairs text-2xl"></i>
-            </div>
-            <h2 class="text-xl font-black text-slate-900 dark:text-white">تشغيل الموقع مطلوب</h2>
-            <p id="gpsRequiredMessage" class="mt-3 text-sm font-bold leading-7 text-slate-600 dark:text-slate-300">
-                يجب تفعيل GPS والسماح بالموقع حتى تتمكن من فتح حسابك ومشاهدة شحناتك.
-            </p>
-            <div class="mt-5 space-y-3">
-                <button id="gpsRequiredActionBtn" class="w-full rounded-2xl bg-gradient-to-l from-cyan-600 to-[#0F4C81] px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-cyan-200/60 transition-colors hover:from-cyan-700 hover:to-[#0c3d68]">
-                    تفعيل الموقع الآن
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Header -->
-    <header
-        class="hero-shell bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50 px-4 py-4 mb-4 border-b border-slate-200/80 dark:border-slate-800 shadow-sm">
-        <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
-            <div class="relative z-10 flex w-[98px] shrink-0 items-center justify-start gap-2">
-                <button id="quickActionsToggleBtn"
-                    class="relative order-1 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
-                    title="القائمة" aria-label="القائمة">
-                    <i class="fas fa-bars text-lg"></i>
-                </button>
-                <button id="nav-btn-favorites"
-                    class="relative order-2 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
-                    title="المفضلة" aria-label="المفضلة">
-                    <i class="fas fa-heart text-lg"></i>
-                    <span id="favoritesCountBadge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
-                </button>
-                <button id="themeToggleBtn"
-                    class="relative order-3 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors"
-                    title="الوضع الليلي" aria-label="الوضع الليلي">
-                    <i id="themeIcon" class="fas fa-moon text-lg"></i>
-                </button>
-                <button id="gpsToggleBtn"
-                    class="relative order-4 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors"
-                    title="GPS" aria-label="GPS">
-                    <i id="gpsToggleIcon" class="fas fa-location-dot text-lg"></i>
-                </button>
-                <button id="nav-btn-notifications"
-                    class="relative order-5 h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
-                    title="الإشعارات" aria-label="الإشعارات">
-                    <i class="fas fa-bell text-lg"></i>
-                    <span id="low-unread-badge" class="hidden absolute top-1.5 right-1.5 min-w-4 h-4 px-1 rounded-full bg-rose-500 text-white text-[8px] font-black items-center justify-center border border-white dark:border-slate-900 leading-4 animate-pulse">0</span>
-                </button>
-                <div id="quickActionsMenu" class="hidden absolute right-0 top-[calc(100%+10px)] z-[90] w-[250px] max-w-[calc(100vw-2rem)] rounded-[1.5rem] border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-2xl backdrop-blur-xl">
-                        <button id="menuDashboardBtn"
-                            class="flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                            <span class="flex items-center gap-3">
-                                <i class="fas fa-box text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                                <span>شحناتي</span>
-                            </span>
-                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                        </button>
-                        <a href="account.html"
-                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
-                            <span class="flex items-center gap-3">
-                                <i class="fas fa-user text-[15px] text-sky-700 dark:text-cyan-300"></i>
-                                <span>الحساب</span>
-                            </span>
-                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
-                        </a>
-                        <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
-                        <button id="logoutBtn"
-                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-rose-600 dark:text-rose-300 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30">
-                            <span class="flex items-center gap-3">
-                                <i class="fas fa-power-off text-[15px]"></i>
-                                <span>تسجيل الخروج</span>
-                            </span>
-                            <i class="fas fa-angle-left text-[11px] text-rose-300 dark:text-rose-400"></i>
-                        </button>
-                </div>
-            </div>
-            <div class="flex items-center gap-1.5 relative z-10 shrink-0">
-                <button id="trackingToggleBtn"
-                    class="hidden w-12 h-12 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-emerald-500 dark:hover:text-emerald-400 transition-colors" title="بدء/إنهاء الشيفت">
-                    <i class="fas fa-location-crosshairs text-xl" id="trackingIcon"></i>
-                </button>
-            </div>
-            <div class="flex min-w-0 flex-1 items-center justify-end">
-                <h1 id="repName" class="hidden text-base font-black text-slate-900 dark:text-white">جاري التحميل...</h1>
-                <span id="repUnreadBadge"
-                    class="hidden rep-unread-badge min-w-5 h-5 px-1.5 rounded-full bg-rose-500 text-white text-[10px] font-bold leading-5 text-center shadow-md">0</span>
-            </div>
-        </div>
-    </header>
-
-    <main class="max-w-4xl mx-auto overflow-x-hidden px-4 pb-24">
-        <div
-            class="sticky top-[66px] z-40 mb-3 sm:mb-4 mx-0 sm:-mx-4 px-4 py-1.5 sm:py-2 bg-white/92 dark:bg-slate-950/92 backdrop-blur-xl border-b border-slate-100 dark:border-slate-800">
-            <div
-                class="stats-panel rounded-[1.6rem] p-3 sm:p-4 shadow-lg">
-                <div class="flex items-start justify-between gap-2 sm:gap-3 mb-1.5 sm:mb-2">
-                    <div class="min-w-0">
-                        <p class="text-[9px] font-black uppercase tracking-[0.22em] text-sky-800 dark:text-cyan-300">
-                            نسبة الإنجاز</p>
-                        <h2 class="text-xl sm:text-2xl font-black text-black dark:text-white leading-none mt-1"><span
-                                id="progressPercent">0</span>%</h2>
-                        <p class="text-[10px] sm:text-[11px] font-black text-slate-700 dark:text-slate-200 mt-1">تم <span
-                                id="progressDelivered" class="text-emerald-600">0</span> | شحن <span
-                                id="progressShipping" class="text-cyan-600">0</span> | تعديل سعر <span
-                                id="progressPriceEdit" class="text-sky-800 dark:text-cyan-300">0</span> من <span
-                                id="progressTotal">0</span></p>
-                    </div>
-                    <div class="min-w-0 text-left rounded-2xl bg-white/70 dark:bg-slate-900/45 px-3 py-2 border border-white/70 dark:border-slate-800/70 shadow-sm">
-                        <p class="text-[9px] font-black uppercase tracking-[0.2em] text-emerald-600 mb-0.5">عمولة المندوب
-                        </p>
-                        <h2 id="repCommissionTotal"
-                            class="text-lg sm:text-xl font-black text-black dark:text-white leading-none mb-0.5">0 <span
-                                class="text-[10px]">ج.م</span></h2>
-                        <p id="repShippingStats" class="text-[9px] sm:text-[10px] font-black text-slate-600 dark:text-slate-300">
-                            توريد: 0 ش | 0 ج.م</p>
-                    </div>
-                </div>
-                <div class="w-full h-3 sm:h-3.5 bg-white/70 dark:bg-slate-800/90 rounded-full overflow-hidden border border-white/80 dark:border-slate-700/90 shadow-inner">
-                    <div id="progressBar"
-                        class="h-full bg-gradient-to-l from-emerald-500 via-cyan-500 to-[#0F4C81] rounded-full transition-all duration-500 shadow-[0_0_18px_rgba(15,76,129,0.35)]"
-                        style="width: 0%"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- View Containers -->
-        <div id="dashboard-view">
-            <!-- Search and Filter -->
-            <div class="mb-6 space-y-4 overflow-x-hidden filter-strip rounded-[1.75rem] p-4 sm:p-5">
-            <div class="flex flex-wrap items-stretch gap-1.5 sm:gap-2 sm:flex-nowrap">
-                <div class="relative group min-w-0 basis-full sm:basis-auto sm:flex-1">
-                    <i
-                        class="fas fa-search absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-cyan-600 transition-colors text-sm sm:text-base"></i>
-                    <input type="text" id="searchInput" placeholder="بحث برقم الشحنة أو الموبايل..."
-                        class="w-full soft-control pl-3 sm:pl-4 pr-10 sm:pr-12 py-3 sm:py-4 rounded-2xl text-[12px] sm:text-sm font-black text-black dark:text-white outline-none focus:border-cyan-600 focus:ring-4 focus:ring-cyan-500/10 transition-all">
-                </div>
-                <div class="relative min-w-0 flex-1 sm:w-[220px] sm:min-w-[220px] sm:flex-none">
-                    <select id="bulkStatusSelect"
-                        class="w-full soft-control px-3 sm:px-4 py-3 sm:py-4 rounded-2xl text-[11px] sm:text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                        <option value="">اختر الحالة...</option>
-                        <option value="تم">تم التسليم</option>
-                        <option value="مؤجل">مؤجل</option>
-                        <option value="رفض">رفض</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none text-[10px] sm:text-xs"></i>
-                </div>
-                <button id="bulkUpdateBtn" class="min-w-0 flex-1 sm:w-[150px] sm:min-w-[150px] sm:flex-none bg-gradient-to-l from-[#0F4C81] to-cyan-600 hover:from-[#0c3d68] hover:to-cyan-700 text-white px-2.5 sm:px-4 py-3 sm:py-4 rounded-2xl text-[11px] sm:text-sm font-black shadow-lg shadow-cyan-200/60 transition-colors whitespace-nowrap disabled:opacity-50 disabled:cursor-not-allowed">
-                    تحديث جماعي
-                </button>
-            </div>
-
-            <div class="grid grid-cols-2 gap-2 w-full sm:flex sm:flex-nowrap sm:overflow-x-auto sm:overflow-y-visible pb-1.5">
-                <div class="relative min-w-0 sm:min-w-[108px] sm:flex-[1_1_0%] z-[70]">
-                    <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">اليومية</span>
-                    <select id="filterDateSelect"
-                        class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                        <option value="">اليومية</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                </div>
-                <div class="relative min-w-0 sm:min-w-[108px] sm:flex-[1_1_0%]">
-                    <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">الحالة</span>
-                    <select id="filterStatus"
-                        class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                        <option value="قيد التوصيل">قيد التوصيل</option>
-                        <!-- Options will be populated dynamically or we can just let fillStatusDropdown do it -->
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                </div>
-                <div class="relative min-w-0 sm:min-w-[108px] sm:flex-[1_1_0%]">
-                    <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">الزون</span>
-                    <select id="filterZone"
-                        class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                        <option value="الكل">الزون: الكل</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                </div>
-                <div class="relative min-w-0 sm:min-w-[108px] sm:flex-[1_1_0%]">
-                    <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">الراسل</span>
-                    <select id="filterSender"
-                        class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                        <option value="الكل">الراسل: الكل</option>
-                    </select>
-                    <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                </div>
-            </div>
-            <div class="flex items-center justify-between gap-3 flex-wrap">
-                <div id="activeFiltersSummary" class="flex items-center gap-2 flex-wrap min-h-[34px]"></div>
-                <button id="clearFiltersBtn" type="button" class="hidden rounded-2xl border border-slate-200 dark:border-slate-700 bg-white/85 dark:bg-slate-800 px-3.5 py-2 text-[11px] font-black text-slate-600 dark:text-slate-200 shadow-sm transition-all hover:bg-slate-100 dark:hover:bg-slate-700">
-                    مسح الفلاتر
-                </button>
-            </div>
-        </div>
-
-        <!-- Shipments List -->
-        <div id="listSummaryBar" class="mb-3 hidden items-center justify-between gap-3 rounded-[1.2rem] border border-slate-200/80 dark:border-slate-700 bg-white/80 dark:bg-slate-900/70 px-3 py-2.5 shadow-sm">
-            <div class="flex items-center gap-2 text-[11px] font-black text-slate-600 dark:text-slate-200">
-                <span id="visibleShipmentsCount" class="rounded-full bg-cyan-50 dark:bg-cyan-950/30 px-2.5 py-1 text-sky-800 dark:text-cyan-300 border border-cyan-100/70 dark:border-cyan-800/50">0</span>
-                <span id="listSummaryText">عدد الشحنات الظاهرة</span>
-            </div>
-        </div>
-        <div id="bulkActionBar" class="hidden mb-4 p-2.5 sm:p-3 soft-control rounded-[1.2rem] flex items-center justify-start gap-2">
-            <div class="flex items-center gap-2">
-                <span id="selectedCountBadge" class="bg-cyan-100 text-sky-800 text-[10px] font-black px-2.5 py-1 rounded-full shadow-sm">0</span>
-            </div>
-        </div>
-        <div id="shipmentsList" class="space-y-3.5">
-            <!-- Shimmers/Loading -->
-            <div class="animate-pulse space-y-4">
-                <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
-                <div class="h-32 bg-slate-200 rounded-2xl w-full"></div>
-            </div>
-        </div>
-            <div id="shipmentMenu"
-                class="hidden fixed z-50 min-w-[220px] rounded-2xl border border-slate-200 bg-white p-2 shadow-2xl">
-                <div class="px-3 py-2 text-[10px] font-black text-slate-400 border-b border-slate-100 mb-1">
-                    خيارات الشحنة
-                </div>
-                <button id="copyShipmentMenuBtn"
-                    class="w-full rounded-xl px-4 py-3 text-right text-sm font-bold text-slate-700 transition-colors hover:bg-slate-100 flex items-center justify-between gap-3">
-                    <span>نسخ بيانات الشحنة</span>
-                    <i class="fas fa-copy text-[12px] text-slate-400"></i>
-                </button>
-            </div>
-        </div>
-
-    </main>
-
-    <div id="repNotificationsPanel" class="hidden fixed top-[84px] left-4 right-4 sm:left-auto sm:right-4 sm:w-[380px] z-[70]">
-        <div class="rounded-[1.75rem] border border-slate-200/80 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl shadow-2xl overflow-hidden">
-            <div class="flex items-center justify-between gap-2 px-4 py-3 border-b border-slate-100 dark:border-slate-800">
-                <div>
-                    <h2 class="text-sm font-black text-slate-900 dark:text-white">سجل الإشعارات</h2>
-                    <p class="text-[10px] font-bold text-slate-500 dark:text-slate-300">آخر التحديثات تظهر هنا</p>
-                </div>
-                <div class="flex items-center gap-2">
-                    <button id="markAllRepNotificationsReadBtn" class="text-[10px] font-black text-sky-800 bg-cyan-50 dark:bg-cyan-950/30 px-3 py-1.5 rounded-xl border border-cyan-100 dark:border-cyan-800">
-                        تحديد الكل كمقروء
-                    </button>
-                    <button id="clearRepNotificationsBtn" class="text-[10px] font-black text-rose-500 bg-rose-50 dark:bg-rose-900/30 px-3 py-1.5 rounded-xl border border-rose-100 dark:border-rose-800">
-                        مسح الكل
-                    </button>
-                </div>
-            </div>
-            <div id="repNotificationsContainer" class="max-h-[65vh] overflow-y-auto p-3.5 space-y-3.5">
-                <!-- Notifications injected here -->
-            </div>
-        </div>
-    </div>
-
-    <script src="assets/js/config.js"></script>
-    <script src="assets/js/tracking.js"></script>
-    <script>
         const { createClient } = supabase;
         const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
         const SHIPMENT_PRICE_FIELD = 'السعر بعد التعديل';
@@ -1444,9 +667,16 @@
         }
 
         function getSelectedDates() {
-            return Array.from(dateFilterSelections)
-                .map(date => String(date || '').trim())
-                .filter(Boolean);
+            const saved = localStorage.getItem('repDateFilter') || '';
+            if (!saved) return [];
+            
+            // إذا كانت القيمة تحتوي على فواصل، فهي تمثل تحديد متعدد
+            if (saved.includes(',')) {
+                return saved.split(',').filter(d => d.trim());
+            }
+            
+            // تحديد فردي (السلوك القديم)
+            return saved ? [saved] : [];
         }
 
         function setGpsRequiredMessage(message) {
@@ -1636,20 +866,62 @@
             renderShipments();
         }
 
+function getSelectedSenders() {
+    return Array.from(senderFilterSelections);
+}
+
+function setDateSelection(value) {
+    const normalizedValue = String(value || '').trim();
+    dateFilterSelections.clear();
+    if (normalizedValue) {
+        dateFilterSelections.add(normalizedValue);
+    }
+
+    saveDateFilter(normalizedValue);
+    saveRepUiState();
+    stopDateFilterGlow();
+    renderShipments();
+}
+
 function toggleDateSelection(value) {
             const select = el('filterDateSelect');
             if (!select) return;
 
-            dateFilterSelections.clear();
-            
-            const normalizedValue = value ? String(value).trim() : '';
-            if (normalizedValue) {
-                dateFilterSelections.add(normalizedValue);
+            // التعامل مع التحديد المتعدد
+            if (select.multiple) {
+                const options = select.options;
+                let hasSelection = false;
+                
+                for (let i = 0; i < options.length; i++) {
+                    if (options[i].value && options[i].selected) {
+                        hasSelection = true;
+                        break;
+                    }
+                }
+                
+                if (!hasSelection) {
+                    // إذا لم يتم اختيار أي يومية، قم بإلغاء تحديد كل شيء
+                    for (let i = 0; i < options.length; i++) {
+                        options[i].selected = false;
+                    }
+                    saveDateFilter('');
+                } else {
+                    // حفظ جميع اليوميات المحددة
+                    const selectedValues = [];
+                    for (let i = 0; i < options.length; i++) {
+                        if (options[i].value && options[i].selected) {
+                            selectedValues.push(options[i].value);
+                        }
+                    }
+                    saveDateFilter(selectedValues.join(','));
+                }
+            } else {
+                // التعامل مع التحديد الفردي (السلوك القديم)
+                const normalizedValue = value ? String(value).trim() : '';
+                saveDateFilter(normalizedValue);
             }
-            
-            saveDateFilter(normalizedValue);
+
             saveRepUiState();
-            stopDateFilterGlow();
             renderShipments();
         }
 
@@ -1787,18 +1059,11 @@ function toggleDateSelection(value) {
 
             if (state && state.date) {
                 const dates = Array.isArray(state.date) ? state.date : [state.date];
-                dateFilterSelections.clear();
-                const firstDate = dates.map(d => String(d || '').trim()).filter(Boolean)[0];
-                if (firstDate) dateFilterSelections.add(firstDate);
+                dates.map(d => String(d || '').trim()).filter(Boolean).forEach(d => dateFilterSelections.add(d));
             } else {
                 const legacyDate = getSavedDateFilter();
                 const normalizedLegacyDate = String(legacyDate || '').trim();
-                dateFilterSelections.clear();
-                if (normalizedLegacyDate) {
-                    // Handle multiple dates from legacy storage - take first one for single select
-                    const firstDate = normalizedLegacyDate.split(',')[0].trim();
-                    dateFilterSelections.add(firstDate);
-                }
+                if (normalizedLegacyDate) dateFilterSelections.add(normalizedLegacyDate);
             }
 
             if (state && state.status) {
@@ -2423,19 +1688,6 @@ function toggleDateSelection(value) {
                 if (normalized) return normalized;
             }
 
-            // Fallback to date field if اليومية is not available
-            const dateValue = shipment?.['تاريخ التحديث'] ?? shipment?.تاريخ_التحديث ?? shipment?.updated_at;
-            if (dateValue) {
-                const date = new Date(dateValue);
-                if (!isNaN(date.getTime())) {
-                    // Format date as YYYY-MM-DD for filtering
-                    const year = date.getFullYear();
-                    const month = String(date.getMonth() + 1).padStart(2, '0');
-                    const day = String(date.getDate()).padStart(2, '0');
-                    return `${year}-${month}-${day}`;
-                }
-            }
-
             if (!shipment || typeof shipment !== 'object') return '';
             const fallbackKey = Object.keys(shipment).find((key) => {
                 const normalizedKey = String(key || '').replace(/\s+/g, '').trim();
@@ -2707,7 +1959,6 @@ function toggleDateSelection(value) {
             if (!select) return;
 
             const selectedValues = getSelectedDates();
-            const selectedValue = selectedValues.length > 0 ? selectedValues[0] : '';
             const dateCounts = {};
             
             (items || []).forEach(item => {
@@ -2721,7 +1972,7 @@ function toggleDateSelection(value) {
             } else {
                 Object.keys(dateCounts).sort().forEach(date => {
                     const count = dateCounts[date];
-                    const isSelected = selectedValue === date;
+                    const isSelected = selectedValues.includes(date);
                     optionsHtml += `<option value="${date}" ${isSelected ? 'selected' : ''}>${date} (${count})</option>`;
                 });
             }
@@ -4712,12 +3963,4 @@ function fillSenderDropdown(items) {
                 switchRepView('favorites');
             }
         });
-    </script>
-</body>
-
-</html>
-
-
-
-
-
+    
