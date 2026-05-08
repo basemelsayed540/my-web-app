@@ -156,11 +156,85 @@
             background: rgba(15,23,42,0.84);
             box-shadow: 0 24px 60px rgba(2, 6, 23, 0.48);
         }
+
+        /* Header Styles */
+        .hero-shell {
+            position: relative;
+            overflow: visible;
+        }
+
+        .hero-shell::before {
+            content: "";
+            position: absolute;
+            top: -70px;
+            right: -30px;
+            width: 180px;
+            height: 180px;
+            background: radial-gradient(circle, rgba(15, 76, 129, 0.2), transparent 68%);
+            pointer-events: none;
+        }
+
+        .hero-shell::after {
+            content: "";
+            position: absolute;
+            bottom: -80px;
+            left: -40px;
+            width: 200px;
+            height: 200px;
+            background: radial-gradient(circle, rgba(20, 184, 166, 0.14), transparent 70%);
+            pointer-events: none;
+        }
+
+        .header-chip {
+            background: rgba(255, 255, 255, 0.74);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86);
+        }
+
+        .dark .header-chip {
+            background: rgba(15, 23, 42, 0.74);
+            border-color: rgba(148, 163, 184, 0.14);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+        }
     </style>
 </head>
 <body class="bg-indigo-50/50 dark:bg-slate-950 min-h-screen transition-colors duration-300">
 
-    <header class="px-4 pt-5 pb-2">
+    <!-- Header -->
+    <header class="hero-shell bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl sticky top-0 z-50 px-4 py-4 mb-4 border-b border-slate-200/80 dark:border-slate-800 shadow-sm">
+        <div class="max-w-4xl mx-auto flex items-center justify-between gap-3">
+            <div class="relative z-10 flex w-[98px] shrink-0 items-center justify-start gap-2">
+                <button onclick="window.location.href='rep-dashboard.html'" 
+                    class="relative h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
+                    title="العودة" aria-label="العودة">
+                    <i class="fas fa-arrow-right text-lg"></i>
+                </button>
+            </div>
+            <div class="flex min-w-0 flex-1 items-center justify-center">
+                <h1 class="text-base font-black text-slate-900 dark:text-white">الحساب</h1>
+            </div>
+            <div class="relative z-10 flex shrink-0 items-center justify-end gap-2">
+                <button onclick="window.location.href='rep-dashboard.html#favorites'"
+                    class="relative h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                    title="المفضلة" aria-label="المفضلة">
+                    <i class="fas fa-heart text-lg"></i>
+                </button>
+                <button onclick="toggleTheme()" 
+                    class="relative h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-sky-800 dark:hover:text-cyan-400 transition-colors"
+                    title="الوضع الليلي" aria-label="الوضع الليلي">
+                    <i id="themeIcon" class="fas fa-moon text-lg"></i>
+                </button>
+                <button onclick="logout()" 
+                    class="relative h-11 w-11 shrink-0 flex items-center justify-center rounded-2xl header-chip text-slate-500 dark:text-slate-200 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                    title="تسجيل الخروج" aria-label="تسجيل الخروج">
+                    <i class="fas fa-power-off text-lg"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Account Hero Section -->
+    <header class="px-4 pt-2 pb-2">
         <div class="max-w-4xl mx-auto">
             <div class="account-hero rounded-[2rem] p-5 md:p-7">
                 <div class="flex items-start justify-between gap-4 flex-wrap">
@@ -180,14 +254,6 @@
                                 </p>
                             </div>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-2 self-start">
-                        <button onclick="toggleTheme()" class="quick-action" aria-label="تبديل الثيم">
-                            <i id="themeIcon" class="fas fa-moon text-lg"></i>
-                        </button>
-                        <button onclick="logout()" class="quick-action hover:!text-rose-500" aria-label="تسجيل الخروج">
-                            <i class="fas fa-power-off text-lg"></i>
-                        </button>
                     </div>
                 </div>
 
