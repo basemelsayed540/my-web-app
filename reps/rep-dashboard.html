@@ -567,6 +567,13 @@
             color: #a5f3fc;
         }
 
+        .rep-header-title--empty {
+            visibility: hidden;
+            pointer-events: none;
+            width: 120px;
+            min-height: 2rem;
+        }
+
         .quick-stats-grid {
             display: grid;
             grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -844,6 +851,11 @@
                 gap: 0.12rem;
             }
 
+            .rep-header-title--empty {
+                width: 88px;
+                min-height: 1.5rem;
+            }
+
             #repName {
                 max-width: 96px;
                 font-size: 0.68rem;
@@ -1005,7 +1017,7 @@
                 </div>
             </div>
             <div class="flex min-w-0 flex-1 items-center justify-center">
-                <div class="rep-header-title">
+                <div class="rep-header-title rep-header-title--empty" aria-hidden="true">
                     <h1 id="repName" class="text-base font-black text-slate-900 dark:text-white truncate max-w-[180px]">جاري التحميل...</h1>
                     <span id="repRoleLabel" class="rep-header-subtitle">
                         <i class="fas fa-badge-check text-[10px]"></i>
@@ -1525,6 +1537,7 @@
         let repNotifications = JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
         let currentActiveView = 'dashboard';
         let favoriteShipmentIds = new Set();
+        let lastNonFavoritesStatusSelections = new Set();
         let shipmentSwipeState = null;
         let suppressShipmentClickUntil = 0;
         let isNotificationsPanelOpen = false;
@@ -1687,6 +1700,10 @@
 
         function switchRepView(viewId, options = {}) {
             const { skipRender = false, skipSave = false } = options;
+            if (viewId === 'favorites' && !statusFilterSelections.has(FAVORITES_FILTER_VALUE)) {
+                statusFilterSelections.clear();
+                statusFilterSelections.add(FAVORITES_FILTER_VALUE);
+            }
             currentActiveView = viewId;
             const dashboardView = document.getElementById('dashboard-view');
             const dashBtn = document.getElementById('menuDashboardBtn');
@@ -1853,6 +1870,29 @@
 
         function isFavoritesFilterSelected() {
             return statusFilterSelections.has(FAVORITES_FILTER_VALUE);
+        }
+
+        function rememberCurrentNonFavoritesStatuses() {
+            const statuses = getSelectedStatuses().filter(status => STATUS_OPTIONS.includes(status));
+            if (statuses.length > 0) {
+                lastNonFavoritesStatusSelections = new Set(statuses);
+            }
+        }
+
+        function restoreStatusSelectionAfterFavorites() {
+            statusFilterSelections.clear();
+            const preferredStatuses = [...lastNonFavoritesStatusSelections].filter(status => STATUS_OPTIONS.includes(status));
+            if (preferredStatuses.length > 0) {
+                preferredStatuses.forEach(status => statusFilterSelections.add(status));
+                return;
+            }
+            statusFilterSelections.add('قيد التوصيل');
+        }
+
+        function exitFavoritesView(options = {}) {
+            restoreStatusSelectionAfterFavorites();
+            switchRepView('dashboard', options);
+            fillStatusDropdown();
         }
 
         function getSelectedDates() {
@@ -2065,9 +2105,13 @@
 
         function toggleStatusSelection(value) {
             const normalizedValue = String(value || '').trim();
+            const previousStatuses = getSelectedStatuses().filter(status => STATUS_OPTIONS.includes(status));
             statusFilterSelections.clear();
 
             if (normalizedValue === FAVORITES_FILTER_VALUE) {
+                if (previousStatuses.length > 0) {
+                    lastNonFavoritesStatusSelections = new Set(previousStatuses);
+                }
                 statusFilterSelections.add(FAVORITES_FILTER_VALUE);
                 saveRepUiState();
                 switchRepView('favorites');
@@ -2076,6 +2120,7 @@
 
             if (normalizedValue) {
                 statusFilterSelections.add(normalizedValue);
+                lastNonFavoritesStatusSelections = new Set([normalizedValue]);
             }
 
             if (currentActiveView === 'favorites') {
@@ -2198,7 +2243,8 @@
                     view: currentActiveView,
                     search: getElementValue('searchInput'),
                     date: getSelectedDates(),
-                    status: getSelectedStatuses(),
+                    status: isFavoritesFilterSelected() ? [FAVORITES_FILTER_VALUE] : getSelectedStatuses(),
+                    lastNonFavoriteStatus: [...lastNonFavoritesStatusSelections],
                     zone: getSelectedZones(),
                     sender: getSelectedSenders(),
                     displayLimit: currentDisplayLimit
@@ -2226,6 +2272,12 @@
                 statusFilterSelections.clear();
                 statuses.map(s => String(s || '').trim()).filter(Boolean).forEach(s => statusFilterSelections.add(s));
             }
+            if (state && state.lastNonFavoriteStatus) {
+                const lastStatuses = Array.isArray(state.lastNonFavoriteStatus) ? state.lastNonFavoriteStatus : [state.lastNonFavoriteStatus];
+                lastNonFavoritesStatusSelections = new Set(
+                    lastStatuses.map(s => String(s || '').trim()).filter(s => STATUS_OPTIONS.includes(s))
+                );
+            }
             if (state && state.zone) {
                 const zones = Array.isArray(state.zone) ? state.zone : [state.zone];
                 zones.map(z => String(z || '').trim()).filter(Boolean).forEach(z => zoneFilterSelections.add(z));
@@ -2248,6 +2300,7 @@
             const searchInput = el('searchInput');
 
             if (searchInput) searchInput.value = state.search || '';
+            if (!isFavoritesFilterSelected()) rememberCurrentNonFavoritesStatuses();
 
             const savedView = String(state.view || '').trim();
             if (savedView === 'favorites' || savedView === 'dashboard') {
@@ -3295,7 +3348,8 @@
 
         function getShipmentStatusLabel(shipment) {
             if (isPendingStatus(shipment.الحالة)) return 'قيد التوصيل';
-            if (isPriceEditShipment(shipment)) return shipment['سبب الحالة'] || shipment.سبب_الحالة || 'تعديل سعر';
+            if (isPriceEditShipment(shipment)) return 'تعديل سعر';
+            if (isShippingFeeShipment(shipment)) return 'شحن';
             if (isDelayedStatus(shipment.الحالة)) return 'مؤجل';
             if (isRejectedStatus(shipment.الحالة)) return 'رفض';
             if (isDeliveredStatus(shipment.الحالة, shipment)) return 'تم';
@@ -3533,7 +3587,7 @@
                 return;
             }
 
-            if (selectedStatuses.length === 0 && !isFavoritesFilterSelected()) {
+            if (currentActiveView !== 'favorites' && selectedStatuses.length === 0 && !isFavoritesFilterSelected()) {
                 if (bulkActionBar) bulkActionBar.classList.add('hidden');
                 if (listSummaryBar) listSummaryBar.classList.add('hidden');
                 list.innerHTML = `
@@ -3669,18 +3723,17 @@
                             <span class="text-xs font-semibold">${s.المنتج || s.المنتجات || 'بدون منتج'}</span>
                         </div>
                         
-                        <div class="flex items-center gap-2 mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800">
-                            <div class="flex min-w-0 flex-1 items-center gap-1.5 sm:gap-2 bg-slate-50/90 dark:bg-slate-800/70 px-2 sm:px-3 py-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 shadow-sm">
-                                <div class="flex shrink-0 gap-1 justify-start">
+                        <div class="mt-2 pt-2.5 border-t border-slate-100 dark:border-slate-800">
+                            <div class="flex flex-wrap items-center justify-between gap-2">
+                                <div class="inline-flex max-w-full items-center gap-2 rounded-2xl border border-emerald-100 dark:border-emerald-900/40 bg-emerald-50/90 dark:bg-emerald-950/20 px-2.5 py-1.5 shadow-sm">
+                                    <div class="flex h-6 w-6 shrink-0 items-center justify-center rounded-xl bg-white/80 dark:bg-emerald-950/40">
+                                        <i class="fas fa-wallet text-[11px] text-emerald-600 dark:text-emerald-300"></i>
+                                    </div>
+                                    <span class="text-[9px] font-bold text-emerald-700 dark:text-emerald-300">المبلغ</span>
+                                    <span class="whitespace-nowrap text-[11px] sm:text-[13px] font-black text-slate-900 dark:text-white leading-tight">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[8px] font-bold opacity-60 dark:opacity-80">ج.م</small></span>
+                                </div>
+                                <div class="flex shrink-0 justify-start">
                                     ${renderShipmentContactActions(s)}
-                                </div>
-                                <div class="shipment-metric-divider"></div>
-                                <div class="w-7 h-7 sm:w-8 sm:h-8 shrink-0 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 flex items-center justify-center">
-                                    <i class="fas fa-wallet text-[13px] text-emerald-600 dark:text-emerald-300"></i>
-                                </div>
-                                <div class="flex min-w-[44px] sm:min-w-[52px] shrink-0 flex-col">
-                                    <span class="text-[8px] font-bold text-slate-400 dark:text-slate-300 uppercase tracking-[0.04em]">المبلغ</span>
-                                    <span class="text-[11px] sm:text-[14px] font-black text-slate-900 dark:text-white leading-tight">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[8px] font-bold opacity-60 dark:opacity-80">ج.م</small></span>
                                 </div>
                             </div>
                         </div>
@@ -3786,6 +3839,12 @@
         }
 
         function renderShipmentContactActions(shipment) {
+            const hasPrimaryNumericPhone = (() => {
+                const primaryValue = getShipmentPhone(shipment, 'الهاتف');
+                const normalized = normalizeWhatsAppPhone(primaryValue);
+                return /^\+?\d+$/.test(normalized) && normalized.length >= 7;
+            })();
+
             const renderField = (key, label) => {
                 const val = getShipmentPhone(shipment, key);
                 if (!val) return '';
@@ -3795,23 +3854,25 @@
                 const isNumeric = /^\+?\d+$/.test(cleaned) && cleaned.length >= 7;
 
                 if (!isNumeric) {
+                    if (key === 'هاتف_بديل' && hasPrimaryNumericPhone) return '';
                     return `
-                        <div class="flex-1 flex items-center justify-center p-1.5 sm:p-2 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
-                            <span class="text-[10px] font-black text-slate-600 dark:text-slate-200 text-center leading-tight">${val}</span>
+                        <div class="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
+                            <span class="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[8px] font-black text-amber-700 dark:text-amber-300">ملاحظة</span>
+                            <span class="text-[9px] font-black text-slate-600 dark:text-slate-200 text-center leading-tight">${val}</span>
                         </div>
                     `;
                 }
 
                 return `
-                    <div class="flex flex-col gap-2 w-full">
-                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="w-full min-h-[46px] sm:min-h-[52px] rounded-2xl bg-[#25D366] text-white shadow-md active:scale-95 transition-all flex items-center justify-center px-4" title="واتساب ${label}">
-                            <span class="flex items-center justify-center w-9 h-9 rounded-full bg-white/18 border border-white/15">
-                                <i class="fab fa-whatsapp text-[20px] sm:text-[22px]"></i>
+                    <div class="flex items-center gap-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white/70 dark:bg-slate-900/40 px-1.5 py-1 shadow-sm">
+                        <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-white/18 border border-white/15">
+                                <i class="fab fa-whatsapp text-[15px] sm:text-[16px]"></i>
                             </span>
                         </button>
-                        <button data-action="call-phone" data-id="${shipment.id}" data-phone-key="${key}" class="w-full min-h-[46px] sm:min-h-[52px] rounded-2xl bg-sky-700 dark:bg-cyan-700 border border-sky-800/20 dark:border-cyan-400/20 text-white shadow-md active:scale-95 transition-all flex items-center justify-center px-4" title="اتصال ${label}">
-                            <span class="flex items-center justify-center w-9 h-9 rounded-full bg-white/18 border border-white/15">
-                                <i class="fas fa-phone-alt text-[18px] sm:text-[20px]"></i>
+                        <button data-action="call-phone" data-id="${shipment.id}" data-phone-key="${key}" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-sky-700 dark:bg-cyan-700 border border-sky-800/20 dark:border-cyan-400/20 text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="اتصال ${label}">
+                            <span class="flex items-center justify-center w-7 h-7 rounded-full bg-white/18 border border-white/15">
+                                <i class="fas fa-phone-alt text-[13px] sm:text-[14px]"></i>
                             </span>
                         </button>
                     </div>
@@ -3822,7 +3883,7 @@
             const secondary = renderField('هاتف_بديل', 'الهاتف البديل');
 
             return `
-                <div class="flex items-center gap-1.5 sm:gap-2">
+                <div class="flex flex-wrap items-center gap-1.5">
                     ${primary}
                     ${secondary}
                 </div>
@@ -4217,7 +4278,11 @@
         el('markAllRepNotificationsReadBtn')?.addEventListener('click', markAllRepNotificationsAsRead);
         el('clearRepNotificationsBtn')?.addEventListener('click', clearRepNotifications);
         el('menuDashboardBtn')?.addEventListener('click', () => {
-            switchRepView('dashboard');
+            if (currentActiveView === 'favorites') {
+                exitFavoritesView();
+            } else {
+                switchRepView('dashboard');
+            }
             closeQuickActionsMenu();
         });
         el('nav-btn-notifications')?.addEventListener('click', (event) => {
