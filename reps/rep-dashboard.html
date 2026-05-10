@@ -526,16 +526,8 @@
         }
 
         #quickActionsMenu {
-            position: fixed;
-            top: 50%;
-            left: 50%;
-            right: auto;
-            width: min(250px, calc(100vw - 2rem));
-            max-width: calc(100vw - 2rem);
-            max-height: min(70vh, 520px);
+            max-height: min(65vh, 520px);
             overflow-y: auto;
-            z-index: 110;
-            transform: translate(-50%, -50%);
             background: rgba(255, 255, 255, 0.98);
             border: 1px solid rgba(191, 219, 254, 0.5);
             box-shadow: 0 26px 56px rgba(15, 23, 42, 0.16);
@@ -546,14 +538,6 @@
             background: rgba(15, 23, 42, 0.98);
             border-color: rgba(56, 189, 248, 0.16);
             box-shadow: 0 28px 60px rgba(2, 6, 23, 0.42);
-        }
-
-        body.quick-actions-sheet-open::before {
-            content: "";
-            position: fixed;
-            inset: 0;
-            z-index: 105;
-            background: rgba(2, 6, 23, 0.42);
         }
 
         .rep-header-title {
@@ -861,15 +845,15 @@
             }
 
             #repName {
-                max-width: 132px;
-                font-size: 0.82rem;
+                max-width: 96px;
+                font-size: 0.68rem;
                 line-height: 1.1;
             }
 
             .rep-header-subtitle {
                 gap: 0.25rem;
-                padding: 0.2rem 0.5rem;
-                font-size: 0.54rem;
+                padding: 0.16rem 0.42rem;
+                font-size: 0.46rem;
             }
 
             #dashboard-view {
@@ -882,19 +866,10 @@
             }
 
             #quickActionsMenu {
-                top: 50% !important;
-                bottom: auto !important;
-                left: 50% !important;
-                right: auto !important;
-                width: auto !important;
-                min-width: min(320px, calc(100vw - 1.5rem)) !important;
-                max-width: calc(100vw - 1.5rem) !important;
+                max-width: calc(100vw - 2rem) !important;
                 max-height: min(70vh, 520px) !important;
-                overflow-y: auto;
-                z-index: 110 !important;
                 border-radius: 1.6rem;
                 padding: 0.8rem;
-                transform: translate(-50%, -50%) !important;
                 box-shadow: 0 28px 60px rgba(2, 6, 23, 0.34);
             }
 
@@ -1001,7 +976,7 @@
                     title="القائمة" aria-label="القائمة">
                     <i class="fas fa-bars text-lg"></i>
                 </button>
-                <div id="quickActionsMenu" class="hidden fixed left-1/2 top-1/2 z-[110] w-[250px] max-w-[calc(100vw-2rem)] max-h-[70vh] -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-[1.5rem] border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-2xl backdrop-blur-xl">
+                <div id="quickActionsMenu" class="hidden fixed top-[84px] left-4 right-4 sm:left-auto sm:right-4 sm:w-[380px] z-[70] overflow-y-auto rounded-[1.5rem] border border-slate-200/90 dark:border-slate-700 bg-white/95 dark:bg-slate-900/95 p-2.5 shadow-2xl backdrop-blur-xl">
                         <button id="menuDashboardBtn"
                             class="flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
                             <span class="flex items-center gap-3">
@@ -1104,7 +1079,7 @@
             <!-- Search and Filter -->
         <div class="mb-6 space-y-4 overflow-x-hidden filter-strip rounded-[1.75rem] p-4 sm:p-5">
             <!-- First Row: Search and Bulk Update -->
-            <div class="grid grid-cols-[minmax(0,1fr)_170px_140px] gap-2 mb-4 sm:mb-4 relative z-10">
+            <div class="grid grid-cols-1 sm:grid-cols-[minmax(0,1fr)_170px_140px] gap-2 mb-4 sm:mb-4 relative z-10">
                 <div class="relative group min-w-0 w-full">
                     <i
                         class="fas fa-search absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-cyan-600 transition-colors text-sm sm:text-base"></i>
@@ -1770,16 +1745,17 @@
             if (!menu) return;
             menu.classList.add('hidden');
             isQuickActionsMenuOpen = false;
-            document.body.classList.remove('quick-actions-sheet-open');
         }
 
         function toggleQuickActionsMenu(forceState = null) {
             const menu = el('quickActionsMenu');
             if (!menu) return;
             const shouldOpen = typeof forceState === 'boolean' ? forceState : menu.classList.contains('hidden');
+            if (shouldOpen) {
+                closeRepNotificationsPanel();
+            }
             menu.classList.toggle('hidden', !shouldOpen);
             isQuickActionsMenuOpen = shouldOpen;
-            document.body.classList.toggle('quick-actions-sheet-open', shouldOpen);
         }
 
         function setShipmentMenuMode(mode = 'copy') {}
