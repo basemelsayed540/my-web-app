@@ -195,6 +195,30 @@ function switchRepView(viewId, options = {}) {
             fillStatusDropdown();
         }
 
+        function syncFavoriteShipmentAfterStatusUpdate(shipmentId, nextStatusLabel = '') {
+            const strId = String(shipmentId || '');
+            if (!strId || !favoriteShipmentIds.has(strId)) return;
+
+            favoriteShipmentIds.delete(strId);
+            saveFavoriteShipmentIds(favoriteShipmentIds);
+            updateFavoritesNavBadge();
+            invalidateShipmentRenderCache();
+
+            if (currentActiveView !== 'favorites') return;
+
+            const normalizedStatusLabel = String(nextStatusLabel || '').trim();
+            statusFilterSelections.clear();
+            if (normalizedStatusLabel && STATUS_OPTIONS.includes(normalizedStatusLabel)) {
+                statusFilterSelections.add(normalizedStatusLabel);
+                lastNonFavoritesStatusSelections = new Set([normalizedStatusLabel]);
+            } else {
+                restoreStatusSelectionAfterFavorites();
+            }
+
+            switchRepView('dashboard', { skipRender: true, skipSave: true });
+            saveRepUiState();
+        }
+
         function getSelectedDates() {
             return Array.from(dateFilterSelections);
         }

@@ -27,7 +27,7 @@ el('searchInput').addEventListener('input', () => {
             closeQuickActionsMenu();
             logout();
         });
-        el('bulkUpdateBtn')?.addEventListener('click', applyBulkUpdate);
+        el('bulkUpdateBtn')?.addEventListener('click', () => applyBulkUpdate());
         el('copyShipmentMenuBtn')?.addEventListener('click', copyShipmentDataFromMenu);
         el('editPriceMenuBtn')?.addEventListener('click', editPriceFromMenu);
         el('delayShipmentMenuBtn')?.addEventListener('click', delayShipmentFromMenu);
@@ -55,7 +55,7 @@ el('searchInput').addEventListener('input', () => {
         el('filterStatus')?.addEventListener('change', (event) => toggleStatusSelection(event.target.value));
         el('filterZone')?.addEventListener('change', (event) => toggleZoneSelection(event.target.value));
         el('filterSender')?.addEventListener('change', (event) => toggleSenderSelection(event.target.value));
-        el('bulkStatusSelect')?.addEventListener('change', updateBulkActionBar);
+        el('bulkStatusSelect')?.addEventListener('change', () => updateBulkActionBar());
         el('shipmentsList')?.addEventListener('change', (event) => {
             const shipmentCheckbox = event.target.closest('[data-action="toggle-shipment-selection"]');
             if (!shipmentCheckbox) return;

@@ -252,6 +252,7 @@ function getShipmentById(id) {
                 if (Object.prototype.hasOwnProperty.call(updatePayload, 'السعر_بعد_التعديل')) {
                     allShipments[index].السعر_بعد_التعديل = updatePayload.السعر_بعد_التعديل;
                 }
+                syncFavoriteShipmentAfterStatusUpdate(id, getShipmentStatusLabel(allShipments[index]));
             }
             if (normalizedStatus === 'تم' || normalizedStatus === 'شحن') {
                 lockShipmentForFurtherUpdates(id);
@@ -359,6 +360,7 @@ function getShipmentById(id) {
                 allShipments[index].سبب_الحالة = newReason;
                 allShipments[index].السعر_بعد_التعديل = price;
                 allShipments[index]['عمولة المندوب'] = calculatedCommission;
+                syncFavoriteShipmentAfterStatusUpdate(id, getShipmentStatusLabel(allShipments[index]));
             }
             if (newStatus === 'تم' || newStatus === 'شحن' || newStatus === 'تعديل سعر') {
                 lockShipmentForFurtherUpdates(id);

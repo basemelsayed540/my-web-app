@@ -198,6 +198,7 @@ function startShipmentsPolling() {
                                 s.الحالة = updatePayload.الحالة;
                                 if (updatePayload['سبب الحالة']) s['سبب الحالة'] = updatePayload['سبب الحالة'];
                                 if (updatePayload.السعر_بعد_التعديل !== undefined) s.السعر_بعد_التعديل = updatePayload.السعر_بعد_التعديل;
+                                syncFavoriteShipmentAfterStatusUpdate(s.id, getShipmentStatusLabel(s));
                                 if (normalizedStatus === 'تم' || normalizedStatus === 'شحن') lockShipmentForFurtherUpdates(s.id);
                                 successCount++;
                             } else {
