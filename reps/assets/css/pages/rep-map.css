@@ -1,0 +1,2 @@
+#map { height: calc(100vh - 180px); width: 100%; border-radius: 20px; z-index: 10; }
+        .distance-label { background: white; border-radius: 8px; padding: 4px 8px; font-weight: bold; color: #4f46e5; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 2px solid #4f46e5; font-size: 12px;}
