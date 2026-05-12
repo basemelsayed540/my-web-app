@@ -141,6 +141,36 @@ function switchRepView(viewId, options = {}) {
             return document.getElementById(id);
         }
 
+        let repStickyHeaderObserver = null;
+
+        function updateRepStickyOffsets() {
+            const header = document.querySelector('header.hero-shell');
+            if (!header) return;
+
+            const headerHeight = Math.ceil(header.getBoundingClientRect().height || header.offsetHeight || 0);
+            const stickyOffset = headerHeight;
+            document.documentElement.style.setProperty('--rep-header-sticky-offset', `${stickyOffset}px`);
+
+            const statsPanel = document.getElementById('stats-sticky-panel');
+            if (statsPanel) {
+                const statsHeight = Math.ceil(statsPanel.getBoundingClientRect().height || statsPanel.offsetHeight || 0);
+                document.documentElement.style.setProperty('--rep-filters-sticky-offset', `${stickyOffset + statsHeight}px`);
+            }
+        }
+
+        function bindRepStickyOffsetSync() {
+            updateRepStickyOffsets();
+
+            if (typeof ResizeObserver === 'undefined') return;
+
+            const header = document.querySelector('header.hero-shell');
+            if (!header) return;
+
+            repStickyHeaderObserver?.disconnect();
+            repStickyHeaderObserver = new ResizeObserver(() => updateRepStickyOffsets());
+            repStickyHeaderObserver.observe(header);
+        }
+
         function getElementValue(id) {
             return el(id)?.value || '';
         }

@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
+    <title>تسجيل الدخول | نظام الشحن الاحترافي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="assets/css/pages/login.css">
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
+
+    <div class="absolute top-4 left-4 z-50">
+        <button onclick="toggleTheme()" class="theme-fab p-3 rounded-full text-slate-500 dark:text-slate-300 hover:text-indigo-600 transition-colors">
+            <i id="themeIcon" class="fas fa-moon text-xl"></i>
+        </button>
+    </div>
+
+    <div class="max-w-md w-full animate-fade-in login-stage">
+        <div class="auth-shell p-6 sm:p-8 rounded-[2rem] relative mx-2 sm:mx-0">
+            <div class="absolute inset-x-8 top-0 h-px bg-gradient-to-r from-transparent via-white/70 to-transparent dark:via-white/10"></div>
+
+            <div class="text-center mb-8 relative">
+                <div class="brand-orb flex items-center justify-center mx-auto mb-4">
+                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
+                    </svg>
+                </div>
+                <h1 class="text-3xl font-extrabold text-slate-800 dark:text-white mb-2">لايت شبينج</h1>
+                <p class="text-slate-500 dark:text-slate-400 font-semibold">سجل دخولك لمتابعة شحناتك</p>
+            </div>
+
+            <form id="loginForm" class="space-y-6 relative">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">رقم الموبايل</label>
+                    <input type="text" id="phone" name="phone" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="01xxxxxxxxx">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">كلمة المرور</label>
+                    <input type="password" id="password" name="password" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="••••••••">
+                </div>
+
+                <div class="flex items-center justify-between px-1">
+                    <label class="flex items-center gap-2 cursor-pointer group">
+                        <input type="checkbox" id="rememberMe" class="w-4 h-4 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                        <span class="text-sm font-semibold text-slate-600 group-hover:text-slate-800 transition-colors">تذكرني</span>
+                    </label>
+                    <a href="#" class="text-sm font-bold text-indigo-600 hover:text-indigo-800 transition-colors">نسيت كلمة المرور؟</a>
+                </div>
+
+                <button type="submit" id="loginBtn" class="w-full py-4 auth-submit btn-primary flex items-center justify-center gap-2 text-xl font-black mt-2 mb-4 active:scale-95 transition-transform">
+                    <span>تسجيل الدخول</span>
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 16l-4-4m0 0l4-4m-4 4h14m-5 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h7a3 3 0 013 3v1"></path>
+                    </svg>
+                </button>
+            </form>
+
+            <div class="mt-8 pt-6 border-t border-slate-100 text-center">
+                <p class="text-slate-500 font-semibold">ليس لديك حساب؟ <a href="#" id="openRepSignup" class="text-indigo-600 font-bold hover:underline">انشئ حساب</a></p>
+            </div>
+        </div>
+
+        <p class="text-center mt-8 text-slate-400 font-bold text-sm">© 2026 نظام الشحن المتطور - جميع الحقوق محفوظة</p>
+    </div>
+
+    <div id="repSignupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="w-full max-w-lg auth-modal rounded-[2rem] p-6 md:p-8 relative">
+            <button type="button" id="closeRepSignup" class="absolute top-4 left-4 w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+
+            <div class="mb-6">
+                <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">إنشاء حساب مندوب</h2>
+                <p class="text-slate-500 dark:text-slate-400 font-semibold">املأ البيانات التالية لإنشاء حساب مندوب جديد.</p>
+            </div>
+
+            <form id="repSignupForm" class="space-y-4">
+                <div class="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300">
+                    سيتم إنشاء الحساب كـ <span class="font-black">مندوب</span> فقط من هذه الصفحة.
+                </div>
+                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300">
+                    حسابات <span class="font-black">المدير</span> و<span class="font-black">المتابعة</span> و<span class="font-black">الراسل</span> يتم إنشاؤها من قسم الإدارة فقط.
+                </div>
+                <div>
+                    <label for="signupName" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">اسم المندوب</label>
+                    <input type="text" id="signupName" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="اكتب الاسم">
+                </div>
+                <div>
+                    <label for="signupPhone" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">رقم الموبايل</label>
+                    <input type="text" id="signupPhone" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="01xxxxxxxxx">
+                </div>
+                <div>
+                    <label for="signupEmail" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">البريد الإلكتروني (اختياري)</label>
+                    <input type="email" id="signupEmail" class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="name@example.com">
+                </div>
+                <div>
+                    <label for="signupPassword" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">كلمة المرور</label>
+                    <input type="password" id="signupPassword" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="6 أحرف على الأقل">
+                </div>
+                <div>
+                    <label for="signupPasswordConfirm" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">تأكيد كلمة المرور</label>
+                    <input type="password" id="signupPasswordConfirm" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="أعد كتابة كلمة المرور">
+                </div>
+
+                <button type="submit" id="signupBtn" class="w-full py-4 auth-submit btn-primary flex items-center justify-center gap-2 text-xl font-black mt-4 active:scale-95 transition-transform">
+                    <span>إنشاء الحساب</span>
+                    <i class="fas fa-user-plus"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script src="assets/js/config.js"></script>
+    <script src="assets/js/shared/theme.js"></script>
+    <script src="assets/js/pages/login.js"></script>
+</body>
+</html>

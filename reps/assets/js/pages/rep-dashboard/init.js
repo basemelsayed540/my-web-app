@@ -1,5 +1,7 @@
 favoriteShipmentIds = loadFavoriteShipmentIds();
         updateFavoritesNavBadge();
+        bindRepStickyOffsetSync();
+        window.addEventListener('load', updateRepStickyOffsets);
         lockGpsGate('يجب تفعيل GPS والسماح بالموقع حتى تتمكن من فتح حسابك ومشاهدة شحناتك.');
         ensureGpsReadyAndLoadShipments(false);
         startGpsEnforcement();

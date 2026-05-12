@@ -220,7 +220,10 @@ el('searchInput').addEventListener('input', () => {
                 }, 250);
             }
         });
-        window.addEventListener('resize', closeShipmentMenu);
+        window.addEventListener('resize', () => {
+            closeShipmentMenu();
+            updateRepStickyOffsets();
+        });
         window.addEventListener('scroll', closeShipmentMenu);
 
         
