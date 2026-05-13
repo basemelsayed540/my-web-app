@@ -209,7 +209,7 @@ function populateSubRepAssignTools() {
                         : `<button class="subrep-assign-btn bg-slate-100 text-slate-400 text-[10px] py-1 px-2 rounded-md border border-slate-200 cursor-not-allowed w-full" disabled><i class='fas fa-user-plus'></i></button>`
                     }
                     </td>
-                    <td class="px-2 py-2 text-xs font-bold text-slate-800 dark:text-slate-200 max-w-[120px] truncate" title="${s.اسم_العميل || ''}">${s.اسم_العميل || '---'}</td>
+                    <td class="px-2 py-2 text-xs font-bold customer-name-color max-w-[120px] truncate" title="${s.اسم_العميل || ''}">${s.اسم_العميل || '---'}</td>
                     <td class="px-2 py-2 text-[11px] text-slate-600 dark:text-slate-400 leading-tight max-w-[100px] truncate" title="${s.العنوان || ''}">${s.العنوان || '---'}</td>
                     <td class="px-2 py-2 text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap">${s.الزون || '---'}</td>
                     <td class="px-2 py-2 text-xs text-slate-700 dark:text-slate-300 max-w-[80px] truncate" title="${s.المنتج || ''}">${s.المنتج || '---'}</td>

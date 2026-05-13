@@ -183,44 +183,62 @@ function getUnreadSessionKey() {
             ).trim();
         }
 
-        function showNewShipmentNotification(newShipments) {
+        async function showNewShipmentNotification(newShipments) {
             if (!newShipments || newShipments.length === 0) return;
 
             const count = newShipments.length;
-            const codes = newShipments
-                .map(getShipmentDisplayLabel)
-                .filter(Boolean)
-                .slice(0, 3);
-            const extra = count > codes.length ? ` و${count - codes.length} أخرى` : '';
-            const body = codes.length
-                ? `تم تنزيل ${count} شحنة جديدة عليك: ${codes.join('، ')}${extra}`
-                : `تم تنزيل ${count} شحنة جديدة عليك`;
+            const body = `تم تنزيل ${count} شحنة جديدة بعهدتكم`;
+            const unreadCount = typeof repNotifications !== 'undefined' ? repNotifications.filter(n => !n.read).length : count;
 
-            Swal.fire({
-                toast: true,
-                position: 'top-start',
-                icon: 'success',
-                title: 'شحنات جديدة',
-                text: body,
-                showConfirmButton: false,
-                timer: 5000,
-                timerProgressBar: true
-            });
-
-            if ('Notification' in window && Notification.permission === 'granted') {
-                try {
-                    new Notification('شحنات جديدة للمندوب', {
-                        body,
-                        dir: 'rtl'
+            // Native Notification & Icon Badge
+            try {
+                const { LocalNotifications } = Capacitor.Plugins;
+                if (LocalNotifications) {
+                    await LocalNotifications.requestPermissions();
+                    await LocalNotifications.schedule({
+                        notifications: [{
+                            title: 'شحنات جديدة',
+                            body: body,
+                            id: 1,
+                            schedule: { at: new Date(Date.now() + 500) },
+                            sound: null, // Use system default
+                            actionTypeId: "",
+                            extra: null,
+                            number: unreadCount // Sets the badge on the app icon
+                        }]
                     });
-                } catch (error) { }
+                }
+            } catch (e) {
+                console.error("Native notification error:", e);
             }
         }
 
-        function showShipmentUpdateNotification(type, shipment) {
+        async function showShipmentUpdateNotification(type, shipment) {
             if (!shipment) return;
-            if (type !== 'status_changed') return;
-            playNotificationSound();
+
+            let body = '';
+            if (type === 'status_changed') body = `تم تغيير حالة الشحنة ${shipment.order_id} إلى ${shipment.الحالة}`;
+            else if (type === 'deleted') body = `تم حذف الشحنة رقم ${shipment.order_id} من عهدتكم`;
+            else return;
+
+            const unreadCount = typeof repNotifications !== 'undefined' ? repNotifications.filter(n => !n.read).length : 1;
+
+            // Native Notification
+            try {
+                const { LocalNotifications } = Capacitor.Plugins;
+                if (LocalNotifications) {
+                    await LocalNotifications.requestPermissions();
+                    await LocalNotifications.schedule({
+                        notifications: [{
+                            title: 'تحديث في الشحنات',
+                            body: body,
+                            id: Date.now() % 100000,
+                            schedule: { at: new Date(Date.now() + 500) },
+                            number: unreadCount // Update badge count
+                        }]
+                    });
+                }
+            } catch (e) {}
         }
 
         function getShipmentUpdateValue(shipment) {

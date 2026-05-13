@@ -22,22 +22,31 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.css" />
     <script src="https://unpkg.com/leaflet-routing-machine@3.2.12/dist/leaflet-routing-machine.js"></script>
         <link rel="stylesheet" href="assets/css/pages/rep-dashboard.css">
+    <script src="assets/js/error-logger.js"></script>
 </head>
 
 <body class="min-h-screen transition-colors duration-300">
 
     <div id="gpsRequiredOverlay" class="fixed inset-0 z-[120] bg-slate-950/75 backdrop-blur-md flex items-center justify-center px-4">
         <div class="w-full max-w-md rounded-[2rem] border border-white/10 bg-white/95 dark:bg-slate-900/95 p-6 shadow-2xl text-center">
-            <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-[1.4rem] bg-cyan-100 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300">
-                <i class="fas fa-location-crosshairs text-2xl"></i>
+            <div class="mx-auto mb-4 flex items-center justify-center gap-2">
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300">
+                    <i class="fas fa-wifi text-xl"></i>
+                </div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300">
+                    <i class="fas fa-location-crosshairs text-xl"></i>
+                </div>
+                <div class="flex h-12 w-12 items-center justify-center rounded-xl bg-cyan-100 dark:bg-cyan-950/40 text-cyan-700 dark:text-cyan-300">
+                    <i class="fas fa-bell text-xl"></i>
+                </div>
             </div>
-            <h2 class="text-xl font-black text-slate-900 dark:text-white">تشغيل الموقع مطلوب</h2>
+            <h2 class="text-xl font-black text-slate-900 dark:text-white">متطلبات التشغيل الضرورية</h2>
             <p id="gpsRequiredMessage" class="mt-3 text-sm font-bold leading-7 text-slate-600 dark:text-slate-300">
-                يجب تفعيل GPS والسماح بالموقع حتى تتمكن من فتح حسابك ومشاهدة شحناتك.
+                يجب تفعيل الإنترنت، GPS، والسماح بالإشعارات حتى تتمكن من فتح حسابك ومشاهدة شحناتك.
             </p>
             <div class="mt-5 space-y-3">
                 <button id="gpsRequiredActionBtn" class="w-full rounded-2xl bg-gradient-to-l from-cyan-600 to-[#0F4C81] px-4 py-3.5 text-sm font-black text-white shadow-lg shadow-cyan-200/60 transition-colors hover:from-cyan-700 hover:to-[#0c3d68]">
-                    تفعيل الموقع الآن
+                    تفعيل جميع المتطلبات الآن
                 </button>
             </div>
         </div>
@@ -70,6 +79,22 @@
                             </span>
                             <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
                         </a>
+                        <button id="menuReportsBtn"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-file-export text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span>تقارير اليومية</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
+                        <button onclick="window.showErrorLogs()"
+                            class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-slate-700 dark:text-slate-100 transition-colors hover:bg-slate-100 dark:hover:bg-slate-800">
+                            <span class="flex items-center gap-3">
+                                <i class="fas fa-bug text-[15px] text-sky-700 dark:text-cyan-300"></i>
+                                <span>سجل الأخطاء</span>
+                            </span>
+                            <i class="fas fa-angle-left text-[11px] text-slate-400"></i>
+                        </button>
                         <div class="my-2 h-px bg-slate-100 dark:bg-slate-800"></div>
                         <button id="logoutBtn"
                             class="mt-1 flex w-full items-center justify-between gap-3 rounded-2xl px-3.5 py-3 text-right text-sm font-black text-rose-600 dark:text-rose-300 transition-colors hover:bg-rose-50 dark:hover:bg-rose-950/30">
@@ -84,10 +109,6 @@
             <div class="flex min-w-0 flex-1 items-center justify-center">
                 <div class="rep-header-title rep-header-title--empty" aria-hidden="true">
                     <h1 id="repName" class="text-base font-black text-slate-900 dark:text-white truncate max-w-[180px]">جاري التحميل...</h1>
-                    <span id="repRoleLabel" class="rep-header-subtitle">
-                        <i class="fas fa-badge-check text-[10px]"></i>
-                        مندوب توصيل محترف
-                    </span>
                 </div>
             </div>
             <div class="relative z-10 flex shrink-0 items-center justify-end gap-2">
@@ -180,44 +201,28 @@
                     </div>
                 </div>
 
-                <div class="shipment-filters-pin mb-6">
+                <div class="shipment-filters-pin mb-6 overflow-hidden">
                     <div class="filter-strip filter-strip--compact rounded-[1.75rem] p-3 sm:p-4">
-                    <!-- Second Row: Filters -->
-                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 w-full">
-                        <div class="relative min-w-0 z-[70]">
-                            <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">اليومية</span>
-                            <select id="filterDateSelect"
-                                class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                                <option value="">اليومية</option>
-                            </select>
-                            <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
+                        <div class="flex flex-col gap-4">
+                            <!-- Category Tabs -->
+                            <div class="grid grid-cols-4 gap-2 pb-1">
+                                <button data-filter-tab="date" class="filter-category-tab active">اليومية</button>
+                                <button data-filter-tab="status" class="filter-category-tab">الحالة</button>
+                                <button data-filter-tab="zone" class="filter-category-tab">الزون</button>
+                                <button data-filter-tab="sender" class="filter-category-tab">الراسل</button>
+                            </div>
+                            
+                            <!-- Chips Container -->
+                            <div id="filterChipsContainer" class="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 min-h-[44px]">
+                                <!-- Chips will be injected here via JS -->
+                            </div>
                         </div>
-                        <div class="relative min-w-0">
-                            <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">الحالة</span>
-                            <select id="filterStatus"
-                                class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                                <option value="قيد التوصيل">قيد التوصيل</option>
-                                <!-- Options will be populated dynamically or we can just let fillStatusDropdown do it -->
-                            </select>
-                            <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                        </div>
-                        <div class="relative min-w-0">
-                            <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">الزون</span>
-                            <select id="filterZone"
-                                class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                                <option value="الكل">الزون: الكل</option>
-                            </select>
-                            <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                        </div>
-                        <div class="relative min-w-0">
-                            <span class="mb-1 mr-1 block text-[9px] font-black text-slate-400 dark:text-slate-500">الراسل</span>
-                            <select id="filterSender"
-                                class="w-full soft-control px-2.5 py-3 sm:px-3.5 sm:py-3.5 rounded-2xl text-[11px] sm:text-[12px] font-black text-slate-700 dark:text-slate-200 outline-none appearance-none transition-all cursor-pointer">
-                                <option value="الكل">الراسل: الكل</option>
-                            </select>
-                            <i class="fas fa-chevron-down absolute left-2.5 sm:left-3 top-[calc(50%+8px)] -translate-y-1/2 text-slate-400 pointer-events-none text-[9px] sm:text-[10px]"></i>
-                        </div>
-                    </div>
+                        
+                        <!-- Hidden select elements to keep existing logic working -->
+                        <select id="filterDateSelect" class="hidden"></select>
+                        <select id="filterStatus" class="hidden"></select>
+                        <select id="filterZone" class="hidden"></select>
+                        <select id="filterSender" class="hidden"></select>
                     </div>
                 </div>
             </div>
@@ -278,6 +283,37 @@
         </div>
     </div>
 
+    <!-- Reports Selection Modal -->
+    <div id="reportsModal" class="fixed inset-0 z-[100] hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
+        <div class="w-full max-w-sm rounded-[2rem] border border-white/10 bg-white/95 dark:bg-slate-900/95 p-6 shadow-2xl">
+            <h2 class="text-lg font-black text-slate-900 dark:text-white mb-4 text-center">إصدار تقرير اليومية</h2>
+            <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-5 text-center leading-relaxed">
+                سيتم تجميع كافة الشحنات (مؤجل، رفض، تعديل سعر، شحن) لليومية المختارة في رسالة واحدة.
+            </p>
+
+            <div class="space-y-4">
+                <div class="relative">
+                    <label class="block text-[11px] font-black text-slate-400 mb-1.5 mr-1">اختر التاريخ</label>
+                    <select id="reportDateSelect" class="w-full soft-control px-4 py-3.5 rounded-2xl text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+                        <!-- Dates will be populated via JS -->
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-[calc(50%+10px)] -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                </div>
+
+                <div class="flex gap-2 pt-2">
+                    <button id="generateReportBtn" class="flex-1 rounded-2xl bg-gradient-to-l from-emerald-600 to-emerald-500 py-3.5 text-sm font-black text-white shadow-lg shadow-emerald-200/50 active:scale-95 transition-all">
+                        إرسال واتساب
+                    </button>
+                    <button onclick="document.getElementById('reportsModal').classList.add('hidden')" class="px-5 rounded-2xl bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300 font-black text-sm active:scale-95 transition-all">
+                        إلغاء
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="assets/js/shared/crypto.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/tracking.js"></script>
     <script src="assets/js/shared/session.js"></script>
@@ -304,3 +340,4 @@
 </body>
 
 </html>
+

@@ -8,8 +8,8 @@ function switchRepView(viewId, options = {}) {
             const dashboardView = document.getElementById('dashboard-view');
             const dashBtn = document.getElementById('menuDashboardBtn');
 
-            dashboardView?.classList.add('hidden');
-            closeRepNotificationsPanel();
+            // CRITICAL FIX: Do NOT close notifications panel automatically during data refresh
+            // closeRepNotificationsPanel();
 
             [dashBtn].forEach(btn => {
                 btn?.classList.remove('bg-cyan-50', 'dark:bg-cyan-950/30', 'text-sky-800', 'dark:text-cyan-300');
@@ -158,6 +158,62 @@ function switchRepView(viewId, options = {}) {
             }
         }
 
+        let currentFilterTab = 'date';
+
+        function updateFilterChipsUI() {
+            const container = el('filterChipsContainer');
+            if (!container) return;
+
+            const tabs = document.querySelectorAll('[data-filter-tab]');
+            tabs.forEach(tab => {
+                if (tab.dataset.filterTab === currentFilterTab) tab.classList.add('active');
+                else tab.classList.remove('active');
+            });
+
+            let selectId = '';
+            if (currentFilterTab === 'date') selectId = 'filterDateSelect';
+            else if (currentFilterTab === 'status') selectId = 'filterStatus';
+            else if (currentFilterTab === 'zone') selectId = 'filterZone';
+            else if (currentFilterTab === 'sender') selectId = 'filterSender';
+
+            const select = el(selectId);
+            if (!select) return;
+
+            const options = Array.from(select.options);
+            const selectedValue = select.value;
+
+            container.innerHTML = options.map(opt => `
+                <div class="filter-chip ${opt.value === selectedValue ? 'selected' : ''}" data-value="${opt.value}" data-select-id="${selectId}">
+                    ${opt.text}
+                </div>
+            `).join('');
+
+            // Scroll to selected chip
+            setTimeout(() => {
+                container.querySelector('.filter-chip.selected')?.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+            }, 50);
+        }
+
+        function switchFilterTab(tabId) {
+            currentFilterTab = tabId;
+            updateFilterChipsUI();
+        }
+
+        function handleChipClick(chip) {
+            const selectId = chip.dataset.selectId;
+            const value = chip.dataset.value;
+            const select = el(selectId);
+            if (!select) return;
+
+            select.value = value;
+
+            // Trigger the change event manually to run existing filtering logic
+            const event = new Event('change', { bubbles: true });
+            select.dispatchEvent(event);
+
+            updateFilterChipsUI();
+        }
+
         function bindRepStickyOffsetSync() {
             updateRepStickyOffsets();
 
@@ -183,14 +239,12 @@ function switchRepView(viewId, options = {}) {
         function applyActiveSelectState(select, selectedArr, defaultValue = 'الكل') {
             if (!select) return;
 
-            if (selectedArr.length > 0) {
+            if (selectedArr.length > 0 && selectedArr[0] !== '' && selectedArr[0] !== 'الكل') {
                 select.value = selectedArr[0];
-                select.classList.add('bg-sky-800', 'text-white', 'border-sky-800', 'shadow-cyan-500/30');
-                select.classList.remove('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+                select.classList.add('filter-active-state');
             } else {
                 select.value = defaultValue;
-                select.classList.remove('bg-sky-800', 'text-white', 'border-sky-800', 'shadow-cyan-500/30');
-                select.classList.add('bg-white', 'dark:bg-slate-800', 'text-slate-700', 'dark:text-slate-200');
+                select.classList.remove('filter-active-state');
             }
         }
 
@@ -263,6 +317,22 @@ function switchRepView(viewId, options = {}) {
                 unlockGpsGate();
                 return;
             }
+
+            // Check if we already have permission before showing the lock
+            if (navigator.permissions?.query) {
+                navigator.permissions.query({ name: 'geolocation' }).then(permission => {
+                    if (permission.state === 'granted') {
+                        unlockGpsGate();
+                        return;
+                    }
+                    showGpsLock(message);
+                });
+            } else {
+                showGpsLock(message);
+            }
+        }
+
+        function showGpsLock(message) {
             gpsGateUnlocked = false;
             el('gpsRequiredOverlay')?.classList.remove('hidden');
             if (message) setGpsRequiredMessage(message);
@@ -408,6 +478,32 @@ function switchRepView(viewId, options = {}) {
         }
 
         async function ensureGpsReadyAndLoadShipments(forcePrompt = false) {
+            // 1. Check Internet
+            if (!navigator.onLine) {
+                lockGpsGate('لا يوجد اتصال بالإنترنت. يرجى الاتصال بالشبكة للمتابعة.');
+                return false;
+            }
+
+            // 2. Check Notifications Permission (Mandatory for Badge/Sound)
+            try {
+                if (typeof Capacitor !== 'undefined' && Capacitor.Plugins.LocalNotifications) {
+                    const perm = await Capacitor.Plugins.LocalNotifications.checkPermissions();
+                    if (perm.display !== 'granted') {
+                        if (forcePrompt) {
+                            const req = await Capacitor.Plugins.LocalNotifications.requestPermissions();
+                            if (req.display !== 'granted') {
+                                lockGpsGate('يجب السماح بصلاحية الإشعارات لتفعيل عداد الشحنات والتنبيه الصوتي.');
+                                return false;
+                            }
+                        } else {
+                            lockGpsGate('صلاحية الإشعارات مطلوبة لتشغيل التطبيق بشكل صحيح.');
+                            return false;
+                        }
+                    }
+                }
+            } catch (e) {}
+
+            // 3. Check GPS
             const isRequired = await refreshGpsEnforcementSetting();
             if (!isRequired) {
                 unlockGpsGate();
@@ -418,6 +514,10 @@ function switchRepView(viewId, options = {}) {
             if (isReady) fetchShipments();
             return isReady;
         }
+
+        // Add listener for internet status changes
+        window.addEventListener('online', () => ensureGpsReadyAndLoadShipments(false));
+        window.addEventListener('offline', () => lockGpsGate('انقطع الاتصال بالإنترنت.'));
 
         function getSelectedZones() {
             return Array.from(zoneFilterSelections);
@@ -441,10 +541,22 @@ function switchRepView(viewId, options = {}) {
         }
 
         function toggleDateSelection(value) {
+            const select = el('filterDateSelect');
+            if (select) {
+                select.classList.remove('filter-active-animation');
+                void select.offsetWidth;
+                select.classList.add('filter-active-animation');
+            }
             setDateSelection(value);
         }
 
         function toggleZoneSelection(value) {
+            const select = el('filterZone');
+            if (select) {
+                select.classList.remove('filter-active-animation');
+                void select.offsetWidth;
+                select.classList.add('filter-active-animation');
+            }
             const normalizedValue = String(value || '').trim();
             if (!normalizedValue) return;
 
@@ -458,6 +570,12 @@ function switchRepView(viewId, options = {}) {
         }
 
         function toggleStatusSelection(value) {
+            const select = el('filterStatus');
+            if (select) {
+                select.classList.remove('filter-active-animation');
+                void select.offsetWidth;
+                select.classList.add('filter-active-animation');
+            }
             const normalizedValue = String(value || '').trim();
             const previousStatuses = getSelectedStatuses().filter(status => STATUS_OPTIONS.includes(status));
             statusFilterSelections.clear();
@@ -486,6 +604,12 @@ function switchRepView(viewId, options = {}) {
         }
 
         function toggleSenderSelection(value) {
+            const select = el('filterSender');
+            if (select) {
+                select.classList.remove('filter-active-animation');
+                void select.offsetWidth;
+                select.classList.add('filter-active-animation');
+            }
             const normalizedValue = String(value || '').trim();
             if (!normalizedValue) return;
 

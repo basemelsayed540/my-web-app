@@ -16,6 +16,7 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link rel="stylesheet" href="assets/css/pages/sub-rep-dashboard.css">
+    <script src="assets/js/error-logger.js"></script>
 </head>
 
 <body
@@ -97,6 +98,11 @@
                             class="w-full bg-indigo-50 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400 py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border-2 border-dashed border-indigo-200 dark:border-indigo-900/50 hover:border-indigo-500">
                             <i class="fas fa-file-import"></i>
                             <span>رع شحنات (إكسل)</span>
+                        </button>
+                        <button onclick="window.showErrorLogs()"
+                            class="w-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 py-3 px-4 rounded-xl text-sm font-bold shadow-md flex items-center justify-center gap-2 transition-all active:scale-95 border border-slate-200 dark:border-slate-700">
+                            <i class="fas fa-bug text-red-500"></i>
+                            <span>سجل الأخطاء</span>
                         </button>
                         <input type="file" id="excelFileInput" class="hidden" accept=".xlsx, .xls, .csv" onchange="handleExcelUpload(this)">
                         
@@ -469,7 +475,9 @@
 
         </main>
 
-        <script src="assets/js/config.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="assets/js/shared/crypto.js"></script>
+    <script src="assets/js/config.js"></script>
         <script src="assets/js/tracking.js"></script>
         <script src="assets/js/shared/session.js"></script>
         <script src="assets/js/shared/theme.js"></script>

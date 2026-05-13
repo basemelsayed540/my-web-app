@@ -1,220 +1,134 @@
-.account-hero {
-            position: relative;
-            overflow: hidden;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            background:
-                radial-gradient(circle at top right, rgba(99, 102, 241, 0.22), transparent 32%),
-                radial-gradient(circle at bottom left, rgba(14, 165, 233, 0.16), transparent 28%),
-                linear-gradient(145deg, rgba(255,255,255,0.96), rgba(248,250,252,0.9));
-            box-shadow: 0 24px 60px rgba(15, 23, 42, 0.10);
-        }
+/* Account Page Minimalist & Compact Optimization */
 
-        .dark .account-hero {
-            border-color: rgba(148, 163, 184, 0.14);
-            background:
-                radial-gradient(circle at top right, rgba(99, 102, 241, 0.28), transparent 32%),
-                radial-gradient(circle at bottom left, rgba(56, 189, 248, 0.16), transparent 28%),
-                linear-gradient(145deg, rgba(15,23,42,0.92), rgba(2,6,23,0.92));
-            box-shadow: 0 24px 70px rgba(2, 6, 23, 0.48);
-        }
+body:not(.dark) {
+    background-color: #f8fafc !important; /* Neutral clean background */
+}
 
-        .account-chip {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.5rem;
-            padding: 0.55rem 0.9rem;
-            border-radius: 999px;
-            background: rgba(255,255,255,0.72);
-            border: 1px solid rgba(99, 102, 241, 0.12);
-            color: #4338ca;
-            font-size: 0.72rem;
-            font-weight: 800;
-        }
+/* Header Improvement */
+header.hero-shell {
+    background-color: var(--bg-surface) !important;
+    border-bottom: 1px solid var(--border-base) !important;
+    padding: 0.75rem 1rem !important; /* Compact header */
+    box-shadow: none !important;
+}
 
-        .dark .account-chip {
-            background: rgba(15, 23, 42, 0.7);
-            border-color: rgba(99, 102, 241, 0.24);
-            color: #c7d2fe;
-        }
+body:not(.dark) .header-chip {
+    background-color: #f1f5f9 !important; /* Soft grey */
+    border: 1px solid #e2e8f0 !important;
+    color: #475569 !important; /* Slate grey icons */
+    height: 2.25rem !important; /* Smaller size */
+    width: 2.25rem !important;
+    border-radius: 0.75rem !important;
+    box-shadow: none !important;
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+}
 
-        .hero-icon {
-            width: 4rem;
-            height: 4rem;
-            border-radius: 1.5rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
-            box-shadow: 0 18px 40px rgba(79, 70, 229, 0.32);
-        }
+body:not(.dark) .header-chip:active {
+    background-color: #e2e8f0 !important;
+}
 
-        .quick-action {
-            width: 3rem;
-            height: 3rem;
-            border-radius: 1rem;
-            border: 1px solid rgba(148, 163, 184, 0.18);
-            background: rgba(255,255,255,0.7);
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            color: #475569;
-            transition: 0.25s ease;
-        }
+body:not(.dark) .header-chip i {
+    font-size: 1rem !important;
+}
 
-        .quick-action:hover {
-            transform: translateY(-2px);
-            color: #4f46e5;
-            box-shadow: 0 14px 28px rgba(99, 102, 241, 0.18);
-        }
+body:not(.dark) header h1 {
+    color: #020617 !important; /* Deep Slate 950 */
+    font-weight: 900 !important;
+    font-size: 1.1rem !important;
+}
 
-        .dark .quick-action {
-            background: rgba(15, 23, 42, 0.78);
-            border-color: rgba(148, 163, 184, 0.14);
-            color: #cbd5e1;
-        }
+/* Panels and Cards Font Improvements */
+body:not(.dark) .account-panel h2 {
+    color: #0f172a !important; /* Deep Slate 900 for section titles */
+    font-weight: 900 !important;
+}
 
-        .account-panel {
-            border: 1px solid rgba(203, 213, 225, 0.82);
-            background: linear-gradient(180deg, rgba(255,255,255,0.96), rgba(248,250,252,0.92));
-            box-shadow: 0 14px 34px rgba(15, 23, 42, 0.07);
-            backdrop-filter: blur(14px);
-        }
+body:not(.dark) .info-card p.text-slate-500 {
+    color: #475569 !important; /* Slate 600 for labels like "Name" */
+    font-weight: 800 !important;
+}
 
-        .dark .account-panel {
-            border-color: rgba(71, 85, 105, 0.9);
-            background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(12,18,30,0.94));
-            box-shadow: 0 20px 46px rgba(2, 6, 23, 0.5);
-        }
+body:not(.dark) .info-card p.text-slate-800 {
+    color: #020617 !important; /* Deep Slate 950 for actual values */
+    font-weight: 900 !important;
+}
 
-        .info-card {
-            border-radius: 1.35rem;
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(248,250,252,0.92));
-            padding: 1rem 1.1rem;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
+body:not(.dark) label {
+    color: #334155 !important; /* Slate 700 for form labels */
+    font-weight: 800 !important;
+    margin-bottom: 0.4rem !important;
+    display: block;
+}
 
-        .dark .info-card {
-            border-color: rgba(51, 65, 85, 0.94);
-            background: linear-gradient(180deg, rgba(30,41,59,0.96), rgba(15,23,42,0.92));
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
-        }
+body:not(.dark) .input-field {
+    color: #020617 !important; /* Black text for inputs */
+    font-weight: 700 !important;
+    border-color: #cbd5e1 !important; /* Defined border */
+}
 
-        .account-form-grid {
-            display: grid;
-            gap: 1rem;
-        }
+body:not(.dark) .input-field::placeholder {
+    color: #94a3b8 !important;
+}
 
-        .account-input {
-            border-radius: 1.1rem;
-            border: 1px solid rgba(203, 213, 225, 0.95);
-            background: rgba(255,255,255,0.94);
-            transition: 0.25s ease;
-        }
+/* Panels and Cards */
+.account-panel {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-base) !important;
+    border-radius: 1rem !important;
+    padding: 1.25rem !important; /* More compact */
+    margin-bottom: 0.75rem !important;
+    box-shadow: var(--shadow-sm) !important;
+}
 
-        .account-input:focus {
-            border-color: rgba(99, 102, 241, 0.35);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.10);
-        }
+.info-card {
+    background-color: var(--bg-muted) !important;
+    border: 1px solid var(--border-base) !important;
+    border-radius: 0.75rem !important;
+    padding: 0.75rem !important; /* Compact info */
+}
 
-        .dark .account-input {
-            background: rgba(15,23,42,0.94);
-            border-color: rgba(71, 85, 105, 0.85);
-        }
+/* Compact Buttons */
+.btn-primary.account-submit {
+    padding: 0.6rem 1rem !important; /* Smaller height */
+    font-size: 0.9rem !important;
+    border-radius: 0.75rem !important;
+    min-height: auto !important;
+}
 
-        .account-submit {
-            min-height: 3.5rem;
-            border-radius: 1.2rem;
-            background: linear-gradient(135deg, #4f46e5, #0ea5e9);
-            box-shadow: 0 18px 38px rgba(79, 70, 229, 0.24);
-        }
+/* Logout Button Improvement */
+body:not(.dark) .bg-rose-50 {
+    background-color: #fff1f2 !important;
+    color: #e11d48 !important;
+    border: 1px solid #fecdd3 !important;
+    padding: 0.75rem 1rem !important; /* Smaller height */
+    font-size: 0.9rem !important;
+    border-radius: 0.75rem !important;
+}
 
-        .bottom-dock {
-            border: 1px solid rgba(148, 163, 184, 0.16);
-            background: rgba(255,255,255,0.82);
-            backdrop-filter: blur(20px);
-            box-shadow: 0 24px 50px rgba(15, 23, 42, 0.14);
-        }
+/* General Layout Fixes */
+.account-form-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
 
-        .dark .bottom-dock {
-            border-color: rgba(148, 163, 184, 0.12);
-            background: rgba(15,23,42,0.84);
-            box-shadow: 0 24px 60px rgba(2, 6, 23, 0.48);
-        }
+main {
+    padding-top: 0.5rem !important;
+}
 
-        /* Header Styles */
-        .hero-shell {
-            position: relative;
-            overflow: visible;
-        }
+h2 {
+    font-size: 0.95rem !important;
+    margin-bottom: 1rem !important;
+}
 
-        .hero-shell::before {
-            content: "";
-            position: absolute;
-            top: -70px;
-            right: -30px;
-            width: 180px;
-            height: 180px;
-            background: radial-gradient(circle, rgba(15, 76, 129, 0.2), transparent 68%);
-            pointer-events: none;
-        }
+/* Responsive and Overflow */
+html, body {
+    overflow-x: hidden !important;
+    width: 100%;
+}
 
-        .hero-shell::after {
-            content: "";
-            position: absolute;
-            bottom: -80px;
-            left: -40px;
-            width: 200px;
-            height: 200px;
-            background: radial-gradient(circle, rgba(20, 184, 166, 0.14), transparent 70%);
-            pointer-events: none;
-        }
-
-        .header-chip {
-            background: rgba(255, 255, 255, 0.88);
-            border: 1px solid rgba(226, 232, 240, 0.95);
-            box-shadow: 0 10px 24px rgba(15, 23, 42, 0.05), inset 0 1px 0 rgba(255, 255, 255, 0.9);
-        }
-
-        .dark .header-chip {
-            background: rgba(15, 23, 42, 0.92);
-            border-color: rgba(51, 65, 85, 0.92);
-            box-shadow: 0 12px 26px rgba(2, 6, 23, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.04);
-        }
-
-        #quickActionsMenu {
-            background: rgba(255, 255, 255, 0.98);
-            border: 1px solid rgba(226, 232, 240, 0.96);
-            box-shadow: 0 20px 44px rgba(15, 23, 42, 0.12);
-            backdrop-filter: blur(20px);
-        }
-
-        .dark #quickActionsMenu {
-            background: rgba(15, 23, 42, 0.98);
-            border-color: rgba(51, 65, 85, 0.94);
-            box-shadow: 0 24px 52px rgba(2, 6, 23, 0.46);
-        }
-
-        #repNotificationsPanel > div {
-            background:
-                linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(248, 250, 252, 0.94));
-            border-color: rgba(226, 232, 240, 0.96);
-            box-shadow: 0 20px 42px rgba(15, 23, 42, 0.14);
-        }
-
-        .dark #repNotificationsPanel > div {
-            background:
-                linear-gradient(180deg, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0.92));
-            border-color: rgba(51, 65, 85, 0.94);
-            box-shadow: 0 24px 52px rgba(2, 6, 23, 0.56);
-        }
-
-        #repNotificationsContainer::-webkit-scrollbar {
-            width: 8px;
-        }
-
-        #repNotificationsContainer::-webkit-scrollbar-thumb {
-            background: rgba(15, 76, 129, 0.3);
-            border-radius: 999px;
-        }
+.hero-shell::before, .hero-shell::after {
+    display: none !important;
+}

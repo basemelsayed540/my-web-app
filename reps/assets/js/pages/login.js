@@ -6,6 +6,25 @@ const { createClient } = supabase;
         const rememberMeCheckbox = document.getElementById('rememberMe');
 
         window.addEventListener('DOMContentLoaded', () => {
+            // Check if user session already exists for auto-login
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    const data = JSON.parse(storedUser);
+                    if (data && data.id) {
+                        // Redirect based on role
+                        if (data.role === 'admin' || data.role === 'housing') window.location.href = '../manager/dashboard.html';
+                        else if (data.role === 'rep' || data.role === 'مندوب فرعي') window.location.href = 'rep-dashboard.html';
+                        else if (data.role === 'sender') window.location.href = '../sender-follower/sender-dashboard.html';
+                        else if (data.role === 'follower') window.location.href = '../sender-follower/follower-dashboard.html';
+                        else if (data.role === 'sub-rep') window.location.href = 'sub-rep-dashboard.html';
+                        return; // Stop further execution if auto-login is possible
+                    }
+                } catch (e) {
+                    console.error("Failed to parse stored user session", e);
+                }
+            }
+
             const savedPhone = localStorage.getItem('savedPhone');
             const savedPassword = localStorage.getItem('savedPassword');
             if (savedPhone && savedPassword) {
@@ -105,11 +124,11 @@ const { createClient } = supabase;
             const password = document.getElementById('signupPassword').value;
             const passwordConfirm = document.getElementById('signupPasswordConfirm').value;
 
-            if (!username || !phone || !password) {
+            if (!username || !phone || !email || !password) {
                 Swal.fire({
                     icon: 'warning',
                     title: 'بيانات ناقصة',
-                    text: 'يرجى استكمال الاسم ورقم الموبايل وكلمة المرور.'
+                    text: 'يرجى استكمال الاسم ورقم الموبايل والبريد الإلكتروني وكلمة المرور.'
                 });
                 return;
             }

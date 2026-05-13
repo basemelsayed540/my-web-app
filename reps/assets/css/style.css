@@ -42,11 +42,10 @@ body.dark {
 }
 
 body {
-    background-color: var(--bg-main);
-    color: var(--text-primary);
+    background-color: var(--bg-main) !important;
+    color: var(--text-primary) !important;
     font-family: 'Cairo', sans-serif;
     line-height: 1.6;
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 .btn-primary {
@@ -72,7 +71,7 @@ body {
     width: 100%;
     padding: 0.875rem 1rem;
     background-color: var(--bg-surface);
-    color: var(--text-primary);
+    color: var(--text-primary) !important;
     border: 1px solid var(--border-base);
     border-radius: 0.75rem;
     outline: none;
@@ -82,4 +81,11 @@ body {
 .input-field:focus {
     border-color: var(--brand-primary);
     box-shadow: 0 0 0 4px var(--brand-soft);
+}
+
+.customer-name-color {
+    color: #4f46e5 !important; /* Indigo 600 */
+}
+body.dark .customer-name-color {
+    color: #818cf8 !important; /* Indigo 400 */
 }

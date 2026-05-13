@@ -98,6 +98,19 @@ function renderShipments(append = false) {
                 const hideUpdateActions = shouldHideShipmentUpdateActions(s, selectedStatuses);
                 const statusLabel = getShipmentStatusLabel(s);
                 const statusThemeClass = getShipmentStatusThemeClass(s);
+
+                // وظيفية لإخفاء البيانات الحساسة جزئياً
+                const maskSensitiveData = (text, type = 'phone') => {
+                    if (!text || text === '---') return text;
+                    if (type === 'phone') {
+                        return text.length > 5 ? text.substring(0, 4) + '****' + text.substring(text.length - 3) : text;
+                    }
+                    if (type === 'address') {
+                        return text.length > 10 ? text.substring(0, 10) + '...' : text;
+                    }
+                    return text;
+                };
+
                 return `
                 <div data-shipment-card data-id="${s.id}" data-swipe-enabled="${!hideUpdateActions && !isShipmentUpdateLocked(s) ? 'true' : 'false'}" class="shipment-swipe-card shipment-surface ${statusThemeClass} p-3.5 sm:p-4 rounded-[1.7rem] relative overflow-hidden group transition-all duration-300 mb-2.5 sm:mb-3 border border-slate-200/70 dark:border-slate-800/80">
                     <div class="shipment-status-band ${getStatusColor(s)}"></div>
@@ -135,7 +148,7 @@ function renderShipments(append = false) {
                                 </div>
                             </div>
                             <span class="inline-flex items-center mb-1.5 rounded-full bg-cyan-50 dark:bg-cyan-950/30 px-2 py-0.5 text-[9px] sm:text-[10px] font-black text-sky-800 dark:text-cyan-300 border border-cyan-100/70 dark:border-cyan-800/50">#${s.order_id || s['كود الشحنة'] || s.id || '---'}</span>
-                            <h3 class="text-[15px] sm:text-[17px] font-black text-slate-900 dark:text-white leading-tight">${s.اسم_العميل || 'غير مسجل'}</h3>
+                            <h3 class="text-[15px] sm:text-[17px] font-black customer-name-color leading-tight">${s.اسم_العميل || 'غير مسجل'}</h3>
                             ${renderShipmentInsightBadges(s, clientFrequencyMap)}
                         </div>
                         <div class="flex flex-col items-end gap-1.5">
@@ -161,7 +174,7 @@ function renderShipments(append = false) {
                     <div class="space-y-2 mb-3.5 sm:space-y-2.5 sm:mb-4 relative z-10">
                         <div class="flex items-start gap-2.5 p-2 sm:p-2.5 rounded-2xl -mx-1 sm:-mx-2 relative z-10">
                             <i class="fas fa-map-marked-alt text-sm sm:text-base mt-0.5 text-slate-400 dark:text-slate-500"></i>
-                            <span class="text-[12px] sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug">${s.العنوان || 'بدون عنوان'}</span>
+                            <span class="text-[12px] sm:text-[13px] font-bold text-slate-800 dark:text-slate-200 leading-snug" data-privacy-mask="address" data-value="${s.العنوان || 'بدون عنوان'}">${maskSensitiveData(s.العنوان || 'بدون عنوان', 'address')}</span>
                         </div>
                         <div class="flex items-center gap-2 text-slate-500 dark:text-slate-300 px-1">
                             <i class="fas fa-cube text-xs"></i>
@@ -175,7 +188,7 @@ function renderShipments(append = false) {
                                         <i class="fas fa-wallet text-[11px] text-emerald-600 dark:text-emerald-300"></i>
                                     </div>
                                     <span class="text-[9px] font-bold text-emerald-700 dark:text-emerald-300">المبلغ</span>
-                                    <span class="whitespace-nowrap text-[11px] sm:text-[13px] font-black text-slate-900 dark:text-white leading-tight">${s.السعر_بعد_التعديل || s.المبلغ || 0} <small class="text-[8px] font-bold opacity-60 dark:opacity-80">ج.م</small></span>
+                                    <span class="whitespace-nowrap text-[11px] sm:text-[13px] font-black text-slate-900 dark:text-white leading-tight" data-privacy-mask="amount" data-value="${s.السعر_بعد_التعديل || s.المبلغ || 0}">${maskSensitiveData(String(s.السعر_بعد_التعديل || s.المبلغ || 0), 'amount')} <small class="text-[8px] font-bold opacity-60 dark:opacity-80">ج.م</small></span>
                                 </div>
                                 <div class="flex shrink-0 justify-start">
                                     ${renderShipmentContactActions(s)}

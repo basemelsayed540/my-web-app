@@ -2,6 +2,26 @@ function getShipmentById(id) {
             return allShipments.find(s => String(s.id) === String(id));
         }
 
+        function triggerCardSuccessEffect(id) {
+            const card = document.querySelector(`[data-shipment-card][data-id="${id}"]`);
+            if (!card) return;
+
+            // إضافة تأثير التوهج
+            card.classList.add('shipment-card-success-glow');
+
+            // إضافة أيقونة علامة الصح المنبثقة
+            const overlay = document.createElement('div');
+            overlay.className = 'success-checkmark-overlay';
+            overlay.innerHTML = '<i class="fas fa-check-circle success-checkmark-icon"></i>';
+            card.appendChild(overlay);
+
+            // تنظيف التأثير بعد الانتهاء
+            setTimeout(() => {
+                card.classList.remove('shipment-card-success-glow');
+                overlay.remove();
+            }, 1200);
+        }
+
         function getShipmentPhone(shipment, key) {
             return (shipment[key] || '').toString().trim();
         }
@@ -41,12 +61,16 @@ function getShipmentById(id) {
                 return /^\+?\d+$/.test(normalized) && normalized.length >= 7;
             })();
 
+            const maskPhone = (val) => {
+                if (!val || val === '---') return val;
+                return val.length > 5 ? val.substring(0, 4) + '****' + val.substring(val.length - 3) : '********';
+            };
+
             const renderField = (key, label) => {
                 const val = getShipmentPhone(shipment, key);
                 if (!val) return '';
 
                 const cleaned = normalizeWhatsAppPhone(val);
-                const callNumber = normalizeCallPhone(val);
                 const isNumeric = /^\+?\d+$/.test(cleaned) && cleaned.length >= 7;
 
                 if (!isNumeric) {
@@ -54,13 +78,14 @@ function getShipmentById(id) {
                     return `
                         <div class="flex items-center gap-1.5 px-2 py-1.5 bg-slate-100 dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700">
                             <span class="inline-flex items-center rounded-full bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 text-[8px] font-black text-amber-700 dark:text-amber-300">ملاحظة</span>
-                            <span class="text-[9px] font-black text-slate-600 dark:text-slate-200 text-center leading-tight">${val}</span>
+                            <span class="text-[9px] font-black text-slate-600 dark:text-slate-200 text-center leading-tight">${maskPhone(val)}</span>
                         </div>
                     `;
                 }
 
                 return `
                     <div class="flex items-center gap-1.5 rounded-2xl border border-slate-100 dark:border-slate-700 bg-white/70 dark:bg-slate-900/40 px-1.5 py-1 shadow-sm">
+                        <span class="text-[10px] font-black text-slate-700 dark:text-slate-300 px-1">${maskPhone(val)}</span>
                         <button data-action="send-whatsapp" data-id="${shipment.id}" data-phone-key="${key}" class="h-9 w-9 sm:h-10 sm:w-10 rounded-xl bg-[#25D366] text-white shadow-sm active:scale-95 transition-all flex items-center justify-center" title="واتساب ${label}">
                             <span class="flex items-center justify-center w-7 h-7 rounded-full bg-white/18 border border-white/15">
                                 <i class="fab fa-whatsapp text-[15px] sm:text-[16px]"></i>
@@ -233,15 +258,6 @@ function getShipmentById(id) {
                 return;
             }
 
-            Swal.fire({
-                icon: 'success',
-                title: 'تم التحديث',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000
-            });
-
             // Local update for smoothness
             const index = allShipments.findIndex(s => s.id == id);
             if (index !== -1) {
@@ -259,6 +275,9 @@ function getShipmentById(id) {
             }
             bumpShipmentsDataVersion();
             renderShipments();
+
+            // تشغيل تأثير النجاح البصري بدلاً من الـ Popup
+            triggerCardSuccessEffect(id);
         }
 
         async function handleRejectAction(id) {
@@ -366,16 +385,10 @@ function getShipmentById(id) {
                 lockShipmentForFurtherUpdates(id);
             }
             bumpShipmentsDataVersion();
-
-            Swal.fire({
-                icon: 'success',
-                title: 'تم التعديل',
-                toast: true,
-                position: 'top-end',
-                showConfirmButton: false,
-                timer: 2000
-            });
             renderShipments();
+
+            // تشغيل تأثير النجاح البصري بدلاً من الـ Popup
+            triggerCardSuccessEffect(id);
         }
 
         function sendWhatsApp(id, phoneKey = 'الهاتف') {
@@ -433,6 +446,66 @@ function getShipmentById(id) {
                 shipmentId: id,
                 method
             });
+        }
+
+        // Reports Logic
+        function openReportsModal() {
+            const modal = el('reportsModal');
+            const select = el('reportDateSelect');
+            if (!modal || !select) return;
+
+            // Get available dates from existing logic or shipments
+            const dates = [...new Set(allShipments.map(s => getShipmentDailyFilterValue(s)).filter(Boolean))].sort().reverse();
+
+            select.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+            closeQuickActionsMenu();
+        }
+
+        async function sendDailyWhatsAppReport() {
+            const selectedDate = el('reportDateSelect').value;
+            if (!selectedDate) {
+                Swal.fire('تنبيه', 'يرجى اختيار اليومية أولاً', 'warning');
+                return;
+            }
+
+            const problemStatuses = ['رفض', 'مؤجل', 'تعديل سعر', 'شحن', 'الغاء'];
+            const relevantShipments = allShipments.filter(s => {
+                const dateMatch = getShipmentDailyFilterValue(s) === selectedDate;
+                const statusLabel = getShipmentStatusLabel(s);
+                return dateMatch && problemStatuses.includes(statusLabel);
+            });
+
+            if (relevantShipments.length === 0) {
+                Swal.fire('تنبيه', 'لا توجد شحنات (مشاكل) في هذا التاريخ لإصدار تقرير بها', 'info');
+                return;
+            }
+
+            let reportText = `📦 *تقرير شحنات المندوب: ${user?.full_name || user?.username || 'المندوب'}*\n`;
+            reportText += `📅 *يومية: ${selectedDate}*\n`;
+            reportText += `---------------------------\n\n`;
+
+            relevantShipments.forEach((s, index) => {
+                const status = getShipmentStatusLabel(s);
+                const reason = s['سبب الحالة'] || s.سبب_الحالة || 'بدون سبب مسجل';
+                const amount = s.السعر_بعد_التعديل || s.المبلغ || 0;
+
+                reportText += `${index + 1}️⃣ *العميل: ${s.اسم_العميل || '---'}*\n`;
+                reportText += `🆔 رقم: ${s.order_id || s['كود الشحنة'] || s.id}\n`;
+                reportText += `🚩 الحالة: *${status}*\n`;
+                if (status === 'تعديل سعر' || status === 'شحن') {
+                    reportText += `💰 المبلغ الجديد: ${amount} ج.م\n`;
+                }
+                reportText += `📝 الملاحظات: ${reason}\n\n`;
+            });
+
+            reportText += `---------------------------\n`;
+            reportText += `📊 *إجمالي الحالات في التقرير: ${relevantShipments.length}*`;
+
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(reportText)}`;
+            window.open(whatsappUrl, '_blank');
+            el('reportsModal').classList.add('hidden');
         }
 
         

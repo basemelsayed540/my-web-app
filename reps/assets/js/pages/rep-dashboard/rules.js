@@ -54,6 +54,9 @@ function populateDropdowns() {
             fillStatusDropdown();
             fillZoneDropdown(zones);
             fillSenderDropdown(senders);
+
+            // Update custom chips UI whenever standard dropdowns are refreshed
+            if (typeof updateFilterChipsUI === 'function') updateFilterChipsUI();
         }
 
         function fillStatusDropdown() {
@@ -73,7 +76,7 @@ function populateDropdowns() {
             
             const counts = countShipmentsByStatus(scopedShipments);
 
-            let optionsHtml = `<option value="">اختر الحالة...</option><option value="${FAVORITES_FILTER_VALUE}">عرض المفضلة (${favoriteShipmentIds.size})</option>`;
+            let optionsHtml = `<option value="${FAVORITES_FILTER_VALUE}">عرض المفضلة (${favoriteShipmentIds.size})</option>`;
             STATUS_OPTIONS.forEach(opt => {
                 const count = counts[opt] || 0;
                 optionsHtml += `<option value="${opt}" class="text-slate-800 bg-white">${opt} (${count})</option>`;
@@ -111,7 +114,7 @@ function populateDropdowns() {
                 if (d) dateCounts[d] = (dateCounts[d] || 0) + 1;
             });
 
-            let optionsHtml = '<option value="">اليومية</option>';
+            let optionsHtml = '';
             if (!items || items.length === 0) {
                 optionsHtml += '<option value="" disabled>لا يوجد يومية متاحة</option>';
             } else {

@@ -3,7 +3,12 @@ const { createClient } = supabase;
         const REP_NOTIFICATIONS_KEY = 'rep_local_notifications';
 
         let user = RepsSession.requireUser(['rep', 'مندوب فرعي'], 'login.html');
-        let repNotifications = JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
+        let repNotifications = (() => {
+            if (typeof AppCrypto !== 'undefined') {
+                return AppCrypto.getItem(REP_NOTIFICATIONS_KEY) || [];
+            }
+            return JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
+        })();
         let isNotificationsPanelOpen = false;
         let isQuickActionsMenuOpen = false;
 
@@ -64,13 +69,21 @@ const { createClient } = supabase;
 
         function markAllRepNotificationsAsRead() {
             repNotifications = repNotifications.map(item => ({ ...item, read: true }));
-            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            if (typeof AppCrypto !== 'undefined') {
+                AppCrypto.setItem(REP_NOTIFICATIONS_KEY, repNotifications);
+            } else {
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            }
             updateRepNotifUI();
         }
 
         function clearRepNotifications() {
             repNotifications = [];
-            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            if (typeof AppCrypto !== 'undefined') {
+                AppCrypto.setItem(REP_NOTIFICATIONS_KEY, repNotifications);
+            } else {
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            }
             updateRepNotifUI();
         }
 

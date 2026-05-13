@@ -18,6 +18,16 @@ function shouldStoreRepNotification(type) {
         function addRepNotification(type, shipment) {
             if (!shouldStoreRepNotification(type) || !shipment || isDuplicateRepNotification(type, shipment)) return;
 
+            // تصفية الإشعارات: منع ظهور إشعار إذا كان المستخدم الحالي هو من قام بالتحديث
+            // الهدف هو إظهار إشعارات الإدارة فقط
+            const currentUser = typeof RepsSession !== 'undefined' ? RepsSession.getStoredUser() : null;
+            const currentUserName = (currentUser?.full_name || currentUser?.username || '').trim();
+            const actionUser = String(shipment['اسم الموظف'] || shipment['اسم الموظ'] || shipment['اسم_الموظف'] || '').trim();
+
+            if (currentUserName && actionUser === currentUserName) {
+                return; // لا تضف إشعاراً إذا كان المندوب هو من قام بالعملية
+            }
+
             const notif = {
                 id: Date.now() + Math.random(),
                 type: type, // 'added', 'removed', 'deleted', 'status_changed'
@@ -33,7 +43,12 @@ function shouldStoreRepNotification(type) {
             };
             repNotifications.unshift(notif);
             if (repNotifications.length > 30) repNotifications.pop();
-            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+
+            if (typeof AppCrypto !== 'undefined') {
+                AppCrypto.setItem(REP_NOTIFICATIONS_KEY, repNotifications);
+            } else {
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            }
             updateRepNotifUI();
         }
 
@@ -50,7 +65,28 @@ function shouldStoreRepNotification(type) {
         }
 
         function updateRepNotifUI() {
+            const badge = document.getElementById('repUnreadBadge');
             const unreadCount = repNotifications.filter(n => !n.read).length;
+
+            if (badge) {
+                if (unreadCount > 0) {
+                    badge.innerText = unreadCount > 99 ? '99+' : unreadCount;
+                    badge.classList.remove('hidden');
+                    badge.classList.add('flex');
+                } else {
+                    badge.classList.add('hidden');
+                    badge.classList.remove('flex');
+                }
+            }
+
+            // Sync with Native Icon Badge
+            try {
+                if (typeof Capacitor !== 'undefined' && Capacitor.Plugins.LocalNotifications) {
+                    // For Android, usually dismissal of notifications clears the badge,
+                    // but we can try to set it explicitly if needed by re-scheduling or using a dedicated badge plugin if available.
+                }
+            } catch (e) {}
+
             if (isNotificationsPanelOpen) renderRepNotifications();
         }
 
@@ -63,7 +99,11 @@ function shouldStoreRepNotification(type) {
 
         function markAllRepNotificationsAsRead() {
             repNotifications = repNotifications.map(item => ({ ...item, read: true }));
-            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            if (typeof AppCrypto !== 'undefined') {
+                AppCrypto.setItem(REP_NOTIFICATIONS_KEY, repNotifications);
+            } else {
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            }
             renderRepNotifications();
             updateRepNotifUI();
         }
@@ -97,7 +137,11 @@ function shouldStoreRepNotification(type) {
 
         function clearRepNotifications() {
             repNotifications = [];
-            localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            if (typeof AppCrypto !== 'undefined') {
+                AppCrypto.setItem(REP_NOTIFICATIONS_KEY, repNotifications);
+            } else {
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            }
             renderRepNotifications();
             updateRepNotifUI();
         }

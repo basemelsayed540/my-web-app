@@ -1,5 +1,16 @@
 {
   "appId": "com.reps.app",
-  "appName": "Reps App",
-  "webDir": "www"
+  "appName": "لايت شبينج",
+  "webDir": "www",
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 500,
+      "launchAutoHide": true,
+      "backgroundColor": "#ffffff",
+      "androidScaleType": "CENTER_CROP",
+      "showSpinner": false,
+      "splashFullScreen": true,
+      "splashImmersive": true
+    }
+  }
 }

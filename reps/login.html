@@ -2,6 +2,30 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <script>
+        // CRITICAL PERFORMANCE: Immediate redirect check before anything else loads
+        (function() {
+            try {
+                const storedUser = localStorage.getItem('user');
+                if (storedUser) {
+                    const data = JSON.parse(storedUser);
+                    if (data && data.id) {
+                        let path = '';
+                        if (data.role === 'admin' || data.role === 'housing') path = '../manager/dashboard.html';
+                        else if (data.role === 'rep' || data.role === 'مندوب فرعي') path = 'rep-dashboard.html';
+                        else if (data.role === 'sender') path = '../sender-follower/sender-dashboard.html';
+                        else if (data.role === 'follower') path = '../sender-follower/follower-dashboard.html';
+                        else if (data.role === 'sub-rep') path = 'sub-rep-dashboard.html';
+
+                        if (path) {
+                            window.location.replace(path);
+                            return;
+                        }
+                    }
+                }
+            } catch (e) {}
+        })();
+    </script>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
@@ -14,6 +38,30 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/pages/login.css">
+    <script src="assets/js/error-logger.js"></script>
+    <script>
+        // Immediate redirect if session exists to skip login screen flicker
+        (function() {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    const data = JSON.parse(storedUser);
+                    if (data && data.id) {
+                        let path = '';
+                        if (data.role === 'admin' || data.role === 'housing') path = '../manager/dashboard.html';
+                        else if (data.role === 'rep' || data.role === 'مندوب فرعي') path = 'rep-dashboard.html';
+                        else if (data.role === 'sender') path = '../sender-follower/sender-dashboard.html';
+                        else if (data.role === 'follower') path = '../sender-follower/follower-dashboard.html';
+                        else if (data.role === 'sub-rep') path = 'sub-rep-dashboard.html';
+
+                        if (path) {
+                            window.location.replace(path);
+                        }
+                    }
+                } catch (e) {}
+            }
+        })();
+    </script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
 
@@ -68,7 +116,7 @@
             </div>
         </div>
 
-        <p class="text-center mt-8 text-slate-400 font-bold text-sm">© 2026 نظام الشحن المتطور - جميع الحقوق محفوظة</p>
+        <p class="text-center mt-8 text-slate-400 font-bold text-sm">جميع الحقوق محفوظة لمطوري التطبيق basem 01092358849</p>
     </div>
 
     <div id="repSignupModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-4">
@@ -79,16 +127,9 @@
 
             <div class="mb-6">
                 <h2 class="text-2xl font-extrabold text-slate-800 dark:text-white mb-2">إنشاء حساب مندوب</h2>
-                <p class="text-slate-500 dark:text-slate-400 font-semibold">املأ البيانات التالية لإنشاء حساب مندوب جديد.</p>
             </div>
 
             <form id="repSignupForm" class="space-y-4">
-                <div class="rounded-2xl border border-indigo-100 bg-indigo-50 px-4 py-3 text-sm font-bold text-indigo-700 dark:border-indigo-900/50 dark:bg-indigo-950/40 dark:text-indigo-300">
-                    سيتم إنشاء الحساب كـ <span class="font-black">مندوب</span> فقط من هذه الصفحة.
-                </div>
-                <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm font-semibold text-slate-600 dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300">
-                    حسابات <span class="font-black">المدير</span> و<span class="font-black">المتابعة</span> و<span class="font-black">الراسل</span> يتم إنشاؤها من قسم الإدارة فقط.
-                </div>
                 <div>
                     <label for="signupName" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">اسم المندوب</label>
                     <input type="text" id="signupName" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="اكتب الاسم">
@@ -98,8 +139,8 @@
                     <input type="text" id="signupPhone" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="01xxxxxxxxx">
                 </div>
                 <div>
-                    <label for="signupEmail" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">البريد الإلكتروني (اختياري)</label>
-                    <input type="email" id="signupEmail" class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="name@example.com">
+                    <label for="signupEmail" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">البريد الإلكتروني</label>
+                    <input type="email" id="signupEmail" required class="input-field soft-auth-input text-slate-900 dark:text-white w-full py-4 px-4 text-base" placeholder="name@example.com">
                 </div>
                 <div>
                     <label for="signupPassword" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">كلمة المرور</label>

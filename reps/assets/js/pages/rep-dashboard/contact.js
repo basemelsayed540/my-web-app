@@ -171,12 +171,7 @@ async function recordShipmentContactAttempt(shipmentId, options = {}) {
                 user = latestUser;
                 const repName = document.getElementById('repName');
                 if (repName) repName.innerText = latestUser.full_name || latestUser.username || latestUser.phone;
-                
-                const repRoleLabel = document.getElementById('repRoleLabel');
-                if (repRoleLabel) {
-                    repRoleLabel.innerText = latestUser.role === 'مندوب فرعي' ? 'مندوب فرعي' : 'مندوب توصيل محترف';
-                }
-                
+
                 if(!trackingSystem) {
                     trackingSystem = new RepTrackingSystem(supabaseClient, latestUser);
                     updateTrackingUI();
@@ -186,10 +181,6 @@ async function recordShipmentContactAttempt(shipmentId, options = {}) {
         });
 
         document.getElementById('repName').innerText = user.full_name || user.username || user.phone;
-        const initialRoleLabel = document.getElementById('repRoleLabel');
-        if (initialRoleLabel) {
-            initialRoleLabel.innerText = user.role === 'مندوب فرعي' ? 'مندوب فرعي' : 'مندوب توصيل محترف';
-        }
 
         let allShipments = [];
         let selectedShipmentIdsForBulk = new Set();

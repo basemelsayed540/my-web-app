@@ -279,15 +279,19 @@ function mergeClientUserData(baseUser, freshUser) {
 }
 
 function saveUserSession(user, sessionToken = null) {
-    if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
-    }
-    if (sessionToken) {
-        localStorage.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
+    if (typeof AppCrypto !== 'undefined') {
+        if (user) AppCrypto.setItem('user', user);
+        if (sessionToken) AppCrypto.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
+    } else {
+        if (user) localStorage.setItem('user', JSON.stringify(user));
+        if (sessionToken) localStorage.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
     }
 }
 
 function getStoredSessionToken() {
+    if (typeof AppCrypto !== 'undefined') {
+        return AppCrypto.getItem(CONFIG.SESSION_TOKEN_STORAGE_KEY) || '';
+    }
     return localStorage.getItem(CONFIG.SESSION_TOKEN_STORAGE_KEY) || '';
 }
 
@@ -307,7 +311,13 @@ async function enforceStoredUserSession(supabaseClient, options = {}) {
         silent = false
     } = options;
 
-    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    let storedUser = null;
+    if (typeof AppCrypto !== 'undefined') {
+        storedUser = AppCrypto.getItem('user');
+    } else {
+        storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    }
+
     if (!storedUser) {
         clearStoredUserSession(redirectTo);
         return null;

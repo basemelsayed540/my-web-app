@@ -27,6 +27,8 @@ el('searchInput').addEventListener('input', () => {
             closeQuickActionsMenu();
             logout();
         });
+        el('menuReportsBtn')?.addEventListener('click', openReportsModal);
+        el('generateReportBtn')?.addEventListener('click', sendDailyWhatsAppReport);
         el('bulkUpdateBtn')?.addEventListener('click', () => applyBulkUpdate());
         el('copyShipmentMenuBtn')?.addEventListener('click', copyShipmentDataFromMenu);
         el('editPriceMenuBtn')?.addEventListener('click', editPriceFromMenu);
@@ -55,6 +57,22 @@ el('searchInput').addEventListener('input', () => {
         el('filterStatus')?.addEventListener('change', (event) => toggleStatusSelection(event.target.value));
         el('filterZone')?.addEventListener('change', (event) => toggleZoneSelection(event.target.value));
         el('filterSender')?.addEventListener('change', (event) => toggleSenderSelection(event.target.value));
+
+        // Filter Chips Events
+        document.addEventListener('click', (event) => {
+            const tabBtn = event.target.closest('[data-filter-tab]');
+            if (tabBtn) {
+                switchFilterTab(tabBtn.dataset.filterTab);
+                return;
+            }
+
+            const chip = event.target.closest('.filter-chip');
+            if (chip) {
+                handleChipClick(chip);
+                return;
+            }
+        });
+
         el('bulkStatusSelect')?.addEventListener('change', () => updateBulkActionBar());
         el('shipmentsList')?.addEventListener('change', (event) => {
             const shipmentCheckbox = event.target.closest('[data-action="toggle-shipment-selection"]');
