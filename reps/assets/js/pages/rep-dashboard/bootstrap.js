@@ -47,6 +47,7 @@ const { createClient } = supabase;
         let lastNonFavoritesStatusSelections = new Set();
         let shipmentSwipeState = null;
         let suppressShipmentClickUntil = 0;
+        let isQuickActionsMenuOpen = false;
         let isNotificationsPanelOpen = false;
         let shipmentsDataVersion = 0;
         let searchRenderTimer = null;

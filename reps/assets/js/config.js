@@ -85,10 +85,26 @@ function assignShipmentAliases(record, canonicalKey, aliases) {
     });
 }
 
+function decodeShipmentFieldValue(value) {
+    if (typeof value !== 'string' || !value.startsWith('__enc__:')) {
+        return value;
+    }
+
+    if (typeof AppCrypto === 'undefined' || typeof AppCrypto.decrypt !== 'function') {
+        return value;
+    }
+
+    const decodedValue = AppCrypto.decrypt(value);
+    return decodedValue == null ? value : decodedValue;
+}
+
 function normalizeShipmentRecordHeaders(record) {
     if (!record || typeof record !== 'object') return record;
 
     const normalized = { ...record };
+    Object.keys(normalized).forEach((key) => {
+        normalized[key] = decodeShipmentFieldValue(normalized[key]);
+    });
 
     assignShipmentAliases(normalized, 'm', ['م']);
     assignShipmentAliases(normalized, 'اسم العميل', ['اسم_العميل']);
@@ -150,7 +166,7 @@ function buildShipmentServerPayload(payload) {
 
     CONFIG.SHIPMENT_SERVER_FIELDS.forEach((field) => {
         if (Object.prototype.hasOwnProperty.call(normalized, field)) {
-            serverPayload[field] = normalized[field];
+            serverPayload[field] = decodeShipmentFieldValue(normalized[field]);
         }
     });
 

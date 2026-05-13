@@ -451,13 +451,27 @@ function getShipmentById(id) {
         // Reports Logic
         function openReportsModal() {
             const modal = el('reportsModal');
-            const select = el('reportDateSelect');
-            if (!modal || !select) return;
+            const dateSelect = el('reportDateSelect');
+            const statusSelect = el('reportStatusSelect');
+            const senderSelect = el('reportSenderSelect');
+            if (!modal || !dateSelect || !statusSelect || !senderSelect) return;
 
-            // Get available dates from existing logic or shipments
             const dates = [...new Set(allShipments.map(s => getShipmentDailyFilterValue(s)).filter(Boolean))].sort().reverse();
+            const reportEligibleShipments = allShipments.filter((shipment) => {
+                const statusLabel = getShipmentStatusLabel(shipment);
+                return statusLabel === 'رفض' || statusLabel === 'مؤجل';
+            });
+            const statuses = [...new Set(reportEligibleShipments.map(s => getShipmentStatusLabel(s)).filter(Boolean))];
+            const orderedStatuses = ['رفض', 'مؤجل'].filter(status => statuses.includes(status));
+            const senders = [...new Set(reportEligibleShipments.map(s => String(s.الراسل || '').trim()).filter(Boolean))].sort();
 
-            select.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+            dateSelect.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+            statusSelect.innerHTML = ['<option value="">كل الحالات المتاحة</option>']
+                .concat(orderedStatuses.map(status => `<option value="${status}">${status}</option>`))
+                .join('');
+            senderSelect.innerHTML = ['<option value="">كل الراسلين</option>']
+                .concat(senders.map(sender => `<option value="${sender}">${sender}</option>`))
+                .join('');
             modal.classList.remove('hidden');
             modal.classList.add('flex');
             closeQuickActionsMenu();
@@ -465,6 +479,8 @@ function getShipmentById(id) {
 
         async function sendDailyWhatsAppReport() {
             const selectedDate = el('reportDateSelect').value;
+            const selectedStatus = String(el('reportStatusSelect')?.value || '').trim();
+            const selectedSender = String(el('reportSenderSelect')?.value || '').trim();
             if (!selectedDate) {
                 Swal.fire('تنبيه', 'يرجى اختيار اليومية أولاً', 'warning');
                 return;
@@ -472,15 +488,17 @@ function getShipmentById(id) {
 
             const targetStatuses = ['رفض', 'مؤجل'];
 
-            // تصفية الشحنات: الحالات (رفض ومؤجل) فقط لليومية المختارة
             const relevantShipments = allShipments
                 .filter(s => {
                     const dateValue = typeof getShipmentDailyFilterValue === 'function' ? getShipmentDailyFilterValue(s) : '';
                     const statusLabel = getShipmentStatusLabel(s);
-                    return dateValue === selectedDate && targetStatuses.includes(statusLabel);
+                    const senderValue = String(s.الراسل || '').trim();
+                    return dateValue === selectedDate &&
+                        targetStatuses.includes(statusLabel) &&
+                        (!selectedStatus || statusLabel === selectedStatus) &&
+                        (!selectedSender || senderValue === selectedSender);
                 })
                 .sort((a, b) => {
-                    // الترتيب: الرفض أولاً ثم المؤجل
                     const labelA = getShipmentStatusLabel(a);
                     const labelB = getShipmentStatusLabel(b);
                     if (labelA === labelB) return 0;
@@ -488,12 +506,20 @@ function getShipmentById(id) {
                 });
 
             if (relevantShipments.length === 0) {
-                Swal.fire('تنبيه', 'لا توجد شحنات (رفض أو مؤجل) في هذا التاريخ لإصدار تقرير بها', 'info');
+                Swal.fire('تنبيه', 'لا توجد شحنات مطابقة للفلاتر المختارة لإصدار تقرير بها', 'info');
                 return;
             }
 
-            let reportText = `📦 *تقرير (الرفض والتأجيل) للمندوب: ${user?.full_name || user?.username || 'المندوب'}*\n`;
+            let reportTitle = 'تقرير (الرفض والتأجيل)';
+            if (selectedStatus) {
+                reportTitle = `تقرير (${selectedStatus})`;
+            }
+
+            let reportText = `📦 *${reportTitle} للمندوب: ${user?.full_name || user?.username || 'المندوب'}*\n`;
             reportText += `📅 *يومية: ${selectedDate}*\n`;
+            if (selectedSender) {
+                reportText += `🏢 *الراسل: ${selectedSender}*\n`;
+            }
             reportText += `---------------------------\n\n`;
 
             relevantShipments.forEach((s, index) => {

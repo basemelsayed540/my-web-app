@@ -283,7 +283,7 @@
         <div class="w-full max-w-sm rounded-[2rem] border border-white/10 bg-white/95 dark:bg-slate-900/95 p-6 shadow-2xl">
             <h2 class="text-lg font-black text-slate-900 dark:text-white mb-4 text-center">إصدار تقرير اليومية</h2>
             <p class="text-xs font-bold text-slate-500 dark:text-slate-400 mb-5 text-center leading-relaxed">
-                سيتم تجميع كافة الشحنات (مؤجل، رفض، تعديل سعر، شحن) لليومية المختارة في رسالة واحدة.
+                سيتم تجميع شحنات الرفض والتأجيل لليومية المختارة، مع إمكانية التصفية حسب الحالة والراسل.
             </p>
 
             <div class="space-y-4">
@@ -291,6 +291,22 @@
                     <label class="block text-[11px] font-black text-slate-400 mb-1.5 mr-1">اختر التاريخ</label>
                     <select id="reportDateSelect" class="w-full soft-control px-4 py-3.5 rounded-2xl text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
                         <!-- Dates will be populated via JS -->
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-[calc(50%+10px)] -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                </div>
+
+                <div class="relative">
+                    <label class="block text-[11px] font-black text-slate-400 mb-1.5 mr-1">فلتر الحالة</label>
+                    <select id="reportStatusSelect" class="w-full soft-control px-4 py-3.5 rounded-2xl text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+                        <option value="">كل الحالات المتاحة</option>
+                    </select>
+                    <i class="fas fa-chevron-down absolute left-4 top-[calc(50%+10px)] -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
+                </div>
+
+                <div class="relative">
+                    <label class="block text-[11px] font-black text-slate-400 mb-1.5 mr-1">فلتر الراسل</label>
+                    <select id="reportSenderSelect" class="w-full soft-control px-4 py-3.5 rounded-2xl text-sm font-black text-slate-700 dark:text-slate-200 outline-none appearance-none cursor-pointer">
+                        <option value="">كل الراسلين</option>
                     </select>
                     <i class="fas fa-chevron-down absolute left-4 top-[calc(50%+10px)] -translate-y-1/2 text-slate-400 pointer-events-none text-xs"></i>
                 </div>
@@ -336,4 +352,3 @@
 </body>
 
 </html>
-
