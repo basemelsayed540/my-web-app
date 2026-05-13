@@ -121,28 +121,6 @@ function switchRepView(viewId, options = {}) {
             );
         }
 
-        let notificationAudioContext = null;
-        let dateFilterSelections = new Set();
-        let statusFilterSelections = new Set();
-        let zoneFilterSelections = new Set();
-        let senderFilterSelections = new Set();
-        const FAVORITES_FILTER_VALUE = '__favorites__';
-        let dateFilterGlowTimeout = null;
-        let hasPromptedDateFilterOnOpen = false;
-        const STATUS_OPTIONS = ['قيد التوصيل', 'تم', 'مؤجل', 'رفض', 'تعديل سعر', 'شحن'];
-        let gpsGateUnlocked = false;
-        let gpsGateCheckInFlight = false;
-        let gpsPermissionStatus = null;
-        let gpsEnforcementTimer = null;
-        let gpsSettingsRefreshTimer = null;
-        let isQuickActionsMenuOpen = false;
-
-        function el(id) {
-            return document.getElementById(id);
-        }
-
-        let repStickyHeaderObserver = null;
-
         function updateRepStickyOffsets() {
             const header = document.querySelector('header.hero-shell');
             if (!header) return;
@@ -157,8 +135,6 @@ function switchRepView(viewId, options = {}) {
                 document.documentElement.style.setProperty('--rep-filters-sticky-offset', `${stickyOffset + statsHeight}px`);
             }
         }
-
-        let currentFilterTab = 'date';
 
         function updateFilterChipsUI() {
             const container = el('filterChipsContainer');
@@ -372,13 +348,15 @@ function switchRepView(viewId, options = {}) {
             gpsGateCheckInFlight = true;
 
             try {
-                setGpsRequiredMessage('جاري التحقق من صلاحية الموقع...');
+                setGpsRequiredMessage('جاري تحديد موقعك الجغرافي...');
 
                 if (!navigator.geolocation) {
                     lockGpsGate('هذا المتصفح لا يدعم تحديد الموقع. استخدم جهازًا يدعم GPS.');
                     return false;
                 }
 
+                // Skip permission query check if it's potentially blocking
+                /*
                 if (!forcePrompt && navigator.permissions?.query) {
                     try {
                         const permission = await navigator.permissions.query({ name: 'geolocation' });
@@ -388,20 +366,27 @@ function switchRepView(viewId, options = {}) {
                         }
                     } catch (error) { }
                 }
+                */
 
-                await new Promise((resolve, reject) => {
+                const position = await new Promise((resolve, reject) => {
                     navigator.geolocation.getCurrentPosition(resolve, reject, {
                         enableHighAccuracy: true,
-                        timeout: 12000,
+                        timeout: 15000,
                         maximumAge: 0
                     });
                 });
 
+                console.log('GPS Position acquired:', position.coords.latitude, position.coords.longitude);
                 unlockGpsGate();
                 await ensureTrackingActivated();
                 return true;
             } catch (error) {
-                lockGpsGate('يجب تشغيل GPS والسماح بالموقع أولًا حتى تتمكن من متابعة الشحنات.');
+                console.warn('GPS Error:', error);
+                let msg = 'يجب تشغيل GPS والسماح بالموقع أولًا حتى تتمكن من متابعة الشحنات.';
+                if (error.code === 1) msg = 'تم رفض صلاحية الموقع. يرجى تفعيلها من إعدادات الهاتف.';
+                else if (error.code === 3) msg = 'انتهت مهلة البحث عن الموقع. تأكد من وجود إشارة GPS جيدة.';
+
+                lockGpsGate(msg);
                 return false;
             } finally {
                 gpsGateCheckInFlight = false;
@@ -478,41 +463,56 @@ function switchRepView(viewId, options = {}) {
         }
 
         async function ensureGpsReadyAndLoadShipments(forcePrompt = false) {
-            // 1. Check Internet
-            if (!navigator.onLine) {
-                lockGpsGate('لا يوجد اتصال بالإنترنت. يرجى الاتصال بالشبكة للمتابعة.');
-                return false;
-            }
+            console.log('--- ensureGpsReadyAndLoadShipments CALLED ---', { forcePrompt });
+            const btn = document.getElementById('gpsRequiredActionBtn');
+            const originalText = btn ? btn.innerText : '';
 
-            // 2. Check Notifications Permission (Mandatory for Badge/Sound)
             try {
-                if (typeof Capacitor !== 'undefined' && Capacitor.Plugins.LocalNotifications) {
-                    const perm = await Capacitor.Plugins.LocalNotifications.checkPermissions();
-                    if (perm.display !== 'granted') {
-                        if (forcePrompt) {
-                            const req = await Capacitor.Plugins.LocalNotifications.requestPermissions();
-                            if (req.display !== 'granted') {
-                                lockGpsGate('يجب السماح بصلاحية الإشعارات لتفعيل عداد الشحنات والتنبيه الصوتي.');
-                                return false;
-                            }
-                        } else {
-                            lockGpsGate('صلاحية الإشعارات مطلوبة لتشغيل التطبيق بشكل صحيح.');
-                            return false;
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerText = 'جاري التحقق...';
+                }
+
+                // 1. Check GPS Enforcement Setting
+                const isRequired = await refreshGpsEnforcementSetting();
+                if (!isRequired) {
+                    unlockGpsGate();
+                    fetchShipments();
+                    return true;
+                }
+
+                // 2. Check Internet
+                if (!navigator.onLine) {
+                    lockGpsGate('لا يوجد اتصال بالإنترنت. يرجى الاتصال بالشبكة للمتابعة.');
+                    return false;
+                }
+
+                // 3. Check Notifications Permission
+                try {
+                    if (typeof Capacitor !== 'undefined' && Capacitor.Plugins && Capacitor.Plugins.LocalNotifications) {
+                        const perm = await Capacitor.Plugins.LocalNotifications.checkPermissions();
+                        if (perm.display !== 'granted' && forcePrompt) {
+                            await Capacitor.Plugins.LocalNotifications.requestPermissions();
                         }
                     }
+                } catch (e) {
+                    console.warn('Notification permission check failed:', e);
                 }
-            } catch (e) {}
 
-            // 3. Check GPS
-            const isRequired = await refreshGpsEnforcementSetting();
-            if (!isRequired) {
-                unlockGpsGate();
-                fetchShipments();
-                return true;
+                const isReady = await requestGpsAccessAndUnlock(forcePrompt);
+                if (isReady) fetchShipments();
+                return isReady;
+
+            } catch (err) {
+                console.error('GPS Readiness check error:', err);
+                lockGpsGate('تعذر التحقق من الموقع. تأكد من تفعيل GPS في إعدادات الهاتف.');
+                return false;
+            } finally {
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
             }
-            const isReady = await requestGpsAccessAndUnlock(forcePrompt);
-            if (isReady) fetchShipments();
-            return isReady;
         }
 
         // Add listener for internet status changes
@@ -717,7 +717,7 @@ function switchRepView(viewId, options = {}) {
 
         function saveRepUiState() {
             try {
-                localStorage.setItem(REP_UI_STATE_KEY, JSON.stringify({
+                const state = {
                     view: currentActiveView,
                     search: getElementValue('searchInput'),
                     date: getSelectedDates(),
@@ -726,14 +726,24 @@ function switchRepView(viewId, options = {}) {
                     zone: getSelectedZones(),
                     sender: getSelectedSenders(),
                     displayLimit: currentDisplayLimit
-                }));
+                };
+
+                if (typeof AppCrypto !== 'undefined') {
+                    AppCrypto.setItem(REP_UI_STATE_KEY, state);
+                } else {
+                    localStorage.setItem(REP_UI_STATE_KEY, JSON.stringify(state));
+                }
             } catch (error) { }
         }
 
         function restoreRepUiState() {
             let state = null;
             try {
-                state = JSON.parse(localStorage.getItem(REP_UI_STATE_KEY) || 'null');
+                if (typeof AppCrypto !== 'undefined') {
+                    state = AppCrypto.getItem(REP_UI_STATE_KEY);
+                } else {
+                    state = JSON.parse(localStorage.getItem(REP_UI_STATE_KEY) || 'null');
+                }
             } catch (error) { }
 
             if (state && state.date) {

@@ -10,6 +10,9 @@
     // وظيفة لحفظ الخطأ
     function saveError(errorData) {
         try {
+            // تسجيل الخطأ في الكونسول ليتمكن المطور من رؤيته عبر logcat
+            console.error('[CRITICAL_APP_ERROR]', JSON.stringify(errorData));
+
             let logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
             const newLog = {
                 timestamp: new Date().toLocaleString('ar-EG'),
@@ -28,6 +31,7 @@
 
     // التقاط أخطاء JavaScript العامة
     window.onerror = function(message, source, lineno, colno, error) {
+        const errorDetail = `${message} at ${source}:${lineno}:${colno}`;
         saveError({
             type: 'JS Error',
             message: message,
@@ -36,7 +40,20 @@
             column: colno,
             stack: error ? error.stack : ''
         });
-        return false; // السماح للخطأ بالظهور في Console أيضاً
+
+        // إظهار تنبيه مرئي للأخطاء الحرجة أثناء التطوير
+        if (window.Swal) {
+            Swal.fire({
+                title: 'خطأ برمجي',
+                text: errorDetail,
+                icon: 'error',
+                toast: true,
+                position: 'bottom-start',
+                timer: 5000
+            });
+        }
+
+        return false;
     };
 
     // التقاط أخطاء الـ Promises غير المعالجة

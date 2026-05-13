@@ -7,7 +7,15 @@ const { createClient } = supabase;
 
         const normalizeShipmentPriceField = RepsShipmentUtils.normalizeRecord;
 
-        let user = RepsSession.requireUser(['rep', 'مندوب فرعي'], 'login.html');
+        let user = (() => {
+            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+            try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; }
+        })();
+
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
         startStoredUserSessionGuard(supabaseClient, {
             allowedRoles: ['rep', 'مندوب فرعي'],
             onValidUser: (latestUser) => {

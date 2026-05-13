@@ -2,7 +2,15 @@ const { createClient } = supabase;
         const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
         const REP_NOTIFICATIONS_KEY = 'rep_local_notifications';
 
-        let user = RepsSession.requireUser(['rep', 'مندوب فرعي'], 'login.html');
+        let user = (() => {
+            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+            try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; }
+        })();
+
+        if (!user) {
+            window.location.href = 'login.html';
+        }
+
         let repNotifications = (() => {
             if (typeof AppCrypto !== 'undefined') {
                 return AppCrypto.getItem(REP_NOTIFICATIONS_KEY) || [];

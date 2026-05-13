@@ -6,9 +6,17 @@
         // CRITICAL PERFORMANCE: Immediate redirect check before anything else loads
         (function() {
             try {
-                const storedUser = localStorage.getItem('user');
-                if (storedUser) {
-                    const data = JSON.parse(storedUser);
+                const storedUserRaw = localStorage.getItem('user');
+                if (storedUserRaw) {
+                    let data = null;
+                    if (storedUserRaw.startsWith('__enc__:')) {
+                        // Data is encrypted, we can't easily decrypt it here without CryptoJS
+                        // We'll let login.js handle it after scripts load
+                        return;
+                    } else {
+                        data = JSON.parse(storedUserRaw);
+                    }
+
                     if (data && data.id) {
                         let path = '';
                         if (data.role === 'admin' || data.role === 'housing') path = '../manager/dashboard.html';
@@ -159,6 +167,8 @@
         </div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
+    <script src="assets/js/shared/crypto.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/shared/theme.js"></script>
     <script src="assets/js/pages/login.js"></script>

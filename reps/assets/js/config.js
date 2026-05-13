@@ -388,7 +388,10 @@ function getUsersMutationPolicyHint(actionLabel = 'تنفيذ العملية') {
 }
 
 async function invokeUsersAdminAction(action, payload = {}, currentUserOverride = null) {
-    const currentUser = currentUserOverride || JSON.parse(localStorage.getItem('user') || 'null');
+    const currentUser = currentUserOverride || (() => {
+        if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+        return JSON.parse(localStorage.getItem('user') || 'null');
+    })();
     const sessionToken = getStoredSessionToken();
     if (!currentUser?.id && action !== 'login') {
         throw new Error('تعذر التحقق من التخويل المحلي للتعديل.');
@@ -571,7 +574,10 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'session_user') {
-        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const curUser = (() => {
+            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+            return JSON.parse(localStorage.getItem('user') || 'null');
+        })();
         if (!curUser?.id) return { user: null };
         const { data, error } = await client.from('users').select('*').eq('id', curUser.id).single();
         if (error || !data) return { user: null };
@@ -580,7 +586,10 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'verify_password') {
-        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const curUser = (() => {
+            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+            return JSON.parse(localStorage.getItem('user') || 'null');
+        })();
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('password').eq('id', curUser.id).single();
         if (!data) return { valid: false };
@@ -589,7 +598,10 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'change_password') {
-        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const curUser = (() => {
+            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+            return JSON.parse(localStorage.getItem('user') || 'null');
+        })();
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('*').eq('id', curUser.id).single();
         const valid = await verifyPassword(data.password, payload.oldPassword);

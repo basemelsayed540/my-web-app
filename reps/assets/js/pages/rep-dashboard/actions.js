@@ -470,34 +470,49 @@ function getShipmentById(id) {
                 return;
             }
 
-            const problemStatuses = ['رفض', 'مؤجل', 'تعديل سعر', 'شحن', 'الغاء'];
-            const relevantShipments = allShipments.filter(s => {
-                const dateMatch = getShipmentDailyFilterValue(s) === selectedDate;
-                const statusLabel = getShipmentStatusLabel(s);
-                return dateMatch && problemStatuses.includes(statusLabel);
-            });
+            const targetStatuses = ['رفض', 'مؤجل'];
+
+            // تصفية الشحنات: الحالات (رفض ومؤجل) فقط لليومية المختارة
+            const relevantShipments = allShipments
+                .filter(s => {
+                    const dateValue = typeof getShipmentDailyFilterValue === 'function' ? getShipmentDailyFilterValue(s) : '';
+                    const statusLabel = getShipmentStatusLabel(s);
+                    return dateValue === selectedDate && targetStatuses.includes(statusLabel);
+                })
+                .sort((a, b) => {
+                    // الترتيب: الرفض أولاً ثم المؤجل
+                    const labelA = getShipmentStatusLabel(a);
+                    const labelB = getShipmentStatusLabel(b);
+                    if (labelA === labelB) return 0;
+                    return labelA === 'رفض' ? -1 : 1;
+                });
 
             if (relevantShipments.length === 0) {
-                Swal.fire('تنبيه', 'لا توجد شحنات (مشاكل) في هذا التاريخ لإصدار تقرير بها', 'info');
+                Swal.fire('تنبيه', 'لا توجد شحنات (رفض أو مؤجل) في هذا التاريخ لإصدار تقرير بها', 'info');
                 return;
             }
 
-            let reportText = `📦 *تقرير شحنات المندوب: ${user?.full_name || user?.username || 'المندوب'}*\n`;
+            let reportText = `📦 *تقرير (الرفض والتأجيل) للمندوب: ${user?.full_name || user?.username || 'المندوب'}*\n`;
             reportText += `📅 *يومية: ${selectedDate}*\n`;
             reportText += `---------------------------\n\n`;
 
             relevantShipments.forEach((s, index) => {
                 const status = getShipmentStatusLabel(s);
-                const reason = s['سبب الحالة'] || s.سبب_الحالة || 'بدون سبب مسجل';
+                const reason = s['سبب الحالة'] || s.سبب_الحالة || '---';
                 const amount = s.السعر_بعد_التعديل || s.المبلغ || 0;
+                const orderId = s.order_id || s['كود الشحنة'] || s.id || '---';
 
                 reportText += `${index + 1}️⃣ *العميل: ${s.اسم_العميل || '---'}*\n`;
-                reportText += `🆔 رقم: ${s.order_id || s['كود الشحنة'] || s.id}\n`;
+                reportText += `🆔 كود: #${orderId}\n`;
+                reportText += `📍 العنوان: ${s.العنوان || '---'}\n`;
+                reportText += `📱 الهاتف: ${s.الهاتف || '---'}\n`;
                 reportText += `🚩 الحالة: *${status}*\n`;
-                if (status === 'تعديل سعر' || status === 'شحن') {
-                    reportText += `💰 المبلغ الجديد: ${amount} ج.م\n`;
+                reportText += `💰 المبلغ: ${amount} ج.م\n`;
+                if (reason !== '---' && reason !== '') {
+                    reportText += `📝 الملاحظات: ${reason}\n`;
                 }
-                reportText += `📝 الملاحظات: ${reason}\n\n`;
+                reportText += `🏢 الراسل: ${s.الراسل || '---'}\n`;
+                reportText += `\n`;
             });
 
             reportText += `---------------------------\n`;

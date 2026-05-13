@@ -7,21 +7,29 @@ const { createClient } = supabase;
 
         window.addEventListener('DOMContentLoaded', () => {
             // Check if user session already exists for auto-login
-            const storedUser = localStorage.getItem('user');
-            if (storedUser) {
+            const storedUser = (() => {
+                if (typeof AppCrypto !== 'undefined') {
+                    return AppCrypto.getItem('user');
+                }
                 try {
-                    const data = JSON.parse(storedUser);
-                    if (data && data.id) {
-                        // Redirect based on role
-                        if (data.role === 'admin' || data.role === 'housing') window.location.href = '../manager/dashboard.html';
-                        else if (data.role === 'rep' || data.role === 'مندوب فرعي') window.location.href = 'rep-dashboard.html';
-                        else if (data.role === 'sender') window.location.href = '../sender-follower/sender-dashboard.html';
-                        else if (data.role === 'follower') window.location.href = '../sender-follower/follower-dashboard.html';
-                        else if (data.role === 'sub-rep') window.location.href = 'sub-rep-dashboard.html';
-                        return; // Stop further execution if auto-login is possible
-                    }
+                    return JSON.parse(localStorage.getItem('user') || 'null');
                 } catch (e) {
-                    console.error("Failed to parse stored user session", e);
+                    return null;
+                }
+            })();
+
+            if (storedUser && storedUser.id) {
+                // Redirect based on role
+                let path = '';
+                if (storedUser.role === 'admin' || storedUser.role === 'housing') path = '../manager/dashboard.html';
+                else if (storedUser.role === 'rep' || storedUser.role === 'مندوب فرعي') path = 'rep-dashboard.html';
+                else if (storedUser.role === 'sender') path = '../sender-follower/sender-dashboard.html';
+                else if (storedUser.role === 'follower') path = '../sender-follower/follower-dashboard.html';
+                else if (storedUser.role === 'sub-rep') path = 'sub-rep-dashboard.html';
+
+                if (path) {
+                    window.location.href = path;
+                    return;
                 }
             }
 

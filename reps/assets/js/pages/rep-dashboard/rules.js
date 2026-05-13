@@ -345,11 +345,6 @@ function populateDropdowns() {
             '٠': '0', '١': '1', '٢': '2', '٣': '3', '٤': '4',
             '٥': '5', '٦': '6', '٧': '7', '٨': '8', '٩': '9'
         };
-        let currentDisplayLimit = 40;
-        let lastFilterSignature = '';
-        let lastMetaSignature = '';
-        let cachedFilteredShipments = [];
-        let cachedScopedShipments = [];
 
         function normalizeArabicDigits(value) {
             return String(value || '').replace(/[٠-٩]/g, (digit) => ARABIC_DIGIT_MAP[digit] || digit);

@@ -34,7 +34,15 @@ const { createClient } = supabase;
                 updateTrackingUI();
             }
 
-            let user = RepsSession.requireUser(['sub-rep'], 'login.html');
+            let user = (() => {
+                if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+                return JSON.parse(localStorage.getItem('user') || 'null');
+            })();
+
+            if (!user) {
+                window.location.href = 'login.html';
+            }
+
             startStoredUserSessionGuard(supabaseClient, {
                 allowedRoles: ['sub-rep'],
                 onValidUser: (latestUser) => {
@@ -63,7 +71,7 @@ const { createClient } = supabase;
 
             function saveFollowerUiState() {
                 try {
-                    localStorage.setItem(FOLLOWER_UI_STATE_KEY, JSON.stringify({
+                    const state = {
                         search: document.getElementById('searchInput')?.value || '',
                         status: document.getElementById('filterStatus')?.value || '',
                         subrep: document.getElementById('filterSubRepName')?.value || '',
@@ -73,14 +81,23 @@ const { createClient } = supabase;
                         update: document.getElementById('filterUpdate')?.value || '',
                         rep: document.getElementById('filterRep')?.value || '',
                         currentPage
-                    }));
+                    };
+                    if (typeof AppCrypto !== 'undefined') {
+                        AppCrypto.setItem(FOLLOWER_UI_STATE_KEY, state);
+                    } else {
+                        localStorage.setItem(FOLLOWER_UI_STATE_KEY, JSON.stringify(state));
+                    }
                 } catch (error) { }
             }
 
             function restoreFollowerUiState() {
                 let state = null;
                 try {
-                    state = JSON.parse(localStorage.getItem(FOLLOWER_UI_STATE_KEY) || 'null');
+                    if (typeof AppCrypto !== 'undefined') {
+                        state = AppCrypto.getItem(FOLLOWER_UI_STATE_KEY);
+                    } else {
+                        state = JSON.parse(localStorage.getItem(FOLLOWER_UI_STATE_KEY) || 'null');
+                    }
                 } catch (error) {
                     state = null;
                 }

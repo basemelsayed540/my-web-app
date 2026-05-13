@@ -1,6 +1,9 @@
 window.RepsSession = (() => {
     function getStoredUser() {
         try {
+            if (typeof AppCrypto !== 'undefined') {
+                return AppCrypto.getItem('user');
+            }
             return JSON.parse(localStorage.getItem('user') || 'null');
         } catch (error) {
             return null;

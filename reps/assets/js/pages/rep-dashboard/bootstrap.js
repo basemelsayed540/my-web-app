@@ -13,6 +13,91 @@ const { createClient } = supabase;
         let gpsEnforcementLastFetchedAt = 0;
         let gpsEnforcementRefreshInFlight = null;
 
+        // Initialize User Session early
+        let user = (() => {
+            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
+            try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; }
+        })();
+
+        if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي')) {
+            window.location.href = 'login.html';
+        }
+
+        // Define global variables used by other scripts
+        let allShipments = [];
+        let selectedShipmentIdsForBulk = new Set();
+        let activeShipmentMenuId = null;
+        let activeShipmentMenuMode = 'copy';
+        let lockedShipmentIds = new Set();
+        const REP_UI_STATE_KEY = 'repUiState';
+        const REP_SEEN_SHIPMENTS_KEY_PREFIX = 'repSeenShipments:';
+        const REP_UNREAD_SESSION_KEY = 'repUnreadShipments:';
+        const REP_NOTIFICATIONS_KEY = 'rep_local_notifications';
+        const REP_FAVORITES_KEY_PREFIX = 'repFavoriteShipments:';
+
+        let repNotifications = (() => {
+            if (typeof AppCrypto !== 'undefined') {
+                return AppCrypto.getItem(REP_NOTIFICATIONS_KEY) || [];
+            }
+            return JSON.parse(localStorage.getItem(REP_NOTIFICATIONS_KEY) || '[]');
+        })();
+
+        let currentActiveView = 'dashboard';
+        let favoriteShipmentIds = new Set();
+        let lastNonFavoritesStatusSelections = new Set();
+        let shipmentSwipeState = null;
+        let suppressShipmentClickUntil = 0;
+        let isNotificationsPanelOpen = false;
+        let shipmentsDataVersion = 0;
+        let searchRenderTimer = null;
+        let lastServerShipmentsMap = new Map();
+        let shipmentsPollTimer = null;
+        let lastFilterSignature = '';
+        let lastMetaSignature = '';
+        let cachedFilteredShipments = [];
+        let cachedScopedShipments = [];
+
+        // General State Variables
+        let notificationAudioContext = null;
+        let dateFilterSelections = new Set();
+        let statusFilterSelections = new Set();
+        let zoneFilterSelections = new Set();
+        let senderFilterSelections = new Set();
+        const FAVORITES_FILTER_VALUE = '__favorites__';
+        let dateFilterGlowTimeout = null;
+        let hasPromptedDateFilterOnOpen = false;
+        const STATUS_OPTIONS = ['قيد التوصيل', 'تم', 'مؤجل', 'رفض', 'تعديل سعر', 'شحن'];
+        let gpsGateUnlocked = false;
+        let gpsGateCheckInFlight = false;
+        let gpsPermissionStatus = null;
+        let gpsEnforcementTimer = null;
+        let gpsSettingsRefreshTimer = null;
+        let repStickyHeaderObserver = null;
+        let currentFilterTab = 'date';
+        let currentDisplayLimit = 40;
+
+        // Map State Variables
+        let mapInstance = null;
+        let mapRoutingControl = null;
+        let repMarker = null;
+        let destMarker = null;
+        let mapWatchId = null;
+        let mapCurrentShipmentId = null;
+        let isNavigating = false;
+        let mapCurrentRouteCoords = [];
+        let mapSmartTracking = {
+            lastProcTime: 0, lastLat: null, lastLng: null,
+            calcDistMs: function(l1, ln1, l2, ln2) {
+                const R = 6371e3; const p1 = l1 * Math.PI/180; const p2 = l2 * Math.PI/180;
+                const a = Math.sin((l2-l1)*Math.PI/360)**2 + Math.cos(p1)*Math.cos(p2) * Math.sin((ln2-ln1)*Math.PI/360)**2;
+                return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            }
+        };
+
+        function el(id) {
+            return document.getElementById(id);
+        }
+
         function updateTrackingUI() {
             const btn = document.getElementById('trackingToggleBtn');
             const icon = document.getElementById('trackingIcon');
