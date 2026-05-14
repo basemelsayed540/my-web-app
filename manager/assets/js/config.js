@@ -22,6 +22,36 @@ function getSharedSupabaseClient() {
     return _sharedSupabaseClient;
 }
 
+function getStoredUserData() {
+    if (typeof AppCrypto !== 'undefined' && typeof AppCrypto.getItem === 'function') {
+        const decryptedUser = AppCrypto.getItem('user');
+        if (decryptedUser) {
+            return decryptedUser;
+        }
+    }
+
+    const rawUser = localStorage.getItem('user');
+    if (!rawUser) return null;
+
+    try {
+        return JSON.parse(rawUser);
+    } catch (error) {
+        console.warn('Failed to parse stored user data:', error);
+        return null;
+    }
+}
+
+function setStoredUserData(user) {
+    if (!user) return;
+
+    if (typeof AppCrypto !== 'undefined' && typeof AppCrypto.setItem === 'function') {
+        AppCrypto.setItem('user', user);
+        return;
+    }
+
+    localStorage.setItem('user', JSON.stringify(user));
+}
+
 CONFIG.USER_PUBLIC_FIELDS = [
     'id',
     'username',
@@ -247,7 +277,7 @@ function mergeClientUserData(baseUser, freshUser) {
 
 function saveUserSession(user, sessionToken = null) {
     if (user) {
-        localStorage.setItem('user', JSON.stringify(user));
+        setStoredUserData(user);
     }
     if (sessionToken) {
         localStorage.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
@@ -274,7 +304,7 @@ async function enforceStoredUserSession(supabaseClient, options = {}) {
         silent = false
     } = options;
 
-    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
+    const storedUser = getStoredUserData();
     if (!storedUser) {
         clearStoredUserSession(redirectTo);
         return null;
@@ -345,7 +375,7 @@ function getUsersMutationPolicyHint(actionLabel = 'تنفيذ العملية') {
 }
 
 async function invokeUsersAdminAction(action, payload = {}, currentUserOverride = null) {
-    const currentUser = currentUserOverride || JSON.parse(localStorage.getItem('user') || 'null');
+    const currentUser = currentUserOverride || getStoredUserData();
     const sessionToken = getStoredSessionToken();
     if (!currentUser?.id && action !== 'login') {
         throw new Error('تعذر التحقق من التخويل المحلي للتعديل.');
@@ -464,7 +494,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
             if (response.ok) {
                 const data = await response.json();
                 if (data?.user) {
-                    const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+                    const currentUser = getStoredUserData();
                     const mergedUser = data.user ? mergeClientUserData(currentUser, data.user) : currentUser;
                     saveUserSession(mergedUser, data.sessionToken || null);
                 }
@@ -528,7 +558,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'session_user') {
-        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const curUser = getStoredUserData();
         if (!curUser?.id) return { user: null };
         const { data, error } = await client.from('users').select('*').eq('id', curUser.id).single();
         if (error || !data) return { user: null };
@@ -537,7 +567,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'verify_password') {
-        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const curUser = getStoredUserData();
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('password').eq('id', curUser.id).single();
         if (!data) return { valid: false };
@@ -546,7 +576,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'change_password') {
-        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
+        const curUser = getStoredUserData();
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('*').eq('id', curUser.id).single();
         const valid = await verifyPassword(data.password, payload.oldPassword);
