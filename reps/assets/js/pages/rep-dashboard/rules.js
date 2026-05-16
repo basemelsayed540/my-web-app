@@ -221,7 +221,7 @@ function populateDropdowns() {
         }
 
         function matchesSelectedStatuses(shipment, selectedStatuses = []) {
-            if (!selectedStatuses || selectedStatuses.length === 0) return true;
+            if (!selectedStatuses || selectedStatuses.length === 0) return false;
             
             const shipmentStatus = getShipmentStatusLabel(shipment);
             return selectedStatuses.includes(shipmentStatus);
@@ -334,10 +334,10 @@ function populateDropdowns() {
             el('progressPriceEdit').innerText = priceEdit;
             el('progressTotal').innerText = total;
             el('progressBar').style.width = `${progress}%`;
-            el('repCommissionTotal').innerHTML = `${scopedShipments.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)} <span class="text-sm text-slate-800 dark:text-white">ج.م</span>`;
+            el('repCommissionTotal').innerText = `${scopedShipments.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)}`;
             const remittanceShipments = scopedShipments.filter(s => isCommissionEligibleShipment(s) && !isShipmentLocked(s.id));
             const remittanceAmount = remittanceShipments.reduce((acc, shipment) => acc + getShipmentAmount(shipment), 0);
-            el('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
+            el('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount}`;
             syncQuickStatCards();
         }
 

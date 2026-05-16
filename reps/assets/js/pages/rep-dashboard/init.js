@@ -1,11 +1,10 @@
-favoriteShipmentIds = loadFavoriteShipmentIds();
+        favoriteShipmentIds = loadFavoriteShipmentIds();
         updateFavoritesNavBadge();
         bindRepStickyOffsetSync();
         window.addEventListener('load', updateRepStickyOffsets);
-        lockGpsGate('جاري التحقق من متطلبات التشغيل...');
 
-        // Initial permission request on first load
-        ensureGpsReadyAndLoadShipments(true);
+        // Run initial checks quietly in the background; show the gate only if a real failure happens.
+        ensureGpsReadyAndLoadShipments(false);
 
         startGpsEnforcement();
         startShipmentsPolling();

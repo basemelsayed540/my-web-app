@@ -2,6 +2,110 @@ function shouldStoreRepNotification(type) {
             return ['added', 'removed', 'deleted', 'status_changed'].includes(type);
         }
 
+        function getShipmentActionUser(shipment) {
+            return String(
+                shipment?.['اسم الموظف'] ||
+                shipment?.['اسم الموظ'] ||
+                shipment?.['اسم_الموظف'] ||
+                ''
+            ).trim();
+        }
+
+        function getCurrentRepNotificationIdentifiers() {
+            if (typeof getRepIdentifiers === 'function') {
+                return new Set((getRepIdentifiers() || []).filter(Boolean));
+            }
+
+            const fallbackValues = [
+                user?.full_name,
+                user?.username,
+                user?.phone
+            ].filter(Boolean).map((value) => normalizeComparableValue(value));
+
+            return new Set(fallbackValues);
+        }
+
+        function getShipmentRepNotificationIdentifiers(shipment) {
+            const assignedValues = [
+                shipment?.المندوب,
+                shipment?.['المندوب الفرعي'],
+                shipment?.['المندوب الرعي']
+            ];
+
+            if (typeof buildRepIdentifierVariants === 'function') {
+                return new Set(
+                    assignedValues.flatMap((value) => buildRepIdentifierVariants(value)).filter(Boolean)
+                );
+            }
+
+            return new Set(
+                assignedValues.map((value) => normalizeComparableValue(value)).filter(Boolean)
+            );
+        }
+
+        function getActorNotificationIdentifiers(actorName) {
+            if (!actorName) return [];
+            if (typeof buildRepIdentifierVariants === 'function') {
+                return buildRepIdentifierVariants(actorName);
+            }
+            return [normalizeComparableValue(actorName)].filter(Boolean);
+        }
+
+        function shouldAllowRepShipmentNotification(type, shipment) {
+            if (!shouldStoreRepNotification(type) || !shipment) return false;
+
+            // 1. جلب اسم الشخص الذي قام بالأكشن
+            const actionUser = getShipmentActionUser(shipment);
+
+            // إذا لم يوجد اسم موظف (مثل حالة شحنة جديدة تماماً)، نعتبرها من النظام/المدير ونسمح بها
+            if (!actionUser) return true;
+
+            const actorName = String(actionUser).trim();
+
+            // 2. منع الإشعار إذا كان الفاعل هو "أنا" (المندوب الحالي)
+            const currentRepIdentifiers = getCurrentRepNotificationIdentifiers();
+            const actorIdentifiers = getActorNotificationIdentifiers(actorName);
+
+            if (actorIdentifiers.some((identifier) => currentRepIdentifiers.has(identifier))) {
+                return false; // هذا أنا، لا تسجل إشعار
+            }
+
+            // 3. منع الإشعارات الصادرة من أي "مندوب" بشكل عام إذا كان النظام يضع كلمة مندوب كـ fallback
+            if (actorName === 'المندوب' || actorName === 'المندوب الفرعي' || actorName === 'المندوب الرعي') {
+                return false;
+            }
+
+            // 4. التأكد من أن الفاعل ليس هو المندوب المكتوب اسمه على الشحنة (حماية إضافية)
+            const shipmentRepIdentifiers = getShipmentRepNotificationIdentifiers(shipment);
+            if (shipmentRepIdentifiers.size > 0 && actorIdentifiers.some((identifier) => shipmentRepIdentifiers.has(identifier))) {
+                return false;
+            }
+
+            // إذا مر من كل الفلاتر السابقة، فهذا يعني أن الفاعل هو المدير أو شخص من الإدارة
+            return true;
+        }
+
+        function pruneRepNotificationsByPolicy() {
+            const filtered = (repNotifications || []).filter((notif) => {
+                if (!shouldStoreRepNotification(notif?.type)) return false;
+
+                const actorIdentifiers = getActorNotificationIdentifiers(notif?.employee || '');
+                if (actorIdentifiers.length === 0) return true;
+
+                const currentRepIdentifiers = getCurrentRepNotificationIdentifiers();
+                return !actorIdentifiers.some((identifier) => currentRepIdentifiers.has(identifier));
+            });
+
+            if (filtered.length === repNotifications.length) return;
+
+            repNotifications = filtered;
+            if (typeof AppCrypto !== 'undefined') {
+                AppCrypto.setItem(REP_NOTIFICATIONS_KEY, repNotifications);
+            } else {
+                localStorage.setItem(REP_NOTIFICATIONS_KEY, JSON.stringify(repNotifications));
+            }
+        }
+
         function isDuplicateRepNotification(type, shipment) {
             const lastNotification = repNotifications[0];
             if (!lastNotification) return false;
@@ -16,24 +120,14 @@ function shouldStoreRepNotification(type) {
         }
 
         function addRepNotification(type, shipment) {
-            if (!shouldStoreRepNotification(type) || !shipment || isDuplicateRepNotification(type, shipment)) return;
-
-            // تصفية الإشعارات: منع ظهور إشعار إذا كان المستخدم الحالي هو من قام بالتحديث
-            // الهدف هو إظهار إشعارات الإدارة فقط
-            const currentUser = typeof RepsSession !== 'undefined' ? RepsSession.getStoredUser() : null;
-            const currentUserName = (currentUser?.full_name || currentUser?.username || '').trim();
-            const actionUser = String(shipment['اسم الموظف'] || shipment['اسم الموظ'] || shipment['اسم_الموظف'] || '').trim();
-
-            if (currentUserName && actionUser === currentUserName) {
-                return; // لا تضف إشعاراً إذا كان المندوب هو من قام بالعملية
-            }
+            if (!shouldAllowRepShipmentNotification(type, shipment) || isDuplicateRepNotification(type, shipment)) return;
 
             const notif = {
                 id: Date.now() + Math.random(),
                 type: type, // 'added', 'removed', 'deleted', 'status_changed'
                 order_id: shipment.order_id || shipment.كود_الشحنة || shipment.الكود || '---',
                 client: shipment.اسم_العميل || '---',
-                employee: shipment['اسم الموظف'] || '---',
+                employee: getShipmentActionUser(shipment) || '---',
                 newStatus: shipment.الحالة || '---',
                 isWarehouse: normalizeComparableValue(shipment.المندوب) === normalizeComparableValue('مخزن'),
                 time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
@@ -55,6 +149,7 @@ function shouldStoreRepNotification(type) {
         function invalidateShipmentRenderCache() {
             lastFilterSignature = '';
             lastMetaSignature = '';
+            window.lastFullRenderKey = '';
             cachedFilteredShipments = [];
             cachedScopedShipments = [];
         }
@@ -65,6 +160,7 @@ function shouldStoreRepNotification(type) {
         }
 
         function updateRepNotifUI() {
+            pruneRepNotificationsByPolicy();
             const badge = document.getElementById('repUnreadBadge');
             const unreadCount = repNotifications.filter(n => !n.read).length;
 
@@ -78,14 +174,6 @@ function shouldStoreRepNotification(type) {
                     badge.classList.remove('flex');
                 }
             }
-
-            // Sync with Native Icon Badge
-            try {
-                if (typeof Capacitor !== 'undefined' && Capacitor.Plugins.LocalNotifications) {
-                    // For Android, usually dismissal of notifications clears the badge,
-                    // but we can try to set it explicitly if needed by re-scheduling or using a dedicated badge plugin if available.
-                }
-            } catch (e) {}
 
             if (isNotificationsPanelOpen) renderRepNotifications();
         }
@@ -147,6 +235,7 @@ function shouldStoreRepNotification(type) {
         }
 
         function renderRepNotifications() {
+            pruneRepNotificationsByPolicy();
             const container = document.getElementById('repNotificationsContainer');
             if (!container) return;
             
@@ -193,5 +282,3 @@ function shouldStoreRepNotification(type) {
                 `;
             }).join('');
         }
-
-        

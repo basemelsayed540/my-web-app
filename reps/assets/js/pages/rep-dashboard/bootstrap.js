@@ -19,9 +19,17 @@ const { createClient } = supabase;
             try { return JSON.parse(localStorage.getItem('user') || 'null'); } catch(e) { return null; }
         })();
 
-        if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي')) {
+        if (!user || (user.role !== 'rep' && user.role !== 'مندوب فرعي' && user.role !== 'sub-rep')) {
             window.location.href = 'login.html';
         }
+
+        function updateRepHeaderName(nextUser = user) {
+            const repNameEl = document.getElementById('repName');
+            if (!repNameEl) return;
+            repNameEl.innerText = nextUser?.full_name || nextUser?.username || nextUser?.phone || 'المندوب';
+        }
+
+        updateRepHeaderName(user);
 
         // Define global variables used by other scripts
         let allShipments = [];
@@ -57,6 +65,9 @@ const { createClient } = supabase;
         let lastMetaSignature = '';
         let cachedFilteredShipments = [];
         let cachedScopedShipments = [];
+        window.lastFullRenderKey = '';
+        window.lastDataHash = '';
+        window.lastRenderedCount = 0;
 
         // General State Variables
         let notificationAudioContext = null;
@@ -76,6 +87,7 @@ const { createClient } = supabase;
         let repStickyHeaderObserver = null;
         let currentFilterTab = 'date';
         let currentDisplayLimit = 40;
+        let areShipmentDetailsExpanded = true;
 
         // Map State Variables
         let mapInstance = null;

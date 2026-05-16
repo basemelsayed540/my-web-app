@@ -169,6 +169,12 @@ function getCachedShipmentCoordinates(shipment) {
         };
 
         async function promptRejectReason(confirmButtonText = 'تحديث الحالة') {
+            const isDark = document.body.classList.contains('dark');
+            const swalTheme = {
+                background: isDark ? '#0f172a' : '#ffffff',
+                color: isDark ? '#f1f5f9' : '#1e293b'
+            };
+
             const { value: reason } = await Swal.fire({
                 title: 'سبب الرفض',
                 input: 'text',
@@ -177,9 +183,10 @@ function getCachedShipmentCoordinates(shipment) {
                 confirmButtonText,
                 cancelButtonText: 'إلغاء',
                 confirmButtonColor: '#e11d48',
+                ...swalTheme,
                 customClass: {
-                    input: 'rounded-xl text-sm font-bold',
-                    popup: 'rounded-2xl shadow-2xl'
+                    input: 'rounded-xl text-sm font-bold dark:bg-slate-800 dark:text-white dark:border-slate-700',
+                    popup: 'rounded-[2rem] border border-slate-200 dark:border-slate-800 shadow-2xl'
                 },
                 inputValidator: (value) => {
                     if (!String(value || '').trim()) return 'يرجى كتابة سبب الرفض';

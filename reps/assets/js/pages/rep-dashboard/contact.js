@@ -49,6 +49,19 @@
 
     window.promptForContactOutcome = async function(context) {
         if (!context || isContactOutcomePromptOpen) return;
+
+        const isCall = String(context.method || '').includes('اتصال');
+
+        // --- CALL VERIFICATION (BACKGROUND ONLY) ---
+        let callLogEntry = null;
+        if (isCall && typeof CallVerificationEngine !== 'undefined') {
+            const verification = await CallVerificationEngine.finalizeVerification();
+            if (verification.matched) {
+                callLogEntry = verification;
+            }
+        }
+        // -------------------------------------------
+
         isContactOutcomePromptOpen = true;
 
         try {
@@ -61,6 +74,12 @@
                 html: `
                     <div class="space-y-3 text-right" dir="rtl">
                         <p class="text-sm font-bold text-slate-600">الشحنة: <span class="text-slate-900">#${shipment.order_id || shipment['كود الشحنة'] || shipment.id}</span></p>
+                        ${callLogEntry ? `
+                            <div class="p-2 rounded-xl bg-emerald-50 border border-emerald-100 mb-2">
+                                <p class="text-[10px] font-black text-emerald-700">✅ تم تأكيد الاتصال من سجل الهاتف</p>
+                                <p class="text-[9px] text-emerald-600 font-bold">مدة المكالمة: ${callLogEntry.durationSec} ثانية</p>
+                            </div>
+                        ` : ''}
                         <select id="swal-contact-result" class="swal2-input !m-0 !w-full border border-slate-200 rounded-lg">
                             <option value="">اختر النتيجة</option>
                             ${options.map((option) => `<option value="${option}">${option}</option>`).join('')}
@@ -84,7 +103,8 @@
 
             const success = await recordShipmentContactAttempt(context.shipmentId, {
                 method: context.method,
-                result
+                result,
+                callMetadata: callLogEntry // Pass real phone data to be saved in DB
             });
 
             if (success) {
@@ -116,7 +136,16 @@
         await promptForContactOutcome(context);
     };
 
-    window.openContactChannelAndWaitForOutcome = function(context, openCallback) {
+    window.openContactChannelAndWaitForOutcome = async function(context, openCallback) {
+        // Start monitoring BEFORE opening the dialer
+        if (String(context.method).includes('اتصال') && typeof CallVerificationEngine !== 'undefined') {
+            const shipment = getShipmentById(context.shipmentId);
+            const phone = shipment ? getShipmentPhone(shipment, context.method.split(' ')[1] || 'الهاتف') : '';
+            if (phone) {
+                await CallVerificationEngine.startVerification(phone);
+            }
+        }
+
         window.queueContactOutcomePrompt(context);
         openCallback();
     };
