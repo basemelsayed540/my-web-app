@@ -175,31 +175,6 @@ function switchRepView(viewId, options = {}) {
             updateFilterChipsUI();
         }
 
-        function updateShipmentDetailsToggleButton() {
-            const toggleIconEl = el('toggleShipmentDetailsIcon');
-            const toggleBtnEl = el('toggleShipmentDetailsBtn');
-            if (!toggleIconEl || !toggleBtnEl) return;
-
-            toggleIconEl.className = areShipmentDetailsExpanded
-                ? 'fas fa-compress-alt text-sm'
-                : 'fas fa-expand-alt text-sm';
-            toggleBtnEl.classList.toggle('bg-white', areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('dark:bg-slate-800', areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('text-sky-800', areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('dark:text-slate-100', areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('bg-sky-50', !areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('dark:bg-cyan-950/30', !areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('text-sky-700', !areShipmentDetailsExpanded);
-            toggleBtnEl.classList.toggle('dark:text-cyan-300', !areShipmentDetailsExpanded);
-        }
-
-        function toggleShipmentDetailsVisibility(forceState = null) {
-            areShipmentDetailsExpanded = typeof forceState === 'boolean' ? forceState : !areShipmentDetailsExpanded;
-            updateShipmentDetailsToggleButton();
-            saveRepUiState();
-            renderShipments();
-        }
-
         function handleChipClick(chip) {
             const selectId = chip.dataset.selectId;
             const value = chip.dataset.value;
@@ -750,8 +725,7 @@ function switchRepView(viewId, options = {}) {
                     lastNonFavoriteStatus: [...lastNonFavoritesStatusSelections],
                     zone: getSelectedZones(),
                     sender: getSelectedSenders(),
-                    displayLimit: currentDisplayLimit,
-                    detailsExpanded: areShipmentDetailsExpanded
+                    displayLimit: currentDisplayLimit
                 };
 
                 if (typeof AppCrypto !== 'undefined') {
@@ -774,15 +748,11 @@ function switchRepView(viewId, options = {}) {
 
             if (state && state.date) {
                 const dates = Array.isArray(state.date) ? state.date : [state.date];
-                dateFilterSelections.clear();
                 dates.map(d => String(d || '').trim()).filter(Boolean).forEach(d => dateFilterSelections.add(d));
             } else {
                 const legacyDate = getSavedDateFilter();
                 const normalizedLegacyDate = String(legacyDate || '').trim();
-                if (normalizedLegacyDate) {
-                    dateFilterSelections.clear();
-                    dateFilterSelections.add(normalizedLegacyDate);
-                }
+                if (normalizedLegacyDate) dateFilterSelections.add(normalizedLegacyDate);
             }
 
             if (state && state.status) {
@@ -790,7 +760,6 @@ function switchRepView(viewId, options = {}) {
                 statusFilterSelections.clear();
                 statuses.map(s => String(s || '').trim()).filter(Boolean).forEach(s => statusFilterSelections.add(s));
             }
-
             if (state && state.lastNonFavoriteStatus) {
                 const lastStatuses = Array.isArray(state.lastNonFavoriteStatus) ? state.lastNonFavoriteStatus : [state.lastNonFavoriteStatus];
                 lastNonFavoritesStatusSelections = new Set(
@@ -799,7 +768,6 @@ function switchRepView(viewId, options = {}) {
             }
             if (state && state.zone) {
                 const zones = Array.isArray(state.zone) ? state.zone : [state.zone];
-                zoneFilterSelections.clear();
                 zones.map(z => String(z || '').trim()).filter(Boolean).forEach(z => zoneFilterSelections.add(z));
             }
 
@@ -807,7 +775,6 @@ function switchRepView(viewId, options = {}) {
 
             if (state && state.sender) {
                 const senders = Array.isArray(state.sender) ? state.sender : [state.sender];
-                senderFilterSelections.clear();
                 senders.map(s => String(s || '').trim()).filter(Boolean).forEach(s => senderFilterSelections.add(s));
             }
 
@@ -815,10 +782,6 @@ function switchRepView(viewId, options = {}) {
             if (!Number.isNaN(savedDisplayLimit) && savedDisplayLimit >= 40) {
                 currentDisplayLimit = savedDisplayLimit;
             }
-            if (typeof state?.detailsExpanded === 'boolean') {
-                areShipmentDetailsExpanded = state.detailsExpanded;
-            }
-            updateShipmentDetailsToggleButton();
 
             if (!state) return;
 

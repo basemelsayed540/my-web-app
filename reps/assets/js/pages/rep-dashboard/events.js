@@ -19,9 +19,6 @@ el('searchInput').addEventListener('input', () => {
         el('gpsRequiredActionBtn')?.addEventListener('click', () => {
             ensureGpsReadyAndLoadShipments(true);
         });
-        el('toggleShipmentDetailsBtn')?.addEventListener('click', () => {
-            toggleShipmentDetailsVisibility();
-        });
         el('themeToggleBtn')?.addEventListener('click', () => {
             toggleTheme();
             closeQuickActionsMenu();
@@ -74,23 +71,9 @@ el('searchInput').addEventListener('input', () => {
                 handleChipClick(chip);
                 return;
             }
-
-            const bulkStatusCard = event.target.closest('[data-bulk-status-card]');
-            if (bulkStatusCard) {
-                const value = bulkStatusCard.dataset.bulkStatusCard;
-                const hiddenInput = document.getElementById('bulkStatusSelect');
-                if (hiddenInput) {
-                    hiddenInput.value = value;
-                    document.querySelectorAll('[data-bulk-status-card]').forEach(c => c.classList.remove('active'));
-                    bulkStatusCard.classList.add('active');
-                    if (typeof updateBulkActionBar === 'function') updateBulkActionBar();
-                }
-                return;
-            }
         });
 
-        // The change event is now triggered manually via the card click logic above
-        // el('bulkStatusSelect')?.addEventListener('change', () => updateBulkActionBar());
+        el('bulkStatusSelect')?.addEventListener('change', () => updateBulkActionBar());
         el('shipmentsList')?.addEventListener('change', (event) => {
             const shipmentCheckbox = event.target.closest('[data-action="toggle-shipment-selection"]');
             if (!shipmentCheckbox) return;

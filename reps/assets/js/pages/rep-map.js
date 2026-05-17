@@ -15,7 +15,7 @@ const { createClient } = supabase;
         }
 
         startStoredUserSessionGuard(supabaseClient, {
-            allowedRoles: ['rep', 'مندوب فرعي', 'sub-rep'],
+            allowedRoles: ['rep', 'مندوب فرعي'],
             redirectTo: '../index.html',
             onValidUser: (latestUser) => {
                 user = latestUser;

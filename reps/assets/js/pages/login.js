@@ -25,7 +25,7 @@ const { createClient } = supabase;
                 else if (storedUser.role === 'rep' || storedUser.role === 'مندوب فرعي') path = 'rep-dashboard.html';
                 else if (storedUser.role === 'sender') path = '../sender-follower/sender-dashboard.html';
                 else if (storedUser.role === 'follower') path = '../sender-follower/follower-dashboard.html';
-                else if (storedUser.role === 'sub-rep') path = 'rep-dashboard.html';
+                else if (storedUser.role === 'sub-rep') path = 'sub-rep-dashboard.html';
 
                 if (path) {
                     window.location.href = path;
@@ -81,12 +81,6 @@ const { createClient } = supabase;
             loginBtn.disabled = true;
             loginBtn.innerHTML = 'جاري التحقق...';
 
-            const isDark = document.body.classList.contains('dark');
-            const swalTheme = {
-                background: isDark ? '#0f172a' : '#ffffff',
-                color: isDark ? '#f1f5f9' : '#1e293b'
-            };
-
             try {
                 const loginResult = await invokeUsersAuthAction('login', { phone, password });
                 const data = loginResult?.user;
@@ -106,14 +100,13 @@ const { createClient } = supabase;
                     title: 'تم تسجيل الدخول بنجاح',
                     text: phone === 'admin' ? 'مرحباً أيها المدير' : `مرحباً بك، ${data.full_name || data.username}`,
                     timer: 1500,
-                    showConfirmButton: false,
-                    ...swalTheme
+                    showConfirmButton: false
                 }).then(() => {
                     if (data.role === 'admin' || data.role === 'housing') window.location.href = '../manager/dashboard.html';
                     else if (data.role === 'rep' || data.role === 'مندوب فرعي') window.location.href = 'rep-dashboard.html';
                     else if (data.role === 'sender') window.location.href = '../sender-follower/sender-dashboard.html';
                     else if (data.role === 'follower') window.location.href = '../sender-follower/follower-dashboard.html';
-                    else if (data.role === 'sub-rep') window.location.href = 'rep-dashboard.html';
+                    else if (data.role === 'sub-rep') window.location.href = 'sub-rep-dashboard.html';
                     else throw new Error('دور المستخدم غير معروف');
                 });
 
@@ -121,8 +114,7 @@ const { createClient } = supabase;
                 Swal.fire({
                     icon: 'error',
                     title: 'فشل الدخول',
-                    text: err.message,
-                    ...swalTheme
+                    text: err.message
                 });
             } finally {
                 loginBtn.disabled = false;
@@ -132,12 +124,6 @@ const { createClient } = supabase;
 
         repSignupForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            const isDark = document.body.classList.contains('dark');
-            const swalTheme = {
-                background: isDark ? '#0f172a' : '#ffffff',
-                color: isDark ? '#f1f5f9' : '#1e293b'
-            };
 
             const signupRole = 'rep';
             const username = document.getElementById('signupName').value.trim();
@@ -150,8 +136,7 @@ const { createClient } = supabase;
                 Swal.fire({
                     icon: 'warning',
                     title: 'بيانات ناقصة',
-                    text: 'يرجى استكمال الاسم ورقم الموبايل والبريد الإلكتروني وكلمة المرور.',
-                    ...swalTheme
+                    text: 'يرجى استكمال الاسم ورقم الموبايل والبريد الإلكتروني وكلمة المرور.'
                 });
                 return;
             }
@@ -160,8 +145,7 @@ const { createClient } = supabase;
                 Swal.fire({
                     icon: 'warning',
                     title: 'كلمة مرور ضعيفة',
-                    text: 'يرجى استخدام 6 أحرف أو أرقام على الأقل.',
-                    ...swalTheme
+                    text: 'يرجى استخدام 6 أحرف أو أرقام على الأقل.'
                 });
                 return;
             }
@@ -170,8 +154,7 @@ const { createClient } = supabase;
                 Swal.fire({
                     icon: 'error',
                     title: 'كلمتا المرور غير متطابقتين',
-                    text: 'تأكد من إعادة كتابة كلمة المرور بشكل صحيح.',
-                    ...swalTheme
+                    text: 'تأكد من إعادة كتابة كلمة المرور بشكل صحيح.'
                 });
                 return;
             }
@@ -191,8 +174,7 @@ const { createClient } = supabase;
                 Swal.fire({
                     icon: 'success',
                     title: 'تم إنشاء الحساب',
-                    text: 'تم إنشاء حسابك بنجاح. يرجى الانتظار حتى يقوم المدير بتفعيل الحساب لتتمكن من تسجيل الدخول.',
-                    ...swalTheme
+                    text: 'تم إنشاء حسابك بنجاح. يرجى الانتظار حتى يقوم المدير بتفعيل الحساب لتتمكن من تسجيل الدخول.'
                 }).then(() => {
                     toggleRepSignupModal(false);
                     // No automatic redirect since it's not approved yet
@@ -202,8 +184,7 @@ const { createClient } = supabase;
                 Swal.fire({
                     icon: 'error',
                     title: 'تعذر إنشاء الحساب',
-                    text: err.message || 'حدث خطأ أثناء إنشاء الحساب.',
-                    ...swalTheme
+                    text: err.message || 'حدث خطأ أثناء إنشاء الحساب.'
                 });
             } finally {
                 signupBtn.disabled = false;

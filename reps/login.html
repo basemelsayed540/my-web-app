@@ -23,7 +23,7 @@
                         else if (data.role === 'rep' || data.role === 'مندوب فرعي') path = 'rep-dashboard.html';
                         else if (data.role === 'sender') path = '../sender-follower/sender-dashboard.html';
                         else if (data.role === 'follower') path = '../sender-follower/follower-dashboard.html';
-                        else if (data.role === 'sub-rep') path = 'rep-dashboard.html';
+                        else if (data.role === 'sub-rep') path = 'sub-rep-dashboard.html';
 
                         if (path) {
                             window.location.replace(path);
@@ -47,6 +47,29 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="assets/css/pages/login.css">
     <script src="assets/js/error-logger.js"></script>
+    <script>
+        // Immediate redirect if session exists to skip login screen flicker
+        (function() {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                try {
+                    const data = JSON.parse(storedUser);
+                    if (data && data.id) {
+                        let path = '';
+                        if (data.role === 'admin' || data.role === 'housing') path = '../manager/dashboard.html';
+                        else if (data.role === 'rep' || data.role === 'مندوب فرعي') path = 'rep-dashboard.html';
+                        else if (data.role === 'sender') path = '../sender-follower/sender-dashboard.html';
+                        else if (data.role === 'follower') path = '../sender-follower/follower-dashboard.html';
+                        else if (data.role === 'sub-rep') path = 'sub-rep-dashboard.html';
+
+                        if (path) {
+                            window.location.replace(path);
+                        }
+                    }
+                } catch (e) {}
+            }
+        })();
+    </script>
 </head>
 <body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 min-h-screen flex items-center justify-center p-4 transition-colors duration-300">
 

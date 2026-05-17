@@ -48,12 +48,7 @@ async function fetchShipments(options = {}) {
             }
 
             await fetchLockedShipmentIds();
-
-            // Only restore UI state if it's the first successful load or explicitly forced
-            if (isFirstLoad || options.force) {
-                restoreRepUiState();
-            }
-
+            restoreRepUiState();
             renderShipments();
             promptOpenDateFilterIfNeeded();
         }

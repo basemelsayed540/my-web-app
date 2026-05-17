@@ -221,7 +221,7 @@ function populateDropdowns() {
         }
 
         function matchesSelectedStatuses(shipment, selectedStatuses = []) {
-            if (!selectedStatuses || selectedStatuses.length === 0) return false;
+            if (!selectedStatuses || selectedStatuses.length === 0) return true;
             
             const shipmentStatus = getShipmentStatusLabel(shipment);
             return selectedStatuses.includes(shipmentStatus);
@@ -319,19 +319,13 @@ function populateDropdowns() {
         }
 
         function updateFilterCounters() {
-            const selectedDates = getSelectedDates();
-            // Critical Fix: Calculate stats based on DATE only, ignoring STATUS filter
-            // This ensures stats show up even when the list is empty (strict status view)
-            const statsData = selectedDates.length === 0
-                ? []
-                : allShipments.filter(s => selectedDates.includes(getShipmentDailyFilterValue(s)));
-
-            const total = statsData.length;
-            const delivered = statsData.filter(s => isDeliveredStatus(s.الحالة, s)).length;
-            const shipping = statsData.filter(s => isShippingFeeShipment(s)).length;
-            const inDelivery = statsData.filter(s => isPendingStatus(s.الحالة)).length;
-            const delayed = statsData.filter(s => isDelayedStatus(s.الحالة)).length;
-            const priceEdit = statsData.filter(s => isPriceEditShipment(s)).length;
+            const scopedShipments = getDateFilteredShipments();
+            const total = scopedShipments.length;
+            const delivered = scopedShipments.filter(s => isDeliveredStatus(s.الحالة, s)).length;
+            const shipping = scopedShipments.filter(s => isShippingFeeShipment(s)).length;
+            const inDelivery = scopedShipments.filter(s => isPendingStatus(s.الحالة)).length;
+            const delayed = scopedShipments.filter(s => isDelayedStatus(s.الحالة)).length;
+            const priceEdit = scopedShipments.filter(s => isPriceEditShipment(s)).length;
             const progress = total ? Math.round((delivered / total) * 100) : 0;
 
             el('progressPercent').innerText = progress;
@@ -340,11 +334,10 @@ function populateDropdowns() {
             el('progressPriceEdit').innerText = priceEdit;
             el('progressTotal').innerText = total;
             el('progressBar').style.width = `${progress}%`;
-
-            el('repCommissionTotal').innerText = `${statsData.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)}`;
-            const remittanceShipments = statsData.filter(s => isCommissionEligibleShipment(s) && !isShipmentLocked(s.id));
+            el('repCommissionTotal').innerHTML = `${scopedShipments.filter(isCommissionEligibleShipment).reduce((acc, shipment) => acc + getShipmentCommission(shipment), 0)} <span class="text-sm text-slate-800 dark:text-white">ج.م</span>`;
+            const remittanceShipments = scopedShipments.filter(s => isCommissionEligibleShipment(s) && !isShipmentLocked(s.id));
             const remittanceAmount = remittanceShipments.reduce((acc, shipment) => acc + getShipmentAmount(shipment), 0);
-            el('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount}`;
+            el('repShippingStats').innerText = `المطلوب توريده: ${remittanceShipments.length} شحنة | ${remittanceAmount} ج.م`;
             syncQuickStatCards();
         }
 

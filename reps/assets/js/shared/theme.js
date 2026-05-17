@@ -14,7 +14,6 @@ window.RepsTheme = (() => {
         const iconId = options.iconId || DEFAULT_ICON_ID;
         const isDark = localStorage.getItem(storageKey) === 'dark';
         document.body.classList.toggle('dark', isDark);
-        document.documentElement.classList.toggle('dark', isDark);
         updateIcon(iconId, isDark);
         return isDark;
     }
@@ -36,7 +35,6 @@ window.RepsTheme = (() => {
         document.head.appendChild(css);
 
         const isDark = document.body.classList.toggle('dark');
-        document.documentElement.classList.toggle('dark', isDark);
         updateIcon(iconId, isDark);
         localStorage.setItem(storageKey, isDark ? 'dark' : 'light');
 
