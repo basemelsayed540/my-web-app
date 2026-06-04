@@ -644,7 +644,7 @@
         // Real-time listener
         supabaseClient
             .channel('sender_changes')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'elsayed' }, fetchMyShipments)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'abdo' }, fetchMyShipments)
             .subscribe();
 
         fetchMyShipments();

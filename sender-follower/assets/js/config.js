@@ -2,7 +2,7 @@ const CONFIG = {
     SUPABASE_URL: "https://evrqxgnqwngokukqerps.supabase.co",
     SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2cnF4Z25xd25nb2t1a3FlcnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODE3NjgsImV4cCI6MjA5MjU1Nzc2OH0.2Ym96D5j5iuTZ43rdxlZk8EMu6Pyg4XfX2NOdMhqqr4",
     TABLES: {
-        SHIPMENTS: 'elsayed',
+        SHIPMENTS: 'abdo',
         USERS: 'users',
         SETTLEMENTS: 'settlements',
         CALLS_LOG: 'calls_log'

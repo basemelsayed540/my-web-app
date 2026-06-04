@@ -2,7 +2,7 @@ const CONFIG = {
     SUPABASE_URL: "https://evrqxgnqwngokukqerps.supabase.co",
     SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2cnF4Z25xd25nb2t1a3FlcnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODE3NjgsImV4cCI6MjA5MjU1Nzc2OH0.2Ym96D5j5iuTZ43rdxlZk8EMu6Pyg4XfX2NOdMhqqr4",
     TABLES: {
-        SHIPMENTS: 'elsayed',
+        SHIPMENTS: 'abdo',
         USERS: 'users',
         SETTLEMENTS: 'settlements'
     }
@@ -20,36 +20,6 @@ function getSharedSupabaseClient() {
         _sharedSupabaseClient = window.supabase.createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
     }
     return _sharedSupabaseClient;
-}
-
-function getStoredUserData() {
-    if (typeof AppCrypto !== 'undefined' && typeof AppCrypto.getItem === 'function') {
-        const decryptedUser = AppCrypto.getItem('user');
-        if (decryptedUser) {
-            return decryptedUser;
-        }
-    }
-
-    const rawUser = localStorage.getItem('user');
-    if (!rawUser) return null;
-
-    try {
-        return JSON.parse(rawUser);
-    } catch (error) {
-        console.warn('Failed to parse stored user data:', error);
-        return null;
-    }
-}
-
-function setStoredUserData(user) {
-    if (!user) return;
-
-    if (typeof AppCrypto !== 'undefined' && typeof AppCrypto.setItem === 'function') {
-        AppCrypto.setItem('user', user);
-        return;
-    }
-
-    localStorage.setItem('user', JSON.stringify(user));
 }
 
 CONFIG.USER_PUBLIC_FIELDS = [
@@ -277,7 +247,7 @@ function mergeClientUserData(baseUser, freshUser) {
 
 function saveUserSession(user, sessionToken = null) {
     if (user) {
-        setStoredUserData(user);
+        localStorage.setItem('user', JSON.stringify(user));
     }
     if (sessionToken) {
         localStorage.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
@@ -304,7 +274,7 @@ async function enforceStoredUserSession(supabaseClient, options = {}) {
         silent = false
     } = options;
 
-    const storedUser = getStoredUserData();
+    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (!storedUser) {
         clearStoredUserSession(redirectTo);
         return null;
@@ -375,7 +345,7 @@ function getUsersMutationPolicyHint(actionLabel = 'تنفيذ العملية') {
 }
 
 async function invokeUsersAdminAction(action, payload = {}, currentUserOverride = null) {
-    const currentUser = currentUserOverride || getStoredUserData();
+    const currentUser = currentUserOverride || JSON.parse(localStorage.getItem('user') || 'null');
     const sessionToken = getStoredSessionToken();
     if (!currentUser?.id && action !== 'login') {
         throw new Error('تعذر التحقق من التخويل المحلي للتعديل.');
@@ -494,7 +464,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
             if (response.ok) {
                 const data = await response.json();
                 if (data?.user) {
-                    const currentUser = getStoredUserData();
+                    const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
                     const mergedUser = data.user ? mergeClientUserData(currentUser, data.user) : currentUser;
                     saveUserSession(mergedUser, data.sessionToken || null);
                 }
@@ -558,7 +528,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'session_user') {
-        const curUser = getStoredUserData();
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
         if (!curUser?.id) return { user: null };
         const { data, error } = await client.from('users').select('*').eq('id', curUser.id).single();
         if (error || !data) return { user: null };
@@ -567,7 +537,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'verify_password') {
-        const curUser = getStoredUserData();
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('password').eq('id', curUser.id).single();
         if (!data) return { valid: false };
@@ -576,7 +546,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'change_password') {
-        const curUser = getStoredUserData();
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('*').eq('id', curUser.id).single();
         const valid = await verifyPassword(data.password, payload.oldPassword);

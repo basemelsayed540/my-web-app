@@ -16,7 +16,6 @@
     
     <!-- Supabase & SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
@@ -166,7 +165,6 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
-    <script src="../reps/assets/js/shared/crypto.js"></script>
     <script src="assets/js/config.js"></script>
     <script src="assets/js/tracking.js"></script>
 
@@ -175,7 +173,7 @@
         const supabaseClient = createClient(CONFIG.SUPABASE_URL, CONFIG.SUPABASE_KEY);
 
         // Permissions check
-        const user = getStoredUserData();
+        const user = JSON.parse(localStorage.getItem('user'));
         if (!user || user.role !== 'admin') {
             window.location.href = '../index.html';
         }

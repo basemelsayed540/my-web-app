@@ -2,7 +2,7 @@ const CONFIG = {
     SUPABASE_URL: "https://evrqxgnqwngokukqerps.supabase.co",
     SUPABASE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImV2cnF4Z25xd25nb2t1a3FlcnBzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY5ODE3NjgsImV4cCI6MjA5MjU1Nzc2OH0.2Ym96D5j5iuTZ43rdxlZk8EMu6Pyg4XfX2NOdMhqqr4",
     TABLES: {
-        SHIPMENTS: 'elsayed',
+        SHIPMENTS: 'abdo',
         USERS: 'users',
         SETTLEMENTS: 'settlements',
         CALLS_LOG: 'calls_log'
@@ -85,26 +85,10 @@ function assignShipmentAliases(record, canonicalKey, aliases) {
     });
 }
 
-function decodeShipmentFieldValue(value) {
-    if (typeof value !== 'string' || !value.startsWith('__enc__:')) {
-        return value;
-    }
-
-    if (typeof AppCrypto === 'undefined' || typeof AppCrypto.decrypt !== 'function') {
-        return value;
-    }
-
-    const decodedValue = AppCrypto.decrypt(value);
-    return decodedValue == null ? value : decodedValue;
-}
-
 function normalizeShipmentRecordHeaders(record) {
     if (!record || typeof record !== 'object') return record;
 
     const normalized = { ...record };
-    Object.keys(normalized).forEach((key) => {
-        normalized[key] = decodeShipmentFieldValue(normalized[key]);
-    });
 
     assignShipmentAliases(normalized, 'm', ['م']);
     assignShipmentAliases(normalized, 'اسم العميل', ['اسم_العميل']);
@@ -166,7 +150,7 @@ function buildShipmentServerPayload(payload) {
 
     CONFIG.SHIPMENT_SERVER_FIELDS.forEach((field) => {
         if (Object.prototype.hasOwnProperty.call(normalized, field)) {
-            serverPayload[field] = decodeShipmentFieldValue(normalized[field]);
+            serverPayload[field] = normalized[field];
         }
     });
 
@@ -295,19 +279,15 @@ function mergeClientUserData(baseUser, freshUser) {
 }
 
 function saveUserSession(user, sessionToken = null) {
-    if (typeof AppCrypto !== 'undefined') {
-        if (user) AppCrypto.setItem('user', user);
-        if (sessionToken) AppCrypto.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
-    } else {
-        if (user) localStorage.setItem('user', JSON.stringify(user));
-        if (sessionToken) localStorage.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
+    if (user) {
+        localStorage.setItem('user', JSON.stringify(user));
+    }
+    if (sessionToken) {
+        localStorage.setItem(CONFIG.SESSION_TOKEN_STORAGE_KEY, sessionToken);
     }
 }
 
 function getStoredSessionToken() {
-    if (typeof AppCrypto !== 'undefined') {
-        return AppCrypto.getItem(CONFIG.SESSION_TOKEN_STORAGE_KEY) || '';
-    }
     return localStorage.getItem(CONFIG.SESSION_TOKEN_STORAGE_KEY) || '';
 }
 
@@ -327,13 +307,7 @@ async function enforceStoredUserSession(supabaseClient, options = {}) {
         silent = false
     } = options;
 
-    let storedUser = null;
-    if (typeof AppCrypto !== 'undefined') {
-        storedUser = AppCrypto.getItem('user');
-    } else {
-        storedUser = JSON.parse(localStorage.getItem('user') || 'null');
-    }
-
+    const storedUser = JSON.parse(localStorage.getItem('user') || 'null');
     if (!storedUser) {
         clearStoredUserSession(redirectTo);
         return null;
@@ -404,10 +378,7 @@ function getUsersMutationPolicyHint(actionLabel = 'تنفيذ العملية') {
 }
 
 async function invokeUsersAdminAction(action, payload = {}, currentUserOverride = null) {
-    const currentUser = currentUserOverride || (() => {
-        if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
-        return JSON.parse(localStorage.getItem('user') || 'null');
-    })();
+    const currentUser = currentUserOverride || JSON.parse(localStorage.getItem('user') || 'null');
     const sessionToken = getStoredSessionToken();
     if (!currentUser?.id && action !== 'login') {
         throw new Error('تعذر التحقق من التخويل المحلي للتعديل.');
@@ -590,10 +561,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'session_user') {
-        const curUser = (() => {
-            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
-            return JSON.parse(localStorage.getItem('user') || 'null');
-        })();
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
         if (!curUser?.id) return { user: null };
         const { data, error } = await client.from('users').select('*').eq('id', curUser.id).single();
         if (error || !data) return { user: null };
@@ -602,10 +570,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'verify_password') {
-        const curUser = (() => {
-            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
-            return JSON.parse(localStorage.getItem('user') || 'null');
-        })();
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('password').eq('id', curUser.id).single();
         if (!data) return { valid: false };
@@ -614,10 +579,7 @@ async function invokeUsersAuthAction(action, payload = {}) {
     }
 
     if (action === 'change_password') {
-        const curUser = (() => {
-            if (typeof AppCrypto !== 'undefined') return AppCrypto.getItem('user');
-            return JSON.parse(localStorage.getItem('user') || 'null');
-        })();
+        const curUser = JSON.parse(localStorage.getItem('user') || 'null');
         if (!curUser?.id) throw new Error("تعذر التحقق من الجلسة.");
         const { data } = await client.from('users').select('*').eq('id', curUser.id).single();
         const valid = await verifyPassword(data.password, payload.oldPassword);
