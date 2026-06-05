@@ -1261,6 +1261,7 @@
 
         .housing-table th,
         .housing-table td {
+            font-size: 11px;
             width: 10%;
             white-space: nowrap;
             word-break: keep-all;
@@ -1770,6 +1771,7 @@
             border-color: #475569 !important;
             color: #e2e8f0 !important;
         }
+        .no-transition, .no-transition * { transition: none !important; }
         [data-bs-theme="dark"] #housingBulkActionBar .dropdown-menu {
             background: #1e293b;
         }
@@ -2397,6 +2399,10 @@
             <div class="d-flex align-items-center gap-3">
                 <button onclick="openHousingChangesStatsModal()" class="btn btn-light rounded-circle shadow-sm" title="احصائية التغيرات"><i
                         class="fas fa-chart-pie"></i></button>
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-light rounded-circle shadow-sm" data-bs-toggle="dropdown" title="إخفاء/إظهار الاحصائيات"><i class="fas fa-sliders-h"></i></button>
+                    <ul class="dropdown-menu dropdown-menu-end shadow border-0 rounded-4 p-2" style="min-width:210px;font-size:0.75rem;" id="housingStatCardsMenu"></ul>
+                </div>
                 <button onclick="window.open('live-map.html', '_blank')" class="btn btn-light rounded-circle shadow-sm" title="خريطة المندوب المباشرة"><i
                         class="fas fa-satellite-dish"></i></button>
                 <button onclick="toggleTheme()" class="btn btn-light rounded-circle shadow-sm"><i
@@ -2488,7 +2494,7 @@
         
         <!-- Main Content -->
         <div class="flex-grow-1 p-3 p-md-4 w-100" style="overflow-x: hidden;">
-            <div id="section-stats">
+            <div id="section-stats" style="display: none;">
                 <div class="order-card shadow-sm border-0" style="overflow:hidden;">
                     <div class="p-4">
                         <!-- الفلاتر -->
@@ -2851,7 +2857,7 @@
                                 </button>
                                 <input id="housingSearch" type="text"
                                     class="form-control rounded-pill border-secondary flex-grow-1 min-w-0"
-                                    placeholder="🔍 ابحث في اسم العميل أو الهاتف أو البديل أو كود الشحنة...">
+                                    placeholder="">
                                 <select id="housingEditDateFilterSelect"
                                     class="form-select rounded-pill border-secondary flex-shrink-0"
                                     style="width:auto;min-width:100px;font-size:0.8rem;"
@@ -2956,11 +2962,23 @@
                                         <input id="housingFilterEmployee" type="text"
                                             class="form-control form-control-sm rounded-3" placeholder="🔍 الموظف">
                                     </th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="16">id</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="17">العنوان</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="18">ملاحظات</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="19">تاريخ التحديث</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="20">الصافي</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="21">الشحن</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="22">تقفيل</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="23">عمولة المندوب</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="24">حدث</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="25">اليومية</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="26">نوع المندوب</th>
+                                    <th class="py-1 px-2 text-center small fw-bold text-secondary" style="display: none;" data-col-idx="27">ارشيف</th>
                                 </tr>
                             </thead>
                             <tbody id="housingShipmentsTable">
                                 <tr>
-                                    <td colspan="18" class="text-center py-4 text-secondary fw-bold">جاري التحميل...
+                                    <td colspan="30" class="text-center py-4 text-secondary fw-bold">جاري التحميل...
                                     </td>
                                 </tr>
                             </tbody>
@@ -3257,6 +3275,7 @@
         let originalShipments = new Map();
         let housingDashStatFilter = ''; // Dashboard stat filter (like sub-rep)
         let housingDrafts = new Map();
+        let housingEventUsers = new Map();
         let housingStatsFilter = 'all';
         let housingUndoStack = []; // Each entry: { label, snapshots: [{id, fields}] }
         let housingQrModal = null;
@@ -3491,17 +3510,21 @@
                 tab.classList.add('active-section-tab');
             });
 
+            const housingSidebar = document.getElementById('housingSidebar');
             if (sectionId === 'housing') {
                 document.getElementById('navHousingInfo').style.setProperty('display', 'flex', 'important');
                 document.querySelector('#navHousingInfo .badge').textContent = 'تسكين الشحنات';
+                if (housingSidebar) housingSidebar.style.display = '';
                 initHousingFilterSidebar();
                 renderHousingSection();
             } else if (sectionId === 'stats') {
                 document.getElementById('navHousingInfo').style.setProperty('display', 'flex', 'important');
                 document.querySelector('#navHousingInfo .badge').textContent = 'احصائية المندوب';
+                if (housingSidebar) housingSidebar.style.display = 'none';
             } else if (sectionId === 'users') {
                 document.getElementById('navHousingInfo').style.setProperty('display', 'flex', 'important');
                 document.querySelector('#navHousingInfo .badge').textContent = 'إدارة الحسابات';
+                if (housingSidebar) housingSidebar.style.display = 'none';
             } else {
                 document.getElementById('navHousingInfo').style.setProperty('display', 'none', 'important');
             }
@@ -7054,8 +7077,10 @@
 
             if (changedFields.length) {
                 housingDrafts.set(String(id), payload);
+                housingEventUsers.set(String(id), currentUser.full_name || currentUser.username || 'مدير');
             } else {
                 housingDrafts.delete(String(id));
+                housingEventUsers.delete(String(id));
             }
             markHousingDraftsChanged();
 
@@ -7486,6 +7511,7 @@
                         allShipments[index] = { ...allShipments[index], ...entry.payload };
                     }
                     housingDrafts.delete(String(entry.id));
+                    housingEventUsers.delete(String(entry.id));
                     markHousingDataChanged();
                     markHousingDraftsChanged();
                 } else {
@@ -7548,90 +7574,46 @@
             if (!container) return;
 
             const shipments = filtered;
+            let noDelegate = 0, noAmountCount = 0, warehouseCount = 0;
+            let doneCount = 0, shippingCount = 0, amendedCount = 0, rejectedCount = 0, postponedCount = 0;
+            let mjashCount = 0, inDeliveryCount = 0;
+            let doneTotalPrice = 0, amendedTotalPrice = 0, shippingTotalPrice = 0;
+            let totalAmount = 0, grossAmount = 0, totalCommission = 0, shippingCostTotal = 0;
 
-            const noDelegate = shipments.filter(s => {
+            for (let i = 0; i < shipments.length; i++) {
+                const s = shipments[i];
                 const d = getHousingDisplayShipmentData(s);
-                return !d.المندوب;
-            }).length;
-
-            const noAmountCount = shipments.filter(s => {
-                const d = getHousingDisplayShipmentData(s);
+                const rep = String(d.المندوب || '').trim();
                 const amt = String(d.المبلغ || '').trim();
-                return !amt || amt === '0' || amt === '0.0' || amt === '0.00';
-            }).length;
-
-            const warehouseCount = shipments.filter(s => {
-                const d = getHousingDisplayShipmentData(s);
-                return String(d.المندوب || '').trim() === 'مخزن';
-            }).length;
-
-            const doneCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'تم'
-            ).length;
-            const shippingCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'شحن'
-            ).length;
-            const amendedCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'تعديل سعر'
-            ).length;
-            const rejectedCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'رفض'
-            ).length;
-            const postponedCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'مؤجل'
-            ).length;
-
-            let doneTotalPrice = 0;
-            let amendedTotalPrice = 0;
-            let shippingTotalPrice = 0;
-            shipments.forEach(s => {
-                const status = getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s));
-                const d = getHousingDisplayShipmentData(s);
-                const p = parseFloat(String(d.السعر_بعد_التعديل || d.المبلغ || '0').replace(/[^0-9.-]+/g, '')) || 0;
-                if (status === 'تم') doneTotalPrice += p;
-                if (status === 'تعديل سعر') amendedTotalPrice += p;
-                if (status === 'شحن') shippingTotalPrice = (shippingTotalPrice || 0) + p;
-            });
-
-            const mjashCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'مجاش'
-            ).length;
-            const inDeliveryCount = shipments.filter(s =>
-                getHousingDashboardDisplayStatus(getHousingDisplayShipmentData(s)) === 'قيد التوصيل'
-            ).length;
-
-            let totalAmount = 0;
-            let grossAmount = 0;
-            let totalCommission = 0;
-            let safiTotal = 0;
-            let shippingCostTotal = 0;
-            shipments.forEach(s => {
-                const d = getHousingDisplayShipmentData(s);
                 const status = getHousingDashboardDisplayStatus(d);
-                
-                // التوريد - Total Collected
+
+                if (!rep) noDelegate++;
+                if (!amt || amt === '0' || amt === '0.0' || amt === '0.00') noAmountCount++;
+                if (rep === 'مخزن') warehouseCount++;
+                if (status === 'تم') doneCount++;
+                else if (status === 'شحن') shippingCount++;
+                else if (status === 'تعديل سعر') amendedCount++;
+                else if (status === 'رفض') rejectedCount++;
+                else if (status === 'مؤجل') postponedCount++;
+                else if (status === 'مجاش') mjashCount++;
+                else if (status === 'قيد التوصيل') inDeliveryCount++;
+
+                const price = parseFloat(String(d.السعر_بعد_التعديل || d.المبلغ || '0').replace(/[^0-9.-]+/g, '')) || 0;
+                if (status === 'تم') doneTotalPrice += price;
+                else if (status === 'تعديل سعر') amendedTotalPrice += price;
+                else if (status === 'شحن') shippingTotalPrice += price;
+
                 if (status === 'تم' || status === 'تعديل سعر' || status === 'شحن') {
-                    const priceStr = d.السعر_بعد_التعديل || d.المبلغ || '0';
-                    const price = parseFloat(String(priceStr).replace(/[^0-9.-]+/g, '')) || 0;
                     totalAmount += price;
                     const commissionStr = d[SHIPMENT_COMMISSION_FIELD] ?? d[SHIPMENT_COMMISSION_FIELD_LEGACY] ?? '0';
-                    const commission = parseFloat(String(commissionStr).replace(/[^0-9.-]+/g, '')) || 0;
-                    totalCommission += commission;
+                    totalCommission += parseFloat(String(commissionStr).replace(/[^0-9.-]+/g, '')) || 0;
                 }
 
-                // إجمالي المبلغ - Gross Amount
-                const originalPriceStr = d.المبلغ || '0';
-                const originalPrice = parseFloat(String(originalPriceStr).replace(/[^0-9.-]+/g, '')) || 0;
-                grossAmount += originalPrice;
-
-                // الصافي
-                const safiStr = d.الصافي || '0';
-                safiTotal += parseFloat(String(safiStr).replace(/[^0-9.-]+/g, '')) || 0;
-
-                // الشحن
-                const shipStr = d.الشحن || '0';
-                shippingCostTotal += parseFloat(String(shipStr).replace(/[^0-9.-]+/g, '')) || 0;
-            });
+                const shippingCost = parseFloat(String(d.الشحن || '0').replace(/[^0-9.-]+/g, '')) || 0;
+                grossAmount += parseFloat(String(d.المبلغ || '0').replace(/[^0-9.-]+/g, '')) || 0;
+                shippingCostTotal += shippingCost;
+            }
+            let safiTotal = totalAmount - shippingCostTotal;
             const netAmountAfterCommission = totalAmount - totalCommission;
 
             const getActiveClass = (s) => housingDashStatFilter === s
@@ -7643,95 +7625,97 @@
             const showCounts = getHousingEditDateFilters().length > 0 || !!getHousingArchiveFilterValue();
             const cardValue = (val) => showCounts ? val : '0';
 
+            const _hiddenStat = getHousingStatCardHiddenKeys();
+            const _vis = (k) => _hiddenStat.includes(k) ? 'd-none' : '';
             container.innerHTML = `
                 <div class="d-flex flex-column gap-2 w-100">
                     <div class="d-flex flex-wrap align-items-stretch justify-content-center gap-1 w-100">
-                        <button type="button" onclick="toggleHousingDashStatFilter('بدون مندوب')" class="${cardStyle} border-danger-subtle ${getActiveClass('بدون مندوب')}" style="min-width:76px; flex-basis:76px;">
+                        <button type="button" data-stat-key="noDelegate" onclick="toggleHousingDashStatFilter('بدون مندوب')" class="${cardStyle} border-danger-subtle ${getActiveClass('بدون مندوب')} ${_vis('noDelegate')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-user-slash text-danger mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">بدون مندوب</small>
                         <span class="fw-bold text-danger" style="font-size:0.7rem;">${cardValue(noDelegate)}</span>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('مجاش')" class="${cardStyle} border-secondary-subtle ${getActiveClass('مجاش')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="mjash" onclick="toggleHousingDashStatFilter('مجاش')" class="${cardStyle} border-secondary-subtle ${getActiveClass('مجاش')} ${_vis('mjash')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-user-xmark text-secondary mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">مجاش</small>
                         <span class="fw-bold text-secondary" style="font-size:0.7rem;">${cardValue(mjashCount)}</span>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('بدون مبلغ')" class="${cardStyle} border-danger-subtle ${getActiveClass('بدون مبلغ')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="noAmount" onclick="toggleHousingDashStatFilter('بدون مبلغ')" class="${cardStyle} border-danger-subtle ${getActiveClass('بدون مبلغ')} ${_vis('noAmount')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-comment-dollar text-danger mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">بدون مبلغ</small>
                         <span class="fw-bold text-danger" style="font-size:0.7rem;">${cardValue(noAmountCount)}</span>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('مخزن')" class="${cardStyle} border-warning-subtle ${getActiveClass('مخزن')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="warehouse" onclick="toggleHousingDashStatFilter('مخزن')" class="${cardStyle} border-warning-subtle ${getActiveClass('مخزن')} ${_vis('warehouse')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-warehouse text-warning mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">مخزن</small>
                         <span class="fw-bold text-warning" style="font-size:0.7rem;">${cardValue(warehouseCount)}</span>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('قيد التوصيل')" class="${cardStyle} border-info-subtle ${getActiveClass('قيد التوصيل')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="inDelivery" onclick="toggleHousingDashStatFilter('قيد التوصيل')" class="${cardStyle} border-info-subtle ${getActiveClass('قيد التوصيل')} ${_vis('inDelivery')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-truck text-info mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">قيد التوصيل</small>
                         <span class="fw-bold text-info" style="font-size:0.7rem;">${cardValue(inDeliveryCount)}</span>
                     </button>
-                    <button type="button" onclick="resetHousingDashStatsFilter()" class="${cardStyle} border border-2 border-primary-subtle shadow-lg bg-body text-muted ${!housingDashStatFilter ? 'highlight-active shadow-lg' : ''}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="all" onclick="resetHousingDashStatsFilter()" class="${cardStyle} border border-2 border-primary-subtle shadow-lg bg-body text-muted ${!housingDashStatFilter ? 'highlight-active shadow-lg' : ''} ${_vis('all')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-layer-group mb-0 text-primary" style="font-size:0.75rem;"></i>
                         <small class="fw-bold text-muted" style="font-size:0.55rem;line-height:1.1;">الكل</small>
                         <span class="fw-bold text-primary" style="font-size:0.7rem;">${showCounts ? shipments.length : '0'}</span>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('تم')" class="${cardStyle} border-success-subtle ${getActiveClass('تم')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="done" onclick="toggleHousingDashStatFilter('تم')" class="${cardStyle} border-success-subtle ${getActiveClass('تم')} ${_vis('done')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-check-circle text-success mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">تم</small>
                         <span class="fw-bold text-success" style="font-size:0.7rem;">${cardValue(doneCount)}</span>
                         <small class="text-success small fw-bold lh-1" style="font-size:0.45rem;" dir="ltr">${showCounts ? doneTotalPrice.toLocaleString() : ''}</small>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('تعديل سعر')" class="${cardStyle} border-primary-subtle ${getActiveClass('تعديل سعر')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="amended" onclick="toggleHousingDashStatFilter('تعديل سعر')" class="${cardStyle} border-primary-subtle ${getActiveClass('تعديل سعر')} ${_vis('amended')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-edit text-primary mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">تعديل سعر</small>
                         <span class="fw-bold text-primary" style="font-size:0.7rem;">${cardValue(amendedCount)}</span>
                         <small class="text-primary small fw-bold lh-1" style="font-size:0.45rem;" dir="ltr">${showCounts ? amendedTotalPrice.toLocaleString() : ''}</small>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('شحن')" class="${cardStyle} border-info-subtle ${getActiveClass('شحن')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="shipping" onclick="toggleHousingDashStatFilter('شحن')" class="${cardStyle} border-info-subtle ${getActiveClass('شحن')} ${_vis('shipping')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-truck-fast text-info mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">شحن</small>
                         <span class="fw-bold text-info" style="font-size:0.7rem;">${cardValue(shippingCount)}</span>
                         <small class="text-info small fw-bold lh-1" style="font-size:0.45rem;" dir="ltr">${showCounts ? (shippingTotalPrice || 0).toLocaleString() : ''}</small>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('رفض')" class="${cardStyle} border-danger-subtle ${getActiveClass('رفض')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="rejected" onclick="toggleHousingDashStatFilter('رفض')" class="${cardStyle} border-danger-subtle ${getActiveClass('رفض')} ${_vis('rejected')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-times-circle text-danger mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">إلغاء</small>
                         <span class="fw-bold text-danger" style="font-size:0.7rem;">${cardValue(rejectedCount)}</span>
                     </button>
-                    <button type="button" onclick="toggleHousingDashStatFilter('مؤجل')" class="${cardStyle} border-warning-subtle ${getActiveClass('مؤجل')}" style="min-width:76px; flex-basis:76px;">
+                    <button type="button" data-stat-key="postponed" onclick="toggleHousingDashStatFilter('مؤجل')" class="${cardStyle} border-warning-subtle ${getActiveClass('مؤجل')} ${_vis('postponed')}" style="min-width:76px; flex-basis:76px;">
                         <i class="fas fa-clock text-warning mb-0" style="font-size:0.75rem;"></i>
                         <small class="text-muted fw-bold" style="font-size:0.55rem;line-height:1.1;">مؤجل</small>
                         <span class="fw-bold text-warning" style="font-size:0.7rem;">${cardValue(postponedCount)}</span>
                     </button>
                     </div>
                     <div class="d-flex flex-wrap align-items-stretch justify-content-center gap-1 w-100">
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#10b981,#047857);">
+                        <div data-stat-key="grossAmount" class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm ${_vis('grossAmount')}" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#10b981,#047857);">
                             <i class="fas fa-coins mb-0" style="font-size:0.75rem;"></i>
                             <small class="fw-bold" style="font-size:0.55rem;line-height:1.1;opacity:0.9;">إجمالي المبلغ</small>
                             <span class="fw-bold" dir="ltr" style="font-size:0.7rem;">${showCounts ? grossAmount.toLocaleString() : '0'}</span>
                         </div>
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#6366f1,#4338ca);">
+                        <div data-stat-key="safi" class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm ${_vis('safi')}" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#6366f1,#4338ca);">
                             <i class="fas fa-file-invoice-dollar mb-0" style="font-size:0.75rem;"></i>
                             <small class="fw-bold" style="font-size:0.55rem;line-height:1.1;opacity:0.9;">الصافي</small>
                             <span class="fw-bold" dir="ltr" style="font-size:0.7rem;">${showCounts ? safiTotal.toLocaleString() : '0'}</span>
                         </div>
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#f97316,#c2410c);">
+                        <div data-stat-key="shippingCost" class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm ${_vis('shippingCost')}" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#f97316,#c2410c);">
                             <i class="fas fa-truck mb-0" style="font-size:0.75rem;"></i>
                             <small class="fw-bold" style="font-size:0.55rem;line-height:1.1;opacity:0.9;">الشحن</small>
                             <span class="fw-bold" dir="ltr" style="font-size:0.7rem;">${showCounts ? shippingCostTotal.toLocaleString() : '0'}</span>
                         </div>
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#06b6d4,#0e7490);">
+                        <div data-stat-key="totalAmount" class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm ${_vis('totalAmount')}" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#06b6d4,#0e7490);">
                             <i class="fas fa-money-bill-wave mb-0" style="font-size:0.75rem;"></i>
                             <small class="fw-bold" style="font-size:0.55rem;line-height:1.1;opacity:0.9;">التوريد</small>
                             <span class="fw-bold" dir="ltr" style="font-size:0.7rem;">${showCounts ? totalAmount.toLocaleString() : '0'}</span>
                         </div>
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#f59e0b,#b45309);">
+                        <div data-stat-key="commission" class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm ${_vis('commission')}" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#f59e0b,#b45309);">
                             <i class="fas fa-hand-holding-dollar mb-0" style="font-size:0.75rem;"></i>
                             <small class="fw-bold" style="font-size:0.55rem;line-height:1.1;opacity:0.9;">عمولة المندوب</small>
                             <span class="fw-bold" dir="ltr" style="font-size:0.7rem;">${showCounts ? totalCommission.toLocaleString() : '0'}</span>
                         </div>
-                        <div class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#8b5cf6,#6d28d9);">
+                        <div data-stat-key="netAfterCommission" class="d-flex flex-column align-items-center justify-content-center text-center rounded-3 px-1 py-1 flex-grow-1 text-white shadow-sm ${_vis('netAfterCommission')}" style="min-width:76px; flex-basis:76px;cursor:default;background:linear-gradient(135deg,#8b5cf6,#6d28d9);">
                             <i class="fas fa-scale-balanced mb-0" style="font-size:0.75rem;"></i>
                             <small class="fw-bold" style="font-size:0.55rem;line-height:1.1;opacity:0.9;">بعد خصم العمولة</small>
                             <span class="fw-bold" dir="ltr" style="font-size:0.7rem;">${showCounts ? netAmountAfterCommission.toLocaleString() : '0'}</span>
@@ -7740,6 +7724,56 @@
             `;
         }
 
+        const HOUSING_STAT_CARDS = [
+            { key: 'noDelegate', label: 'بدون مندوب' },
+            { key: 'mjash', label: 'مجاش' },
+            { key: 'noAmount', label: 'بدون مبلغ' },
+            { key: 'warehouse', label: 'مخزن' },
+            { key: 'inDelivery', label: 'قيد التوصيل' },
+            { key: 'all', label: 'الكل' },
+            { key: 'done', label: 'تم' },
+            { key: 'amended', label: 'تعديل سعر' },
+            { key: 'shipping', label: 'شحن' },
+            { key: 'rejected', label: 'إلغاء' },
+            { key: 'postponed', label: 'مؤجل' },
+            { key: 'grossAmount', label: 'إجمالي المبلغ' },
+            { key: 'safi', label: 'الصافي' },
+            { key: 'shippingCost', label: 'الشحن' },
+            { key: 'totalAmount', label: 'التوريد' },
+            { key: 'commission', label: 'عمولة المندوب' },
+            { key: 'netAfterCommission', label: 'بعد خصم العمولة' }
+        ];
+        function getHousingStatCardHiddenKeys() {
+            try { return JSON.parse(localStorage.getItem('housingHiddenStatCards') || '[]'); }
+            catch (e) { return []; }
+        }
+        function toggleHousingStatCard(key) {
+            const hidden = getHousingStatCardHiddenKeys();
+            const idx = hidden.indexOf(key);
+            if (idx === -1) hidden.push(key); else hidden.splice(idx, 1);
+            localStorage.setItem('housingHiddenStatCards', JSON.stringify(hidden));
+            const container = document.getElementById('housingDashboardStatsContainer');
+            if (container) { housingFilteredCache = null; housingFilteredCacheKey = ''; const f = getHousingFilteredShipmentsCached(); updateHousingDashboardStats(f); }
+            /* تحديث الأيقونة فقط دون إعادة بناء القائمة لئلا تُغلق */
+            const menu = document.getElementById('housingStatCardsMenu');
+            if (menu) menu.querySelectorAll('a.dropdown-item').forEach(a => {
+                const itemKey = a.getAttribute('onclick')?.match(/'([^']+)'/) ?.[1];
+                if (itemKey) {
+                    const isHidden = hidden.includes(itemKey);
+                    a.querySelector('i').className = 'fas ' + (isHidden ? 'fa-square text-muted' : 'fa-check-square text-primary') + ' me-2';
+                }
+            });
+        }
+        function renderHousingStatCardsMenu() {
+            const menu = document.getElementById('housingStatCardsMenu');
+            if (!menu) return;
+            const hidden = getHousingStatCardHiddenKeys();
+            menu.innerHTML = '<li class="dropdown-header fw-bold text-secondary px-1 py-1" style="font-size:0.7rem;">اختيار الاحصائيات</li>' +
+                HOUSING_STAT_CARDS.map(c => `<li><a class="dropdown-item py-1 px-2" href="#" onclick="event.preventDefault();toggleHousingStatCard('${c.key}')"><i class="fas ${hidden.includes(c.key) ? 'fa-square text-muted' : 'fa-check-square text-primary'} me-2"></i>${c.label}</a></li>`).join('');
+        }
+        function initHousingStatCardsMenu() {
+            renderHousingStatCardsMenu();
+        }
         function parseFinancialNumericValue(value) {
             return parseFloat(String(value ?? '0').replace(/[^0-9.-]+/g, '')) || 0;
         }
@@ -7928,19 +7962,21 @@
             // Temporarily ignore the clicked stat filter to get valid base counts for all cards
             const currentStatFilter = housingDashStatFilter;
             housingDashStatFilter = '';
-            const baseStatsFiltered = getHousingFilteredShipments();
+            const baseStatsFiltered = getHousingFilteredShipmentsCached();
             housingDashStatFilter = currentStatFilter; // Restore before updating UI
 
             updateHousingDashboardStats(baseStatsFiltered);
 
             // Now get the actual filtered data exactly for the table displaying it
             const canRenderHousingResults = isHousingResultsSelectionReady();
-            const filtered = canRenderHousingResults ? getHousingFilteredShipments() : [];
+            const filtered = canRenderHousingResults
+                ? (currentStatFilter ? getHousingFilteredShipments() : baseStatsFiltered)
+                : [];
             updateAdminFiltersVisualState();
 
             if (!canRenderHousingResults) {
                 housingCurrentPage = 1;
-                tableEl.innerHTML = `<tr><td colspan="18" class="text-center py-4 text-warning fw-bold"><i class="fas fa-filter me-2"></i>${escapeHtml(getHousingResultsSelectionMessage())}</td></tr>`;
+                tableEl.innerHTML = `<tr><td colspan="30" class="text-center py-4 text-warning fw-bold"><i class="fas fa-filter me-2"></i>${escapeHtml(getHousingResultsSelectionMessage())}</td></tr>`;
                 paginationEl.innerHTML = '';
                 saveHousingUiState();
                 updateHousingSaveButtonState();
@@ -7950,7 +7986,7 @@
 
             if (!filtered.length) {
                 housingCurrentPage = 1;
-                tableEl.innerHTML = `<tr><td colspan="18" class="text-center py-4 text-secondary fw-bold">لا توجد شحنات مطابقة.</td></tr>`;
+                tableEl.innerHTML = `<tr><td colspan="30" class="text-center py-4 text-secondary fw-bold">لا توجد شحنات مطابقة.</td></tr>`;
                 paginationEl.innerHTML = '';
                 saveHousingUiState();
                 updateHousingSaveButtonState();
@@ -8053,9 +8089,10 @@
                                 <option value="مجاش" ${currentData.الحالة === 'مجاش' ? 'selected' : ''}>مجاش</option>
                             </select>
                         </td>
-                        <td data-col-idx="13"><input type="text" class="form-control form-control-sm rounded-3" id="housing-reason-${s.id}" value="${escapeAttr(currentData['سبب الحالة'] || currentData.سبب_الحالة || '')}" placeholder="السبب" oninput="syncHousingDraft('${s.id}')" ${archivedAttr}></td>
+                        <td data-col-idx="13"><input type="text" class="form-control form-control-sm rounded-3" id="housing-reason-${s.id}" value="${escapeAttr(currentData['سبب الحالة'] || currentData.سبب_الحالة || '')}" oninput="syncHousingDraft('${s.id}')" ${archivedAttr}></td>
                         <td data-col-idx="14"><input type="text" inputmode="numeric" dir="ltr" class="form-control form-control-sm rounded-3 text-end" id="housing-adjusted-${s.id}" value="${escapeAttr(currentData.السعر_بعد_التعديل || '')}" oninput="syncHousingDraft('${s.id}')" ${archivedAttr}></td>
                         <td class="text-center small fw-bold text-secondary" data-col-idx="15">${escapeHtml(currentData['اسم الموظف'] || currentData.اسم_الموظف || '---')}</td>
+                        ${renderHousingExtraCells(s, currentData)}
                     </tr>
                 `;
             }).join('');
@@ -8445,6 +8482,27 @@
             { idx: 26, key: 'repType', label: 'نوع المندوب', default: false },
             { idx: 27, key: 'archive', label: 'ارشيف', default: false },
         ];
+        function renderHousingExtraCells(s, d) {
+            const _extras = HOUSING_ALL_COLS.filter(c => c.idx > 15);
+            return _extras.map(c => {
+                let val = '';
+                switch (c.idx) {
+                    case 16: val = getShipmentDatabaseId(s) || String(s.id); break;
+                    case 17: val = d.العنوان || d['العنوان'] || ''; break;
+                    case 18: val = d.ملاحظات || d['ملاحظات'] || ''; break;
+                    case 19: val = d['تاريخ التحديث'] || d.تاريخ_التحديث || ''; break;
+                    case 20: val = d.الصافي || d['الصافي'] || ''; break;
+                    case 21: val = d.الشحن || d['الشحن'] || ''; break;
+                    case 22: val = d.تقفيل || d['تقفيل'] || ''; break;
+                    case 23: val = d['عمولة المندوب'] || d.عمولة_المندوب || ''; break;
+                    case 24: val = housingEventUsers.get(String(s.id)) || d.حدث || d['حدث'] || ''; break;
+                    case 25: val = getShipmentDailyValue(d) || d.اليومية || d['اليومية'] || ''; break;
+                    case 26: val = d['نوع المندوب'] || d.نوع_المندوب || ''; break;
+                    case 27: val = d.ارشيف || d['ارشيف'] || d['أرشيف'] || ''; break;
+                }
+                return `<td class="text-center small fw-bold text-secondary" data-col-idx="${c.idx}" style="display: none;">${escapeHtml(val || '---')}</td>`;
+            }).join('');
+        }
         function getHousingHiddenCols() {
             try {
                 const raw = localStorage.getItem('housingHiddenCols');
@@ -8803,6 +8861,7 @@
                     allShipments[index] = { ...allShipments[index], ...snap.fields };
                 }
                 housingDrafts.delete(String(snap.id));
+                housingEventUsers.delete(String(snap.id));
             });
             markHousingDataChanged();
             markHousingDraftsChanged();
@@ -9309,8 +9368,11 @@
         function toggleTheme() {
             const current = document.body.getAttribute('data-bs-theme');
             const target = current === 'dark' ? 'light' : 'dark';
+            document.body.classList.add('no-transition');
             document.body.setAttribute('data-bs-theme', target);
             localStorage.setItem('theme', target);
+            document.body.offsetHeight;
+            document.body.classList.remove('no-transition');
         }
 
         function showLoading(show) {
@@ -9322,11 +9384,24 @@
         }
 
         let housingFilterDebounceTimer;
+        let housingFilteredCache = null;
+        let housingFilteredCacheKey = '';
+        function getHousingFilteredShipmentsCached() {
+            const filters = getHousingColumnFilters();
+            const search = (document.getElementById('housingSearch')?.value || '').trim().toLowerCase();
+            const key = JSON.stringify(filters) + '|' + search + '|' + housingDashStatFilter + '|' + housingDataVersion + '|' + housingDraftVersion;
+            if (housingFilteredCacheKey === key && housingFilteredCache) return housingFilteredCache;
+            housingFilteredCache = getHousingFilteredShipments();
+            housingFilteredCacheKey = key;
+            return housingFilteredCache;
+        }
         function debouncedRenderHousingSection() {
             clearTimeout(housingFilterDebounceTimer);
             housingFilterDebounceTimer = setTimeout(() => {
-                renderHousingSection();
-            }, 350);
+                housingFilteredCache = null;
+                housingFilteredCacheKey = '';
+                requestAnimationFrame(renderHousingSection);
+            }, 400);
         }
 
         document.getElementById('housingSearch')?.addEventListener('input', debouncedRenderHousingSection);
@@ -9434,7 +9509,7 @@
         }
 
         /* ===== Housing Sidebar Filter ===== */
-        let housingSidebarTab = 'sender';
+        let housingSidebarTab = 'rep';
         let housingSidebarSearch = '';
         const HOUSING_SIDEBAR_DEFAULT_COLS = ['rep', 'status', 'sender'];
         const HOUSING_SIDEBAR_EXTRA_KEY = 'housing_sidebar_extra_cols';
@@ -9730,6 +9805,7 @@
         if (localStorage.getItem('theme') === 'dark') document.body.setAttribute('data-bs-theme', 'dark');
         init().then(() => {
             showAdminSection(initialAdminSection);
+            initHousingStatCardsMenu();
         });
         function normalizeWhatsAppPhone(phone) {
             const digits = String(phone || '').replace(/\D/g, '');
