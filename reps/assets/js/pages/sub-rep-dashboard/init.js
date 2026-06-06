@@ -1,2 +1,0 @@
-// Initial Load
-            fetchShipments();
