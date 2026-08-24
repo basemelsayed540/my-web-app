@@ -1583,7 +1583,8 @@
             overflow: hidden;
             text-overflow: ellipsis;
             vertical-align: middle;
-            padding: 4px 6px;
+            /* حشوة جانبية أكبر = فراغ مريح بين الأعمدة جوه الخلايا */
+            padding: 4px 12px;
         }
 
         .housing-table th[data-col-idx="9"],
@@ -1750,6 +1751,41 @@
         [data-bs-theme="dark"] .housing-table-head-sticky {
             background-color: #1e293b !important;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+        }
+        /* ===== مقبض توسيع/تضييق أعمدة جدول التسكين ===== */
+        .housing-table th[data-col-idx] {
+            position: relative;
+        }
+        .col-resizer {
+            position: absolute;
+            top: 0;
+            inset-inline-end: 0;
+            width: 9px;
+            height: 100%;
+            cursor: col-resize;
+            z-index: 7;
+            touch-action: none;
+        }
+        .col-resizer::after {
+            content: '';
+            position: absolute;
+            top: 12%;
+            bottom: 12%;
+            inset-inline-start: 3px;
+            width: 2px;
+            border-radius: 2px;
+            background: transparent;
+            transition: background .15s ease;
+        }
+        .col-resizer:hover::after,
+        body.housing-col-resizing .col-resizer.is-active::after {
+            background: #6366f1;
+        }
+        body.housing-col-resizing,
+        body.housing-col-resizing * {
+            cursor: col-resize !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
         }
 
         .housing-table-filter-row {
@@ -11412,6 +11448,123 @@
                 `;
             }).join('');
         }
+
+        /* ===== توسيع/تضييق أعمدة جدول التسكين من رأس الجدول (موديول معزول) ===== */
+        const HOUSING_COL_WIDTHS_KEY = 'housing_col_widths';
+        function getHousingColWidths() {
+            try { return JSON.parse(localStorage.getItem(HOUSING_COL_WIDTHS_KEY) || '{}') || {}; } catch { return {}; }
+        }
+        function saveHousingColWidths(map) {
+            localStorage.setItem(HOUSING_COL_WIDTHS_KEY, JSON.stringify(map));
+        }
+        function applySavedHousingColWidths() {
+            const saved = getHousingColWidths();
+            document.querySelectorAll('#section-housing .housing-table thead th[data-col-idx]').forEach(th => {
+                const w = saved[th.dataset.colIdx];
+                if (w) th.style.width = w + 'px';
+                else th.style.removeProperty('width');
+            });
+            injectHousingColResizeHandles();
+        }
+        function injectHousingColResizeHandles() {
+            document.querySelectorAll('#section-housing .housing-table thead th[data-col-idx]').forEach(th => {
+                if (th.querySelector(':scope > .col-resizer')) return;
+                if (th.style.display === 'none') return;
+                const handle = document.createElement('span');
+                handle.className = 'col-resizer';
+                handle.title = 'اسحب لتوسيع/تضييق العمود • دبل كليك للإرجاع';
+                handle.addEventListener('pointerdown', onHousingColResizeStart);
+                handle.addEventListener('dblclick', () => {
+                    const map = getHousingColWidths();
+                    delete map[th.dataset.colIdx];
+                    saveHousingColWidths(map);
+                    th.style.removeProperty('width');
+                });
+                th.appendChild(handle);
+            });
+        }
+        let _housingResizeCtx = null;
+        function onHousingColResizeStart(ev) {
+            ev.preventDefault();
+            ev.stopPropagation();
+            const th = ev.currentTarget.closest('th');
+            if (!th) return;
+            const rtl = (document.documentElement.getAttribute('dir') || '').toLowerCase() === 'rtl';
+            const rect = th.getBoundingClientRect();
+            /* الحافة الثابتة للعمود: يمين في RTL / يسار في LTR */
+            _housingResizeCtx = {
+                th,
+                handle: ev.currentTarget,
+                anchorX: rtl ? rect.right : rect.left,
+                rtl
+            };
+            ev.currentTarget.classList.add('is-active');
+            document.body.classList.add('housing-col-resizing');
+            try { ev.currentTarget.setPointerCapture(ev.pointerId); } catch {}
+            ev.currentTarget.addEventListener('pointermove', onHousingColResizeMove);
+            ev.currentTarget.addEventListener('pointerup', onHousingColResizeEnd);
+            ev.currentTarget.addEventListener('pointercancel', onHousingColResizeEnd);
+        }
+        function computeHousingColWidthFromEvent(ev) {
+            if (!_housingResizeCtx) return null;
+            const raw = _housingResizeCtx.rtl
+                ? (_housingResizeCtx.anchorX - ev.clientX)
+                : (ev.clientX - _housingResizeCtx.anchorX);
+            return Math.max(44, Math.min(700, Math.round(raw)));
+        }
+        function onHousingColResizeMove(ev) {
+            const w = computeHousingColWidthFromEvent(ev);
+            if (w === null) return;
+            _housingResizeCtx.th.style.width = w + 'px';
+        }
+        function onHousingColResizeEnd(ev) {
+            if (!_housingResizeCtx) return;
+            const w = computeHousingColWidthFromEvent(ev);
+            if (w !== null) {
+                const map = getHousingColWidths();
+                map[_housingResizeCtx.th.dataset.colIdx] = w;
+                saveHousingColWidths(map);
+            }
+            try { ev.currentTarget.releasePointerCapture(ev.pointerId); } catch {}
+            ev.currentTarget.classList.remove('is-active');
+            ev.currentTarget.removeEventListener('pointermove', onHousingColResizeMove);
+            ev.currentTarget.removeEventListener('pointerup', onHousingColResizeEnd);
+            ev.currentTarget.removeEventListener('pointercancel', onHousingColResizeEnd);
+            document.body.classList.remove('housing-col-resizing');
+            _housingResizeCtx = null;
+        }
+        /* مراقب ذاتي: يضمن وجود المقابض والمقاسات بعد أي إخفاء/إظهار أو إعادة رسمة */
+        (function initHousingColResizeModule() {
+            let scheduled = false;
+            const table = document.querySelector('#section-housing .housing-table');
+            if (!table) {
+                let tries = 0;
+                const retry = () => {
+                    tries++;
+                    if (document.querySelector('#section-housing .housing-table') || tries >= 20) {
+                        if (tries < 20 || document.querySelector('#section-housing .housing-table')) startObserver();
+                        else setTimeout(retry, 250);
+                    } else setTimeout(retry, 100);
+                };
+                setTimeout(retry, 100);
+                return;
+            }
+            function startObserver() {
+                const tbl = document.querySelector('#section-housing .housing-table');
+                if (!tbl) return;
+                applySavedHousingColWidths();
+                const mo = new MutationObserver(() => {
+                    if (scheduled) return;
+                    scheduled = true;
+                    requestAnimationFrame(() => {
+                        scheduled = false;
+                        injectHousingColResizeHandles();
+                    });
+                });
+                mo.observe(tbl, { childList: true, subtree: true });
+            }
+            startObserver();
+        })();
         function reorderColsAndRefresh() {
             const listEl = document.getElementById('housingColConfigList');
             if (listEl) listEl.innerHTML = renderHousingColList();
