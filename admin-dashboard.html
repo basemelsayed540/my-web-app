@@ -1,0 +1,1360 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <title>لوحة الإدارة | نظام الشحن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        * { font-family: 'Cairo', 'Tajawal', sans-serif; box-sizing: border-box; }
+        body { background: #f6f8fc; min-height: 100vh; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        body.dark { background: #020617; }
+        .glass-card { background: #fff; border-radius: 1rem; border: 1px solid rgba(148,163,184,0.15); box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .dark .glass-card { background: #0f172a; border-color: rgba(148,163,184,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+
+        .stat-card { border-radius: 14px; background: #fff; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid rgba(148,163,184,0.15); padding: 12px 6px; text-align: center; cursor: pointer; transition: box-shadow .2s, border-color .2s, transform .2s; }
+        .dark .stat-card { background: #0f172a; border-color: rgba(148,163,184,0.1); }
+        .stat-card:hover { transform: translateY(-1px); }
+        .stat-card.active { border-color: #6366f1; background: rgba(99,102,241,.08); box-shadow: 0 0 0 1px rgba(99,102,241,.3); }
+        .dark .stat-card.active { background: rgba(99,102,241,.12); border-color: #818cf8; }
+        .stat-card .num { font-size: 1.15rem; font-weight: 800; line-height: 1.2; }
+        .stat-card .label { font-size: .7rem; font-weight: 600; color: #64748b; }
+        .dark .stat-card .label { color: #94a3b8; }
+        .stat-card .breakdown { font-size: .62rem; font-weight: 700; color: #94a3b8; margin-top: 2px; }
+        #statusFilterRow .stat-card { min-height: 86px; }
+
+        .progress-bar { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
+        .dark .progress-bar { background: #1e293b; }
+        .progress-bar .fill { height: 100%; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #0ea5e9); transition: width .5s ease; }
+
+        .filter-chip { padding: 8px 12px; border-radius: 999px; border: 2px solid rgba(148,163,184,.18); background: #fff; color: #475569; font-weight: 700; font-size: .72rem; cursor: pointer; white-space: nowrap; transition: all .2s; }
+        .dark .filter-chip { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,.12); }
+        .filter-chip.active { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.1); }
+        .filter-chip:hover { border-color: #6366f1; color: #6366f1; }
+
+        .soft-input { width: 100%; min-height: 3rem; border-radius: .75rem; border: 1px solid rgba(148,163,184,.22); background: #fff; color: #0f172a; padding: .6rem .8rem; outline: none; transition: border-color .2s, box-shadow .2s; }
+        .dark .soft-input { background: #1e293b; color: #f8fafc; border-color: rgba(148,163,184,.16); }
+        .soft-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.12); }
+        .soft-select { width: 100%; min-height: 3rem; border-radius: .75rem; border: 1px solid rgba(148,163,184,.22); background: #fff; color: #0f172a; padding: .4rem .6rem; outline: none; }
+        .dark .soft-select { background: #1e293b; color: #f8fafc; border-color: rgba(148,163,184,.16); }
+        .field-label { font-size: .8rem; font-weight: 800; color: #475569; margin-bottom: .3rem; display: block; }
+        .dark .field-label { color: #cbd5e1; }
+
+        .role-badge-admin { background: rgba(99,102,241,.14); color: #4f46e5; }
+        .role-badge-rep { background: rgba(16,185,129,.14); color: #059669; }
+        .role-badge-follower { background: rgba(14,165,233,.14); color: #0284c7; }
+        .role-badge-other { background: rgba(148,163,184,.18); color: #64748b; }
+        .dark .role-badge-admin { background: rgba(99,102,241,.22); color: #a5b4fc; }
+        .dark .role-badge-rep { background: rgba(16,185,129,.2); color: #6ee7b7; }
+        .dark .role-badge-follower { background: rgba(14,165,233,.2); color: #7dd3fc; }
+        .dark .role-badge-other { background: rgba(148,163,184,.2); color: #94a3b8; }
+
+        .empty-state { text-align: center; padding: 40px 16px; color: #94a3b8; }
+        .sidebar-tab { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem .5rem; border-radius: .9rem; font-weight: 800; font-size: .8rem; color: #64748b; cursor: pointer; white-space: nowrap; transition: all .2s; background: none; border: none; }
+        .dark .sidebar-tab { color: #94a3b8; }
+        .sidebar-tab:hover { background: rgba(99,102,241,.08); color: #6366f1; }
+        .sidebar-tab.active { background: #6366f1; color: #fff; box-shadow: 0 8px 18px rgba(99,102,241,.3); }
+        .icon-btn { width: 2.5rem; height: 2.5rem; min-height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid rgba(148,163,184,0.15); color: #64748b; transition: background .25s, color .25s, transform .25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; }
+        .dark .icon-btn { background: #1e293b; border-color: rgba(148,163,184,0.12); color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.15); }
+        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(99,102,241,0.25); }
+        .toast-btn { min-height: 40px; padding: 8px 12px; border-radius: .75rem; font-weight: 800; font-size: .74rem; cursor: pointer; transition: filter .15s; }
+        .toast-btn:hover { filter: brightness(1.08); }
+
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
+        .rep-row { cursor: pointer; }
+        .rep-row:hover { background: rgba(99,102,241,.04); }
+        .dark .rep-row:hover { background: rgba(99,102,241,.08); }
+        .swal2-show,.swal2-hide{animation:none!important}.swal2-popup{transition:none!important}body.no-transitions,body.no-transitions *{transition:none!important}
+        .dark .swal2-popup { background:#1e293b!important; color:#e2e8f0!important; }
+        .dark .swal2-title { color:#f1f5f9!important; }
+        .dark .swal2-html-container { color:#cbd5e1!important; }
+        .ring-text { fill:#0f172a; }
+        .dark .ring-text { fill:#f8fafc; }
+        .bar-text { fill:#0f172a; }
+        .dark .bar-text { fill:#f8fafc; }
+        @media (max-width:420px){
+            .stat-card { padding: 10px 4px; }
+            .stat-card .num { font-size: 1rem; }
+            .stat-card .label { font-size: .6rem; }
+            .sidebar-tab { font-size: .7rem; padding: .6rem .3rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="max-w-7xl mx-auto px-2 sm:px-4 py-3">
+    <!-- Header -->
+    <div class="flex items-center gap-2 sm:gap-3 mb-3">
+        <div class="flex items-center gap-2 min-w-0">
+            <div class="hidden sm:flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-500 shadow-lg shrink-0" style="width:44px;height:44px">
+                <i class="fas fa-user-shield text-white text-lg"></i>
+            </div>
+            <div class="min-w-0">
+                <h1 class="text-base sm:text-xl font-extrabold text-slate-800 dark:text-white truncate leading-tight">لوحة الإدارة</h1>
+                <p class="text-xs font-semibold text-slate-400 truncate leading-tight hidden xs:block sm:block">مرحباً، <span id="adminName">...</span></p>
+            </div>
+        </div>
+        <div id="adminTabs" role="tablist" class="flex items-center justify-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-x-auto py-1">
+            <button class="sidebar-tab shrink-0" data-tab="housing" onclick="showHousingTab()"><i class="fas fa-boxes-stacked"></i><span class="hidden sm:inline">تسكين الشحنات</span></button>
+            <button class="sidebar-tab active shrink-0" data-tab="overview" onclick="switchTab('overview')"><i class="fas fa-chart-pie"></i><span class="hidden sm:inline">إحصائيات</span></button>
+            <button class="sidebar-tab shrink-0" data-tab="accounts" onclick="switchTab('accounts')"><i class="fas fa-users"></i><span class="hidden sm:inline">حسابات</span></button>
+            <button class="sidebar-tab shrink-0" data-tab="archive" onclick="switchTab('archive')"><i class="fas fa-archive"></i><span class="hidden sm:inline">مؤرشفة</span></button>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+            <button onclick="adminRefresh()" class="icon-btn" title="تحديث البيانات"><i class="fas fa-sync-alt" id="refreshIcon"></i></button>
+            <button onclick="toggleTheme()" class="icon-btn" title="الوضع الليلي"><i id="themeIcon" class="fas fa-moon"></i></button>
+            <button onclick="logout()" class="icon-btn" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></button>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loadingBlock" class="glass-card p-6 flex flex-col items-center justify-center" style="min-height:280px">
+        <div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div>
+        <p class="font-bold text-slate-500 dark:text-slate-400 text-sm">جاري تحميل البيانات...</p>
+    </div>
+
+    <!-- ============ OVERVIEW ============ -->
+    <div id="tab-overview" class="hidden space-y-4">
+        <div class="glass-card p-3 space-y-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap">
+                <select id="ovDailySelect" class="soft-input flex-1 min-w-[160px]" aria-label="اختيار اليومية"><option value="">كل اليوميات</option></select>
+                <button onclick="toggleArchiveMode()" id="archiveModeBtn" class="filter-chip"><i class="fas fa-archive ml-1"></i> نشطة</button>
+            </div>
+            <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="statusFilterRow"></div>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+            <div class="stat-card"><div class="num text-indigo-600 dark:text-indigo-400" id="ovTotalCount">0</div><div class="label">إجمالي الشحنات</div></div>
+            <div class="stat-card"><div class="num text-amber-600 dark:text-amber-400" id="ovNoRepCount">0</div><div class="label">شحنات بدون مندوب</div><div class="breakdown" id="ovNoRepBreakdown"></div></div>
+            <div class="stat-card"><div class="num text-emerald-600 dark:text-emerald-400" id="ovPaid">0</div><div class="label">المدفوع</div></div>
+            <div class="stat-card"><div class="num text-sky-600 dark:text-sky-400" id="ovCommission">0</div><div class="label">عمولة المندوب</div></div>
+            <div class="stat-card col-span-2"><div class="num text-rose-600 dark:text-rose-400" id="ovSupply">0</div><div class="label">التوريد (المدفوع − العمولة)</div><div class="breakdown" id="ovSupplyBreakdown"></div></div>
+        </div>
+
+        <div class="glass-card p-3">
+            <div class="flex items-center justify-between mb-3 gap-2">
+                <h3 class="font-extrabold text-slate-800 dark:text-white flex items-center gap-2 text-sm"><i class="fas fa-users text-indigo-500"></i> المناديب</h3>
+                <span class="text-xs font-bold text-slate-400" id="ovRepCount">0 مندوب</span>
+            </div>
+            <div class="flex gap-2 items-center mb-3">
+                <div class="relative flex-1 min-w-0">
+                    <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                    <input type="text" id="repSearchInput" class="soft-input pr-9" placeholder="بحث بالاسم..." autocomplete="off">
+                </div>
+                <select id="repSortSelect" class="soft-select w-auto" aria-label="ترتيب المناديب">
+                    <option value="default">بلا ترتيب</option>
+                    <option value="pct-asc">نسبة تسليم ↑</option>
+                    <option value="pct-desc">نسبة تسليم ↓</option>
+                    <option value="count-asc">عدد شحنات ↑</option>
+                    <option value="count-desc">عدد شحنات ↓</option>
+                </select>
+            </div>
+            <div id="repListContainer"></div>
+        </div>
+    </div>
+
+    <!-- ============ ACCOUNTS ============ -->
+    <div id="tab-accounts" class="hidden space-y-4">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+            <button onclick="openUserForm()" class="btn-primary flex items-center gap-2 text-sm min-h-[44px]"><i class="fas fa-user-plus"></i> إضافة حساب جديد</button>
+            <button onclick="reloadUsers()" class="icon-btn" title="تحديث المستخدمين"><i class="fas fa-sync-alt"></i></button>
+        </div>
+
+        <div class="glass-card p-3 space-y-3">
+            <div class="relative">
+                <i class="fas fa-search absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
+                <input type="text" id="userSearchInput" class="soft-input pr-9" placeholder="ابحث بالاسم / الموبايل / الإيميل..." autocomplete="off">
+            </div>
+            <div class="flex gap-2 overflow-x-auto pb-1" id="userRoleFilterRow"></div>
+        </div>
+
+        <div id="userListContainer"></div>
+    </div>
+
+    <!-- ============ ARCHIVE ============ -->
+    <div id="tab-archive" class="hidden space-y-4">
+        <div class="glass-card p-3 space-y-2">
+            <label class="field-label mb-1" for="archiveMonthSelect">فلترة حسب الشهر</label>
+            <select id="archiveMonthSelect" class="soft-select w-full min-h-[44px]" aria-label="فلترة حسب الشهر">
+                <option value="">كل الشهور</option>
+            </select>
+            <div id="archiveDailiesList" class="space-y-1 pt-1"></div>
+        </div>
+
+        <div class="glass-card p-4">
+            <h3 class="font-extrabold text-slate-800 dark:text-white mb-3 flex items-center gap-2 text-sm"><i class="fas fa-chart-pie text-indigo-500"></i> نسب الحالات من إجمالي المؤرشف</h3>
+            <div class="grid grid-cols-3 gap-3" id="archiveRings"></div>
+        </div>
+
+        <div class="glass-card p-4">
+            <h3 class="font-extrabold text-slate-800 dark:text-white mb-1 flex items-center gap-2 text-sm"><i class="fas fa-chart-bar text-emerald-500"></i> الشحنات اليومية</h3>
+            <p class="text-xs text-slate-400 font-semibold mb-3" id="barChartLabel"></p>
+            <div id="barChartContainer" class="w-full overflow-x-auto"></div>
+        </div>
+
+        <div class="glass-card p-4">
+            <h3 class="font-extrabold text-slate-800 dark:text-white mb-3 flex items-center gap-2 text-sm"><i class="fas fa-trophy text-amber-500"></i> ترتيب أداء المناديب في المؤرشف</h3>
+            <div id="archiveRepsContainer"></div>
+        </div>
+    </div>
+
+    <!-- ============ HOUSING (iframe) ============ -->
+    <div id="tab-housing" class="hidden">
+        <div class="glass-card p-2 mb-2">
+            <iframe id="housingFrame" title="تسكين الشحنات" src="about:blank"
+                    style="width:100%;height:calc(100vh - 170px);min-height:560px;border:0;border-radius:.9rem;background:transparent;display:block;"></iframe>
+        </div>
+    </div>
+</div>
+
+<!-- ============ USER MODAL ============ -->
+<div id="userModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3 overflow-y-auto">
+    <div class="w-full max-w-lg auth-modal rounded-[1.5rem] p-5 sm:p-6 relative my-6">
+        <button type="button" id="closeUserModal" class="absolute top-3 left-3 w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2 class="text-xl font-extrabold text-slate-800 dark:text-white mb-4" id="userModalTitle">إضافة حساب جديد</h2>
+        <form id="userForm" class="grid grid-cols-1 gap-3">
+            <div>
+                <label class="field-label">الاسم <span class="text-red-500">*</span></label>
+                <input type="text" id="ufName" class="soft-input" placeholder="الاسم بالكامل">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="field-label">رقم الموبايل <span class="text-red-500">*</span></label>
+                    <input type="tel" id="ufPhone" class="soft-input" placeholder="01xxxxxxxxx" inputmode="tel">
+                </div>
+                <div>
+                    <label class="field-label">البريد الإلكتروني</label>
+                    <input type="email" id="ufEmail" class="soft-input" placeholder="name@example.com">
+                </div>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="field-label" id="ufPassLabel">كلمة المرور <span class="text-red-500">*</span></label>
+                    <input type="password" id="ufPassword" class="soft-input" placeholder="6 أحرف على الأقل" autocomplete="new-password">
+                </div>
+                <div>
+                    <label class="field-label">الصلاحية</label>
+                    <select id="ufRole" class="soft-select">
+                        <option value="rep">مندوب</option>
+                        <option value="follower">متابعة</option>
+                        <option value="admin">مدير</option>
+                    </select>
+                </div>
+            </div>
+            <label class="flex items-center gap-2 cursor-pointer mt-1">
+                <input type="checkbox" id="ufApproved" class="w-5 h-5 rounded text-indigo-600 border-slate-300 focus:ring-indigo-500">
+                <span class="text-sm font-bold text-slate-600 dark:text-slate-300">تفعيل الحساب مباشرة</span>
+            </label>
+            <div class="flex gap-2 mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button type="submit" id="ufSubmitBtn" class="btn-primary flex-1 flex items-center justify-center gap-2 text-sm min-h-[44px]">
+                    <span id="ufSubmitLabel">إنشاء الحساب</span>
+                </button>
+                <button type="button" id="ufCancelBtn" class="px-5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-sm min-h-[44px]" style="background:none">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script src="assets/js/shipment-config.js"></script>
+<script>
+    (function () {
+        'use strict';
+
+        var BUILD = '2';
+        if (!window.location.href.includes('_t=')) {
+            localStorage.setItem('admin-version', BUILD);
+            window.location.href = window.location.href.split('?')[0] + '?_t=' + BUILD;
+        }
+
+        // ---------- Globals ----------
+        var THEME_KEY = 'shipment-theme';
+        var CACHE_KEY = 'admin_data_cache_v3';
+        var CACHE_TTL = 60 * 1000; // دقيقة واحدة
+
+        var supabaseClient = getSharedSupabaseClient();
+        var currentUser = readStoredUser();
+
+        // ---------- Auth guard: مدير فقط ----------
+        if (!currentUser || currentUser.role !== 'admin') {
+            clearStoredUserSession('login.html');
+            return;
+        }
+
+        // ---------- State ----------
+        var state = {
+            shipments: [],
+            users: [],
+            currentDaily: '',
+            overviewMode: 'active', // active | archived
+            statusFilter: '',
+            repSearch: '',
+            repSort: 'default',
+            expandedReps: {},
+            userSearch: '',
+            userRoleFilter: 'all',
+            editingUserId: null,
+            archiveMonth: ''
+        };
+
+        // ---------- Helpers ----------
+        function $(id) { return document.getElementById(id); }
+
+        function esc(v) {
+            return String(v == null ? '' : v)
+                .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        }
+
+        function enNum(s) {
+            return String(s).replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); });
+        }
+
+        function money(n) {
+            var num = parseFloat(n) || 0;
+            return enNum(Math.round(num).toLocaleString('en-US'));
+        }
+
+        function isDoneStatusList(st) {
+            return ['تم', 'تم التسليم', 'شحن', 'تعديل سعر', 'استلم جزئي'].indexOf(st) !== -1;
+        }
+
+        function isArchived(s) { return !!String(s['ارشيف'] || '').trim(); }
+
+        function toast(icon, message) {
+            Swal.fire({ icon: icon, title: message, toast: true, position: 'top-end', showConfirmButton: false, timer: 2200 });
+        }
+
+        function escapeRegExp(s) { return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+
+        function debounce(fn, wait) {
+            var t;
+            return function () {
+                var ctx = this, args = arguments;
+                clearTimeout(t);
+                t = setTimeout(function () { fn.apply(ctx, args); }, wait);
+            };
+        }
+
+        function emptyState(content) {
+            return '<div class="empty-state">' + content + '</div>';
+        }
+
+        function readStoredUser() {
+            try { return JSON.parse(localStorage.getItem('user')) || null; } catch (e) { return null; }
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '—';
+            var d = new Date(iso);
+            if (isNaN(d.getTime())) return '—';
+            return enNum(d.getDate()) + '/' + enNum(d.getMonth() + 1) + '/' + enNum(d.getFullYear());
+        }
+
+        // يحوّل الأرقام العربية/الفارسية ثم يبحث في عدة صيغ تواريخ
+        function parseDate(s) {
+            if (s == null) return null;
+            s = String(s)
+                .replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+                .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); })
+                .trim();
+            if (!s) return null;
+
+            // رقم تسلسلي من Excel (شائع جداً مع البيانات المرفوعة من ملفات Excel)
+            if (/^\d{5,6}$/.test(s)) {
+                var excelEpoch = Date.UTC(1899, 11, 30);
+                var e = new Date(excelEpoch + parseInt(s, 10) * 86400000);
+                if (!isNaN(e.getTime()) && e.getUTCFullYear() > 1990 && e.getUTCFullYear() < 2100) {
+                    return { y: e.getUTCFullYear(), m: e.getUTCMonth() + 1, d: e.getUTCDate() };
+                }
+            }
+
+            var m;
+            // ISO: YYYY-MM-DD (مع أو بدون وقت)
+            m = s.match(/(\d{4})[-\/.](\d{1,2})[-\/.](\d{1,2})/);
+            if (m) return { y: parseInt(m[1], 10), m: parseInt(m[2], 10), d: parseInt(m[3], 10) };
+            // يوم/شهر/سنة
+            m = s.match(/(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+            if (m) return { y: parseInt(m[3], 10), m: parseInt(m[2], 10), d: parseInt(m[1], 10) };
+            // اسم شهر عربي: "15 يناير 2024"
+            m = s.match(/(\d{1,2})\s*([\u0600-\u06FF\u0660-\u0669]+)\s*(\d{4})/);
+            if (m) {
+                var names = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+                var mi = names.indexOf(m[2]);
+                if (mi !== -1) return { y: parseInt(m[3], 10), m: mi + 1, d: parseInt(m[1], 10) };
+            }
+            return null;
+        }
+
+        function locMonth(m) {
+            var names = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            return names[(m - 1 + 12) % 12];
+        }
+
+        // ---------- Theme ----------
+        (function initTheme() {
+            var saved = localStorage.getItem(THEME_KEY);
+            var preferDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+            if (saved ? saved === 'dark' : preferDark) {
+                document.body.classList.add('dark');
+                setThemeIcon(true);
+            }
+        })();
+
+        function setThemeIcon(isDark) {
+            var el = $('themeIcon');
+            if (el) el.className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        }
+        window.toggleTheme = function () {
+            document.body.classList.add('no-transitions');
+            var isDark = document.body.classList.toggle('dark');
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+            setThemeIcon(isDark);
+            requestAnimationFrame(function () { document.body.classList.remove('no-transitions'); });
+        };
+        window.logout = function () { clearStoredUserSession('login.html'); };
+
+        // ---------- Tabs ----------
+        window.switchTab = function (tab) {
+            ['overview', 'accounts', 'archive', 'housing'].forEach(function (k) {
+                var p = $('tab-' + k);
+                if (p) p.classList.add('hidden');
+            });
+            var panel = $('tab-' + tab);
+            if (panel) panel.classList.remove('hidden');
+            document.querySelectorAll('#adminTabs .sidebar-tab').forEach(function (b) {
+                b.classList.toggle('active', b.dataset.tab === tab);
+            });
+            if (tab === 'overview') renderOverview();
+            if (tab === 'accounts') renderUserList();
+            if (tab === 'archive') renderArchive();
+        };
+
+        // ---------- Cache ----------
+        function loadCache() {
+            try {
+                var raw = sessionStorage.getItem(CACHE_KEY);
+                if (!raw) return null;
+                var o = JSON.parse(raw);
+                if (!o || !o.t || (Date.now() - o.t) > CACHE_TTL) return null;
+                return o;
+            } catch (e) { return null; }
+        }
+        function writeCache(shipments, users) {
+            try {
+                sessionStorage.setItem(CACHE_KEY, JSON.stringify({ t: Date.now(), shipments: shipments, users: users }));
+            } catch (e) { /* مساحة التخزين قد تكون ممتلئة */ }
+        }
+
+        // ---------- Data loading ----------
+        // NOTE: الـ RPC (get_daily_summary / get_archive_summary / get_archive_daily_summary
+        // / get_archive_rep_summary) لم تُوثّق بنيتها في المشروع، لذلك لا نستدعيها الآن.
+        // TODO: بعد توثيق بنية بياناتها، أضِف استدعاءها هنا مع fallback للتجميع client-side.
+
+        // جلب كامل جدول بتقسيمه لصفحات متوازية (PostgREST يقتطع عند 1000 صف افتراضيًا).
+        const FETCH_PAGE_SIZE = 1000;
+        async function fetchAllFromTable(tableName) {
+            var first = await supabaseClient
+                .from(tableName)
+                .select('*', { count: 'exact' })
+                .order('id', { ascending: false })
+                .range(0, FETCH_PAGE_SIZE - 1);
+            if (first.error) throw first.error;
+
+            var all = first.data || [];
+            var total = first.count;
+
+            // لو الـ count مش متاح (قيود أمان)، استمر بالتتابع حتى صفحة فارغة
+            if (total == null) {
+                var from = FETCH_PAGE_SIZE;
+                var more = true;
+                while (more) {
+                    var r = await supabaseClient
+                        .from(tableName)
+                        .select('*')
+                        .order('id', { ascending: false })
+                        .range(from, from + FETCH_PAGE_SIZE - 1);
+                    if (r.error) throw r.error;
+                    var d = r.data || [];
+                    all = all.concat(d);
+                    if (d.length < FETCH_PAGE_SIZE) more = false;
+                    from += FETCH_PAGE_SIZE;
+                }
+                return all;
+            }
+
+            var pages = Math.ceil(total / FETCH_PAGE_SIZE);
+            if (pages <= 1) return all;
+
+            var tasks = [];
+            for (var p = 1; p < pages; p++) {
+                (function (rangeFrom, rangeTo) {
+                    tasks.push(
+                        supabaseClient
+                            .from(tableName)
+                            .select('*')
+                            .order('id', { ascending: false })
+                            .range(rangeFrom, rangeTo)
+                            .then(function (resp) {
+                                if (resp.error) throw resp.error;
+                                return resp.data || [];
+                            })
+                    );
+                })(p * FETCH_PAGE_SIZE, Math.min(p * FETCH_PAGE_SIZE + FETCH_PAGE_SIZE - 1, total - 1));
+            }
+            var results = await Promise.all(tasks);
+            results.forEach(function (arr) { all = all.concat(arr); });
+            return all;
+        }
+
+        async function loadFromServer() {
+            var results = await loadRawFromTables();
+            if (results) {
+                state.shipments = results.shipments || [];
+                state.users = results.users || [];
+                writeCache(state.shipments, state.users);
+                return true;
+            }
+            return false;
+        }
+
+        async function loadRawFromTables() {
+            var shipments = [], users = [];
+            try {
+                shipments = await fetchAllFromTable(CONFIG.TABLES.SHIPMENTS);
+            } catch (e) {
+                console.error('فشل جلب الشحنات:', e);
+                shipments = [];
+            }
+            try {
+                users = await fetchAllFromTable(CONFIG.TABLES.USERS);
+            } catch (e) {
+                console.error('فشل جلب المستخدمين:', e);
+                users = [];
+            }
+            if (!shipments.length && !users.length) return null;
+            return { shipments: shipments, users: users };
+        }
+
+        async function ensureData(force) {
+            if (!force) {
+                var cached = loadCache();
+                if (cached) {
+                    state.shipments = cached.shipments || [];
+                    state.users = cached.users || [];
+                    hideLoading();
+                    renderAll();
+                    // تحديث في الخلفية دون تجميد الواجهة
+                    refreshInBackground();
+                    return;
+                }
+            }
+            showLoading();
+            try {
+                var ok = await loadFromServer();
+                hideLoading();
+                if (!ok) throw new Error('تعذر تحميل البيانات. تحقق من الاتصال.');
+                renderAll();
+            } catch (err) {
+                hideLoading();
+                toast('error', err.message || 'تعذر تحميل البيانات. تحقق من الاتصال.');
+                showEmptyFallback();
+            }
+        }
+
+        async function refreshInBackground() {
+            try {
+                await loadFromServer();
+                renderAll();
+            } catch (err) { /* نشيط: نُبقي البيانات القديمة */ }
+        }
+
+        window.adminRefresh = function () {
+            var icon = $('refreshIcon');
+            if (icon) icon.className = 'fas fa-spinner fa-spin';
+            refreshInBackground().then(function () {
+                if (icon) icon.className = 'fas fa-sync-alt';
+            });
+        };
+
+        function showLoading() {
+            var b = $('loadingBlock');
+            b.classList.remove('hidden');
+            b.innerHTML = '<div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div><p class="font-bold text-slate-500 dark:text-slate-400 text-sm">جاري تحميل البيانات...</p>';
+        }
+        function hideLoading() { $('loadingBlock').classList.add('hidden'); }
+        function showEmptyFallback() {
+            var b = $('loadingBlock');
+            b.classList.remove('hidden');
+            b.innerHTML = '<div class="text-center text-slate-400 py-8 space-y-2"><i class="fas fa-wifi-slash text-5xl opacity-50 mb-2"></i><p class="font-bold">تعذر الاتصال بالخادم</p><p class="text-sm">يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً</p><button onclick="location.reload()" class="btn-primary mt-3">إعادة المحاولة</button></div>';
+        }
+
+        // =================================================================
+        // 1) OVERVIEW
+        // =================================================================
+        function getOverviewRows() {
+            var rows = state.shipments;
+            if (state.overviewMode === 'active') rows = rows.filter(function (s) { return !isArchived(s); });
+            else if (state.overviewMode === 'archived') rows = rows.filter(function (s) { return isArchived(s); });
+            if (state.currentDaily) {
+                var dv = state.currentDaily;
+                rows = rows.filter(function (s) { return (s['اليومية'] || '') === dv; });
+            }
+            if (state.statusFilter) {
+                var sf = state.statusFilter;
+                rows = rows.filter(function (s) { return (s['الحالة'] || '') === sf || (sf === 'الغاء' && (s['الحالة'] || '') === 'إلغاء'); });
+            }
+            return rows;
+        }
+
+        // حساب مجمّع واحد لكل دورة رسم (يتجنب تكرار التكرار)
+        function computeOverview() {
+            var rows = getOverviewRows();
+            var agg = {
+                total: rows.length,
+                noRep: 0,
+                paid: 0,
+                commission: 0,
+                supply: 0,
+                collectedCount: 0,
+                statuses: { 'قيد التوصيل': 0, 'تم': 0, 'تعديل سعر': 0, 'شحن': 0, 'الغاء': 0, 'مؤجل': 0 },
+                statusPaid: { 'تم': 0, 'تعديل سعر': 0, 'شحن': 0 }
+            };
+            var doneStatuses = ['تم', 'تم التسليم', 'شحن', 'تعديل سعر', 'استلم جزئي'];
+
+            rows.forEach(function (s) {
+                var st = s['الحالة'] || '';
+                if (st === 'إلغاء') st = 'الغاء';
+                if (Object.prototype.hasOwnProperty.call(agg.statuses, st)) agg.statuses[st]++;
+
+                if (!(s['المندوب'] || '').trim()) agg.noRep++;
+
+                if (doneStatuses.indexOf(st) !== -1) {
+                    var paid = parseFloat(s['المدفوع']) || 0;
+                    var comm = parseFloat(s['عمولة المندوب']) || 0;
+                    agg.paid += paid;
+                    agg.commission += comm;
+                    agg.collectedCount++;
+                    if (st === 'تم' || st === 'تعديل سعر' || st === 'شحن') agg.statusPaid[st] += paid;
+                }
+            });
+            agg.supply = agg.paid - agg.commission;
+            return agg;
+        }
+
+        function renderStatusRow(agg) {
+            var row = $('statusFilterRow');
+            var items = [
+                { key: 'قيد التوصيل', label: 'قيد التوصيل', color: 'text-amber-500', paid: null },
+                { key: 'تم', label: 'تم', color: 'text-emerald-500', paid: agg.statusPaid['تم'] },
+                { key: 'تعديل سعر', label: 'تعديل سعر', color: 'text-purple-500', paid: agg.statusPaid['تعديل سعر'] },
+                { key: 'شحن', label: 'شحن', color: 'text-indigo-500', paid: agg.statusPaid['شحن'] },
+                { key: 'الغاء', label: 'الغاء', color: 'text-red-500', paid: null },
+                { key: 'مؤجل', label: 'مؤجل', color: 'text-orange-500', paid: null }
+            ];
+            row.innerHTML = items.map(function (c) {
+                var active = state.statusFilter === c.key ? ' active' : '';
+                var paidHtml = c.paid != null && c.paid > 0 ? '<div class="breakdown">المدفوع: ' + money(c.paid) + '</div>' : '';
+                return '<button data-key="' + c.key + '" class="stat-card' + active + '" role="button"><div class="num ' + c.color + '">' + enNum(agg.statuses[c.key]) + '</div><div class="label">' + c.label + '</div>' + paidHtml + '</button>';
+            }).join('');
+        }
+
+        function populateDailyOptions() {
+            var select = $('ovDailySelect');
+            var counts = {};
+            state.shipments.forEach(function (s) {
+                var d = (s['اليومية'] || '').trim();
+                if (d) counts[d] = (counts[d] || 0) + 1;
+            });
+            var days = Object.keys(counts).sort(function (a, b) {
+                var da = parseDate(a), db = parseDate(b);
+                if (!da && !db) return 0;
+                if (!da) return 1;
+                if (!db) return -1;
+                return (da.y - db.y) || (da.m - db.m) || (da.d - db.d);
+            });
+            select.innerHTML = '<option value="">كل اليوميات</option>' + days.map(function (d) {
+                return '<option value="' + esc(d) + '">' + esc(d) + ' (' + enNum(counts[d]) + ')</option>';
+            }).join('');
+            select.value = state.currentDaily;
+        }
+
+        function renderRepList() {
+            var container = $('repListContainer');
+            var rows = getOverviewRows();
+
+            // تجميع واحد لكل دورة رسم
+            var repMap = {};
+            rows.forEach(function (s) {
+                var name = String(s['المندوب'] || '').trim();
+                if (!name) return;
+                if (!repMap[name]) {
+                    repMap[name] = { name: name, total: 0, delivered: 0, paid: 0, commission: 0, supply: 0, statuses: {} };
+                }
+                var r = repMap[name];
+                r.total++;
+                var st = s['الحالة'] || '';
+                r.statuses[st] = (r.statuses[st] || 0) + 1;
+                if (st === 'تم' || st === 'تم التسليم') r.delivered++;
+                if (isDoneStatusList(st)) {
+                    r.paid += parseFloat(s['المدفوع']) || 0;
+                    r.commission += parseFloat(s['عمولة المندوب']) || 0;
+                }
+            });
+
+            var list = Object.keys(repMap).map(function (k) { return repMap[k]; });
+
+            // بحث
+            if (state.repSearch) {
+                var re = new RegExp(escapeRegExp(state.repSearch), 'i');
+                list = list.filter(function (r) { return re.test(r.name); });
+            }
+            // ترتيب
+            function pctOf(r) { return r.total ? Math.round((r.delivered / r.total) * 100) : 0; }
+            if (state.repSort === 'pct-asc') list.sort(function (a, b) { return pctOf(a) - pctOf(b); });
+            else if (state.repSort === 'pct-desc') list.sort(function (a, b) { return pctOf(b) - pctOf(a); });
+            else if (state.repSort === 'count-asc') list.sort(function (a, b) { return a.total - b.total; });
+            else if (state.repSort === 'count-desc') list.sort(function (a, b) { return b.total - a.total; });
+
+            $('ovRepCount').textContent = enNum(list.length) + ' مندوب';
+
+            if (!list.length) {
+                container.innerHTML = emptyState('<i class="fas fa-users-slash text-4xl mb-3 opacity-40"></i><p class="font-bold">لا يوجد مندوبون</p>');
+                return;
+            }
+
+            var order = ['قيد التوصيل', 'تم', 'تعديل سعر', 'شحن', 'الغاء', 'مؤجل'];
+            container.innerHTML = list.map(function (r) {
+                r.supply = r.paid - r.commission;
+                var pctVal = pctOf(r);
+                var isOpen = !!state.expandedReps[r.name];
+                var pctColor = pctVal >= 50 ? 'text-emerald-600 dark:text-emerald-400' : pctVal >= 20 ? 'text-amber-600 dark:text-amber-400' : 'text-red-500';
+                var details = isOpen ? '<div class="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">'
+                    + '<div class="grid grid-cols-3 gap-1.5">' + order.map(function (st) {
+                        var c = r.statuses[st] || 0;
+                        var color = st === 'تم' ? 'text-emerald-500' : st === 'الغاء' ? 'text-red-500' : st === 'مؤجل' ? 'text-orange-500' : st === 'تعديل سعر' ? 'text-purple-500' : st === 'شحن' ? 'text-indigo-500' : 'text-amber-500';
+                        return '<div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 text-center"><div class="text-sm font-extrabold ' + color + '">' + enNum(c) + '</div><div class="text-[10px] font-bold text-slate-400">' + st + '</div></div>';
+                    }).join('') + '</div>'
+                    + '<div class="grid grid-cols-3 gap-1.5 mt-1.5">'
+                    + '<div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-center"><div class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">' + money(r.paid) + '</div><div class="text-[10px] font-bold text-slate-400">المدفوع</div></div>'
+                    + '<div class="p-2 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-center"><div class="text-sm font-extrabold text-sky-600 dark:text-sky-400">' + money(r.commission) + '</div><div class="text-[10px] font-bold text-slate-400">العمولة</div></div>'
+                    + '<div class="p-2 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-center"><div class="text-sm font-extrabold text-rose-600 dark:text-rose-400">' + money(r.supply) + '</div><div class="text-[10px] font-bold text-slate-400">التوريد</div></div>'
+                    + '</div></div>' : '';
+
+                return '<div class="rep-row border-b border-slate-100 dark:border-slate-800/60 py-3" data-name="' + esc(r.name) + '">'
+                    + '<div class="flex items-center justify-between gap-2">'
+                    + '<div class="flex items-center gap-2 min-w-0">'
+                    + '<div class="w-9 h-9 rounded-full bg-gradient-to-br from-indigo-500 to-sky-500 flex items-center justify-center text-white font-extrabold text-sm shrink-0">' + esc(r.name.charAt(0)) + '</div>'
+                    + '<div class="min-w-0">'
+                    + '<div class="font-extrabold text-slate-800 dark:text-white text-sm truncate">' + esc(r.name) + '</div>'
+                    + '<div class="text-[11px] font-bold text-slate-400">' + enNum(r.total) + ' شحنة • ' + enNum(r.delivered) + ' تم</div>'
+                    + '</div></div>'
+                    + '<div class="flex items-center gap-1.5 shrink-0">'
+                    + '<span class="text-xs font-extrabold ' + pctColor + '">' + enNum(pctVal) + '%</span>'
+                    + '<i class="fas fa-chevron-down text-slate-400 text-xs transition-transform ' + (isOpen ? 'rotate-180' : '') + '"></i>'
+                    + '</div></div>'
+                    + '<div class="progress-bar mt-2"><div class="fill" style="width:' + pctVal + '%"></div></div>'
+                    + '<div class="grid grid-cols-3 gap-1.5 mt-2">'
+                    + '<div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-center"><div class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">' + money(r.paid) + '</div><div class="text-[10px] font-bold text-slate-400">المدفوع</div></div>'
+                    + '<div class="p-2 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-center"><div class="text-sm font-extrabold text-sky-600 dark:text-sky-400">' + money(r.commission) + '</div><div class="text-[10px] font-bold text-slate-400">العمولة</div></div>'
+                    + '<div class="p-2 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-center"><div class="text-sm font-extrabold text-rose-600 dark:text-rose-400">' + money(r.supply) + '</div><div class="text-[10px] font-bold text-slate-400">التوريد</div></div>'
+                    + '</div>'
+                    + details
+                    + '</div>';
+            }).join('');
+        }
+
+        function renderOverview() {
+            populateDailyOptions();
+            var agg = computeOverview();
+            $('ovTotalCount').textContent = enNum(agg.total);
+            $('ovNoRepCount').textContent = enNum(agg.noRep);
+            $('ovNoRepBreakdown').textContent = agg.noRep ? 'مطلوب إسناد مندوب' : 'لا يوجد';
+            $('ovPaid').textContent = money(agg.paid);
+            $('ovCommission').textContent = money(agg.commission);
+            $('ovSupply').textContent = money(agg.supply);
+            $('ovSupplyBreakdown').textContent = 'شحنات محصّلة: ' + enNum(agg.collectedCount);
+            renderStatusRow(agg);
+            renderRepList();
+        }
+
+        // Delegation: فلاتر الحالات
+        $('statusFilterRow').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-key]');
+            if (!btn) return;
+            var key = btn.getAttribute('data-key');
+            state.statusFilter = state.statusFilter === key ? '' : key;
+            renderOverview();
+        });
+
+        // Delegation: توسيع/طي المندوب
+        $('repListContainer').addEventListener('click', function (e) {
+            var el = e.target.closest('.rep-row');
+            if (!el) return;
+            var name = el.getAttribute('data-name');
+            state.expandedReps[name] = !state.expandedReps[name];
+            renderRepList();
+        });
+
+        // Debounce: بحث المناديب
+        $('repSearchInput').addEventListener('input', debounce(function () {
+            state.repSearch = $('repSearchInput').value.trim();
+            renderRepList();
+        }, 280));
+
+        $('repSortSelect').addEventListener('change', function () {
+            state.repSort = this.value;
+            renderRepList();
+        });
+
+        $('ovDailySelect').addEventListener('change', function () {
+            state.currentDaily = this.value;
+            renderOverview();
+        });
+
+        // فلتر شهر تبويب المؤرشف
+        $('archiveMonthSelect').addEventListener('change', function () {
+            state.archiveMonth = this.value;
+            renderArchive();
+        });
+
+        window.toggleArchiveMode = function () {
+            state.overviewMode = state.overviewMode === 'active' ? 'archived' : 'active';
+            $('archiveModeBtn').innerHTML = state.overviewMode === 'active'
+                ? '<i class="fas fa-archive ml-1"></i> نشطة'
+                : '<i class="fas fa-box-open ml-1"></i> مؤرشفة';
+            state.currentDaily = '';
+            $('ovDailySelect').value = '';
+            state.statusFilter = '';
+            renderOverview();
+        };
+
+        // =================================================================
+        // 2) ACCOUNTS
+        // =================================================================
+        function roleBadge(role) {
+            var map = { admin: 'مدير', rep: 'مندوب', follower: 'متابعة' };
+            var label = map[role] || (role || 'غير معروف');
+            var cls = role === 'admin' ? 'role-badge-admin' : role === 'rep' ? 'role-badge-rep' : role === 'follower' ? 'role-badge-follower' : 'role-badge-other';
+            return '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold ' + cls + '">' + esc(label) + '</span>';
+        }
+
+        function renderUserFilters() {
+            var counts = { all: state.users.length, admin: 0, rep: 0, follower: 0 };
+            state.users.forEach(function (u) {
+                if (Object.prototype.hasOwnProperty.call(counts, u.role)) counts[u.role]++;
+            });
+            var tabs = [
+                { key: 'all', label: 'الكل (' + enNum(counts.all) + ')' },
+                { key: 'admin', label: 'مدراء (' + enNum(counts.admin) + ')' },
+                { key: 'rep', label: 'مناديب (' + enNum(counts.rep) + ')' },
+                { key: 'follower', label: 'متابعة (' + enNum(counts.follower) + ')' }
+            ];
+            $('userRoleFilterRow').innerHTML = tabs.map(function (t) {
+                return '<button data-role="' + t.key + '" class="filter-chip' + (state.userRoleFilter === t.key ? ' active' : '') + '">' + t.label + '</button>';
+            }).join('');
+        }
+
+        function renderUserList() {
+            renderUserFilters();
+            var list = state.users.slice();
+            var q = state.userSearch.trim().toLowerCase();
+            if (q) {
+                list = list.filter(function (u) {
+                    return String(u.full_name || u.username || '').toLowerCase().indexOf(q) !== -1
+                        || String(u.phone || '').toLowerCase().indexOf(q) !== -1
+                        || String(u.email || '').toLowerCase().indexOf(q) !== -1;
+                });
+            }
+            if (state.userRoleFilter !== 'all') {
+                list = list.filter(function (u) { return u.role === state.userRoleFilter; });
+            }
+
+            var container = $('userListContainer');
+            if (!list.length) {
+                container.innerHTML = emptyState('<i class="fas fa-users text-4xl mb-3 opacity-40"></i><p class="font-bold">لا يوجد مستخدمون مطابقون</p>');
+                return;
+            }
+
+            var meId = String(currentUser.id);
+            container.innerHTML = list.map(function (u) {
+                var isMe = String(u.id) === meId;
+                var approved = !!u.approved;
+                var actBtn = isMe ? '' : '<button data-action="toggle-active" data-id="' + esc(u.id) + '" class="toast-btn" style="color:' + (approved ? '#dc2626' : '#059669') + ';background:' + (approved ? 'rgba(220,38,38,.08)' : 'rgba(5,150,105,.08)') + ';border:1px solid ' + (approved ? 'rgba(220,38,38,.22)' : 'rgba(5,150,105,.22)') + '"><i class="fas ' + (approved ? 'fa-pause' : 'fa-play') + ' ml-1"></i>' + (approved ? 'إيقاف' : 'تفعيل') + '</button>';
+                var editBtn = isMe ? '' : '<button data-action="edit-user" data-id="' + esc(u.id) + '" class="toast-btn text-indigo-600" style="background:rgba(99,102,241,.08);border:1px solid rgba(99,102,241,.22)"><i class="fas fa-edit ml-1"></i>تعديل</button>';
+                var delBtn = isMe ? '' : '<button data-action="delete-user" data-id="' + esc(u.id) + '" class="toast-btn text-red-600" style="background:rgba(220,38,38,.08);border:1px solid rgba(220,38,38,.22)"><i class="fas fa-trash ml-1"></i>حذف</button>';
+
+                return '<div class="glass-card p-3 flex flex-wrap items-center gap-3 mb-2">'
+                    + '<div class="flex items-center gap-3 flex-1 min-w-0">'
+                    + '<div class="w-11 h-11 rounded-full flex items-center justify-center text-white font-extrabold text-base shrink-0 ' + (isMe ? 'bg-gradient-to-br from-rose-500 to-pink-500' : 'bg-gradient-to-br from-indigo-500 to-sky-500') + '">' + esc(String(u.full_name || u.username || '؟').charAt(0)) + '</div>'
+                    + '<div class="min-w-0">'
+                    + '<div class="flex items-center gap-1.5 flex-wrap">'
+                    + '<span class="font-extrabold text-slate-800 dark:text-white text-sm truncate">' + esc(u.full_name || u.username || '-') + '</span>'
+                    + roleBadge(u.role)
+                    + (isMe ? '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-indigo-500 text-white">أنت</span>' : '')
+                    + (approved ? '' : '<span class="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-slate-100 text-slate-500 dark:bg-slate-700 dark:text-slate-300">موقوف</span>')
+                    + '</div>'
+                    + '<div class="text-[11px] font-bold text-slate-400 mt-0.5 truncate">' + esc(u.phone || '-') + (u.email ? ' • ' + esc(u.email) : '') + '</div>'
+                    + '<div class="text-[10px] font-semibold text-slate-400 mt-0.5">تاريخ الإنشاء: ' + formatDate(u.created_at) + '</div>'
+                    + '</div></div>'
+                    + '<div class="flex items-center gap-1.5 w-full sm:w-auto">' + actBtn + editBtn + delBtn + '</div>'
+                    + '</div>';
+            }).join('');
+        }
+
+        // Delegation: فلاتر الصلاحيات
+        $('userRoleFilterRow').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-role]');
+            if (!btn) return;
+            state.userRoleFilter = btn.getAttribute('data-role');
+            renderUserList();
+        });
+
+        // Delegation: أزرار المستخدمين
+        $('userListContainer').addEventListener('click', function (e) {
+            var btn = e.target.closest('[data-action]');
+            if (!btn) return;
+            var action = btn.getAttribute('data-action');
+            var uid = btn.getAttribute('data-id');
+            if (action === 'toggle-active') toggleUserActive(uid);
+            else if (action === 'edit-user') openUserForm(uid);
+            else if (action === 'delete-user') confirmDeleteUser(uid);
+        });
+
+        // Debounce: بحث المستخدمين
+        $('userSearchInput').addEventListener('input', debounce(function () {
+            state.userSearch = $('userSearchInput').value;
+            renderUserList();
+        }, 280));
+
+        async function toggleUserActive(id) {
+            var u = state.users.find(function (x) { return String(x.id) === String(id); });
+            if (!u) return toast('error', 'المستخدم غير موجود');
+            if (String(u.id) === String(currentUser.id)) return toast('warning', 'لا يمكن إيقاف حسابك الخاص');
+            var next = !u.approved;
+            var prev = u.approved;
+            u.approved = next; // تحديث تفاؤلي
+            renderUserList();
+            try {
+                var res = await supabaseClient.from(CONFIG.TABLES.USERS).update({ approved: next }).eq('id', u.id);
+                if (res.error) throw res.error;
+                toast('success', next ? 'تم تفعيل الحساب' : 'تم إيقاف الحساب');
+            } catch (err) {
+                u.approved = prev; // إرجاع للحالة الأصلية عند الفشل
+                renderUserList();
+                toast('error', err.message || 'فشل تحديث حالة الحساب');
+            }
+        }
+
+        function confirmDeleteUser(id) {
+            var u = state.users.find(function (x) { return String(x.id) === String(id); });
+            if (!u) return toast('error', 'المستخدم غير موجود');
+            if (String(u.id) === String(currentUser.id)) return toast('error', 'لا يمكنك حذف حسابك الخاص');
+            var name = u.full_name || u.username || '';
+            Swal.fire({
+                title: 'تأكيد الحذف',
+                html: 'هل أنت متأكد من حذف <b>' + esc(name) + '</b>؟<br><span class="text-xs text-slate-400">لا يمكن التراجع عن هذه العملية.</span>',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، حذف',
+                cancelButtonText: 'إلغاء',
+                confirmButtonColor: '#dc2626'
+            }).then(async function (res) {
+                if (!res.isConfirmed) return;
+                try {
+                    var r = await supabaseClient.from(CONFIG.TABLES.USERS).delete().eq('id', u.id);
+                    if (r.error) throw r.error;
+                    state.users = state.users.filter(function (x) { return String(x.id) !== String(id); });
+                    renderUserList();
+                    toast('success', 'تم حذف المستخدم');
+                } catch (err) {
+                    toast('error', err.message || 'فشل حذف المستخدم');
+                }
+            });
+        }
+
+        // ---------- User form modal ----------
+        function resetUserForm() {
+            $('ufName').value = '';
+            $('ufPhone').value = '';
+            $('ufEmail').value = '';
+            $('ufPassword').value = '';
+            $('ufRole').value = 'rep';
+            $('ufApproved').checked = true;
+            $('userModalTitle').textContent = 'إضافة حساب جديد';
+            $('ufSubmitLabel').textContent = 'إنشاء الحساب';
+            $('ufPassLabel').innerHTML = 'كلمة المرور <span class="text-red-500">*</span>';
+            $('ufPassword').placeholder = '6 أحرف على الأقل';
+            state.editingUserId = null;
+        }
+
+        function openUserForm(id) {
+            resetUserForm();
+            if (id) {
+                var u = state.users.find(function (x) { return String(x.id) === String(id); });
+                if (u) {
+                    state.editingUserId = u.id;
+                    $('userModalTitle').textContent = 'تعديل الحساب';
+                    $('ufSubmitLabel').textContent = 'حفظ التعديلات';
+                    $('ufName').value = u.full_name || u.username || '';
+                    $('ufPhone').value = u.phone || '';
+                    $('ufEmail').value = u.email || '';
+                    $('ufRole').value = u.role || 'rep';
+                    $('ufApproved').checked = !!u.approved;
+                    $('ufPassLabel').innerHTML = 'كلمة المرور <span class="text-slate-400 text-[10px]">(اتركها فارغة للإبقاء)</span>';
+                    $('ufPassword').placeholder = 'اتركها فارغة إذا لم ترد التغيير';
+                }
+            }
+            toggleUserModal(true);
+        }
+        window.openUserForm = openUserForm;
+
+        function toggleUserModal(show) {
+            var m = $('userModal');
+            m.classList.toggle('hidden', !show);
+            m.classList.toggle('flex', show);
+            document.body.classList.toggle('overflow-hidden', show);
+        }
+
+        $('closeUserModal').addEventListener('click', function () { toggleUserModal(false); resetUserForm(); });
+        $('ufCancelBtn').addEventListener('click', function () { toggleUserModal(false); resetUserForm(); });
+        $('userModal').addEventListener('click', function (e) {
+            if (e.target === $('userModal')) { toggleUserModal(false); resetUserForm(); }
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !$('userModal').classList.contains('hidden')) toggleUserModal(false);
+        });
+
+        $('userForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var name = $('ufName').value.trim();
+            var phone = $('ufPhone').value.trim();
+            var email = $('ufEmail').value.trim();
+            var password = $('ufPassword').value;
+            var role = $('ufRole').value;
+            var approved = $('ufApproved').checked;
+            var isEdit = !!state.editingUserId;
+
+            if (!name) return Swal.fire({ icon: 'warning', title: 'بيانات ناقصة', text: 'يرجى إدخال الاسم' });
+            if (!phone) return Swal.fire({ icon: 'warning', title: 'بيانات ناقصة', text: 'يرجى إدخال رقم الموبايل' });
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return Swal.fire({ icon: 'warning', title: 'بريد غير صحيح', text: 'يرجى إدخال بريد إلكتروني صحيح' });
+            }
+            if (!isEdit && !password) {
+                return Swal.fire({ icon: 'warning', title: 'بيانات ناقصة', text: 'كلمة المرور مطلوبة عند إنشاء حساب جديد' });
+            }
+            if (password && password.length < 6) {
+                return Swal.fire({ icon: 'warning', title: 'كلمة مرور ضعيفة', text: 'كلمة المرور يجب ألا تقل عن 6 أحرف' });
+            }
+
+            var submitBtn = $('ufSubmitBtn');
+            submitBtn.disabled = true;
+            $('ufSubmitLabel').textContent = 'جاري الحفظ...';
+
+            try {
+                if (isEdit) {
+                    var payload = { full_name: name, phone: phone, email: email || null, role: role, approved: approved };
+                    if (password) payload.password = await hashPasswordIfNeeded(password);
+                    var res = await supabaseClient.from(CONFIG.TABLES.USERS).update(payload).eq('id', state.editingUserId);
+                    if (res.error) throw res.error;
+                    toast('success', 'تم تحديث الحساب');
+                } else {
+                    var newHash = await hashPassword(password);
+                    var payload = { username: name, full_name: name, phone: phone, email: email || null, role: role, approved: approved, password: newHash };
+                    var res = await supabaseClient.from(CONFIG.TABLES.USERS).insert([payload]).select().single();
+                    if (res.error) throw res.error;
+                    toast('success', 'تم إنشاء الحساب');
+                }
+                await refreshUsersOnly();
+                toggleUserModal(false);
+                resetUserForm();
+                renderUserList();
+            } catch (err) {
+                toast('error', err.message || 'فشل حفظ الحساب');
+            } finally {
+                submitBtn.disabled = false;
+                $('ufSubmitLabel').textContent = isEdit ? 'حفظ التعديلات' : 'إنشاء الحساب';
+            }
+        });
+
+        async function refreshUsersOnly() {
+            try {
+                var u = await supabaseClient.from(CONFIG.TABLES.USERS).select('*').order('id', { ascending: false });
+                if (!u.error) state.users = u.data || [];
+            } catch (e) {}
+        }
+
+        window.reloadUsers = async function () {
+            await refreshUsersOnly();
+            renderUserList();
+            toast('success', 'تم تحديث المستخدمين');
+        };
+
+        // =================================================================
+        // 3) ARCHIVE
+        // =================================================================
+        function getArchiveShipments() {
+            return state.shipments.filter(function (s) { return isArchived(s); });
+        }
+
+        function renderRing(count, total, label, color) {
+            var f = total ? Math.round((count / total) * 100) : 0;
+            var size = 130;
+            var r = (size / 2) - 10;
+            var circ = 2 * Math.PI * r;
+            var off = circ * (1 - f / 100);
+            return '<svg viewBox="0 0 ' + size + ' ' + size + '" class="w-full max-w-[130px] mx-auto" role="img" aria-label="' + esc(label) + '">'
+                + '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="rgba(148,163,184,.15)" stroke-width="12"/>'
+                + '<circle cx="' + size / 2 + '" cy="' + size / 2 + '" r="' + r + '" fill="none" stroke="' + color + '" stroke-width="12" stroke-linecap="round" stroke-dasharray="' + circ + '" stroke-dashoffset="' + off + '" transform="rotate(-90 ' + size / 2 + ' ' + size / 2 + ')"/>'
+                + '<text x="50%" y="55%" text-anchor="middle" class="ring-text" font-size="26" font-weight="900">' + enNum(f) + '%</text>'
+                + '</svg>';
+        }
+
+        function renderArchive() {
+            // الفلترة الموحّدة: كل عناصر التبويب تشتغل على نفس المجموعة (المؤرشف + الشهر المختار)
+            var arch = filterArchiveByMonth(getArchiveShipments());
+            var total = arch.length;
+
+            buildArchiveMonthOptions();
+            renderArchiveRings(arch, total);
+            renderBarChart(arch);
+            renderArchiveReps(arch, total);
+            renderArchiveDailies(arch);
+        }
+
+        // فلترة موحّدة تُستخدم من جميع عناصر تبويب المؤرشف (الحلقات/الشارت/المناديب/اليوميات)
+        function filterArchiveByMonth(rows) {
+            if (!state.archiveMonth) return rows;
+            var parts = state.archiveMonth.split('-');
+            var y = parseInt(parts[0], 10);
+            var m = parseInt(parts[1], 10);
+            return rows.filter(function (s) {
+                var d = parseDate(s['اليومية']);
+                return !!d && d.y === y && d.m === m;
+            });
+        }
+
+        // بناء خيارات الشهور من المؤرشف فعليًا، من الأحدث للأقدم مع عدد شحنات كل شهر
+        function buildArchiveMonthOptions() {
+            var select = $('archiveMonthSelect');
+            if (!select) return;
+            var counts = {}, labels = {};
+            getArchiveShipments().forEach(function (s) {
+                var d = parseDate(s['اليومية']);
+                if (!d) return;
+                var key = d.y + '-' + (d.m < 10 ? '0' : '') + d.m;
+                counts[key] = (counts[key] || 0) + 1;
+                labels[key] = locMonth(d.m) + ' ' + enNum(d.y);
+            });
+            var keys = Object.keys(counts).sort().reverse();
+            var html = '<option value="">كل الشهور</option>';
+            keys.forEach(function (k) {
+                html += '<option value="' + k + '">' + labels[k] + ' (' + enNum(counts[k]) + ')</option>';
+            });
+            var prev = select.value;
+            select.innerHTML = html;
+            // الإبقاء على الاختيار الحالي إن كان لا يزال موجودًا في البيانات
+            var resolvedValue = state.archiveMonth && counts[state.archiveMonth] ? state.archiveMonth : (keys.indexOf(prev) !== -1 ? prev : '');
+            select.value = resolvedValue;
+            // مزامنة الحالة مع القيمة المعروضة فعليًا حتى تعتمد الفلترة على نفس الشهر الظاهر
+            state.archiveMonth = resolvedValue;
+        }
+
+        function renderArchiveRings(arch, total) {
+            var c = { 'تم': 0, 'شحن': 0, 'الغاء': 0 };
+            arch.forEach(function (s) {
+                var st = s['الحالة'] || '';
+                if (st === 'تم' || st === 'تم التسليم') c['تم']++;
+                else if (st === 'شحن') c['شحن']++;
+                else if (st === 'الغاء' || st === 'إلغاء') c['الغاء']++;
+            });
+
+            var ringCfg = [
+                { label: 'تم', count: c['تم'], color: '#10b981' },
+                { label: 'شحن', count: c['شحن'], color: '#3b82f6' },
+                { label: 'الغاء', count: c['الغاء'], color: '#ef4444' }
+            ];
+            $('archiveRings').innerHTML = ringCfg.map(function (r) {
+                return '<div class="text-center">' + renderRing(r.count, total, r.label, r.color)
+                    + '<div class="mt-1 font-bold text-xs text-slate-500 dark:text-slate-400">' + r.label + ' <span class="text-slate-400">(' + enNum(r.count) + ')</span></div></div>';
+            }).join('');
+        }
+
+        // قائمة مختصرة باليوميات الواقعة في الشهر المختار، بترتيب تنازلي حسب العدد
+        function renderArchiveDailies(arch) {
+            var container = $('archiveDailiesList');
+            if (!container) return;
+            if (!state.archiveMonth) { container.innerHTML = ''; return; }
+            var counts = {};
+            arch.forEach(function (s) {
+                var d = (s['اليومية'] || '').trim();
+                if (d) counts[d] = (counts[d] || 0) + 1;
+            });
+            var items = Object.keys(counts).map(function (k) { return { name: k, count: counts[k] }; })
+                .sort(function (a, b) { return b.count - a.count; });
+            if (!items.length) {
+                container.innerHTML = '<p class="text-xs font-bold text-slate-400 pt-1">لا توجد يوميات مسجلة ضمن هذا الشهر</p>';
+                return;
+            }
+            container.innerHTML = items.map(function (it) {
+                return '<div class="flex items-center justify-between px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 text-xs font-bold"><span class="text-slate-700 dark:text-slate-200 truncate">' + esc(it.name) + '</span><span class="text-slate-400 shrink-0">' + enNum(it.count) + ' شحنة</span></div>';
+            }).join('');
+        }
+
+        function renderArchiveReps(arch, total) {
+            var container = $('archiveRepsContainer');
+            var repMap = {};
+            arch.forEach(function (s) {
+                var name = String(s['المندوب'] || '').trim();
+                if (!name) return;
+                if (!repMap[name]) repMap[name] = { name: name, total: 0, paid: 0, commission: 0, supply: 0 };
+                var r = repMap[name];
+                r.total++;
+                r.paid += parseFloat(s['المدفوع']) || 0;
+                r.commission += parseFloat(s['عمولة المندوب']) || 0;
+                r.supply = r.paid - r.commission;
+            });
+
+            var list = Object.keys(repMap).map(function (k) { return repMap[k]; });
+            if (!list.length) {
+                container.innerHTML = emptyState('<i class="fas fa-box-open text-4xl mb-3 opacity-40"></i><p class="font-bold">لا توجد شحنات مؤرشفة</p>');
+                return;
+            }
+            list.sort(function (a, b) { return b.total - a.total; });
+            var maxTotal = Math.max.apply(null, list.map(function (r) { return r.total; })) || 1;
+            var totalRows = list.reduce(function (s, r) { return s + r.total; }, 0);
+
+            container.innerHTML = list.map(function (r) {
+                var pctOfTotal = total ? Math.round((r.total / total) * 100) : 0;
+                var supplyPos = r.supply >= 0;
+                return '<div class="mb-4">'
+                    + '<div class="flex items-center justify-between text-sm mb-1 gap-2">'
+                    + '<span class="font-extrabold text-slate-800 dark:text-white truncate">' + esc(r.name) + '</span>'
+                    + '<span class="text-xs font-bold text-slate-400 shrink-0">' + enNum(r.total) + ' شحنة • ' + enNum(pctOfTotal) + '%</span></div>'
+                    + '<div class="progress-bar"><div class="fill" style="width:' + Math.round((r.total / maxTotal) * 100) + '%"></div></div>'
+                    + '<div class="flex items-center gap-2 mt-1.5 flex-wrap">'
+                    + '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">عمولة: ' + money(r.commission) + '</span>'
+                    + '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ' + (supplyPos ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300') + '">توريد: ' + money(r.supply) + '</span>'
+                    + '</div></div>';
+            }).join('');
+        }
+
+        function renderBarChart(rows) {
+            var dated = [];
+            rows.forEach(function (s) {
+                var d = parseDate(s['اليومية']);
+                if (d) dated.push(d);
+            });
+
+            var labelEl = $('barChartLabel');
+            var container = $('barChartContainer');
+
+            if (!dated.length) {
+                labelEl.textContent = 'لا توجد تواريخ صالحة للعرض';
+                container.innerHTML = emptyState('لا توجد بيانات تاريخية كافية للرسم البياني');
+                return;
+            }
+
+            // أحدث شهر متاح في البيانات
+            var latest = dated.reduce(function (a, b) { return (b.y * 100 + b.m) > (a.y * 100 + a.m) ? b : a; });
+
+            var cur = {}; // day -> count
+            var prev = {}; // day -> count (الشهر السابق)
+            var py = latest.m === 1 ? latest.y - 1 : latest.y;
+            var pm = latest.m === 1 ? 12 : latest.m - 1;
+            dated.forEach(function (d) {
+                if (d.y === latest.y && d.m === latest.m) cur[d.d] = (cur[d.d] || 0) + 1;
+                else if (d.y === py && d.m === pm) prev[d.d] = (prev[d.d] || 0) + 1;
+            });
+
+            var days = Object.keys(cur).map(Number).sort(function (a, b) { return a - b; });
+            if (!days.length) {
+                labelEl.textContent = 'لا توجد بيانات كافية';
+                container.innerHTML = emptyState('لا توجد شحنات بتاريخ صالح في آخر شهر');
+                return;
+            }
+
+            var maxC = Math.max.apply(null, days.map(function (d) { return cur[d]; }).concat([1]));
+            var bw = 22, gap = 6;
+            var chartWidth = Math.max(days.length * (bw + gap) + 12, 340);
+            var H = 200;
+
+            var x = function (i) { return 6 + i * (bw + gap); };
+            var yBase = H - 20;
+            var barH = function (v) { return Math.max(2, (v / maxC) * (H - 44)); };
+
+            var bars = days.map(function (d, i) {
+                var cVal = cur[d] || 0;
+                var pVal = prev[d] || 0;
+                var h = barH(cVal);
+                var growth, growColor;
+                if (pVal > 0) {
+                    growth = (cVal - pVal > 0 ? '+' : '') + Math.round(((cVal - pVal) / pVal) * 100) + '%';
+                    growColor = cVal >= pVal ? '#22c55e' : '#ef4444';
+                } else {
+                    growth = cVal > 0 ? 'جديد' : '';
+                    growColor = '#22c55e';
+                }
+                return '<g>'
+                    + '<rect x="' + x(i) + '" y="' + (yBase - h) + '" width="' + bw + '" height="' + h + '" rx="4" fill="#6366f1"/>'
+                    + '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase - h - 6) + '" text-anchor="middle" font-size="9" font-weight="700" class="bar-text">' + enNum(cVal) + '</text>'
+                    + '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase + 14) + '" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="600">' + enNum(d) + '</text>'
+                    + (growth ? '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase + 25) + '" text-anchor="middle" font-size="8" font-weight="800" fill="' + growColor + '">' + growth + '</text>' : '')
+                    + '</g>';
+            }).join('');
+
+            labelEl.textContent = 'شهر ' + locMonth(latest.m) + ' ' + enNum(latest.y) + ' — المقارنة مع نفس اليوم في الشهر السابق';
+            container.innerHTML = '<svg viewBox="0 0 ' + chartWidth + ' ' + H + '" class="block" style="min-width:340px;width:' + chartWidth + 'px;height:' + H + 'px">' + bars + '</svg>';
+        }
+
+        // =================================================================
+        // Init
+        // =================================================================
+        function renderAll() {
+            renderOverview();
+            renderUserList();
+            renderArchive();
+        }
+
+        // إظهار التبويب الافتراضي (إحصائيات) عند التحميل
+        $('tab-overview').classList.remove('hidden');
+
+        $('adminName').textContent = currentUser.full_name || currentUser.username || 'المدير';
+        ensureData(false);
+    })();
+</script>
+<script>
+    // تبويب تسكين الشحنات — إضافة معزولة، لا تمس أي وظيفة قائمة
+    window.showHousingTab = function () {
+        ['overview', 'accounts', 'archive', 'housing'].forEach(function (k) {
+            var p = document.getElementById('tab-' + k);
+            if (p) p.classList.add('hidden');
+        });
+        var panel = document.getElementById('tab-housing');
+        if (panel) panel.classList.remove('hidden');
+        document.querySelectorAll('#adminTabs .sidebar-tab').forEach(function (b) {
+            b.classList.toggle('active', b.dataset.tab === 'housing');
+        });
+        var fr = document.getElementById('housingFrame');
+        if (fr && (!fr.dataset.loaded || fr.src === 'about:blank')) {
+            fr.dataset.loaded = '1';
+            fr.src = 'housing-dashboard.html';
+        }
+    };
+</script>
+</body>
+</html>

@@ -1,0 +1,1217 @@
+﻿<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <title>لوحة المندوب | نظام الشحن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        * { font-family: 'Cairo', 'Tajawal', sans-serif; box-sizing: border-box; }
+        body { background: #f6f8fc; min-height: 100vh; padding-bottom: 80px; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
+        body.dark { background: #020617; }
+        .stat-card { border-radius: 14px; padding: 10px 8px; background: white; box-shadow: 0 2px 10px rgba(0,0,0,0.04); border: 1px solid rgba(148,163,184,0.15); transition: box-shadow 0.3s, transform 0.3s; }
+        .dark .stat-card { background: #0f172a; border-color: rgba(148,163,184,0.08); box-shadow: 0 2px 12px rgba(0,0,0,0.15); }
+        .stat-card .num { font-size: 1.2rem; font-weight: 800; line-height: 1.2; }
+        .stat-card .label { font-size: 0.7rem; font-weight: 600; color: #64748b; letter-spacing: 0.02em; }
+        .dark .stat-card .label { color: #94a3b8; }
+        .dark [id$="Breakdown"] { color: rgba(148,163,184,0.5) !important; }
+        .quick-status-card.active { border-color: #6366f1; background: rgba(99,102,241,.08); box-shadow: 0 0 0 1px rgba(99,102,241,.3); }
+        .dark .quick-status-card.active { background: rgba(99,102,241,.12); border-color: #818cf8; }
+        .progress-bar-custom { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
+        .dark .progress-bar-custom { background: #1e293b; }
+        .progress-bar-custom .fill { height: 100%; border-radius: 10px; background: linear-gradient(135deg, #4f46e5, #0ea5e9); transition: width 0.6s ease; }
+        .action-btns { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .action-btns .row { display: flex; gap: 6px; }
+        .action-btns .row .action-btn { flex: 1; }
+        .action-btn { min-width: 0; padding: 10px 6px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); font-size: 0.8rem; font-weight: 700; text-align: center; cursor: pointer; background: white; color: #475569; letter-spacing: 0.01em; }
+        .dark .action-btn { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,0.1); }
+        .action-btn.done { color: #059669; background: #ecfdf5; border-color: #a7f3d0; }
+        .dark .action-btn.done { background: rgba(5,150,105,0.12); border-color: rgba(5,150,105,0.25); }
+        .action-btn.price { color: #7c3aed; background: #f5f3ff; border-color: #ddd6fe; }
+        .dark .action-btn.price { background: rgba(124,58,237,0.12); border-color: rgba(124,58,237,0.25); }
+        .action-btn.ship { color: #0284c7; }
+        .action-btn.postpone { color: #d97706; background: #fffbeb; border-color: #fde68a; }
+        .dark .action-btn.postpone { background: rgba(217,119,6,0.12); border-color: rgba(217,119,6,0.25); }
+        .action-btn.reject { color: #dc2626; background: #fef2f2; border-color: #fecaca; }
+        .dark .action-btn.reject { background: rgba(220,38,38,0.12); border-color: rgba(220,38,38,0.25); }
+        .action-btn.call { color: #0891b2; background: #ecfeff; border-color: #a5f3fc; }
+        .dark .action-btn.call { background: rgba(8,145,178,0.12); border-color: rgba(8,145,178,0.25); }
+        .action-btn.whatsapp { color: #25d366; background: #ecfdf5; border-color: #a7f3d0; }
+        .dark .action-btn.whatsapp { background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.25); }
+        .action-btn { position: relative; }
+        .action-btns.hidden-actions { display:none !important; }
+        .greeting-text { color:#000;margin:0;font-weight:800; } .dark .greeting-text { color:#fff; }
+        .shipment-eye-btn { display: inline-flex; align-items: center; justify-content: center; padding: 0.75rem; border-radius: 0.75rem; border: 1px solid #e2e8f0; background: #ffffff; color: #64748b; cursor: pointer; line-height: 1; transition: background 0.25s, color 0.25s, border-color 0.25s, box-shadow 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .dark .shipment-eye-btn { background: #1e293b; border-color: #334155; color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+        .shipment-eye-btn:hover { color: #6366f1; border-color: #c7d2fe; }
+        .dark .shipment-eye-btn:hover { color: #818cf8; border-color: #3730a3; }
+        .badge-num { position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff; font-size: 0.6rem; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; line-height: 1; }
+        .phone-row { margin-top: 6px; display: flex; gap: 6px; justify-content: flex-end; }
+        .phone-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #e8f5e9; color: #059669; cursor: pointer; transition: all 0.2s; font-size: 0.8rem; }
+        .dark .phone-icon-wrap { background: rgba(5,150,105,0.15); color: #34d399; }
+        .phone-icon-wrap:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(5,150,105,0.25); }
+        .wa-icon-wrap { position: relative; display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; background: #e8f5e9; color: #25d366; cursor: pointer; transition: all 0.2s; font-size: 0.9rem; }
+        .dark .wa-icon-wrap { background: rgba(37,211,102,0.12); color: #34d399; }
+        .wa-icon-wrap:hover { transform: scale(1.1); box-shadow: 0 4px 12px rgba(37,211,102,0.25); }
+        .phone-badge { position: absolute; top: -4px; right: -4px; background: #ef4444; color: white; font-size: 0.55rem; font-weight: 800; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+        .dark .filter-row select { background: #0f172a; color: #f8fafc; border-color: rgba(148,163,184,0.15); }
+        .dark #searchInput { background: #0f172a !important; color: #f8fafc !important; border-color: #334155 !important; }
+        .dark #searchInput::placeholder { color: #64748b !important; }
+        .dark .swal2-popup { background: #0f172a !important; color: #f8fafc !important; }
+        .dark .swal2-title { color: #f8fafc !important; }
+        .shipment-row { background: white; border-radius: 16px; padding: 16px 18px; border: 1.5px solid #e2e8f0; margin-bottom: 10px; line-height: 1.5; }
+        .dark .shipment-row { background: #0f172a; border-color: #1e293b; }
+        .shipment-row.border-green { border-color: #10b981; }
+        .dark .shipment-row.border-green { border-color: #34d399; }
+        .shipment-row.border-yellow { border-color: #eab308; }
+        .dark .shipment-row.border-yellow { border-color: #facc15; }
+        .shipment-row.border-orange { border-color: #f97316; }
+        .dark .shipment-row.border-orange { border-color: #fb923c; }
+        .shipment-row.border-red { border-color: #ef4444; }
+        .dark .shipment-row.border-red { border-color: #f87171; }
+        .shipment-row .main { font-size: 0.95rem; font-weight: 700; }
+        .shipment-row .sub { font-size: 0.8rem; font-weight: 500; color: #64748b; }
+        .dark .shipment-row .sub { color: #94a3b8; }
+        .shipment-row .field-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; margin-left: 2px; }
+        .dark .shipment-row .field-label { color: #64748b; }
+        .shipment-row .customer-name { color: #4f46e5; }
+        .dark .shipment-row .customer-name { color: #818cf8; }
+        .shipment-row .detail-address { color: #0f766e; font-weight: 600; }
+        .dark .shipment-row .detail-address { color: #5eead4; }
+        .shipment-amount { font-weight: 800; color: #047857; }
+        .dark .shipment-amount { font-weight: 800; color: #34d399; }
+        .archived-row { opacity: 0.5; }
+        .dark .archived-row { opacity: 0.4; }
+        .swal-dark .swal2-title { color: #f8fafc !important; }
+        .swal-dark .swal2-html-container { color: #cbd5e1 !important; }
+        .swal-dark .swal2-validation-message { background: #1e293b; color: #f8fafc; }
+        .empty-state { text-align: center; padding: 48px 24px; color: #94a3b8; line-height: 1.7; }
+        .dark .empty-state { color: #64748b; }
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
+        .icon-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid rgba(148,163,184,0.15); color: #64748b; transition: background 0.25s, color 0.25s, transform 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .dark .icon-btn { background: #1e293b; border-color: rgba(148,163,184,0.12); color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.15); }
+        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(99,102,241,0.25); }
+        .icon-btn.logout:hover { color: #f43f5e; }
+        .dark .icon-btn.logout:hover { color: #fb7185; background: #1e293b; }
+        .fav-btn { background: none; border: none; cursor: pointer; padding: 0; transition: all 0.2s; color: #94a3b8; line-height: 1; vertical-align: middle; font-size: 1rem; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .fav-btn:hover { background: rgba(148,163,184,0.1); }
+        .dark .fav-btn:hover { background: rgba(148,163,184,0.15); }
+        .fav-btn.active { color: #ef4444; }
+        .shipment-actions-bar { display: inline-flex; align-items: center; gap: 4px; }
+        .shipment-dots-btn { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; cursor: pointer; color: #94a3b8; font-size: 1.05rem; transition: background 0.2s, color 0.2s; }
+        .shipment-dots-btn:hover { background: rgba(148,163,184,0.1); color: #64748b; }
+        .dark .shipment-dots-btn { color: #64748b; }
+        .dark .shipment-dots-btn:hover { background: rgba(148,163,184,0.15); color: #94a3b8; }
+        @keyframes blink-wa { 0%,100% { opacity:1; box-shadow:0 0 0 0 rgba(37,211,102,0.5); } 50% { opacity:0.6; box-shadow:0 0 12px 4px rgba(37,211,102,0.3); } }
+        .followup-btn { background: none; border: 1px solid #25d366; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; color: #25d366; font-size: 0.7rem; animation: blink-wa 1.5s ease-in-out infinite; transition: all 0.2s; vertical-align: middle; margin-left: 4px; }
+        .followup-btn:hover { animation: none; background: #25d366; color: white; transform: scale(1.15); }
+        .followup-sent-card { display: inline-flex; align-items: center; gap: 4px; background: #d1fae5; color: #065f46; font-size: 0.65rem; font-weight: 700; padding: 2px 8px; border-radius: 20px; cursor: pointer; border: none; transition: all 0.2s; vertical-align: middle; margin-left: 4px; }
+        .dark .followup-sent-card { background: rgba(5,150,105,0.15); color: #34d399; }
+        .followup-sent-card:hover { transform: scale(1.05); }
+        .notif-btn { position: relative; }
+        .notif-badge { position: absolute; top: -2px; right: -2px; background: #ef4444; color: white; font-size: 0.5rem; font-weight: 800; min-width: 16px; height: 16px; border-radius: 8px; display: flex; align-items: center; justify-content: center; padding: 0 3px; }
+        .notif-panel { position: absolute; top: 100%; left: 0; width: 300px; max-height: 360px; overflow-y: auto; background: white; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); border: 1px solid rgba(148,163,184,0.15); z-index: 100; display: none; }
+        .dark .notif-panel { background: #0f172a; border-color: rgba(148,163,184,0.1); }
+        .notif-panel.show { display: block; }
+        .notif-item { padding: 12px 14px; border-bottom: 1px solid rgba(148,163,184,0.1); font-size: 0.8rem; line-height: 1.5; }
+        .notif-item:last-child { border-bottom: none; }
+        .notif-item .notif-title { font-weight: 700; color: #0f172a; }
+        .dark .notif-item .notif-title { color: #f8fafc; }
+        .notif-item .notif-desc { color: #64748b; font-size: 0.7rem; line-height: 1.4; }
+        .dark .notif-item .notif-desc { color: #94a3b8; }
+        .notif-empty { text-align: center; padding: 24px; color: #94a3b8; font-size: 0.8rem; }
+        .menu-panel { position: absolute; top: 100%; left: 0; width: 200px; background: white; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); border: 1px solid rgba(148,163,184,0.15); z-index: 100; display: none; overflow: hidden; }
+        .dark .menu-panel { background: #0f172a; border-color: rgba(148,163,184,0.1); }
+        .menu-panel.show { display: block; }
+        .menu-item { padding: 14px 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 10px; color: #0f172a; border-bottom: 1px solid rgba(148,163,184,0.08); }
+        .dark .menu-item { color: #f8fafc; border-color: rgba(148,163,184,0.06); }
+        .menu-item:hover { background: rgba(99,102,241,0.06); }
+        .dark .menu-item:hover { background: rgba(99,102,241,0.1); }
+        .menu-item.logout-item { color: #dc2626; border-bottom: none; }
+        .dark .menu-item.logout-item { color: #fb7185; }
+        .menu-item.logout-item:hover { background: rgba(220,38,38,0.06); }
+        .dark .menu-item.logout-item:hover { background: rgba(220,38,38,0.1); }
+        .menu-divider { height: 1px; background: rgba(148,163,184,0.1); margin: 0; }
+
+        .filter-chip { padding: 9px 6px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); font-size: 0.75rem; font-weight: 700; cursor: pointer; background: white; color: #475569; text-align: center; transition: background 0.2s, color 0.2s, transform 0.2s; }
+        .dark .filter-chip { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,0.1); }
+        .filter-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
+        .filter-chip.active { background: #4f46e5; color: white; border-color: #4f46e5; }
+        .dark .filter-chip.active { background: #6366f1; color: white; border-color: #6366f1; }
+        /* === Popup option reusable colors (light mode: soft pastel, dark: unchanged) === */
+        .popup-opt-ivy { border-color: #c7d2fe; background: #eef2ff; color: #4338ca; }
+        .popup-opt-ivy.active { border-color: #818cf8; background: #e0e7ff; color: #3730a3; }
+        .dark .popup-opt-ivy { border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.1); color: #a5b4fc; }
+        .dark .popup-opt-ivy.active { border-color: #6366f1; background: rgba(99,102,241,0.2); color: #c7d2fe; }
+        .popup-opt-herb { border-color: #a7f3d0; background: #ecfdf5; color: #065f46; }
+        .popup-opt-herb.active { border-color: #34d399; background: #d1fae5; color: #047857; }
+        .dark .popup-opt-herb { border-color: rgba(5,150,105,0.3); background: rgba(5,150,105,0.1); color: #6ee7b7; }
+        .dark .popup-opt-herb.active { border-color: #059669; background: rgba(5,150,105,0.2); color: #a7f3d0; }
+        .popup-opt-sun { border-color: #fde68a; background: #fffbeb; color: #92400e; }
+        .popup-opt-sun.active { border-color: #fbbf24; background: #fef3c7; color: #b45309; }
+        .dark .popup-opt-sun { border-color: rgba(217,119,6,0.3); background: rgba(217,119,6,0.1); color: #fcd34d; }
+        .dark .popup-opt-sun.active { border-color: #d97706; background: rgba(217,119,6,0.2); color: #fbbf24; }
+        .popup-opt-air { border-color: #bae6fd; background: #f0f9ff; color: #075985; }
+        .popup-opt-air.active { border-color: #38bdf8; background: #e0f2fe; color: #0369a1; }
+        .dark .popup-opt-air { border-color: rgba(14,165,233,0.3); background: rgba(14,165,233,0.1); color: #7dd3fc; }
+        .dark .popup-opt-air.active { border-color: #0ea5e9; background: rgba(14,165,233,0.2); color: #bae6fd; }
+        .popup-opt-lavender { border-color: #ddd6fe; background: #f5f3ff; color: #5b21b6; }
+        .popup-opt-lavender.active { border-color: #a78bfa; background: #ede9fe; color: #4c1d95; }
+        .dark .popup-opt-lavender { border-color: rgba(124,58,237,0.3); background: rgba(124,58,237,0.1); color: #c4b5fd; }
+        .dark .popup-opt-lavender.active { border-color: #7c3aed; background: rgba(124,58,237,0.2); color: #ddd6fe; }
+        .popup-opt-blush { border-color: #fecaca; background: #fff1f2; color: #9f1239; }
+        .popup-opt-blush.active { border-color: #f43f5e; background: #ffe4e6; color: #be123c; }
+        .dark .popup-opt-blush { border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.1); color: #fda4af; }
+        .dark .popup-opt-blush.active { border-color: #f43f5e; background: rgba(244,63,94,0.2); color: #fecaca; }
+        .popup-opt-peach { border-color: #fed7aa; background: #fff7ed; color: #9a3412; }
+        .popup-opt-peach.active { border-color: #fb923c; background: #ffedd5; color: #c2410c; }
+        .dark .popup-opt-peach { border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.1); color: #fdba74; }
+        .dark .popup-opt-peach.active { border-color: #f97316; background: rgba(251,146,60,0.2); color: #fed7aa; }
+        .popup-opt-petal { border-color: #fbcfe8; background: #fdf2f8; color: #831843; }
+        .popup-opt-petal.active { border-color: #f472b6; background: #fce7f3; color: #a21caf; }
+        .dark .popup-opt-petal { border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); color: #f9a8d4; }
+        .dark .popup-opt-petal.active { border-color: #f472b6; background: rgba(244,114,182,0.2); color: #fbcfe8; }
+        .popup-opt-mist { border-color: #cbd5e1; background: #f8fafc; color: #334155; }
+        .popup-opt-mist.active { border-color: #94a3b8; background: #f1f5f9; color: #1e293b; }
+        .dark .popup-opt-mist { border-color: rgba(148,163,184,0.3); background: rgba(148,163,184,0.08); color: #94a3b8; }
+        .dark .popup-opt-mist.active { border-color: #64748b; background: rgba(148,163,184,0.15); color: #cbd5e1; }
+        .popup-opt-gold { border-color: #fef08a; background: #fefce8; color: #854d0e; }
+        .popup-opt-gold.active { border-color: #facc15; background: #fef9c3; color: #a16207; }
+        .dark .popup-opt-gold { border-color: rgba(250,204,21,0.3); background: rgba(250,204,21,0.1); color: #fde047; }
+        .dark .popup-opt-gold.active { border-color: #eab308; background: rgba(250,204,21,0.2); color: #fef08a; }
+        [class*="popup-opt-"]:hover:not(.active) { filter: brightness(0.96); }
+        .dark [class*="popup-opt-"]:hover:not(.active) { filter: brightness(1.15); }
+        .swal2-show,.swal2-hide{animation:none!important}.swal2-popup{transition:none!important}body.no-transitions, body.no-transitions * { transition: none !important; }
+        @media (max-width: 420px) {
+            .stat-card { padding: 8px 6px; }
+            .stat-card .num { font-size: 1.05rem; }
+            .filter-row select { font-size: 0.7rem; padding: 5px 6px; }
+            .shipment-row { padding: 14px 14px; }
+            .shipment-row .main { font-size: 0.9rem; }
+            .shipment-row .field-label { font-size: 0.7rem; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="max-w-3xl mx-auto px-3 py-4" id="app">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-4">
+        <div>
+            <h1 class="greeting-text text-xl font-extrabold">مرحباً، <span id="repName">...</span></h1>
+            <p class="text-sm font-medium text-slate-400" id="repRole">مندوب</p>
+        </div>
+        <div class="flex items-center gap-2">
+            <div style="position:relative">
+                <button onclick="toggleNotifications()" class="icon-btn notif-btn" title="الإشعارات">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+                </button>
+                <div class="notif-panel" id="notifPanel">
+                    <div class="notif-empty" id="notifEmpty">لا توجد إشعارات</div>
+                    <div id="notifList"></div>
+                </div>
+            </div>
+            <button onclick="toggleTheme()" class="icon-btn" title="الوضع الليلي">
+                <i id="themeIcon" class="fas fa-moon"></i>
+            </button>
+            <div style="position:relative">
+                <button onclick="toggleMenu()" class="icon-btn" title="القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="menu-panel" id="menuPanel">
+                    <div class="menu-item" onclick="toggleMenu();showEditAccount()">
+                        <i class="fas fa-user-edit"></i> تعديل الحساب
+                    </div>
+                    <div class="menu-divider"></div>
+                    <div class="menu-item logout-item" onclick="toggleMenu();logout()">
+                        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-4 gap-2 mb-4" id="statsRow">
+        <div class="stat-card text-center">
+            <div class="num text-indigo-600 dark:text-indigo-400" id="statTotal">0</div>
+            <div class="label">المدفوع</div>
+        </div>
+        <div class="stat-card text-center">
+            <div class="num text-emerald-600 dark:text-emerald-400" id="statCommission">0</div>
+            <div class="label">العمولة</div>
+            <div class="text-xs font-medium opacity-70 mt-1" id="statTotalCount"></div>
+        </div>
+        <div class="stat-card text-center">
+            <div class="num text-amber-600 dark:text-amber-400" id="statDelivery">0</div>
+            <div class="label">التوريد</div>
+            <div id="statDeliveryBreakdown" class="text-[0.6rem] font-medium opacity-70 mt-1 leading-tight"></div>
+        </div>
+        <div class="stat-card text-center">
+            <div class="num text-rose-600 dark:text-rose-400" id="statShipments">0</div>
+            <div class="label">الشحنات</div>
+        </div>
+    </div>
+
+    <!-- Quick Status Cards -->
+    <div class="grid grid-cols-4 gap-2 mb-4" id="quickStatusRow">
+        <div class="stat-card text-center quick-status-card" data-status="قيد التوصيل" onclick="clickStatusStat('قيد التوصيل')" style="cursor:pointer;">
+            <div class="num text-amber-500" id="statQuickPending">0</div>
+            <div class="label">قيد التوصيل</div>
+        </div>
+        <div class="stat-card text-center quick-status-card" data-status="مفضلة" onclick="clickStatusStat('مفضلة')" style="cursor:pointer;">
+            <div class="num text-pink-500" id="statQuickFavorite">0</div>
+            <div class="label">المفضلة</div>
+        </div>
+        <div class="stat-card text-center quick-status-card" data-status="بحاجة لمتابعة" onclick="clickStatusStat('بحاجة لمتابعة')" style="cursor:pointer;">
+            <div class="num text-cyan-500" id="statQuickFollowup">0</div>
+            <div class="label">بحاجة لمتابعة</div>
+        </div>
+        <div class="stat-card text-center quick-status-card" data-status="مؤجل" onclick="clickStatusStat('مؤجل')" style="cursor:pointer;">
+            <div class="num text-orange-500" id="statQuickPostponed">0</div>
+            <div class="label">مؤجل</div>
+        </div>
+    </div>
+
+    <!-- Done/Edit/Ship/Cancel Cards -->
+    <div class="grid grid-cols-4 gap-2 mb-4" id="doneStatusRow">
+        <div class="stat-card text-center quick-status-card" data-status="تم" onclick="clickStatusStat('تم')" style="cursor:pointer;">
+            <div class="num text-emerald-500" id="statQuickDone">0</div>
+            <div class="label">تم</div>
+            <div id="statDeliveredBreakdown" class="text-[0.6rem] font-medium mt-1 leading-tight" style="color:#64748b;">&nbsp;</div>
+        </div>
+        <div class="stat-card text-center quick-status-card" data-status="تعديل سعر" onclick="clickStatusStat('تعديل سعر')" style="cursor:pointer;">
+            <div class="num text-purple-500" id="statQuickPriceEdit">0</div>
+            <div class="label">تعديل سعر</div>
+            <div id="statPriceEditBreakdown" class="text-[0.6rem] font-medium mt-1 leading-tight" style="color:#64748b;">&nbsp;</div>
+        </div>
+        <div class="stat-card text-center quick-status-card" data-status="شحن" onclick="clickStatusStat('شحن')" style="cursor:pointer;">
+            <div class="num text-indigo-500" id="statQuickShipped">0</div>
+            <div class="label">شحن</div>
+            <div id="statShippedBreakdown" class="text-[0.6rem] font-medium mt-1 leading-tight" style="color:#64748b;">&nbsp;</div>
+        </div>
+        <div class="stat-card text-center quick-status-card" data-status="الغاء" onclick="clickStatusStat('الغاء')" style="cursor:pointer;">
+            <div class="num text-red-500" id="statQuickCancelled">0</div>
+            <div class="label">الغاء</div>
+        </div>
+    </div>
+
+    <!-- Progress Bar -->
+    <div class="glass p-3 mb-3">
+        <div class="flex items-center justify-between mb-1">
+                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">نسبة الإنجاز</span>
+                    <span class="text-sm font-extrabold text-indigo-600 dark:text-indigo-400" id="progressPercent">0%</span>
+        </div>
+        <div class="progress-bar-custom">
+            <div class="fill" id="progressFill" style="width:0%"></div>
+        </div>
+        <div class="flex justify-between mt-1.5 text-xs font-semibold text-slate-400">
+            <span>تم <span id="progressDelivered">0</span></span>
+            <span>متبقي <span id="progressRemaining">0</span></span>
+        </div>
+    </div>
+
+    <!-- Search + Filters (Sticky) -->
+    <div class="sticky top-0 z-20 pt-2 pb-1" style="background:inherit;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px)">
+        <div class="flex gap-1.5 items-center mb-1.5">
+            <input type="text" id="searchInput" class="flex-1 p-3 rounded-xl border dark:border-slate-600 bg-white/90 text-base text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" placeholder="🔍 بحث بكود الشحنة / العميل / الهاتف / هاتف بديل" oninput="onFilterChange()">
+            <button id="toggleActionsBtn" class="shipment-eye-btn" onclick="toggleRepActions()" title="إخفاء/إظهار الأزرار"><i class="fas fa-eye-slash"></i></button>
+        </div>
+        <div class="filter-row grid grid-cols-3 gap-2">
+            <select id="filterDaily" style="display:none" onchange="onFilterChange()"><option value="">اليومية</option></select>
+            <select id="filterZone" style="display:none" onchange="onFilterChange()"><option value="">الزون</option></select>
+            <select id="filterSender" style="display:none" onchange="onFilterChange()"><option value="">الراسل</option></select>
+            <button class="filter-chip" id="chipDaily" data-placeholder="📅 اليومية" onclick="openFilterChip('daily')">📅 اليومية</button>
+            <button class="filter-chip" id="chipZone" data-placeholder="📍 الزون" onclick="openFilterChip('zone')">📍 الزون</button>
+            <button class="filter-chip" id="chipSender" data-placeholder="🏢 الراسل" onclick="openFilterChip('sender')">🏢 الراسل</button>
+        </div>
+    </div>
+
+    <!-- Shipments List -->
+    <div id="shipmentsContainer">
+        <div class="empty-state"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p class="font-bold">اختر اليومية لعرض الشحنات</p></div>
+    </div>
+</div>
+
+<script src="assets/js/shipment-config.js"></script>
+<script>
+    const BUILD = '6'; if (!window.location.href.includes('_t=')) { localStorage.setItem('rep-version', BUILD); window.location.href = window.location.href.split('?')[0] + '?_t=' + BUILD; }
+    const supabaseClient = getSharedSupabaseClient();
+    let actionsHidden = localStorage.getItem('rep-actions-hidden') === 'true';
+    function toggleRepActions() {
+        actionsHidden = !actionsHidden;
+        localStorage.setItem('rep-actions-hidden', actionsHidden ? 'true' : 'false');
+        document.querySelectorAll('.action-btns').forEach(el => el.classList.toggle('hidden-actions', actionsHidden));
+        const btn = document.getElementById('toggleActionsBtn');
+        if (btn) btn.innerHTML = '<i class="fas ' + (actionsHidden ? 'fa-eye' : 'fa-eye-slash') + '"></i>';
+    }
+    let currentUser = JSON.parse(localStorage.getItem('user'));
+    let allShipments = [];
+    let filteredShipments = [];
+    let currentStatusFilter = '';
+
+    function enNum(s) {
+        return String(s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+    }
+
+    let notifications = [];
+    let notifSnapshot = {};
+    let filterData = { daily: [], status: [], zone: [], sender: [] };
+    let filterCounts = { daily: {}, status: {}, zone: {}, sender: {} };
+
+    function saveSnapshot() {
+        const snap = {};
+        allShipments.forEach(s => { snap[s.id] = s['الحالة'] || ''; });
+        notifSnapshot = snap;
+        localStorage.setItem('repNotifSnapshot', JSON.stringify(snap));
+    }
+
+    function loadSnapshot() {
+        try { notifSnapshot = JSON.parse(localStorage.getItem('repNotifSnapshot')) || {}; } catch (e) { notifSnapshot = {}; }
+    }
+
+    function getFavorites() {
+        try { return JSON.parse(localStorage.getItem('repFavorites')) || {}; } catch (e) { return {}; }
+    }
+    function saveFavorites(fav) { localStorage.setItem('repFavorites', JSON.stringify(fav)); }
+    function isFavorite(id) { return !!getFavorites()[id]; }
+    function toggleFavorite(id) {
+        const fav = getFavorites();
+        if (fav[id]) { delete fav[id]; } else { fav[id] = Date.now(); }
+        saveFavorites(fav);
+        applyFilters();
+    }
+    function removeFavorite(id) {
+        const fav = getFavorites();
+        if (fav[id]) { delete fav[id]; saveFavorites(fav); }
+    }
+
+    function getFollowupsSent() {
+        try { return JSON.parse(localStorage.getItem('repFollowupsSent')) || {}; } catch (e) { return {}; }
+    }
+    function saveFollowupsSent(obj) { localStorage.setItem('repFollowupsSent', JSON.stringify(obj)); }
+    function markFollowupSent(id) { const o = getFollowupsSent(); o[id] = true; saveFollowupsSent(o); }
+
+    function getFollowupsDismissed() {
+        try { return JSON.parse(localStorage.getItem('repFollowupsDismissed')) || {}; } catch (e) { return {}; }
+    }
+    function saveFollowupsDismissed(obj) { localStorage.setItem('repFollowupsDismissed', JSON.stringify(obj)); }
+    function markFollowupDismissed(id) { const o = getFollowupsDismissed(); o[id] = true; saveFollowupsDismissed(o); }
+
+    function checkNotifications(isInitial) {
+        if (!allShipments.length) return;
+        const oldIds = new Set(Object.keys(notifSnapshot));
+        const now = new Date();
+        const timeStr = now.toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' });
+        allShipments.forEach(s => {
+            const id = String(s.id);
+            const oldStatus = notifSnapshot[id] || '';
+            const newStatus = s['الحالة'] || '';
+            if (oldStatus && oldStatus !== newStatus) {
+                const customer = s['اسم العميل'] || s['كود الشحنة'] || id;
+                notifications.unshift({ title: `تحديث حالة: ${customer}`, desc: `${oldStatus} ← ${newStatus} • ${timeStr}`, time: timeStr });
+            } else if (!isInitial && !oldStatus && newStatus) {
+                const customer = s['اسم العميل'] || s['كود الشحنة'] || id;
+                notifications.unshift({ title: `شحنة جديدة: ${customer}`, desc: `الحالة: ${newStatus} • ${timeStr}`, time: timeStr });
+            }
+        });
+        if (notifications.length > 50) notifications = notifications.slice(0, 50);
+        saveSnapshot();
+        renderNotifications();
+    }
+
+    function renderNotifications() {
+        const badge = document.getElementById('notifBadge');
+        const list = document.getElementById('notifList');
+        const empty = document.getElementById('notifEmpty');
+        if (notifications.length) {
+            badge.style.display = 'flex';
+            badge.textContent = notifications.length > 99 ? '99+' : notifications.length;
+            empty.style.display = 'none';
+            list.innerHTML = notifications.map(n => `<div class="notif-item"><div class="notif-title">${n.title}</div><div class="notif-desc">${n.desc}</div></div>`).join('');
+        } else {
+            badge.style.display = 'none';
+            empty.style.display = 'block';
+            list.innerHTML = '';
+        }
+    }
+
+    let notifOpen = false;
+    function toggleNotifications() {
+        notifOpen = !notifOpen;
+        document.getElementById('notifPanel').classList.toggle('show', notifOpen);
+    }
+    document.addEventListener('click', (e) => {
+        if (notifOpen && !e.target.closest('#notifPanel') && !e.target.closest('.notif-btn')) {
+            notifOpen = false;
+            document.getElementById('notifPanel').classList.remove('show');
+        }
+    });
+
+    if (!currentUser || !['rep', 'مندوب فرعي'].includes(currentUser.role)) {
+        window.location.href = 'login.html';
+    }
+
+    const repDisplayName = currentUser.full_name || currentUser.username || '';
+    document.getElementById('repName').textContent = repDisplayName;
+
+    if (localStorage.getItem('shipment-theme') === 'dark' || (!localStorage.getItem('shipment-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        document.body.classList.add('dark');
+        document.getElementById('themeIcon').className = 'fas fa-sun';
+    }
+
+    function toggleTheme() {
+        document.body.classList.add('no-transitions');
+        const isDark = document.body.classList.toggle('dark');
+        document.getElementById('themeIcon').className = isDark ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('shipment-theme', isDark ? 'dark' : 'light');
+        requestAnimationFrame(() => document.body.classList.remove('no-transitions'));
+    }
+
+    function logout() {
+        clearStoredUserSession('login.html');
+    }
+
+    let menuOpen = false;
+    function toggleMenu() {
+        menuOpen = !menuOpen;
+        document.getElementById('menuPanel').classList.toggle('show', menuOpen);
+    }
+    document.addEventListener('click', (e) => {
+        if (menuOpen && !e.target.closest('#menuPanel') && !e.target.closest('.fa-bars') && !e.target.closest('[onclick*="toggleMenu"]')) {
+            menuOpen = false;
+            document.getElementById('menuPanel').classList.remove('show');
+        }
+    });
+
+    function showEditAccount() {
+        const user = currentUser;
+        const isDark = document.body.classList.contains('dark');
+        Swal.fire({
+            title: 'تعديل الحساب',
+            background: isDark ? '#0f172a' : '#fff',
+            color: isDark ? '#f8fafc' : '#0f172a',
+            html: `
+                <div class="text-right">
+                    <label class="text-sm font-bold ${isDark ? 'text-slate-300' : 'text-slate-600'}">الاسم</label>
+                    <input type="text" id="editName" readonly class="w-full p-2.5 rounded-xl border ${isDark ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-300 bg-white'} text-sm mt-1 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400 opacity-75" value="${user.full_name || user.username || ''}">
+                    <label class="text-sm font-bold ${isDark ? 'text-slate-300' : 'text-slate-600'}">رقم الهاتف</label>
+                    <input type="text" id="editPhone" class="w-full p-2.5 rounded-xl border ${isDark ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-300 bg-white'} text-sm mt-1 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400" value="${user.phone || ''}">
+                    <label class="text-sm font-bold ${isDark ? 'text-slate-300' : 'text-slate-600'}">كلمة المرور الجديدة (اترك فارغاً إذا لا تريد التغيير)</label>
+                    <input type="password" id="editPass" class="w-full p-2.5 rounded-xl border ${isDark ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-300 bg-white'} text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="أدخل كلمة المرور الجديدة">
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ',
+            cancelButtonText: 'الغاء',
+            confirmButtonColor: '#6366f1',
+            customClass: {
+                popup: isDark ? 'swal-dark' : '',
+                title: isDark ? 'swal-title-dark' : ''
+            },
+            preConfirm: () => {
+                const name = document.getElementById('editName').value.trim();
+                const phone = document.getElementById('editPhone').value.trim();
+                const pass = document.getElementById('editPass').value;
+                if (!name) { Swal.showValidationMessage('يرجى إدخال الاسم'); return false; }
+                if (!phone) { Swal.showValidationMessage('يرجى إدخال رقم الهاتف'); return false; }
+                return { name, phone, pass };
+            }
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
+            const { name, phone, pass } = result.value;
+            try {
+                const updates = { full_name: name, phone: phone };
+                if (pass) updates.password = pass;
+                const { error } = await supabaseClient
+                    .from('users')
+                    .update(updates)
+                    .eq('id', user.id);
+                if (error) throw error;
+                if (pass) {
+                    const { error: authError } = await supabaseClient.auth.updateUser({ password: pass });
+                    if (authError) throw authError;
+                }
+                Object.assign(currentUser, { full_name: name, username: phone });
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                document.getElementById('repName').textContent = name;
+                Swal.fire({ icon: 'success', title: 'تم تحديث الحساب', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+            } catch (err) {
+                Swal.fire('خطأ', err.message, 'error');
+            }
+        });
+    }
+
+    async function loadShipments() {
+        try {
+            const { data, error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .select('*')
+                .eq('المندوب', repDisplayName)
+                .order('كود الشحنة', { ascending: false });
+
+            if (error) throw error;
+            allShipments = data || [];
+            loadSnapshot();
+            checkNotifications(true);
+            populateFilters();
+            restoreFilters();
+            document.querySelectorAll('.quick-status-card').forEach(c => c.classList.toggle('active', c.dataset.status === currentStatusFilter));
+            if (document.getElementById('filterDaily').value) {
+                applyFilters();
+                restoreScroll();
+            }
+        } catch (err) {
+            console.error(err);
+            Swal.fire('خطأ', 'فشل تحميل الشحنات', 'error');
+        }
+    }
+
+    function populateFilters() {
+        const dailySel = document.getElementById('filterDaily').value;
+        const base = dailySel ? allShipments.filter(s => (s['اليومية'] || '') === dailySel) : allShipments;
+
+        const dailies = [...new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean))].sort();
+        const statuses = [...new Set(allShipments.map(s => s['الحالة'] || '').filter(Boolean))].sort();
+        const zones = [...new Set(allShipments.map(s => s['الزون'] || '').filter(Boolean))].sort();
+        const senders = [...new Set(allShipments.map(s => s['الراسل'] || '').filter(Boolean))].sort();
+
+        const dailyCounts = {};
+        allShipments.forEach(s => { const k = s['اليومية'] || ''; if (k) dailyCounts[k] = (dailyCounts[k] || 0) + 1; });
+
+        const zoneCounts = {};
+        const senderCounts = {};
+        base.forEach(s => {
+            const zn = s['الزون'] || '';
+            if (zn) zoneCounts[zn] = (zoneCounts[zn] || 0) + 1;
+            const sr = s['الراسل'] || '';
+            if (sr) senderCounts[sr] = (senderCounts[sr] || 0) + 1;
+        });
+
+        setOptions('filterDaily', dailies, dailyCounts);
+        setOptions('filterZone', zones, zoneCounts);
+        setOptions('filterSender', senders, senderCounts);
+        filterData = { daily: dailies, zone: zones, sender: senders };
+        filterCounts = { daily: dailyCounts, zone: zoneCounts, sender: senderCounts };
+        updateChips();
+    }
+    function updateChips() {
+        ['daily','zone','sender'].forEach(t => {
+            const sel = document.getElementById('filter' + t.charAt(0).toUpperCase() + t.slice(1));
+            const chip = document.getElementById('chip' + t.charAt(0).toUpperCase() + t.slice(1));
+            const val = sel.value;
+            chip.textContent = val ? val : chip.dataset.placeholder;
+            chip.classList.toggle('active', !!val);
+        });
+    }
+
+    function openFilterChip(type) {
+        const items = filterData[type] || [];
+        const counts = filterCounts[type] || {};
+        const sel = document.getElementById('filter' + type.charAt(0).toUpperCase() + type.slice(1));
+        const current = sel.value;
+        const labels = ['اليومية', 'الزون', 'الراسل'];
+        const icons = ['📅', '📍', '🏢'];
+        const ti = { daily: 0, zone: 1, sender: 2 };
+        const title = icons[ti[type]] + ' ' + labels[ti[type]];
+        const chipColors = ['popup-opt-ivy', 'popup-opt-sun', 'popup-opt-air'];
+        const activeColors = ['popup-opt-ivy active', 'popup-opt-sun active', 'popup-opt-air active'];
+        const ci = ti[type];
+        const archivedDailies = new Set(allShipments.filter(s => (s['ارشيف'] || '').trim()).map(s => s['اليومية'] || '').filter(Boolean));
+        const optsHtml = ['<div class="grid grid-cols-1 gap-1.5">',
+            `<div data-type="${type}" data-value="" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${!current ? activeColors[ci] : chipColors[ci]}">الكل (${items.length})</div>`,
+            ...items.map(v => `<div data-type="${type}" data-value="${v.replace(/"/g,'&quot;')}" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${current === v ? activeColors[ci] : chipColors[ci]}">${v}${type === 'daily' && archivedDailies.has(v) ? ' 📦' : ''} (${counts[v] || 0})</div>`),
+        '</div>'].join('');
+        Swal.fire({ title, html: optsHtml, showCancelButton: true, cancelButtonText: 'الغاء', showConfirmButton: false });
+    }
+    window.selectFilterChip = function(el) {
+        const type = el.dataset.type;
+        const value = el.dataset.value;
+        const id = 'filter' + type.charAt(0).toUpperCase() + type.slice(1);
+        document.getElementById(id).value = value;
+        if (Swal.isVisible()) Swal.close();
+        updateChips();
+        onFilterChange();
+    };
+    function setOptions(id, items, counts) {
+        const sel = document.getElementById(id);
+        const current = sel.value;
+        sel.innerHTML = '<option value="">' + sel.options[0].text + '</option>';
+        items.forEach(v => {
+            const o = document.createElement('option');
+            o.value = v;
+            const c = counts && counts[v] ? counts[v] : 0;
+            o.textContent = v + ' (' + c + ')';
+            sel.appendChild(o);
+        });
+        sel.value = current;
+    }
+
+    function saveFilters() {
+        const filters = {
+            daily: document.getElementById('filterDaily').value,
+            status: currentStatusFilter,
+            zone: document.getElementById('filterZone').value,
+            sender: document.getElementById('filterSender').value,
+            search: document.getElementById('searchInput').value
+        };
+        localStorage.setItem('repFilters', JSON.stringify(filters));
+    }
+
+    function restoreFilters() {
+        try {
+            const saved = JSON.parse(localStorage.getItem('repFilters'));
+            if (!saved) return;
+            document.getElementById('filterDaily').value = saved.daily || '';
+            currentStatusFilter = saved.status || '';
+            document.getElementById('filterZone').value = saved.zone || '';
+            document.getElementById('filterSender').value = saved.sender || '';
+            document.getElementById('searchInput').value = saved.search || '';
+        } catch (e) {}
+    }
+
+    function restoreScroll() {
+        const saved = localStorage.getItem('repScrollPos');
+        if (saved) setTimeout(() => window.scrollTo(0, parseInt(saved)), 100);
+        localStorage.removeItem('repScrollPos');
+    }
+
+    window.addEventListener('beforeunload', () => {
+        localStorage.setItem('repScrollPos', String(window.scrollY));
+    });
+
+    function onFilterChange() {
+        saveFilters();
+        const daily = document.getElementById('filterDaily').value;
+        if (!daily) {
+            document.getElementById('shipmentsContainer').innerHTML = '<div class="empty-state"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p class="font-bold">اختر اليومية لعرض الشحنات</p></div>';
+            resetStats();
+            return;
+        }
+        applyFilters();
+    }
+
+    window.clickStatusStat = function(status) {
+        if (currentStatusFilter === status) {
+            currentStatusFilter = '';
+        } else {
+            currentStatusFilter = status;
+        }
+        document.querySelectorAll('.quick-status-card').forEach(c => c.classList.toggle('active', c.dataset.status === currentStatusFilter));
+        onFilterChange();
+    };
+
+    function getDailyShipments() {
+        const daily = document.getElementById('filterDaily').value;
+        if (!daily) return [];
+        return allShipments.filter(s => (s['اليومية'] || '') === daily);
+    }
+
+    function applyFilters() {
+        saveFilters();
+        const daily = document.getElementById('filterDaily').value;
+        if (!daily) return;
+        populateFilters();
+        const status = currentStatusFilter;
+        const zone = document.getElementById('filterZone').value;
+        const sender = document.getElementById('filterSender').value;
+        const searchTerm = document.getElementById('searchInput').value.trim();
+
+        filteredShipments = getDailyShipments().filter(s => {
+            const sid = String(s.id);
+            const sStatus = s['الحالة'] || '';
+            if (status === 'بحاجة لمتابعة') {
+                const followupStatuses = ['الغاء', 'مؤجل', 'تعديل سعر', 'شحن'];
+                if (!followupStatuses.includes(sStatus)) return false;
+                const dismissed = getFollowupsDismissed();
+                if (dismissed[sid]) return false;
+            } else if (status === 'مفضلة') {
+                if (!isFavorite(sid)) return false;
+            } else {
+                if (status && sStatus !== status) return false;
+            }
+            if (zone && (s['الزون'] || '') !== zone) return false;
+            if (sender && (s['الراسل'] || '') !== sender) return false;
+            if (searchTerm) {
+                const term = searchTerm.toLowerCase();
+                const match = (s['كود الشحنة'] || '').toLowerCase().includes(term)
+                    || (s['العميل'] || '').toLowerCase().includes(term)
+                    || (s['الهاتف'] || '').toLowerCase().includes(term)
+                    || (s['هاتف بديل'] || '').toLowerCase().includes(term);
+                if (!match) return false;
+            }
+            return true;
+        });
+
+        updateStats();
+        renderShipments();
+        // Update active state on status stat cards
+        document.querySelectorAll('.quick-status-card').forEach(function(el) {
+            el.classList.toggle('active', el.dataset.status === status);
+        });
+    }
+
+    function resetStats() {
+        document.getElementById('statTotal').textContent = enNum('0');
+        document.getElementById('statTotalCount').textContent = '';
+        document.getElementById('statCommission').textContent = enNum('0');
+        document.getElementById('statDelivery').textContent = enNum('0');
+        document.getElementById('statDeliveryBreakdown').textContent = '';
+        document.getElementById('statShipments').textContent = enNum('0');
+        document.getElementById('progressPercent').textContent = enNum('0') + '%';
+        document.getElementById('progressFill').style.width = '0%';
+        document.getElementById('progressDelivered').textContent = '0';
+        document.getElementById('progressRemaining').textContent = '0';
+        ['statQuickPending','statQuickDone','statQuickCancelled','statQuickPriceEdit','statQuickShipped','statQuickPostponed','statQuickFollowup'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = '0';
+        });
+        ['statDeliveredBreakdown','statPriceEditBreakdown','statShippedBreakdown'].forEach(function(id) {
+            var el = document.getElementById(id);
+            if (el) el.textContent = '';
+        });
+    }
+
+    function updateStats() {
+        const dailyShipments = getDailyShipments();
+        const doneStatuses = ['تم', 'تم التسليم', 'شحن', 'تعديل سعر', 'استلم جزئي'];
+        const doneShipments = dailyShipments.filter(s => doneStatuses.includes(s['الحالة'] || ''));
+        const total = doneShipments.reduce((sum, s) => sum + (parseFloat(s['المدفوع']) || 0), 0);
+        const commission = doneShipments.reduce((sum, s) => sum + (parseFloat(s['عمولة المندوب']) || 0), 0);
+        const delivered = doneShipments.length;
+        const deliveryTotal = total - commission;
+
+        document.getElementById('statTotal').textContent = enNum(Math.round(total));
+        document.getElementById('statTotalCount').textContent = enNum(doneShipments.length) + ' شحنة';
+        document.getElementById('statCommission').textContent = enNum(Math.round(commission));
+        document.getElementById('statShipments').textContent = enNum(dailyShipments.length);
+
+        var pending = 0, deliveredCount = 0, cancelled = 0, priceEdit = 0, shipped = 0, postponed = 0;
+        dailyShipments.forEach(function(s) {
+            var st = s['الحالة'] || '';
+            if (st === 'قيد التوصيل') pending++;
+            else if (st === 'تم' || st === 'تم التسليم') deliveredCount++;
+            else if (st === 'الغاء' || st === 'إلغاء') cancelled++;
+            else if (st === 'تعديل سعر') priceEdit++;
+            else if (st === 'شحن') shipped++;
+            else if (st === 'مؤجل') postponed++;
+        });
+        document.getElementById('statDelivery').textContent = enNum(Math.round(deliveryTotal));
+        document.getElementById('statQuickPending').textContent = enNum(pending);
+        document.getElementById('statQuickDone').textContent = enNum(deliveredCount);
+        var deliveredPaid = dailyShipments.filter(function(s) { var st = s['الحالة'] || ''; return st === 'تم' || st === 'تم التسليم'; }).reduce(function(sum, s) { return sum + (parseFloat(s['المدفوع']) || 0); }, 0);
+        document.getElementById('statDeliveredBreakdown').textContent = enNum(Math.round(deliveredPaid));
+        document.getElementById('statQuickCancelled').textContent = enNum(cancelled);
+        document.getElementById('statQuickPriceEdit').textContent = enNum(priceEdit);
+        var priceEditPaid = dailyShipments.filter(function(s) { return (s['الحالة'] || '') === 'تعديل سعر'; }).reduce(function(sum, s) { return sum + (parseFloat(s['المدفوع']) || 0); }, 0);
+        document.getElementById('statPriceEditBreakdown').textContent = enNum(Math.round(priceEditPaid));
+        document.getElementById('statQuickShipped').textContent = enNum(shipped);
+        var shippedPaid = dailyShipments.filter(function(s) { return (s['الحالة'] || '') === 'شحن'; }).reduce(function(sum, s) { return sum + (parseFloat(s['المدفوع']) || 0); }, 0);
+        document.getElementById('statShippedBreakdown').textContent = enNum(Math.round(shippedPaid));
+        document.getElementById('statQuickPostponed').textContent = enNum(postponed);
+
+        const followupStatuses = ['الغاء', 'مؤجل', 'تعديل سعر', 'شحن'];
+        const dismissed = getFollowupsDismissed();
+        const needsFollowup = dailyShipments.filter(s => followupStatuses.includes(s['الحالة'] || '') && !dismissed[String(s.id)]).length;
+        document.getElementById('statQuickFollowup').textContent = enNum(needsFollowup);
+
+        var favoriteCount = Object.keys(getFavorites()).length;
+        document.getElementById('statQuickFavorite').textContent = enNum(favoriteCount);
+
+        document.getElementById('statDeliveryBreakdown').textContent = enNum(priceEdit + shipped + cancelled + postponed);
+
+        const pct = dailyShipments.length ? Math.round((delivered / dailyShipments.length) * 100) : 0;
+        document.getElementById('progressPercent').textContent = enNum(pct) + '%';
+        document.getElementById('progressFill').style.width = pct + '%';
+        document.getElementById('progressDelivered').textContent = enNum(delivered);
+        document.getElementById('progressRemaining').textContent = enNum(dailyShipments.length - delivered);
+    }
+
+    function renderShipments() {
+        const container = document.getElementById('shipmentsContainer');
+        if (!filteredShipments.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox text-4xl mb-3 opacity-50"></i><p class="font-bold">لا توجد شحنات</p></div>';
+            return;
+        }
+        container.innerHTML = filteredShipments.map((s, idx) => {
+            const hideActions = ['تم', 'تعديل سعر', 'شحن', 'الغاء'].includes(s['الحالة'] || '');
+            const isArchived = !!(s['ارشيف'] || '').trim();
+            const canFav = !isArchived && ['قيد التوصيل', 'مؤجل'].includes(s['الحالة'] || '');
+            const sid = String(s.id);
+            const isFav = isFavorite(sid);
+            const isFollowupFilter = currentStatusFilter === 'بحاجة لمتابعة';
+            const followupStatuses = ['الغاء', 'مؤجل', 'تعديل سعر', 'شحن'];
+            const needsFollowup = isFollowupFilter && followupStatuses.includes(s['الحالة'] || '');
+            const followupSent = needsFollowup && !!getFollowupsSent()[sid];
+            const statusClass = ['تم','تعديل سعر','شحن'].includes(s['الحالة']||'') ? 'border-green' : s['الحالة'] === 'قيد التوصيل' ? 'border-yellow' : s['الحالة'] === 'مؤجل' ? 'border-orange' : s['الحالة'] === 'الغاء' ? 'border-red' : '';
+            const finalHideActions = hideActions || isArchived;
+            const rowClass = isArchived ? (statusClass ? statusClass + ' archived-row' : 'archived-row') : statusClass;
+            return `
+            <div class="shipment-row ${rowClass}">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <div class="main"><span class="shipment-actions-bar"><span class="shipment-dots-btn" onclick="event.stopPropagation();copyShipmentDetails(${idx})"><i class="fas fa-ellipsis-v"></i></span>${canFav ? `<button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${sid}')"><i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i></button>` : ''}</span>${needsFollowup ? (followupSent ? `<button class="followup-sent-card" onclick="event.stopPropagation();dismissFollowup('${sid}')"><i class="fas fa-check-circle"></i> تم ارسال المتابعة</button>` : `<button class="followup-btn" onclick="event.stopPropagation();doFollowup(${idx},'${sid}')"><i class="fab fa-whatsapp"></i></button>`) : ''}</div>
+                        <div class="main customer-name mt-1">${enNum(s['اسم العميل'] || '-')}</div>
+                    </div>
+                    <div class="text-left">
+                        <div class="main text-indigo-600 dark:text-indigo-400">${enNum(s['كود الشحنة'] || '-')}${isArchived ? ' <span class="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-full">📦 مؤرشفة</span>' : ''}</div>
+                        <div class="sub ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? 'text-green-500' : s['الحالة'] === 'قيد التوصيل' ? 'text-amber-500' : s['الحالة'] === 'مؤجل' ? 'text-orange-500' : s['الحالة'] === 'الغاء' ? 'text-red-500' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? 'text-indigo-500' : ''}" style="color: ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' : s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' : s['الحالة'] === 'مؤجل' ? '#f97316' : s['الحالة'] === 'الغاء' ? '#ef4444' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#6366f1' : ''} !important">${s['الحالة'] || '-'}</div>
+                    </div>
+                </div>
+                <div class="mt-2 text-sm text-slate-500 space-y-1.5">
+                    <div><i class="fas fa-box ml-1.5"></i><span class="field-label">المنتج:</span>${enNum(s['المنتج'] || '-')}</div>
+                    <div><i class="fas fa-map-pin ml-1.5"></i><span class="field-label">العنوان:</span><span class="detail-address">${enNum(s['العنوان'] || '-')}</span></div>
+                    <div><i class="fas fa-layer-group ml-1.5"></i><span class="field-label">الزون:</span>${enNum(s['الزون'] || '-')} <span class="mr-4"><i class="fas fa-building ml-0.5"></i><span class="field-label">الراسل:</span>${enNum(s['الراسل'] || '-')}</span> <span class="mr-4"><i class="fas fa-money-bill ml-0.5"></i><span class="field-label">المبلغ:</span><span class="shipment-amount">${(['تم','تم التسليم','تعديل سعر','شحن'].includes(s['الحالة']||'') && s['المدفوع'] != null && s['المدفوع'] !== '') ? enNum(s['المدفوع']) : enNum(s['المبلغ'] || '0')}</span></span></div>
+                </div>
+                ${finalHideActions ? '' : `
+                <div class="action-btns${actionsHidden ? ' hidden-actions' : ''}">
+                    <div class="row">
+                        <button class="action-btn done" onclick="event.stopPropagation();updateShipmentStatus(${idx},'تم')">✅ تم</button>
+                        <button class="action-btn price" onclick="event.stopPropagation();showPriceEditDialog(${idx},'${enNum(s['المبلغ'] || '0')}','تعديل سعر')">💰 تعديل سعر</button>
+                    </div>
+                    <div class="row">
+                        <button class="action-btn postpone" onclick="event.stopPropagation();showPostponeDialog(${idx})">⏰ مؤجل</button>
+                        <button class="action-btn reject" onclick="event.stopPropagation();showRejectDialog(${idx})">❌ الغاء</button>
+                    </div>
+                    <div class="row">
+                        <button class="action-btn call" onclick="event.stopPropagation();showPhonesDialog('${enNum(s['الهاتف'] || '')}','${enNum(s['هاتف بديل'] || '')}')"><i class="fas fa-phone ml-1"></i> اتصال${s['الهاتف'] && s['هاتف بديل'] ? `<span class="badge-num">2</span>` : ''}</button>
+                        <button class="action-btn whatsapp" onclick="event.stopPropagation();showWhatsAppDialog(${idx})"><i class="fab fa-whatsapp ml-1"></i> واتساب${s['الهاتف'] && s['هاتف بديل'] ? `<span class="badge-num">2</span>` : ''}</button>
+                    </div>
+                </div>
+                `}
+            </div>`;
+        }).join('');
+        restoreScroll();
+    }
+
+    function copyShipmentDetails(idx) {
+        const s = filteredShipments[idx];
+        if (!s) return;
+        const details =
+            `🧾 كود الشحنة: ${s['كود الشحنة'] || '-'}\n` +
+            `👤 العميل: ${s['اسم العميل'] || '-'}\n` +
+            `📞 الهاتف: ${s['الهاتف'] || ''}${s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : ''}\n` +
+            `📍 العنوان: ${s['العنوان'] || '-'}\n` +
+            `📦 الزون: ${s['الزون'] || '-'}\n` +
+            `💰 المبلغ: ${s['المبلغ'] || '0'} ج\n` +
+            `💵 المدفوع: ${s['المدفوع'] || '-'}\n` +
+            `📋 الحالة: ${s['الحالة'] || '-'}\n` +
+            `🏢 الراسل: ${s['الراسل'] || '-'}\n` +
+            `👤 المندوب: ${s['المندوب'] || '-'}`;
+        navigator.clipboard.writeText(details).then(() => {
+            Swal.fire({ icon: 'success', title: 'تم نسخ تفاصيل الشحنة', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        }).catch(() => {
+            Swal.fire('خطأ', 'فشل النسخ', 'error');
+        });
+    }
+
+    function doFollowup(idx, sid) {
+        const s = filteredShipments[idx];
+        if (!s) return;
+        const msg = encodeURIComponent(
+            `🧾 كود الشحنة: ${s['كود الشحنة'] || '-'}\n` +
+            `👤 العميل: ${s['اسم العميل'] || '-'}\n` +
+            `📞 الهاتف: ${s['الهاتف'] || ''}${s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : ''}\n` +
+            `📍 العنوان: ${s['العنوان'] || '-'}\n` +
+            `📦 الزون: ${s['الزون'] || '-'}\n` +
+            `💰 المبلغ: ${s['المبلغ'] || '0'} ج\n` +
+            `📋 الحالة: ${s['الحالة'] || '-'}\n` +
+            `🏢 الراسل: ${s['الراسل'] || '-'}\n` +
+            `👤 المندوب: ${s['المندوب'] || '-'}\n` +
+            `📌 سبب الحالة: ${s['سبب الحالة'] || '-'}`
+        );
+        const phones = [s['الهاتف'] || '', s['هاتف بديل'] || ''].filter(Boolean);
+        markFollowupSent(sid);
+        markFollowupDismissed(sid);
+        applyFilters();
+        if (!phones.length) {
+            Swal.fire({ icon: 'warning', title: 'لا يوجد رقم هاتف للمتابعة', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+            return;
+        }
+        if (phones.length === 1) {
+            const num = formatPhoneForWA(phones[0]);
+            window.open(`https://api.whatsapp.com/send?phone=${num}&text=${msg}`, '_blank');
+            Swal.fire({ icon: 'success', title: 'تم فتح واتساب', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+            return;
+        }
+        Swal.fire({
+            title: 'اختر رقم لإرسال المتابعة',
+            html: `<div class="grid grid-cols-1 gap-2">${phones.map((p, i) => {
+                const num = formatPhoneForWA(p);
+                return `<a href="https://api.whatsapp.com/send?phone=${num}&text=${msg}" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline cursor-pointer ${i === 0 ? 'popup-opt-herb' : 'popup-opt-lavender'}" onclick="Swal.close()">
+                    <i class="fab fa-whatsapp ml-2"></i>${p}
+                </a>`;
+            }).join('')}</div>`,
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function dismissFollowup(sid) {
+        markFollowupDismissed(sid);
+        applyFilters();
+    }
+
+    async function updateShipmentStatus(idx, status) {
+        const shipment = filteredShipments[idx];
+        if (!shipment) return Swal.fire('خطأ', 'لم يتم العثور على الشحنة', 'error');
+        if ((shipment['ارشيف'] || '').trim()) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        try {
+            const payload = { الحالة: status };
+            if (status === 'تم') {
+                payload['المدفوع'] = shipment['المبلغ'] || '0';
+            }
+            const { error } = await supabaseClient
+                .from(CONFIG.TABLES.SHIPMENTS)
+                .update(payload)
+                .eq('id', shipment.id);
+            if (error) throw error;
+            Object.assign(shipment, payload);
+            removeFavorite(String(shipment.id));
+            applyFilters();
+            Swal.fire({ icon: 'success', title: 'تم تحديث الحالة', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        } catch (err) {
+            Swal.fire('خطأ', err.message, 'error');
+        }
+    }
+
+    function showPriceEditDialog(idx, currentAmount, defaultStatus) {
+        defaultStatus = defaultStatus || 'تعديل سعر';
+        let isPrice = defaultStatus === 'تعديل سعر';
+        const shipment = filteredShipments[idx];
+        if (!shipment) return;
+        if ((shipment['ارشيف'] || '').trim()) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        Swal.fire({
+            title: 'تحديث الحالة',
+            html: `
+                <div class="flex gap-2 mb-3">
+                    <div class="flex-1 p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${isPrice ? 'popup-opt-lavender active' : 'popup-opt-lavender'}" id="peOptPrice" onclick="event.stopPropagation();window._peStatus='تعديل سعر';document.getElementById('peOptPrice').className='flex-1 p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-lavender active';document.getElementById('peOptShip').className='flex-1 p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-air'">
+                        💰 تعديل سعر
+                    </div>
+                    <div class="flex-1 p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${!isPrice ? 'popup-opt-air active' : 'popup-opt-air'}" id="peOptShip" onclick="event.stopPropagation();window._peStatus='شحن';document.getElementById('peOptShip').className='flex-1 p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-air active';document.getElementById('peOptPrice').className='flex-1 p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-lavender'">
+                        🚚 شحن
+                    </div>
+                </div>
+                <div class="text-right">
+                    <label class="text-sm font-bold text-slate-600 dark:text-slate-300">السعر الجديد <span class="text-red-500">*</span></label>
+                    <input type="number" id="pePrice" class="w-full p-2.5 rounded-xl border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-purple-400 mt-1" placeholder="أدخل السعر الجديد" inputmode="decimal">
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'تحديث',
+            cancelButtonText: 'الغاء',
+            confirmButtonColor: '#7c3aed',
+            didOpen: () => { window._peStatus = defaultStatus; },
+            preConfirm: () => {
+                const price = document.getElementById('pePrice').value.trim();
+                if (!price || price === '0' || isNaN(parseFloat(price))) {
+                    Swal.showValidationMessage('يرجى إدخال سعر صحيح');
+                    return false;
+                }
+                return { status: window._peStatus || defaultStatus, price };
+            }
+        }).then(async (result) => {
+            if (!result.isConfirmed) return;
+            const { status, price } = result.value;
+            try {
+                const payload = { الحالة: status, 'المدفوع': price };
+                const { error } = await supabaseClient
+                    .from(CONFIG.TABLES.SHIPMENTS)
+                    .update(payload)
+                    .eq('id', shipment.id);
+                if (error) throw error;
+                Object.assign(shipment, payload);
+                removeFavorite(String(shipment.id));
+                applyFilters();
+                Swal.fire({ icon: 'success', title: 'تم تحديث الحالة', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+            } catch (err) {
+                Swal.fire('خطأ', err.message, 'error');
+            }
+        });
+    }
+
+    function doUpdateShipment(idx, payload) {
+        const shipment = filteredShipments[idx];
+        if (!shipment) return;
+        if ((shipment['ارشيف'] || '').trim()) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        supabaseClient
+            .from(CONFIG.TABLES.SHIPMENTS)
+            .update(payload)
+            .eq('id', shipment.id)
+            .then(({ error }) => {
+                if (error) return Swal.fire('خطأ', error.message, 'error');
+                Object.assign(shipment, payload);
+                removeFavorite(String(shipment.id));
+                applyFilters();
+                if (Swal.isVisible()) Swal.close();
+                Swal.fire({ icon: 'success', title: 'تم تحديث الحالة', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+            });
+    }
+
+    function formatPhoneForCall(phone) {
+        const digits = phone.replace(/[^0-9]/g,'');
+        if (digits.startsWith('20')) return '+' + digits;
+        if (digits.startsWith('0')) return '+20' + digits.slice(1);
+        return '+20' + digits;
+    }
+    function showPhonesDialog(phone1, phone2) {
+        const phones = [phone1, phone2].filter(Boolean);
+        if (!phones.length) return;
+        if (phones.length === 1) { window.location.href = 'tel:' + formatPhoneForCall(phones[0]); return; }
+        Swal.fire({
+            title: 'اختر رقم للاتصال',
+            html: `<div class="grid grid-cols-1 gap-2">${phones.map((p, i) => `
+                <a href="tel:${formatPhoneForCall(p)}" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline ${i === 0 ? 'popup-opt-herb' : 'popup-opt-air'}">
+                    <i class="fas fa-phone ml-2"></i>${p}
+                </a>`).join('')}</div>`,
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function formatPhoneForWA(phone) {
+        const digits = phone.replace(/[^0-9]/g,'');
+        if (digits.startsWith('20')) return digits;
+        if (digits.startsWith('0')) return '20' + digits.slice(1);
+        return '20' + digits;
+    }
+    function openWA(phone, msg) {
+        const num = formatPhoneForWA(phone);
+        const url = `https://api.whatsapp.com/send?phone=${num}&text=${msg}`;
+        Swal.fire({
+            title: 'اختر نوع الواتساب',
+            html: `<div class="grid grid-cols-2 gap-2">
+                <a href="${url}" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold no-underline popup-opt-herb" onclick="Swal.close()">
+                    <i class="fab fa-whatsapp text-2xl mb-1"></i><br>واتساب عادي
+                </a>
+                <a href="${url}" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold no-underline popup-opt-lavender" onclick="Swal.close()">
+                    <i class="fab fa-whatsapp text-2xl mb-1"></i><br>واتساب أعمال
+                </a>
+            </div>`,
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+    function showWhatsAppDialog(idx) {
+        const s = filteredShipments[idx];
+        if (!s) return;
+        const msg = encodeURIComponent(
+            `🧾 كود الشحنة: ${s['كود الشحنة'] || '-'}\n` +
+            `👤 العميل: ${s['اسم العميل'] || '-'}\n` +
+            `📞 الهاتف: ${s['الهاتف'] || ''}${s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : ''}\n` +
+            `📍 العنوان: ${s['العنوان'] || '-'}\n` +
+            `📦 الزون: ${s['الزون'] || '-'}\n` +
+            `💰 المبلغ: ${s['المبلغ'] || '0'} ج\n` +
+            `📋 الحالة: ${s['الحالة'] || '-'}\n` +
+            `🏢 الراسل: ${s['الراسل'] || '-'}`
+        );
+        const phones = [s['الهاتف'] || '', s['هاتف بديل'] || ''].filter(Boolean);
+        if (!phones.length) return;
+        if (phones.length === 1) {
+            const num = formatPhoneForWA(phones[0]);
+            window.open(`https://api.whatsapp.com/send?phone=${num}&text=${msg}`, '_blank');
+            return;
+        }
+        Swal.fire({
+            title: 'اختر رقم لإرسال الواتساب',
+            html: `<div class="grid grid-cols-1 gap-2">${phones.map((p, i) => {
+                const num = formatPhoneForWA(p);
+                return `<a href="https://api.whatsapp.com/send?phone=${num}&text=${msg}" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline cursor-pointer ${i === 0 ? 'popup-opt-herb' : 'popup-opt-lavender'}" onclick="Swal.close()">
+                    <i class="fab fa-whatsapp ml-2"></i>${p}
+                </a>`;
+            }).join('')}</div>`,
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function showPostponeDialog(idx) {
+        const shipment = filteredShipments[idx];
+        if (!shipment) return;
+        if ((shipment['ارشيف'] || '').trim()) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        const opts = ['مؤجل غداً', 'مؤجل الأحد أو الاثنين', 'مؤجل الاربع أو الخميس أو الجمعه'];
+        const postponeColors = ['popup-opt-sun', 'popup-opt-peach', 'popup-opt-gold'];
+        Swal.fire({
+            title: 'اختر سبب التأجيل',
+            html: `<div class="grid grid-cols-1 gap-2">${opts.map((o, i) => `
+                <div class="p-3 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${postponeColors[i]}" onclick="Swal.close();doUpdateShipment(${idx},{'الحالة':'مؤجل','سبب الحالة':'${o}'})">
+                    ⏰ ${o}
+                </div>`).join('')}</div>`,
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function showRejectDialog(idx) {
+        const shipment = filteredShipments[idx];
+        if (!shipment) return;
+        if ((shipment['ارشيف'] || '').trim()) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        const opts = [
+            'العميل طلب الالغاء','العميل مسافر',
+            'المنطقه خارج نطاق التوصيل','العنوان غير صحيح',
+            'المنتج غير مطابق','المنتج تالف',
+            'تهرب بعد التنسيق','رقم الموبيل او الواتساب غير صحيح'
+        ];
+        const rejectColors = [
+            'popup-opt-blush','popup-opt-peach','popup-opt-sun','popup-opt-air',
+            'popup-opt-lavender','popup-opt-petal','popup-opt-mist','popup-opt-gold'
+        ];
+        Swal.fire({
+            title: 'اختر سبب الرفض',
+            html: `
+                <div class="grid grid-cols-1 gap-1.5">
+                    ${opts.map((o, i) => `
+                        <div class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${rejectColors[i]}" onclick="Swal.close();doUpdateShipment(${idx},{'الحالة':'الغاء','سبب الحالة':'${o}'})">
+                            ❌ ${o}
+                        </div>`).join('')}
+                    <hr class="my-2 opacity-20">
+                    <input type="text" id="customRejectReason" class="w-full p-2.5 rounded-xl border-2 text-sm text-center font-bold border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 outline-none focus:ring-2 focus:ring-indigo-400" placeholder="اكتب سبب آخر..." oninput="document.getElementById('customRejectBtn').style.display=this.value.trim()?'':'none'">
+                    <div id="customRejectBtn" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm border-indigo-300 bg-indigo-50 text-indigo-700 dark:border-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-300" style="display:none" onclick="var v=document.getElementById('customRejectReason').value.trim();if(v){Swal.close();doUpdateShipment(${idx},{'الحالة':'الغاء','سبب الحالة':v})}">
+                        ✏️ <span id="customRejectLabel">استخدام السبب المدخل</span>
+                    </div>
+                </div>
+            `,
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    setInterval(async () => {
+        const { data } = await supabaseClient
+            .from(CONFIG.TABLES.SHIPMENTS)
+            .select('id,الحالة,اسم العميل,كود الشحنة')
+            .eq('المندوب', repDisplayName);
+        if (data) {
+            const oldShipments = allShipments;
+            allShipments = data;
+            checkNotifications(false);
+            allShipments = oldShipments;
+        }
+    }, 60000);
+
+    // Init toggle button icon
+    const toggleBtn = document.getElementById('toggleActionsBtn');
+    if (toggleBtn) toggleBtn.innerHTML = '<i class="fas ' + (actionsHidden ? 'fa-eye' : 'fa-eye-slash') + '"></i>';
+
+    loadShipments();
+</script>
+</body>
+</html>

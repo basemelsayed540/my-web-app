@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <title>لوحة المتابعة | نظام الشحن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="assets/js/shipment-config.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        body { background: #0f172a; color: #e2e8f0; font-family: 'Cairo', sans-serif; min-height: 100vh; transition: background .3s, color .3s; }
+        body.light { background: #f8fafc; color: #1e293b; }
+        .glass { background: rgba(30,41,59,.8); backdrop-filter: blur(16px); border: 1px solid rgba(148,163,184,.1); border-radius: .75rem; transition: background .3s, border-color .3s; }
+        body.light .glass { background: rgba(255,255,255,.9); border-color: rgba(0,0,0,.06); box-shadow: 0 1px 3px rgba(0,0,0,.04); }
+        .stat-card { background: rgba(30,41,59,.6); border: 1px solid rgba(148,163,184,.1); border-radius: .6rem; padding: .35rem .3rem; text-align: center; cursor: pointer; transition: all .2s, background .3s, border-color .3s; }
+        .stat-card:hover { transform: translateY(-1px); border-color: rgba(148,163,184,.25); }
+        .stat-card.active { border-color: #6366f1; background: rgba(99,102,241,.1); box-shadow: 0 0 0 1px rgba(99,102,241,.3); }
+        body.light .stat-card { background: rgba(255,255,255,.8); border-color: rgba(0,0,0,.06); }
+        body.light .stat-card.active { background: rgba(99,102,241,.08); border-color: #6366f1; box-shadow: 0 0 0 1px rgba(99,102,241,.2); }
+        body.light .stat-card:hover { border-color: rgba(0,0,0,.12); }
+        .stat-card .num { font-size: .9rem; font-weight: 900; line-height: 1.2; }
+        .stat-card .label { font-size: .55rem; font-weight: 700; color: #94a3b8; margin-top: .1rem; }
+        body.light .stat-card .label { color: #64748b; }
+        .filter-chip { padding: .3rem .7rem; border-radius: 999px; border: 2px solid rgba(148,163,184,.15); background: transparent; color: #94a3b8; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: .7rem; cursor: pointer; transition: all .2s, background .3s, border-color .3s, color .3s; white-space: nowrap; }
+        .filter-chip:hover { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.08); }
+        .filter-chip.active { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.15); }
+        .filter-chip-select { padding: .3rem .5rem; border-radius: 999px; border: 2px solid rgba(148,163,184,.15); background: rgba(15,23,42,.5); color: #94a3b8; font-family: 'Cairo', sans-serif; font-weight: 700; font-size: .7rem; cursor: pointer; transition: all .2s, background .3s, border-color .3s, color .3s; white-space: nowrap; outline: none; appearance: auto; min-width: 80px; }
+        .filter-chip-select:hover { border-color: #6366f1; color: #6366f1; }
+        .filter-chip-select option { background: #1e293b; color: #e2e8f0; }
+        body.light .filter-chip { border-color: #d1d5db; color: #6b7280; }
+        body.light .filter-chip.active { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.1); }
+        body.light .filter-chip-select { background: #fff; color: #6b7280; border-color: #d1d5db; }
+        body.light .filter-chip-select option { background: #fff; color: #1e293b; }
+        body.light .filter-chip-select:hover { color: #6366f1; }
+        body.light .filter-chip:hover { color: #6366f1; background: rgba(99,102,241,.06); }
+        .shipment-row { background: white; border-radius: 16px; padding: 16px 18px; border: 1.5px solid #e2e8f0; margin-bottom: 10px; line-height: 1.5; transition: all .2s, background .3s, border-color .3s; }
+        body.dark .shipment-row { background: #0f172a; border-color: #1e293b; }
+        .shipment-row .main { font-size: .95rem; font-weight: 700; }
+        .shipment-row .sub { font-size: .8rem; font-weight: 500; color: #64748b; margin-top: .1rem; }
+        body.dark .shipment-row .sub { color: #94a3b8; }
+        .header-icon { color: #34d399; transition: color .3s; }
+        body.light .header-icon { color: #059669; }
+        .field-label { font-size: .75rem; font-weight: 600; color: #94a3b8; margin-left: 2px; }
+        body.dark .field-label { color: #64748b; }
+        .action-btn { min-width: 0; padding: 10px 6px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); font-size: .8rem; font-weight: 700; text-align: center; cursor: pointer; background: white; color: #475569; letter-spacing: 0.01em; transition: all .2s, background .3s, border-color .3s; position: relative; }
+        body.dark .action-btn { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,0.1); }
+        .action-btn:hover { transform: translateY(-1px); }
+        .action-btn.call { color: #0891b2; background: #ecfeff; border-color: #a5f3fc; }
+        .dark .action-btn.call { background: rgba(8,145,178,0.12); border-color: rgba(8,145,178,0.25); }
+        .action-btn.whatsapp { color: #25d366; background: #ecfdf5; border-color: #a7f3d0; }
+        .dark .action-btn.whatsapp { background: rgba(37,211,102,0.12); border-color: rgba(37,211,102,0.25); }
+        .action-btn.copy { color: #a5b4fc; border-color: rgba(165,180,252,.2); background: rgba(165,180,252,.08); }
+        .action-btn.copy:hover { background: rgba(165,180,252,.18); }
+        .followup-btn { background: #25d366; color: #fff; border: none; padding: .2rem .55rem; border-radius: .6rem; font-weight: 700; font-size: .65rem; cursor: pointer; animation: pulse 1.5s infinite; display: inline-flex; align-items: center; gap: .2rem; transition: opacity .3s; }
+        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: .6; } }
+        .followup-sent-card { background: rgba(34,197,94,.15); color: #4ade80; border: 1px solid rgba(34,197,94,.2); padding: .2rem .55rem; border-radius: .6rem; font-weight: 700; font-size: .65rem; cursor: pointer; display: inline-flex; align-items: center; gap: .2rem; transition: background .3s, color .3s, border-color .3s; }
+        body.light .followup-sent-card { background: rgba(34,197,94,.1); color: #16a34a; border-color: rgba(34,197,94,.25); }
+        .badge-num { position: absolute; top: -6px; right: -6px; background: #ef4444; color: #fff; font-size: .55rem; font-weight: 800; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; line-height: 1; }
+        body.light .badge-num { background: #ef4444; }
+        .action-btns { display: flex; flex-direction: column; gap: 5px; margin-top: 10px; }
+        .action-btns .row { display: flex; gap: 6px; }
+        .action-btns .row .action-btn { flex: 1; min-width: 0; }
+        .empty-state { text-align: center; padding: 2rem 1rem; color: #64748b; transition: color .3s; }
+        body.light .empty-state { color: #94a3b8; }
+        .search-input { width: 100%; padding: .5rem .75rem; border-radius: .75rem; border: 2px solid rgba(148,163,184,.12); background: rgba(15,23,42,.5); color: #e2e8f0; font-family: 'Cairo', sans-serif; font-size: .8rem; outline: none; transition: border .2s, background .3s, color .3s; }
+        .search-input:focus { border-color: #6366f1; }
+        body.light .search-input { background: #fff; color: #1e293b; border-color: #d1d5db; }
+        body.light .search-input:focus { border-color: #6366f1; box-shadow: 0 0 0 3px rgba(99,102,241,.08); }
+        select { font-family: 'Cairo', sans-serif; }
+        .shipment-actions-bar { display: inline-flex; align-items: center; gap: .2rem; }
+        .shipment-dots-btn { cursor: pointer; padding: .2rem .4rem; border-radius: .5rem; color: #64748b; transition: background .2s, color .3s; }
+        .shipment-dots-btn:hover { background: rgba(148,163,184,.15); }
+        body.light .shipment-dots-btn:hover { background: rgba(0,0,0,.06); }
+        .customer-name { font-size: .9rem; color: #4f46e5; }
+        body.dark .customer-name { color: #818cf8; }
+        .detail-address { color: #0f766e; font-weight: 600; }
+        body.dark .detail-address { color: #5eead4; }
+        .shipment-amount { font-weight: 800; color: #047857; }
+        body.dark .shipment-amount { color: #34d399; }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: rgba(148,163,184,.3); border-radius: 3px; transition: background .3s; }
+        body.light ::-webkit-scrollbar-thumb { background: rgba(0,0,0,.15); }
+        body.light .swal2-popup { background: #fff; color: #1e293b; }
+        body.light .swal2-title { color: #1e293b; }
+        body.light .swal2-html-container { color: #475569; }
+        body.light .swal2-cancel { color: #64748b !important; }
+        body.light .swal2-popup .popup-opt-herb,
+        body.light .swal2-popup .popup-opt-air,
+        body.light .swal2-popup .popup-opt-lavender { background: #f8fafc; border-color: #e2e8f0; color: #1e293b; }
+        @media (max-width:640px) { .stat-card { padding: .25rem .2rem; } .stat-card .num { font-size: .75rem; } .stat-card .label { font-size: .45rem; } .filter-chip, .filter-chip-select { font-size: .55rem; padding: .15rem .35rem; min-width: 65px; } .search-input { font-size: .7rem; padding: .4rem .55rem; } .shipment-row { padding: .5rem; } }
+        .fav-btn { background: none; border: none; cursor: pointer; padding: 0; transition: all .2s; color: #94a3b8; line-height: 1; vertical-align: middle; font-size: 1rem; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .fav-btn:hover { background: rgba(148,163,184,.1); }
+        body.dark .fav-btn:hover { background: rgba(148,163,184,.15); }
+        .fav-btn.active, .fav-btn.active i { color: #ef4444; }
+        .theme-fab { background: white; border: 1px solid #e2e8f0; box-shadow: 0 4px 20px rgba(0,0,0,0.06); transition: all 0.3s; width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; border-radius: 50%; color: #64748b; cursor: pointer; }
+        .dark .theme-fab { background: #1e293b; border-color: #334155; box-shadow: 0 4px 24px rgba(0,0,0,0.3); color: #94a3b8; }
+        .theme-fab:hover { color: #4f46e5; }
+        .dark .theme-fab:hover { color: #818cf8; }
+        .theme-fab i { font-size: 1.15rem; }
+        .icon-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid rgba(148,163,184,0.15); color: #64748b; transition: background .25s, color .25s, transform .25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; }
+        .dark .icon-btn { background: #1e293b; border-color: rgba(148,163,184,0.12); color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.15); }
+        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(99,102,241,0.25); }
+        .menu-panel { position: absolute; top: 100%; left: 0; width: 200px; background: white; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,0.15); border: 1px solid rgba(148,163,184,0.15); z-index: 100; display: none; overflow: hidden; }
+        .dark .menu-panel { background: #0f172a; border-color: rgba(148,163,184,0.1); }
+        .menu-panel.show { display: block; }
+        .menu-item { padding: 14px 16px; font-size: .85rem; font-weight: 700; cursor: pointer; transition: all .15s; display: flex; align-items: center; gap: 10px; color: #0f172a; border-bottom: 1px solid rgba(148,163,184,0.08); }
+        .dark .menu-item { color: #f8fafc; border-color: rgba(148,163,184,0.06); }
+        .menu-item:hover { background: rgba(99,102,241,0.06); }
+        .dark .menu-item:hover { background: rgba(99,102,241,0.1); }
+        .menu-item.logout-item { color: #dc2626; border-bottom: none; }
+        .dark .menu-item.logout-item { color: #fb7185; }
+        .menu-item.logout-item:hover { background: rgba(220,38,38,0.06); }
+        .dark .menu-item.logout-item:hover { background: rgba(220,38,38,0.1); }
+        .menu-divider { height: 1px; background: rgba(148,163,184,0.1); margin: 0; }
+        .notif-btn { position: relative; }
+        .notif-badge { position: absolute; top: -3px; right: -3px; min-width: 17px; height: 17px; border-radius: 9px; background: #ef4444; color: #fff; font-size: .6rem; font-weight: 800; display: flex; align-items: center; justify-content: center; padding: 0 4px; box-shadow: 0 2px 6px rgba(239,68,68,.4); line-height: 1; }
+        .notif-panel { position: absolute; top: 100%; left: 0; width: 320px; max-height: 420px; background: #fff; border-radius: 16px; box-shadow: 0 12px 40px rgba(0,0,0,.15); border: 1px solid rgba(148,163,184,.15); z-index: 100; display: none; overflow: hidden; }
+        .dark .notif-panel { background: #0f172a; border-color: rgba(148,163,184,.1); }
+        .notif-panel.show { display: block; }
+        .notif-header { padding: 12px 16px; font-size: .8rem; font-weight: 800; border-bottom: 1px solid rgba(148,163,184,.1); color: #0f172a; display: flex; align-items: center; justify-content: space-between; }
+        .dark .notif-header { color: #f8fafc; }
+        .notif-header .clear-all { font-size: .65rem; font-weight: 700; color: #ef4444; cursor: pointer; background: none; border: none; font-family: inherit; padding: 2px 6px; border-radius: 6px; transition: background .15s; }
+        .notif-header .clear-all:hover { background: rgba(239,68,68,.1); }
+        .notif-list { max-height: 370px; overflow-y: auto; }
+        .notif-item { padding: 10px 14px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(148,163,184,.06); transition: background .15s; cursor: default; }
+        .notif-item:hover { background: rgba(99,102,241,.04); }
+        .dark .notif-item:hover { background: rgba(99,102,241,.08); }
+        .notif-item .notif-info { flex: 1; min-width: 0; }
+        .notif-item .notif-info .notif-name { font-size: .8rem; font-weight: 700; color: #0f172a; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .dark .notif-item .notif-info .notif-name { color: #f8fafc; }
+        .notif-item .notif-info .notif-sub { font-size: .65rem; font-weight: 600; color: #64748b; margin-top: 1px; }
+        .notif-item .notif-info .notif-sub .status-tag { display: inline-block; padding: 1px 6px; border-radius: 4px; font-size: .6rem; font-weight: 700; margin-right: 4px; }
+        .notif-item .notif-actions { display: flex; gap: 3px; flex-shrink: 0; }
+        .notif-item .notif-wa-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(37,211,102,.12); color: #25d366; border: none; cursor: pointer; transition: all .15s; font-size: .8rem; }
+        .notif-item .notif-wa-btn:hover { background: #25d366; color: #fff; }
+        .notif-item .notif-dismiss-btn { width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(239,68,68,.1); color: #ef4444; border: none; cursor: pointer; transition: all .15s; font-size: .65rem; }
+        .notif-item .notif-dismiss-btn:hover { background: #ef4444; color: #fff; }
+        .notif-empty { padding: 30px 16px; text-align: center; color: #94a3b8; font-size: .8rem; font-weight: 600; }
+        .disable-transitions, .disable-transitions * { transition: none !important; }
+        .load-more-btn { width: 100%; padding: 12px; margin-top: 16px; border-radius: 12px; background: #4f46e5; color: #fff; border: none; font-size: 15px; font-weight: 600; font-family: 'Cairo', sans-serif; cursor: pointer; transition: all .2s; }
+        .load-more-btn:hover { background: #4338ca; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(79,70,229,.3); }
+        body.light .load-more-btn { background: #6366f1; }
+        body.light .load-more-btn:hover { background: #4f46e5; }
+    </style>
+</head>
+<body class="dark">
+    <script>
+    (function(){var s=localStorage.getItem('shipment-theme');if(s==='light'){document.body.classList.remove('dark');document.body.classList.add('light');document.querySelector('meta[name="color-scheme"]').setAttribute('content','light');}})();
+    </script>
+
+    <div class="max-w-5xl mx-auto p-2 sm:p-3">
+
+    <!-- Header -->
+    <div class="glass p-3 mb-3 flex items-center justify-between">
+        <div class="font-extrabold text-base flex items-center gap-2">
+            لوحة المتابعة <span class="text-slate-400 text-sm font-normal mr-1" id="headerUserName"></span>
+        </div>
+        <div class="flex gap-2 items-center">
+            <div style="position:relative">
+                <button onclick="toggleNotifPanel()" class="icon-btn notif-btn" title="الإشعارات" id="notifBtn">
+                    <i class="fas fa-bell"></i>
+                    <span class="notif-badge" id="notifBadge" style="display:none">0</span>
+                </button>
+                <div class="notif-panel" id="notifPanel">
+                    <div class="notif-header">
+                        <span>شحنات بحاجة متابعة</span>
+                        <button class="clear-all" onclick="dismissAllNotifications()" id="clearAllNotif" style="display:none">تجاهل الكل</button>
+                    </div>
+                    <div class="notif-list" id="notifList"></div>
+                </div>
+            </div>
+            <button onclick="toggleTheme()" class="theme-fab">
+                <i class="fas fa-moon" id="themeIcon"></i>
+            </button>
+            <div style="position:relative">
+                <button onclick="toggleMenu()" class="icon-btn" title="القائمة">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="menu-panel" id="menuPanel">
+                    <div class="menu-item" onclick="toggleMenu();showEditAccount()">
+                        <i class="fas fa-user-edit"></i> تعديل الحساب
+                    </div>
+                    <div class="menu-divider"></div>
+                    <div class="menu-item logout-item" onclick="toggleMenu();logout()">
+                        <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-4 gap-1 mb-1">
+        <div class="stat-card" data-stat="all" onclick="clickStat('all','')">
+            <div class="num text-blue-400" id="statTotal">0</div>
+            <div class="label">إجمالي الشحنات</div>
+        </div>
+        <div class="stat-card" data-stat="followup-needs" onclick="clickStat('followup','needs')">
+            <div class="num text-amber-400" id="statNeedsFollowup">0</div>
+            <div class="label">بحاجة لمتابعة</div>
+        </div>
+        <div class="stat-card" data-stat="favorite" onclick="clickStat('favorite','')">
+            <div class="num text-rose-400" id="statFavorites">0</div>
+            <div class="label">المفضلة</div>
+        </div>
+        <div class="stat-card" data-stat="followup-done" onclick="clickStat('followup','done')">
+            <div class="num text-emerald-400" id="statFollowedUp">0</div>
+            <div class="label">تم المتابعة</div>
+        </div>
+    </div>
+    <!-- Status Stats Cards -->
+    <div class="grid grid-cols-7 gap-0.5 mb-2">
+        <div class="stat-card" data-stat="status-قيد التوصيل" onclick="clickStat('status','قيد التوصيل')">
+            <div class="num text-yellow-500" id="statPending">0</div>
+            <div class="label text-[10px]">قيد التوصيل</div>
+        </div>
+        <div class="stat-card" data-stat="noRep" onclick="clickStat('noRep','')">
+            <div class="num text-slate-400" id="statNoRep">0</div>
+            <div class="label text-[10px]">بدون مندوب</div>
+        </div>
+        <div class="stat-card" data-stat="status-تم" onclick="clickStat('status','تم')">
+            <div class="num text-emerald-500" id="statDelivered">0</div>
+            <div class="label text-[10px]">تم</div>
+        </div>
+        <div class="stat-card" data-stat="status-تعديل سعر" onclick="clickStat('status','تعديل سعر')">
+            <div class="num text-indigo-500" id="statPriceEdit">0</div>
+            <div class="label text-[10px]">تعديل سعر</div>
+        </div>
+        <div class="stat-card" data-stat="status-شحن" onclick="clickStat('status','شحن')">
+            <div class="num text-cyan-500" id="statShipped">0</div>
+            <div class="label text-[10px]">شحن</div>
+        </div>
+        <div class="stat-card" data-stat="status-الغاء" onclick="clickStat('status','الغاء')">
+            <div class="num text-red-500" id="statCancelled">0</div>
+            <div class="label text-[10px]">الغاء</div>
+        </div>
+        <div class="stat-card" data-stat="status-مؤجل" onclick="clickStat('status','مؤجل')">
+            <div class="num text-orange-500" id="statPostponed">0</div>
+            <div class="label text-[10px]">مؤجل</div>
+        </div>
+    </div>
+
+    <!-- Search + Filters (sticky) -->
+    <div class="sticky top-0 z-20" style="background:inherit;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)">
+        <div class="glass p-2 mb-2">
+            <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث بكود الشحنة / اسم العميل / الهاتف / هاتف بديل" oninput="scheduleFilter()">
+        </div>
+        <div class="flex gap-1 mb-2 overflow-x-auto pb-1 items-center">
+            <button class="filter-chip active" id="chipArchive" data-placeholder-active="📁 نشطة" data-placeholder-archived="📁 مؤرشفة" onclick="toggleArchiveFilter()">📁 نشطة</button>
+            <select id="filterDaily" class="filter-chip-select" onchange="onDailyChange()"><option value="">📅 اليومية</option></select>
+            <select id="filterRep" class="filter-chip-select" onchange="scheduleFilter()"><option value="">👤 المندوب</option></select>
+            <select id="filterZone" class="filter-chip-select" onchange="scheduleFilter()"><option value="">📍 الزون</option></select>
+            <select id="filterSender" class="filter-chip-select" onchange="scheduleFilter()"><option value="">🏢 الراسل</option></select>
+        </div>
+    </div>
+
+    <!-- Hidden selects -->
+    <select id="filterStatus" style="display:none" onchange="scheduleFilter()"><option value="">الحالة</option></select>
+
+    <!-- Shipments Container -->
+    <div id="shipmentsContainer">
+        <div class="empty-state"><i class="fas fa-inbox text-4xl mb-3 opacity-50"></i><p class="font-bold">اختر اليومية لعرض الشحنات</p></div>
+    </div>
+
+</div>
+
+<script>
+    var currentUser = JSON.parse(localStorage.getItem('user'));
+    var followerKey = 'follower_' + (currentUser?.username || currentUser?.id || 'unknown');
+    if (!currentUser || !['follower', 'rep', 'مندوب فرعي'].includes(currentUser.role)) {
+        window.location.href = 'login.html';
+    }
+    document.getElementById('headerUserName').textContent = currentUser.full_name || currentUser.username || '';
+
+    var supabaseClient = getSharedSupabaseClient();
+    var allShipments = [];
+    var allDailyKeys = [];
+    var notifShipments = [];
+    var filteredShipments = [];
+    var renderedCount = 40;
+    var PAGE_SIZE = 40;
+    var filterTimer = null;
+    var filterData = { daily: [], zone: [], product: [], sender: [] };
+    var filterCounts = { daily: {}, status: {}, zone: {}, product: {}, sender: {} };
+    var followupStatuses = ['الغاء', 'مؤجل', 'تعديل سعر', 'شحن'];
+    var currentFollowupFilter = '';
+    var repArchiveFilter = localStorage.getItem('followupArchiveFilter') || 'نشطة';
+    var filterNoRep = false;
+    var filterFav = false;
+    var isArchivedVal = function(s) { var v = (s['ارشيف'] || '').toString().trim(); return v && v !== 'false' && v !== '0'; };
+    var menuOpen = false;
+    function toggleMenu() {
+        menuOpen = !menuOpen;
+        document.getElementById('menuPanel').classList.toggle('show', menuOpen);
+    }
+    document.addEventListener('click', function(e) {
+        if (menuOpen && !e.target.closest('#menuPanel') && !e.target.closest('.fa-bars') && !e.target.closest('[onclick*="toggleMenu"]')) {
+            menuOpen = false;
+            document.getElementById('menuPanel').classList.remove('show');
+        }
+    });
+
+    function toggleTheme() {
+        document.body.classList.add('disable-transitions');
+        var isLight = document.body.classList.toggle('light');
+        document.body.classList.toggle('dark', !isLight);
+        var icon = document.getElementById('themeIcon');
+        icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
+        localStorage.setItem('shipment-theme', isLight ? 'light' : 'dark');
+        document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', isLight ? 'light' : 'dark');
+        requestAnimationFrame(function() { document.body.classList.remove('disable-transitions'); });
+    }
+    (function initTheme() {
+        var saved = localStorage.getItem('shipment-theme');
+        var preferDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var shouldBeLight = saved ? saved === 'light' : !preferDark;
+        var icon = document.getElementById('themeIcon');
+        if (shouldBeLight) {
+            document.body.classList.add('light');
+            document.body.classList.remove('dark');
+            if (icon) icon.className = 'fas fa-sun';
+        }
+        document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', shouldBeLight ? 'light' : 'dark');
+    })();
+
+    function showEditAccount() {
+        const user = currentUser;
+        const isDark = document.body.classList.contains('dark');
+        Swal.fire({
+            title: 'تعديل الحساب',
+            background: isDark ? '#0f172a' : '#fff',
+            color: isDark ? '#f8fafc' : '#0f172a',
+            html: '<div class="text-right">' +
+                '<label class="text-sm font-bold ' + (isDark ? 'text-slate-300' : 'text-slate-600') + '">الاسم</label>' +
+                '<input type="text" id="editName" class="w-full p-2.5 rounded-xl border ' + (isDark ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-300 bg-white') + ' text-sm mt-1 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400" value="' + (user.full_name || user.username || '') + '">' +
+                '<label class="text-sm font-bold ' + (isDark ? 'text-slate-300' : 'text-slate-600') + '">رقم الهاتف</label>' +
+                '<input type="text" id="editPhone" class="w-full p-2.5 rounded-xl border ' + (isDark ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-300 bg-white') + ' text-sm mt-1 mb-3 focus:outline-none focus:ring-2 focus:ring-indigo-400" value="' + (user.phone || '') + '">' +
+                '<label class="text-sm font-bold ' + (isDark ? 'text-slate-300' : 'text-slate-600') + '">كلمة المرور الجديدة (اترك فارغاً إذا لا تريد التغيير)</label>' +
+                '<input type="password" id="editPass" class="w-full p-2.5 rounded-xl border ' + (isDark ? 'border-slate-600 bg-slate-800 text-white' : 'border-slate-300 bg-white') + ' text-sm mt-1 focus:outline-none focus:ring-2 focus:ring-indigo-400" placeholder="أدخل كلمة المرور الجديدة">' +
+                '</div>',
+            showCancelButton: true,
+            confirmButtonText: 'حفظ',
+            cancelButtonText: 'الغاء',
+            confirmButtonColor: '#6366f1',
+            customClass: {
+                popup: isDark ? 'swal-dark' : '',
+                title: isDark ? 'swal-title-dark' : ''
+            },
+            preConfirm: function() {
+                var name = document.getElementById('editName').value.trim();
+                var phone = document.getElementById('editPhone').value.trim();
+                var pass = document.getElementById('editPass').value;
+                if (!name) { Swal.showValidationMessage('يرجى إدخال الاسم'); return false; }
+                if (!phone) { Swal.showValidationMessage('يرجى إدخال رقم الهاتف'); return false; }
+                return { name: name, phone: phone, pass: pass };
+            }
+        }).then(async function(result) {
+            if (!result.isConfirmed) return;
+            var name = result.value.name, phone = result.value.phone, pass = result.value.pass;
+            try {
+                var updates = { full_name: name, phone: phone };
+                if (pass) updates.password = pass;
+                var res = await supabaseClient.from(CONFIG.TABLES.USERS).update(updates).eq('id', user.id);
+                if (res.error) throw res.error;
+                if (pass) {
+                    var authRes = await supabaseClient.auth.updateUser({ password: pass });
+                    if (authRes.error) throw authRes.error;
+                }
+                Object.assign(currentUser, { full_name: name, phone: phone });
+                localStorage.setItem('user', JSON.stringify(currentUser));
+                document.getElementById('headerUserName').textContent = name;
+                Swal.fire({ icon: 'success', title: 'تم تحديث الحساب', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+            } catch(err) {
+                Swal.fire('خطأ', err.message, 'error');
+            }
+        });
+    }
+    function logout() {
+        localStorage.removeItem('user');
+        localStorage.removeItem('sessionToken');
+        window.location.href = 'login.html';
+    }
+
+    function enNum(v) { return v != null ? String(v) : ''; }
+
+    function getFavorites() { try { return JSON.parse(localStorage.getItem('followupFavorites')) || {}; } catch(e) { return {}; } }
+    function saveFavorites(fav) { localStorage.setItem('followupFavorites', JSON.stringify(fav)); }
+    function isFavorite(id) { return !!getFavorites()[id]; }
+    function toggleFavorite(id) { var fav = getFavorites(); if (fav[id]) { delete fav[id]; } else { fav[id] = Date.now(); } saveFavorites(fav); scheduleFilter(false); }
+
+    function getFollowupsSent() { try { return JSON.parse(localStorage.getItem(followerKey + '_sent')) || {}; } catch(e) { return {}; } }
+    function getFollowupsDismissed() { try { return JSON.parse(localStorage.getItem(followerKey + '_dismissed')) || {}; } catch(e) { return {}; } }
+
+    var notifOpen = false;
+    function getNeedsFollowup() {
+        var dismissed = getFollowupsDismissed();
+        return notifShipments.filter(function(s) { return followupStatuses.includes(s['الحالة'] || '') && !dismissed[String(s.id)]; });
+    }
+    function updateNotifications() {
+        var needs = getNeedsFollowup();
+        var badge = document.getElementById('notifBadge');
+        var list = document.getElementById('notifList');
+        var clearAll = document.getElementById('clearAllNotif');
+        var count = needs.length;
+        if (count > 0) {
+            badge.style.display = 'flex';
+            badge.textContent = count > 99 ? '99+' : count;
+            clearAll.style.display = '';
+        } else {
+            badge.style.display = 'none';
+            clearAll.style.display = 'none';
+        }
+        if (!needs.length) {
+            list.innerHTML = '<div class="notif-empty"><i class="fas fa-check-circle text-2xl mb-2 opacity-50"></i><div>لا توجد شحنات بحاجة متابعة</div></div>';
+            return;
+        }
+        list.innerHTML = needs.map(function(s) {
+            var sid = String(s.id);
+            var status = s['الحالة'] || '';
+            var statusColors = { 'الغاء': 'bg-red-100 text-red-700', 'إلغاء': 'bg-red-100 text-red-700', 'مؤجل': 'bg-amber-100 text-amber-700', 'تعديل سعر': 'bg-purple-100 text-purple-700', 'شحن': 'bg-blue-100 text-blue-700' };
+            var sc = statusColors[status] || 'bg-slate-100 text-slate-700';
+            var phones = [s['الهاتف'] || '', s['هاتف بديل'] || ''].filter(Boolean);
+            var waAction = phones.length ? "toggleNotifPanel();doFollowupNotif('" + sid + "')" : '';
+            return '<div class="notif-item">' +
+                '<div class="notif-info">' +
+                    '<div class="notif-name">' + (s['اسم العميل'] || '-') + '</div>' +
+                    '<div class="notif-sub"><span class="status-tag ' + sc + '">' + status + '</span>' + (s['كود الشحنة'] || '') + '</div>' +
+                '</div>' +
+                '<div class="notif-actions">' +
+                    (phones.length ? '<button class="notif-wa-btn" onclick="' + waAction + '" title="متابعة عبر واتساب"><i class="fab fa-whatsapp"></i></button>' : '') +
+                    '<button class="notif-dismiss-btn" onclick="dismissNotifNotif(\'' + sid + '\')" title="تجاهل"><i class="fas fa-times"></i></button>' +
+                '</div>' +
+            '</div>';
+        }).join('');
+    }
+    function toggleNotifPanel() {
+        notifOpen = !notifOpen;
+        document.getElementById('notifPanel').classList.toggle('show', notifOpen);
+        if (notifOpen) updateNotifications();
+    }
+    function dismissNotifNotif(sid) {
+        var dismissed = getFollowupsDismissed();
+        dismissed[sid] = true;
+        localStorage.setItem(followerKey + '_dismissed', JSON.stringify(dismissed));
+        updateNotifications();
+        applyFilters(false);
+    }
+    function dismissAllNotifications() {
+        var needs = getNeedsFollowup();
+        var dismissed = getFollowupsDismissed();
+        needs.forEach(function(s) { dismissed[String(s.id)] = true; });
+        localStorage.setItem(followerKey + '_dismissed', JSON.stringify(dismissed));
+        updateNotifications();
+        applyFilters();
+    }
+    function doFollowupNotif(sid) {
+        var s = notifShipments.find(function(x) { return String(x.id) === sid; });
+        if (!s) return;
+        var msg = encodeURIComponent(
+            '🧾 كود الشحنة: ' + (s['كود الشحنة'] || '-') + '\n' +
+            '👤 العميل: ' + (s['اسم العميل'] || '-') + '\n' +
+            '📞 الهاتف: ' + (s['الهاتف'] || '') + (s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : '') + '\n' +
+            '📍 العنوان: ' + (s['العنوان'] || '-') + '\n' +
+            '📦 الزون: ' + (s['الزون'] || '-') + '\n' +
+            '💰 المبلغ: ' + (s['المبلغ'] || '0') + ' ج\n' +
+            '📋 الحالة: ' + (s['الحالة'] || '-') + '\n' +
+            '🏢 الراسل: ' + (s['الراسل'] || '-') + '\n' +
+            '👤 المندوب: ' + (s['المندوب'] || '-') + '\n' +
+            '📌 سبب الحالة: ' + (s['سبب الحالة'] || '-')
+        );
+        var phones = [s['الهاتف'] || '', s['هاتف بديل'] || ''].filter(Boolean);
+        var sent = getFollowupsSent(); sent[sid] = true; localStorage.setItem(followerKey + '_sent', JSON.stringify(sent));
+        var dismissed = getFollowupsDismissed(); dismissed[sid] = true; localStorage.setItem(followerKey + '_dismissed', JSON.stringify(dismissed));
+        updateNotifications();
+        applyFilters(false);
+        if (phones.length === 1) {
+            window.open('https://api.whatsapp.com/send?phone=' + formatPhoneForWA(phones[0]) + '&text=' + msg, '_blank');
+        } else if (phones.length > 1) {
+            Swal.fire({
+                title: 'اختر رقم لإرسال المتابعة',
+                html: '<div class="grid grid-cols-1 gap-2">' + phones.map(function(p, i) {
+                    return '<a href="https://api.whatsapp.com/send?phone=' + formatPhoneForWA(p) + '&text=' + msg + '" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline cursor-pointer ' + (i === 0 ? 'popup-opt-herb' : 'popup-opt-lavender') + '" onclick="Swal.close()"><i class="fab fa-whatsapp ml-2"></i>' + p + '</a>';
+                }).join('') + '</div>',
+                showCancelButton: true,
+                cancelButtonText: 'الغاء',
+                showConfirmButton: false
+            });
+        }
+    }
+    document.addEventListener('click', function(e) {
+        if (notifOpen && !e.target.closest('#notifPanel') && !e.target.closest('#notifBtn') && !e.target.closest('.notif-wa-btn')) {
+            notifOpen = false;
+            document.getElementById('notifPanel').classList.remove('show');
+        }
+    });
+
+    // === loadShipments() — القديم (يُعلّق للرجوع) ===
+    // async function loadShipments() {
+    //     try {
+    //         var pageSize = 1000;
+    //         var from = 0;
+    //         var allData = [];
+    //         while (true) {
+    //             var res = await supabaseClient.from(CONFIG.TABLES.SHIPMENTS).select('*').order('m', { ascending: false }).range(from, from + pageSize - 1);
+    //             if (res.error) throw res.error;
+    //             var chunk = res.data || [];
+    //             allData = allData.concat(chunk);
+    //             if (chunk.length < pageSize) break;
+    //             from += pageSize;
+    //         }
+    //         allShipments = allData;
+    //         populateFilters();
+    //         restoreFilters();
+    //         updateChips();
+    //         updateNotifications();
+    //         if (document.getElementById('filterDaily').value) applyFilters();
+    //         else showEmpty('📅 اختر اليومية لعرض الشحنات');
+    //     } catch(err) {
+    //         console.error(err);
+    //         Swal.fire('خطأ', 'فشل تحميل الشحنات', 'error');
+    //     }
+    // }
+
+    async function loadShipments() {
+        try {
+            var pageSize = 1000;
+            var from = 0;
+            var allLightData = [];
+            while (true) {
+                var res = await supabaseClient.from(CONFIG.TABLES.SHIPMENTS)
+                    .select('اليومية,ارشيف,الزون,الراسل,المندوب,id,الحالة,"اسم العميل","كود الشحنة",الهاتف,"هاتف بديل",العنوان,المبلغ,"سبب الحالة"')
+                    .order('m', { ascending: false })
+                    .range(from, from + pageSize - 1);
+                if (res.error) throw res.error;
+                var chunk = res.data || [];
+                allLightData = allLightData.concat(chunk);
+                if (chunk.length < pageSize) break;
+                from += pageSize;
+            }
+            allDailyKeys = allLightData;
+            notifShipments = allLightData;
+            populateFilters();
+            restoreFilters();
+            updateChips();
+            updateNotifications();
+            if (document.getElementById('filterDaily').value) fetchDailyShipments(document.getElementById('filterDaily').value);
+            else showEmpty('📅 اختر اليومية لعرض الشحنات');
+        } catch(err) {
+            console.error(err);
+            Swal.fire('خطأ', 'فشل تحميل الشحنات', 'error');
+        }
+    }
+
+    function getDailyShipments() {
+        var daily = document.getElementById('filterDaily').value;
+        if (!daily) return [];
+        return allShipments.filter(function(s) { return (s['اليومية'] || '') === daily; });
+    }
+
+    async function fetchDailyShipments(daily) {
+        try {
+            var pageSize = 1000;
+            var from = 0;
+            var dailyData = [];
+            while (true) {
+                var res = await supabaseClient.from(CONFIG.TABLES.SHIPMENTS)
+                    .select('*')
+                    .eq('اليومية', daily)
+                    .order('m', { ascending: false })
+                    .range(from, from + pageSize - 1);
+                if (res.error) throw res.error;
+                var chunk = res.data || [];
+                dailyData = dailyData.concat(chunk);
+                if (chunk.length < pageSize) break;
+                from += pageSize;
+            }
+            allShipments = dailyData;
+            populateFilters();
+            applyFilters();
+        } catch(err) {
+            console.error(err);
+            Swal.fire('خطأ', 'فشل تحميل بيانات اليومية', 'error');
+        }
+    }
+
+    function onDailyChange() {
+        var daily = document.getElementById('filterDaily').value;
+        if (!daily) {
+            allShipments = [];
+            populateFilters();
+            scheduleFilter();
+            return;
+        }
+        fetchDailyShipments(daily);
+    }
+
+    function populateFilters() {
+        var dailyVal = document.getElementById('filterDaily').value;
+        var archivedDailies = new Set();
+
+        var allDailies = [...new Set(allDailyKeys.map(function(s) { return s['اليومية'] || ''; }).filter(Boolean))];
+
+        var dailyArchivedCount = {}, dailyTotalCount = {};
+        allDailyKeys.forEach(function(s) {
+            var d = s['اليومية'] || '';
+            if (!d) return;
+            dailyTotalCount[d] = (dailyTotalCount[d] || 0) + 1;
+            if (isArchivedVal(s)) dailyArchivedCount[d] = (dailyArchivedCount[d] || 0) + 1;
+        });
+        allDailies.forEach(function(d) {
+            if (dailyArchivedCount[d] && dailyArchivedCount[d] === dailyTotalCount[d]) archivedDailies.add(d);
+        });
+
+        var dailies = allDailies.filter(function(d) {
+            if (repArchiveFilter === 'نشطة' && archivedDailies.has(d)) return false;
+            if (repArchiveFilter === 'مؤرشفة' && !archivedDailies.has(d)) return false;
+            return true;
+        }).sort();
+
+        var dailyCounts = {};
+        allDailyKeys.forEach(function(s) {
+            var k = s['اليومية'] || '';
+            if (!k) return;
+            var isArchived = archivedDailies.has(k);
+            if (repArchiveFilter === 'نشطة' && isArchived) return;
+            if (repArchiveFilter === 'مؤرشفة' && !isArchived) return;
+            dailyCounts[k] = (dailyCounts[k] || 0) + 1;
+        });
+
+        setOptions('filterDaily', dailies, dailyCounts);
+
+        if (!dailyVal) {
+            var base = allDailyKeys.filter(function(s) { return !isArchivedVal(s); });
+            var zones = [...new Set(base.map(function(s) { return s['الزون'] || ''; }).filter(Boolean))].sort();
+            var senders = [...new Set(base.map(function(s) { return s['الراسل'] || ''; }).filter(Boolean))].sort();
+            var reps = [...new Set(base.map(function(s) { return s['المندوب'] || ''; }).filter(Boolean))].sort();
+            var zoneCounts = {}, senderCounts = {}, repCounts = {};
+            base.forEach(function(s) {
+                var zn = s['الزون'] || ''; if (zn) zoneCounts[zn] = (zoneCounts[zn] || 0) + 1;
+                var sr = s['الراسل'] || ''; if (sr) senderCounts[sr] = (senderCounts[sr] || 0) + 1;
+                var rp = s['المندوب'] || ''; if (rp) repCounts[rp] = (repCounts[rp] || 0) + 1;
+            });
+            setOptions('filterZone', zones, zoneCounts);
+            setOptions('filterSender', senders, senderCounts);
+            setOptions('filterRep', reps, repCounts);
+            filterData = { daily: dailies, zone: zones, sender: senders };
+            filterCounts = { daily: dailyCounts, status: {}, zone: zoneCounts, sender: senderCounts };
+            updateChips();
+            return;
+        }
+
+        var base = allShipments.filter(function(s) { return (s['اليومية'] || '') === dailyVal; });
+        var statuses = [...new Set(base.map(function(s) { return s['الحالة'] || ''; }).filter(Boolean))].sort();
+        var zones = [...new Set(base.map(function(s) { return s['الزون'] || ''; }).filter(Boolean))].sort();
+        var senders = [...new Set(base.map(function(s) { return s['الراسل'] || ''; }).filter(Boolean))].sort();
+        var reps = [...new Set(base.map(function(s) { return s['المندوب'] || ''; }).filter(Boolean))].sort();
+
+        var statusCounts = {}, zoneCounts = {}, senderCounts = {}, repCounts = {};
+        base.forEach(function(s) {
+            var st = s['الحالة'] || ''; if (st) statusCounts[st] = (statusCounts[st] || 0) + 1;
+            var zn = s['الزون'] || ''; if (zn) zoneCounts[zn] = (zoneCounts[zn] || 0) + 1;
+            var sr = s['الراسل'] || ''; if (sr) senderCounts[sr] = (senderCounts[sr] || 0) + 1;
+            var rp = s['المندوب'] || ''; if (rp) repCounts[rp] = (repCounts[rp] || 0) + 1;
+        });
+
+        setOptions('filterStatus', statuses, statusCounts);
+        setOptions('filterZone', zones, zoneCounts);
+        setOptions('filterSender', senders, senderCounts);
+        setOptions('filterRep', reps, repCounts);
+
+        filterData = { daily: dailies, zone: zones, sender: senders };
+        filterCounts = { daily: dailyCounts, status: statusCounts, zone: zoneCounts, sender: senderCounts };
+        updateChips();
+    }
+
+    function setOptions(selId, items, counts) {
+        var sel = document.getElementById(selId);
+        var current = sel.value;
+        sel.innerHTML = '<option value="">' + sel.options[0].text + '</option>';
+        items.forEach(function(item) {
+            var opt = document.createElement('option');
+            opt.value = item;
+            opt.textContent = item + (counts && counts[item] ? ' (' + counts[item] + ')' : '');
+            sel.appendChild(opt);
+        });
+        sel.value = current;
+    }
+
+    function updateChips() {
+        var archiveEl = document.getElementById('chipArchive');
+        if (repArchiveFilter === 'نشطة') {
+            archiveEl.textContent = '📁 نشطة';
+            archiveEl.classList.add('active');
+        } else {
+            archiveEl.textContent = '📁 مؤرشفة';
+            archiveEl.classList.remove('active');
+        }
+    }
+
+    function toggleArchiveFilter() {
+        repArchiveFilter = repArchiveFilter === 'نشطة' ? 'مؤرشفة' : 'نشطة';
+        localStorage.setItem('followupArchiveFilter', repArchiveFilter);
+        document.getElementById('filterDaily').value = '';
+        populateFilters();
+        scheduleFilter();
+        updateChips();
+    }
+
+    function clickStat(type, value) {
+        if (type === 'all') {
+            document.getElementById('filterStatus').value = '';
+            currentFollowupFilter = '';
+            filterNoRep = false;
+            filterFav = false;
+        } else if (type === 'followup') {
+            document.getElementById('filterStatus').value = '';
+            filterNoRep = false;
+            filterFav = false;
+            currentFollowupFilter = currentFollowupFilter === value ? '' : value;
+        } else if (type === 'status') {
+            currentFollowupFilter = '';
+            filterNoRep = false;
+            filterFav = false;
+            var sel = document.getElementById('filterStatus');
+            sel.value = sel.value === value ? '' : value;
+        } else if (type === 'noRep') {
+            currentFollowupFilter = '';
+            document.getElementById('filterStatus').value = '';
+            filterNoRep = !filterNoRep;
+            filterFav = false;
+        } else if (type === 'favorite') {
+            currentFollowupFilter = '';
+            document.getElementById('filterStatus').value = '';
+            filterNoRep = false;
+            filterFav = !filterFav;
+        }
+        scheduleFilter();
+    }
+
+    function scheduleFilter(resetPagination) {
+        clearTimeout(filterTimer);
+        var _rp = resetPagination;
+        filterTimer = setTimeout(function() { applyFilters(_rp); }, 200);
+    }
+
+    function saveFilters() {
+        var filters = {
+            archive: repArchiveFilter,
+            daily: document.getElementById('filterDaily').value,
+            status: document.getElementById('filterStatus').value,
+            zone: document.getElementById('filterZone').value,
+            sender: document.getElementById('filterSender').value,
+            rep: document.getElementById('filterRep').value,
+            search: document.getElementById('searchInput').value,
+            followup: currentFollowupFilter,
+            noRep: filterNoRep,
+            fav: filterFav
+        };
+        localStorage.setItem('followupFilters', JSON.stringify(filters));
+    }
+
+    function restoreFilters() {
+        try {
+            var saved = JSON.parse(localStorage.getItem('followupFilters'));
+            if (!saved) return;
+            if (saved.archive && (saved.archive === 'نشطة' || saved.archive === 'مؤرشفة')) {
+                repArchiveFilter = saved.archive;
+            }
+            document.getElementById('filterDaily').value = saved.daily || '';
+            document.getElementById('filterStatus').value = saved.status === 'الكل' ? '' : (saved.status || '');
+            document.getElementById('filterZone').value = saved.zone || '';
+            document.getElementById('filterSender').value = saved.sender || '';
+            document.getElementById('filterRep').value = saved.rep || '';
+            document.getElementById('searchInput').value = saved.search || '';
+            currentFollowupFilter = saved.followup || '';
+            filterNoRep = saved.noRep || false;
+            filterFav = saved.fav || false;
+        } catch(e) {}
+    }
+
+    function showEmpty(msg) {
+        document.getElementById('shipmentsContainer').innerHTML = '<div class="empty-state"><i class="fas fa-box-open text-4xl mb-3 opacity-50"></i><p class="font-bold">' + msg + '</p></div>';
+    }
+
+    function applyFilters(resetPagination) {
+        if (resetPagination !== false) renderedCount = PAGE_SIZE;
+        saveFilters();
+        var daily = document.getElementById('filterDaily').value;
+        if (!daily) { showEmpty('📅 اختر اليومية لعرض الشحنات'); updateStats([]); updateStatActive(); return; }
+        populateFilters();
+        var status = document.getElementById('filterStatus').value;
+        var zone = document.getElementById('filterZone').value;
+        var sender = document.getElementById('filterSender').value;
+        var rep = document.getElementById('filterRep').value;
+        var searchTerm = document.getElementById('searchInput').value.trim();
+
+        filteredShipments = getDailyShipments().filter(function(s) {
+            var sid = String(s.id);
+            var sStatus = s['الحالة'] || '';
+            if (status) {
+                var normalizedStatus = sStatus;
+                if (normalizedStatus === 'إلغاء') normalizedStatus = 'الغاء';
+                if (normalizedStatus !== status) return false;
+            }
+            if (zone && (s['الزون'] || '') !== zone) return false;
+            if (sender && (s['الراسل'] || '') !== sender) return false;
+            if (rep && (s['المندوب'] || '').trim() !== rep) return false;
+            if (currentFollowupFilter === 'needs') {
+                if (!followupStatuses.includes(sStatus)) return false;
+                if (getFollowupsDismissed()[sid]) return false;
+            } else if (currentFollowupFilter === 'done') {
+                if (!getFollowupsSent()[sid]) return false;
+            }
+            if (filterNoRep && (s['المندوب'] || '').trim()) return false;
+            if (filterFav && !isFavorite(sid)) return false;
+            if (searchTerm) {
+                var term = searchTerm.toLowerCase();
+                var match = (s['كود الشحنة'] || '').toLowerCase().includes(term)
+                    || (s['اسم العميل'] || '').toLowerCase().includes(term)
+                    || (s['الهاتف'] || '').toLowerCase().includes(term)
+                    || (s['هاتف بديل'] || '').toLowerCase().includes(term)
+                    || (s['المندوب'] || '').toLowerCase().includes(term);
+                if (!match) return false;
+            }
+            return true;
+        });
+
+        updateStats(getDailyShipments());
+        renderShipments();
+        updateStatActive();
+    }
+
+    function updateStatActive() {
+        var statusVal = document.getElementById('filterStatus').value;
+        document.querySelectorAll('.stat-card').forEach(function(el) { el.classList.remove('active'); });
+        if (!statusVal && !currentFollowupFilter && !filterNoRep && !filterFav) {
+            var allEl = document.querySelector('.stat-card[data-stat="all"]');
+            if (allEl) allEl.classList.add('active');
+        }
+        var statusMap = { 'قيد التوصيل': 'status-قيد التوصيل', 'تم': 'status-تم', 'تعديل سعر': 'status-تعديل سعر', 'شحن': 'status-شحن', 'الغاء': 'status-الغاء', 'مؤجل': 'status-مؤجل' };
+        if (statusVal && statusMap[statusVal]) {
+            var el = document.querySelector('.stat-card[data-stat="' + statusMap[statusVal] + '"]');
+            if (el) el.classList.add('active');
+        }
+        if (filterNoRep) {
+            var noRepEl = document.querySelector('.stat-card[data-stat="noRep"]');
+            if (noRepEl) noRepEl.classList.add('active');
+        }
+        if (currentFollowupFilter === 'needs') {
+            var needsEl = document.querySelector('.stat-card[data-stat="followup-needs"]');
+            if (needsEl) needsEl.classList.add('active');
+        }
+        if (currentFollowupFilter === 'done') {
+            var doneEl = document.querySelector('.stat-card[data-stat="followup-done"]');
+            if (doneEl) doneEl.classList.add('active');
+        }
+        if (filterFav) {
+            var favEl = document.querySelector('.stat-card[data-stat="favorite"]');
+            if (favEl) favEl.classList.add('active');
+        }
+    }
+
+    function updateStats(dailyShipments) {
+        var _dismissed = getFollowupsDismissed();
+        var _sent = getFollowupsSent();
+        var _favs = getFavorites();
+        var total = dailyShipments.length;
+        var needsFollowup = dailyShipments.filter(function(s) {
+            return followupStatuses.includes(s['الحالة'] || '') && !_dismissed[String(s.id)];
+        }).length;
+        var followedUp = dailyShipments.filter(function(s) {
+            return !!_sent[String(s.id)];
+        }).length;
+        document.getElementById('statTotal').textContent = enNum(total);
+        document.getElementById('statNeedsFollowup').textContent = enNum(needsFollowup);
+        document.getElementById('statFollowedUp').textContent = enNum(followedUp);
+        var favCount = dailyShipments.filter(function(s) { return !!_favs[String(s.id)]; }).length;
+        document.getElementById('statFavorites').textContent = enNum(favCount);
+        var pending = 0, noRep = 0, delivered = 0, priceEdit = 0, shipped = 0, cancelled = 0, postponed = 0;
+        dailyShipments.forEach(function(s) {
+            var st = s['الحالة'] || '';
+            if (st === 'قيد التوصيل') pending++;
+            else if (st === 'تم') delivered++;
+            else if (st === 'تعديل سعر') priceEdit++;
+            else if (st === 'شحن') shipped++;
+            else if (st === 'الغاء' || st === 'إلغاء') cancelled++;
+            else if (st === 'مؤجل') postponed++;
+            if (!(s['المندوب'] || '').trim()) noRep++;
+        });
+        document.getElementById('statPending').textContent = enNum(pending);
+        document.getElementById('statNoRep').textContent = enNum(noRep);
+        document.getElementById('statDelivered').textContent = enNum(delivered);
+        document.getElementById('statPriceEdit').textContent = enNum(priceEdit);
+        document.getElementById('statShipped').textContent = enNum(shipped);
+        document.getElementById('statCancelled').textContent = enNum(cancelled);
+        document.getElementById('statPostponed').textContent = enNum(postponed);
+    }
+
+    function renderShipments() {
+        var container = document.getElementById('shipmentsContainer');
+        if (!filteredShipments.length) {
+            container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox text-4xl mb-3 opacity-50"></i><p class="font-bold">لا توجد شحنات مطابقة</p></div>';
+            return;
+        }
+        var _dismissed = getFollowupsDismissed();
+        var _sent = getFollowupsSent();
+        var _favs = getFavorites();
+        var visible = filteredShipments.slice(0, renderedCount);
+        var moreBtn = '';
+        if (filteredShipments.length > renderedCount) {
+            var remaining = filteredShipments.length - renderedCount;
+            moreBtn = '<button class="load-more-btn" onclick="loadMoreShipments()">تحميل المزيد (' + remaining + ' شحنة متبقية)</button>';
+        }
+        container.innerHTML = visible.map(function(s, idx) {
+            var sid = String(s.id);
+            var needsFollowup = followupStatuses.includes(s['الحالة'] || '') && !_dismissed[sid];
+            var followupSent = !!_sent[sid];
+            return '<div class="shipment-row">' +
+                '<div class="flex items-center justify-between">' +
+                    '<div>' +
+                        '<div class="main flex items-center gap-1">' +
+                            '<span class="shipment-actions-bar"><span class="shipment-dots-btn" onclick="event.stopPropagation();copyShipmentDetails(' + idx + ')"><i class="fas fa-ellipsis-v"></i></span>' +
+                            '<button class="fav-btn" onclick="event.stopPropagation();toggleFavorite(\'' + sid + '\')"><i class="fa-' + (!!_favs[sid] ? 'solid' : 'regular') + ' fa-heart"></i></button></span>' +
+                            (needsFollowup ? (followupSent
+                                ? '<button class="followup-sent-card" onclick="event.stopPropagation();dismissFollowup(\'' + sid + '\')"><i class="fas fa-check-circle"></i> تم ارسال المتابعة</button>'
+                                : '<button class="followup-btn" onclick="event.stopPropagation();doFollowup(' + idx + ',\'' + sid + '\')"><i class="fab fa-whatsapp"></i></button>'
+                            ) : '') +
+                        '</div>' +
+                        '<div class="main customer-name mt-1">' + enNum(s['اسم العميل'] || '-') + '</div>' +
+                    '</div>' +
+                    '<div class="text-left">' +
+                        '<div class="main text-indigo-600 dark:text-indigo-400">' + enNum(s['كود الشحنة'] || '-') + '</div>' +
+                        '<div class="sub" style="color:' + (
+                            s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' :
+                            s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' :
+                            s['الحالة'] === 'مؤجل' ? '#f97316' :
+                            s['الحالة'] === 'الغاء' ? '#ef4444' :
+                            s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#6366f1' : ''
+                        ) + ' !important">' + (s['الحالة'] || '-') + '</div>' +
+                        (s['سبب الحالة'] ? '<div class="sub" style="font-size:.75rem;color:#94a3b8;margin-top:2px;"><i class="fas fa-info-circle ml-1"></i>' + enNum(s['سبب الحالة']) + '</div>' : '') +
+                    '</div>' +
+                '</div>' +
+                '<div class="mt-2 text-sm text-slate-500 space-y-1.5">' +
+                    '<div><i class="fas fa-box ml-1.5"></i><span class="field-label">المنتج:</span>' + enNum(s['المنتج'] || '-') + '</div>' +
+                    '<div><i class="fas fa-map-pin ml-1.5"></i><span class="field-label">العنوان:</span><span class="detail-address">' + enNum(s['العنوان'] || '-') + '</span></div>' +
+                    '<div><i class="fas fa-layer-group ml-1.5"></i><span class="field-label">الزون:</span>' + enNum(s['الزون'] || '-') +
+                        '<span class="mr-4"><i class="fas fa-building ml-0.5"></i><span class="field-label">الراسل:</span>' + enNum(s['الراسل'] || '-') + '</span>' +
+                        '<span class="mr-4"><i class="fas fa-money-bill ml-0.5"></i><span class="field-label">المبلغ:</span><span class="shipment-amount">' + (['تم','تم التسليم','تعديل سعر','شحن'].includes(s['الحالة'] || '') && s['المدفوع'] != null && s['المدفوع'] !== '' ? enNum(s['المدفوع']) : enNum(s['المبلغ'] || '0')) + '</span></span>' +
+                    '</div>' +
+                    (s['المندوب'] ? '<div><i class="fas fa-user ml-1.5"></i><span class="field-label">المندوب:</span>' + enNum(s['المندوب']) + '</div>' : '') +
+                '</div>' +
+                (s['ملاحظات'] ? '<div class="mt-1.5 text-sm text-slate-500"><i class="fas fa-sticky-note ml-1.5"></i><span class="field-label">ملاحظات:</span>' + enNum(s['ملاحظات']) + '</div>' : '') +
+                '<div class="action-btns">' +
+                    '<div class="row">' +
+                        '<button class="action-btn call" onclick="event.stopPropagation();showPhonesDialog(\'' + enNum(s['الهاتف'] || '') + '\',\'' + enNum(s['هاتف بديل'] || '') + '\')"><i class="fas fa-phone ml-1"></i> اتصال' + (s['الهاتف'] && s['هاتف بديل'] ? '<span class="badge-num">2</span>' : '') + '</button>' +
+                        '<button class="action-btn whatsapp" onclick="event.stopPropagation();showWhatsAppDialog(' + idx + ')"><i class="fab fa-whatsapp ml-1"></i> واتساب' + (s['الهاتف'] && s['هاتف بديل'] ? '<span class="badge-num">2</span>' : '') + '</button>' +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+        }).join('') + moreBtn;
+    }
+
+    function loadMoreShipments() {
+        renderedCount += PAGE_SIZE;
+        renderShipments();
+    }
+
+    function copyShipmentDetails(idx) {
+        var s = filteredShipments[idx];
+        if (!s) return;
+        var details =
+            '🧾 كود الشحنة: ' + (s['كود الشحنة'] || '-') + '\n' +
+            '👤 العميل: ' + (s['اسم العميل'] || '-') + '\n' +
+            '📞 الهاتف: ' + (s['الهاتف'] || '') + (s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : '') + '\n' +
+            '📍 العنوان: ' + (s['العنوان'] || '-') + '\n' +
+            '📦 الزون: ' + (s['الزون'] || '-') + '\n' +
+            '💰 المبلغ: ' + (s['المبلغ'] || '0') + ' ج\n' +
+            '📋 الحالة: ' + (s['الحالة'] || '-') + '\n' +
+            '🏢 الراسل: ' + (s['الراسل'] || '-') + '\n' +
+            '👤 المندوب: ' + (s['المندوب'] || '-');
+        navigator.clipboard.writeText(details).then(function() {
+            Swal.fire({ icon: 'success', title: 'تم نسخ التفاصيل', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        }).catch(function() {
+            Swal.fire({ icon: 'warning', title: 'فشل النسخ', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+        });
+    }
+
+    function formatPhoneForCall(phone) {
+        var digits = phone.replace(/[^0-9]/g,'');
+        if (digits.startsWith('20')) return '+' + digits;
+        if (digits.startsWith('0')) return '+20' + digits.slice(1);
+        return '+20' + digits;
+    }
+
+    function formatPhoneForWA(phone) {
+        var digits = phone.replace(/[^0-9]/g,'');
+        if (digits.startsWith('20')) return digits;
+        if (digits.startsWith('0')) return '20' + digits.slice(1);
+        return '20' + digits;
+    }
+
+    function showPhonesDialog(phone1, phone2) {
+        var phones = [phone1, phone2].filter(Boolean);
+        if (!phones.length) return;
+        if (phones.length === 1) { window.location.href = 'tel:' + formatPhoneForCall(phones[0]); return; }
+        Swal.fire({
+            title: 'اختر رقم للاتصال',
+            html: '<div class="grid grid-cols-1 gap-2">' + phones.map(function(p, i) {
+                return '<a href="tel:' + formatPhoneForCall(p) + '" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline ' + (i === 0 ? 'popup-opt-herb' : 'popup-opt-air') + '"><i class="fas fa-phone ml-2"></i>' + p + '</a>';
+            }).join('') + '</div>',
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function showWhatsAppDialog(idx) {
+        var s = filteredShipments[idx];
+        if (!s) return;
+        var msg = encodeURIComponent(
+            '🧾 كود الشحنة: ' + (s['كود الشحنة'] || '-') + '\n' +
+            '👤 العميل: ' + (s['اسم العميل'] || '-') + '\n' +
+            '📞 الهاتف: ' + (s['الهاتف'] || '') + (s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : '') + '\n' +
+            '📍 العنوان: ' + (s['العنوان'] || '-') + '\n' +
+            '📦 الزون: ' + (s['الزون'] || '-') + '\n' +
+            '💰 المبلغ: ' + (s['المبلغ'] || '0') + ' ج\n' +
+            '📋 الحالة: ' + (s['الحالة'] || '-') + '\n' +
+            '🏢 الراسل: ' + (s['الراسل'] || '-')
+        );
+        var phones = [s['الهاتف'] || '', s['هاتف بديل'] || ''].filter(Boolean);
+        if (!phones.length) return;
+        if (phones.length === 1) {
+            var num = formatPhoneForWA(phones[0]);
+            window.open('https://api.whatsapp.com/send?phone=' + num + '&text=' + msg, '_blank');
+            return;
+        }
+        Swal.fire({
+            title: 'اختر رقم لإرسال الواتساب',
+            html: '<div class="grid grid-cols-1 gap-2">' + phones.map(function(p, i) {
+                var num = formatPhoneForWA(p);
+                return '<a href="https://api.whatsapp.com/send?phone=' + num + '&text=' + msg + '" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline cursor-pointer ' + (i === 0 ? 'popup-opt-herb' : 'popup-opt-lavender') + '" onclick="Swal.close()"><i class="fab fa-whatsapp ml-2"></i>' + p + '</a>';
+            }).join('') + '</div>',
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function doFollowup(idx, sid) {
+        var s = filteredShipments[idx];
+        if (!s) return;
+        var msg = encodeURIComponent(
+            '🧾 كود الشحنة: ' + (s['كود الشحنة'] || '-') + '\n' +
+            '👤 العميل: ' + (s['اسم العميل'] || '-') + '\n' +
+            '📞 الهاتف: ' + (s['الهاتف'] || '') + (s['هاتف بديل'] ? ' / ' + s['هاتف بديل'] : '') + '\n' +
+            '📍 العنوان: ' + (s['العنوان'] || '-') + '\n' +
+            '📦 الزون: ' + (s['الزون'] || '-') + '\n' +
+            '💰 المبلغ: ' + (s['المبلغ'] || '0') + ' ج\n' +
+            '📋 الحالة: ' + (s['الحالة'] || '-') + '\n' +
+            '🏢 الراسل: ' + (s['الراسل'] || '-') + '\n' +
+            '👤 المندوب: ' + (s['المندوب'] || '-') + '\n' +
+            '📌 سبب الحالة: ' + (s['سبب الحالة'] || '-')
+        );
+        var phones = [s['الهاتف'] || '', s['هاتف بديل'] || ''].filter(Boolean);
+        var obj = getFollowupsSent(); obj[sid] = true; localStorage.setItem(followerKey + '_sent', JSON.stringify(obj));
+        var dismissed = getFollowupsDismissed(); dismissed[sid] = true; localStorage.setItem(followerKey + '_dismissed', JSON.stringify(dismissed));
+        applyFilters(false);
+        if (!phones.length) {
+            Swal.fire({ icon: 'warning', title: 'لا يوجد رقم هاتف للمتابعة', toast: true, position: 'top-end', showConfirmButton: false, timer: 2500 });
+            return;
+        }
+        if (phones.length === 1) {
+            var num = formatPhoneForWA(phones[0]);
+            window.open('https://api.whatsapp.com/send?phone=' + num + '&text=' + msg, '_blank');
+            Swal.fire({ icon: 'success', title: 'تم فتح واتساب', toast: true, position: 'top-end', showConfirmButton: false, timer: 2000 });
+            return;
+        }
+        Swal.fire({
+            title: 'اختر رقم لإرسال المتابعة',
+            html: '<div class="grid grid-cols-1 gap-2">' + phones.map(function(p, i) {
+                var num = formatPhoneForWA(p);
+                return '<a href="https://api.whatsapp.com/send?phone=' + num + '&text=' + msg + '" target="_blank" rel="noopener" class="block p-4 rounded-xl border-2 text-center font-bold text-lg no-underline cursor-pointer ' + (i === 0 ? 'popup-opt-herb' : 'popup-opt-lavender') + '" onclick="Swal.close()"><i class="fab fa-whatsapp ml-2"></i>' + p + '</a>';
+            }).join('') + '</div>',
+            showCancelButton: true,
+            cancelButtonText: 'الغاء',
+            showConfirmButton: false
+        });
+    }
+
+    function dismissFollowup(sid) {
+        var dismissed = getFollowupsDismissed();
+        dismissed[sid] = true;
+        localStorage.setItem(followerKey + '_dismissed', JSON.stringify(dismissed));
+        applyFilters(false);
+    }
+
+    loadShipments();
+</script>
+</body>
+</html>
