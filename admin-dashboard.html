@@ -91,6 +91,12 @@
             .stat-card .label { font-size: .6rem; }
             .sidebar-tab { font-size: .7rem; padding: .6rem .3rem; }
         }
+        /* تسكين الشحنات فقط: امتداد بعرض الشاشة الكامل خارج حدود الحاوية */
+        body { overflow-x: hidden; }
+        #tab-housing {
+            width: 100vw;
+            margin-inline: calc((100% - 100vw) / 2);
+        }
     </style>
 </head>
 <body>
@@ -213,10 +219,8 @@
 
     <!-- ============ HOUSING (iframe) ============ -->
     <div id="tab-housing" class="hidden">
-        <div class="glass-card p-2 mb-2">
-            <iframe id="housingFrame" title="تسكين الشحنات" src="about:blank"
-                    style="width:100%;height:calc(100vh - 170px);min-height:560px;border:0;border-radius:.9rem;background:transparent;display:block;"></iframe>
-        </div>
+        <iframe id="housingFrame" title="تسكين الشحنات" src="about:blank"
+                style="width:100%;height:calc(100vh - 100px);min-height:540px;border:0;border-radius:.9rem;background:transparent;display:block;"></iframe>
     </div>
 </div>
 
