@@ -62,10 +62,10 @@
         .dark .role-badge-other { background: rgba(148,163,184,.2); color: #94a3b8; }
 
         .empty-state { text-align: center; padding: 40px 16px; color: #94a3b8; }
-        .sidebar-tab { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem .5rem; border-radius: .9rem; font-weight: 800; font-size: .8rem; color: #64748b; cursor: pointer; white-space: nowrap; transition: all .2s; background: none; border: none; }
-        .dark .sidebar-tab { color: #94a3b8; }
+        .sidebar-tab { display: flex; align-items: center; justify-content: center; gap: .5rem; padding: .7rem .5rem; border-radius: .9rem; font-weight: 800; font-size: .8rem; color: #64748b; cursor: pointer; white-space: nowrap; transition: all .2s; background: #fff; border: 1px solid rgba(148,163,184,0.18); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+        .dark .sidebar-tab { color: #94a3b8; background: #1e293b; border-color: rgba(148,163,184,0.12); }
         .sidebar-tab:hover { background: rgba(234, 88, 12,.08); color: #ea580c; }
-        .sidebar-tab.active { background: #ea580c; color: #fff; box-shadow: 0 8px 18px rgba(234, 88, 12,.3); }
+        .sidebar-tab.active { background: #ea580c; color: #fff; border-color: transparent; box-shadow: 0 8px 18px rgba(234, 88, 12,.3); }
         .icon-btn { width: 2.5rem; height: 2.5rem; min-height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid rgba(148,163,184,0.15); color: #64748b; transition: background .25s, color .25s, transform .25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); cursor: pointer; }
         .dark .icon-btn { background: #1e293b; border-color: rgba(148,163,184,0.12); color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
         .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(234, 88, 12,0.15); }
@@ -90,7 +90,8 @@
             .stat-card { padding: 10px 4px; }
             .stat-card .num { font-size: 1rem; }
             .stat-card .label { font-size: .6rem; }
-            .sidebar-tab { font-size: .7rem; padding: .6rem .3rem; }
+            .sidebar-tab { font-size: .7rem; padding: .65rem .4rem; min-width: 42px; min-height: 42px; }
+            .sidebar-tab i { font-size: 1.05rem; }
         }
         /* تسكين الشحنات فقط: امتداد بعرض الشاشة الكامل خارج حدود الحاوية */
         body { overflow-x: hidden; }
@@ -109,10 +110,7 @@
             <div class="hidden sm:flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-500 shadow-lg shrink-0" style="width:44px;height:44px">
                 <i class="fas fa-user-shield text-white text-lg"></i>
             </div>
-            <div class="min-w-0">
-                <h1 class="text-base sm:text-xl font-extrabold text-slate-800 dark:text-white truncate leading-tight">لوحة الإدارة</h1>
-                <p class="text-xs font-semibold text-slate-400 truncate leading-tight hidden xs:block sm:block">مرحباً، <span id="adminName">...</span></p>
-            </div>
+            <p class="hidden" aria-hidden="true">مرحباً، <span id="adminName">...</span></p>
         </div>
         <div id="adminTabs" role="tablist" class="flex items-center justify-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-x-auto py-1">
             <button class="sidebar-tab shrink-0" data-tab="housing" onclick="showHousingTab()"><i class="fas fa-boxes-stacked"></i><span class="hidden sm:inline">تسكين الشحنات</span></button>
