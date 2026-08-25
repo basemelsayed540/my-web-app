@@ -3573,8 +3573,6 @@
                         class="fas fa-satellite-dish"></i></button>
                 <button onclick="housingStatsConfig()" class="btn btn-light rounded-circle shadow-sm admin-header-btn" title="إخفاء/إظهار الاحصائيات"><i
                         class="fas fa-sliders-h"></i></button>
-                <button onclick="toggleTheme()" class="btn btn-light rounded-circle shadow-sm admin-header-btn"><i
-                        class="fas fa-moon"></i></button>
                 <button class="btn btn-sm btn-outline-primary rounded-pill fw-bold" onclick="openHousingQrScanner()" title="مسح QR">
                     <i class="fas fa-qrcode"></i>
                 </button>
@@ -3780,11 +3778,18 @@
                             <div class="gen-stats-filters-box">
                                 <span class="text-xs fw-bold text-muted me-1">اليومية:</span>
                                 <select id="genStatsDaily" class="housing-toolbar-chip-select" onchange="handleGenStatsDailyChange()" dir="rtl">
-                                    <option value="الكل">كل اليوميات</option>
+                                    <option value="الكل">اختر اليومية</option>
                                 </select>
                                 <button type="button" id="genStatsArchiveBtn" class="housing-toolbar-chip" onclick="toggleGenStatsArchiveFilter()">📁 النشطة (0)</button>
                             </div>
                         </div>
+                    </div>
+
+                    <!-- Placeholder: لا تظهر التفاصيل الا بعد اختيار يومية -->
+                    <div id="genStatsDailyPlaceholder" class="gen-stats-card-main text-center" style="display:none; padding:3rem 1rem;">
+                        <i class="fas fa-calendar-day fa-2x text-secondary mb-3 d-block"></i>
+                        <div class="fw-bold text-color mb-1">اختر اليومية أولاً</div>
+                        <div class="text-xs text-muted">لا تظهر تفاصيل الإحصائيات إلا بعد اختيار يومية من القائمة بالأعلى</div>
                     </div>
 
                     <!-- General Distribution Section -->
@@ -7145,7 +7150,7 @@
             
             const filteredDailies = genStatsArchiveFilter === 'نشطة' ? activeList : archivedList;
             
-            let html = '<option value="الكل">كل اليوميات</option>';
+            let html = '<option value="الكل">اختر اليومية</option>';
             filteredDailies.forEach(day => {
                 const count = genStatsDailyCounts[day] || 0;
                 const isArchived = genStatsArchivedDailiesSet.has(day);
@@ -7157,6 +7162,15 @@
         }
 
         function renderGenStatsView() {
+            /* بوابة العرض: لا تفاصيل قبل اختيار يومية (قيمة "الكل" = غير محدد) */
+            const isAllDailies = genStatsSelectedDaily === 'الكل';
+            document.querySelectorAll('#section-general-stats .gen-stats-card-main:not(#genStatsDailyPlaceholder)').forEach(el => {
+                el.style.display = isAllDailies ? 'none' : '';
+            });
+            const genStatsPlaceholder = document.getElementById('genStatsDailyPlaceholder');
+            if (genStatsPlaceholder) genStatsPlaceholder.style.display = isAllDailies ? '' : 'none';
+            if (isAllDailies) return;
+
             const counts = {
                 'تم': 0,
                 'قيد التوصيل': 0,
@@ -13266,15 +13280,27 @@
             saveDateFilter(event.target.value);
         });
 
-        function toggleTheme() {
-            const current = document.body.getAttribute('data-bs-theme');
-            const target = current === 'dark' ? 'light' : 'dark';
+        function applyHousingThemeInstant(target) {
             document.body.classList.add('no-transition');
             document.body.setAttribute('data-bs-theme', target);
             localStorage.setItem('shipment-theme', target);
             document.body.offsetHeight;
             document.body.classList.remove('no-transition');
         }
+        function toggleTheme() {
+            const current = document.body.getAttribute('data-bs-theme');
+            const target = current === 'dark' ? 'light' : 'dark';
+            applyHousingThemeInstant(target);
+            try { if (window.parent !== window) window.parent.postMessage({ type: 'shipment-theme', theme: target }, '*'); } catch { }
+        }
+        /* استقبال تغيير الوضع من لوحة المدير (الصفحة الاب) دون اعادة تحميل */
+        window.addEventListener('message', (ev) => {
+            const d = ev && ev.data;
+            if (!d || d.type !== 'shipment-theme') return;
+            const t = d.theme === 'dark' ? 'dark' : 'light';
+            if (document.body.getAttribute('data-bs-theme') === t) return;
+            applyHousingThemeInstant(t);
+        });
 
         function showLoading(show) {
             const el = document.getElementById('loading');
@@ -13620,6 +13646,16 @@
 
         const HOUSING_SIDEBAR_HIDDEN_KEY = 'housing_sidebar_tab_hidden';
         const HOUSING_SIDEBAR_ALL_CANDIDATES = ['rep', 'status', 'sender', 'daily', 'zone', 'product', 'phone', 'altPhone', 'name', 'amount', 'code'];
+
+        /* ترحيل لمرة واحدة: فرض افتراضي الراسل/الحالة/المندوب فقط بمسح اي اعدادات قديمة متعارضة */
+        (function migrateHousingSidebarDefaults() {
+            try {
+                if (localStorage.getItem('housing_sidebar_defaults_v2') === '1') return;
+                localStorage.removeItem(HOUSING_SIDEBAR_ORDER_KEY);
+                localStorage.removeItem(HOUSING_SIDEBAR_HIDDEN_KEY);
+                localStorage.setItem('housing_sidebar_defaults_v2', '1');
+            } catch { }
+        })();
 
         function getHousingSidebarExtraCols() {
             try { return JSON.parse(localStorage.getItem(HOUSING_SIDEBAR_EXTRA_KEY) || '[]'); } catch { return []; }

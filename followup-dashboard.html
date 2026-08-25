@@ -603,6 +603,7 @@
         fetchDailyShipments(daily);
     }
 
+    var followupArchiveChipCount = 0;
     function populateFilters() {
         var dailyVal = document.getElementById('filterDaily').value;
         var archivedDailies = new Set();
@@ -625,6 +626,7 @@
             if (repArchiveFilter === 'مؤرشفة' && !archivedDailies.has(d)) return false;
             return true;
         }).sort();
+        followupArchiveChipCount = dailies.length;
 
         var dailyCounts = {};
         allDailyKeys.forEach(function(s) {
@@ -698,10 +700,10 @@
     function updateChips() {
         var archiveEl = document.getElementById('chipArchive');
         if (repArchiveFilter === 'نشطة') {
-            archiveEl.textContent = '📁 نشطة';
+            archiveEl.textContent = '📁 نشطة (' + followupArchiveChipCount + ')';
             archiveEl.classList.add('active');
         } else {
-            archiveEl.textContent = '📁 مؤرشفة';
+            archiveEl.textContent = '📁 مؤرشفة (' + followupArchiveChipCount + ')';
             archiveEl.classList.remove('active');
         }
     }

@@ -136,13 +136,13 @@
     <div id="tab-overview" class="hidden space-y-4">
         <div class="glass-card p-3 space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
-                <select id="ovDailySelect" class="soft-input flex-1 min-w-[160px]" aria-label="اختيار اليومية"><option value="">كل اليوميات</option></select>
+                <select id="ovDailySelect" class="soft-input flex-1 min-w-[160px]" aria-label="اختيار اليومية"><option value="">اختر اليومية</option></select>
                 <button onclick="toggleArchiveMode()" id="archiveModeBtn" class="filter-chip"><i class="fas fa-archive ml-1"></i> نشطة</button>
             </div>
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="statusFilterRow"></div>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+        <div class="grid grid-cols-2 sm:grid-cols-3 gap-2" id="ovCardsGrid">
             <div class="stat-card"><div class="num text-indigo-600 dark:text-indigo-400" id="ovTotalCount">0</div><div class="label">إجمالي الشحنات</div></div>
             <div class="stat-card"><div class="num text-amber-600 dark:text-amber-400" id="ovNoRepCount">0</div><div class="label">شحنات بدون مندوب</div><div class="breakdown" id="ovNoRepBreakdown"></div></div>
             <div class="stat-card"><div class="num text-emerald-600 dark:text-emerald-400" id="ovPaid">0</div><div class="label">المدفوع</div></div>
@@ -150,7 +150,13 @@
             <div class="stat-card col-span-2"><div class="num text-rose-600 dark:text-rose-400" id="ovSupply">0</div><div class="label">التوريد (المدفوع − العمولة)</div><div class="breakdown" id="ovSupplyBreakdown"></div></div>
         </div>
 
-        <div class="glass-card p-3">
+        <div id="ovDailyPlaceholder" class="glass-card p-6 text-center" style="display:none;">
+            <i class="fas fa-calendar-day text-4xl text-slate-300 dark:text-slate-600 mb-3" style="display:block;"></i>
+            <p class="font-extrabold text-slate-700 dark:text-white mb-1">اختر اليومية أولاً</p>
+            <p class="text-xs font-bold text-slate-400">لا تظهر تفاصيل الإحصائيات إلا بعد اختيار يومية من القائمة بالأعلى</p>
+        </div>
+
+        <div class="glass-card p-3" id="ovRepsCard">
             <div class="flex items-center justify-between mb-3 gap-2">
                 <h3 class="font-extrabold text-slate-800 dark:text-white flex items-center gap-2 text-sm"><i class="fas fa-users text-indigo-500"></i> المناديب</h3>
                 <span class="text-xs font-bold text-slate-400" id="ovRepCount">0 مندوب</span>
@@ -429,7 +435,24 @@
             localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
             setThemeIcon(isDark);
             requestAnimationFrame(function () { document.body.classList.remove('no-transitions'); });
+            /* مزامنة فورية لتبويب تسكين الشحنات (iframe) */
+            try {
+                var fr = document.getElementById('housingFrame');
+                if (fr && fr.contentWindow) fr.contentWindow.postMessage({ type: 'shipment-theme', theme: isDark ? 'dark' : 'light' }, '*');
+            } catch (e) { }
         };
+        /* استقبال تغيير الوضع القادم من صفحة تسكين الشحنات */
+        window.addEventListener('message', function (ev) {
+            var d = ev && ev.data;
+            if (!d || d.type !== 'shipment-theme') return;
+            var isDark = d.theme === 'dark';
+            if (document.body.classList.contains('dark') === isDark) return;
+            document.body.classList.add('no-transitions');
+            document.body.classList.toggle('dark', isDark);
+            localStorage.setItem(THEME_KEY, isDark ? 'dark' : 'light');
+            setThemeIcon(isDark);
+            requestAnimationFrame(function () { document.body.classList.remove('no-transitions'); });
+        });
         window.logout = function () { clearStoredUserSession('login.html'); };
 
         // ---------- Tabs ----------
@@ -692,7 +715,7 @@
                 if (!db) return -1;
                 return (da.y - db.y) || (da.m - db.m) || (da.d - db.d);
             });
-            select.innerHTML = '<option value="">كل اليوميات</option>' + days.map(function (d) {
+            select.innerHTML = '<option value="">اختر اليومية</option>' + days.map(function (d) {
                 return '<option value="' + esc(d) + '">' + esc(d) + ' (' + enNum(counts[d]) + ')</option>';
             }).join('');
             select.value = state.currentDaily;
@@ -783,8 +806,46 @@
             }).join('');
         }
 
+        /* عدّاد اليوميات لوضع النشطة/المؤرشفة (نفس منطق قسم احصائيات housing) */
+        function computeOverviewDailyModeCounts() {
+            var map = {};
+            state.shipments.forEach(function (s) {
+                var d = (s['اليومية'] || '').trim();
+                if (!d) return;
+                if (!map[d]) map[d] = { total: 0, arch: 0 };
+                map[d].total++;
+                if (isArchived(s)) map[d].arch++;
+            });
+            var active = 0, archived = 0;
+            Object.keys(map).forEach(function (d) {
+                if (map[d].arch === map[d].total) archived++; else active++;
+            });
+            return { active: active, archived: archived };
+        }
+        function updateArchiveModeBtnCount() {
+            var btn = $('archiveModeBtn');
+            if (!btn) return;
+            var c = computeOverviewDailyModeCounts();
+            var isArch = state.overviewMode === 'archived';
+            var n = isArch ? c.archived : c.active;
+            var label = isArch ? 'مؤرشفة' : 'نشطة';
+            var icon = isArch ? 'fa-box-open' : 'fa-archive';
+            btn.innerHTML = '<i class="fas ' + icon + ' ml-1"></i> ' + label + ' (' + enNum(n) + ')';
+        }
+
         function renderOverview() {
             populateDailyOptions();
+            updateArchiveModeBtnCount();
+            /* بوابة العرض: لا تفاصيل قبل اختيار يومية */
+            var noDaily = !state.currentDaily;
+            ['ovCardsGrid', 'statusFilterRow', 'ovRepsCard'].forEach(function (id) {
+                var el = $(id);
+                if (el) el.style.display = noDaily ? 'none' : '';
+            });
+            var ph = $('ovDailyPlaceholder');
+            if (ph) ph.style.display = noDaily ? '' : 'none';
+            if (noDaily) return;
+
             var agg = computeOverview();
             $('ovTotalCount').textContent = enNum(agg.total);
             $('ovNoRepCount').textContent = enNum(agg.noRep);
@@ -839,9 +900,6 @@
 
         window.toggleArchiveMode = function () {
             state.overviewMode = state.overviewMode === 'active' ? 'archived' : 'active';
-            $('archiveModeBtn').innerHTML = state.overviewMode === 'active'
-                ? '<i class="fas fa-archive ml-1"></i> نشطة'
-                : '<i class="fas fa-box-open ml-1"></i> مؤرشفة';
             state.currentDaily = '';
             $('ovDailySelect').value = '';
             state.statusFilter = '';
@@ -1357,7 +1415,8 @@
         var fr = document.getElementById('housingFrame');
         if (fr && (!fr.dataset.loaded || fr.src === 'about:blank')) {
             fr.dataset.loaded = '1';
-            fr.src = 'housing-dashboard.html';
+            /* cache-bust: ضمان تحميل احدث نسخة من صفحة تسكين الشحنات */
+            fr.src = 'housing-dashboard.html?v=' + Date.now();
         }
         try { localStorage.setItem('adminDashboardTab', 'housing'); } catch (e) { }
     };
