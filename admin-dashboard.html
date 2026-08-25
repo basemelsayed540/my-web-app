@@ -703,12 +703,19 @@
 
         function populateDailyOptions() {
             var select = $('ovDailySelect');
-            var counts = {};
+            /* تجميع لكل يومية: الإجمالي وعدد المؤرشف — اليومية مؤرشفة فقط لو كل شحناتها مؤرشفة */
+            var totals = {}, archs = {};
             state.shipments.forEach(function (s) {
                 var d = (s['اليومية'] || '').trim();
-                if (d) counts[d] = (counts[d] || 0) + 1;
+                if (!d) return;
+                totals[d] = (totals[d] || 0) + 1;
+                if (isArchived(s)) archs[d] = (archs[d] || 0) + 1;
             });
-            var days = Object.keys(counts).sort(function (a, b) {
+            var days = Object.keys(totals).filter(function (d) {
+                var fullyArchived = archs[d] === totals[d];
+                return state.overviewMode === 'archived' ? fullyArchived : !fullyArchived;
+            });
+            days.sort(function (a, b) {
                 var da = parseDate(a), db = parseDate(b);
                 if (!da && !db) return 0;
                 if (!da) return 1;
@@ -716,7 +723,7 @@
                 return (da.y - db.y) || (da.m - db.m) || (da.d - db.d);
             });
             select.innerHTML = '<option value="">اختر اليومية</option>' + days.map(function (d) {
-                return '<option value="' + esc(d) + '">' + esc(d) + ' (' + enNum(counts[d]) + ')</option>';
+                return '<option value="' + esc(d) + '">' + esc(d) + ' (' + enNum(totals[d]) + ')</option>';
             }).join('');
             select.value = state.currentDaily;
         }

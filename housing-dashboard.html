@@ -4985,6 +4985,8 @@
                     archivedDailySet.add(d);
                 }
             });
+            /* تحديث عداد زر النشطة/المؤرشفة بعد توفر بيانات اليوميات */
+            if (typeof updateHousingArchiveFilterUI === 'function') updateHousingArchiveFilterUI();
         }
 
         function _populateDailySelects() {
@@ -5002,8 +5004,13 @@
             }
             if (housingSelect) {
                 const prevValue = housingSelect.value;
-                housingSelect.innerHTML = '<option value="">--- اختر اليومية ---</option>' + availableDailyValues.map(dailyOpt).join('');
-                housingSelect.value = availableDailyValues.includes(prevValue) ? prevValue : '';
+                /* قائمة اليومية في تبويب التسكين تتبع وضع النشطة/المؤرشفة */
+                const archMode = (typeof getHousingArchiveFilterValue === 'function') ? getHousingArchiveFilterValue() : 'active';
+                const modeList = archMode === 'archived'
+                    ? availableDailyValues.filter(d => archivedDailySet.has(d))
+                    : availableDailyValues.filter(d => !archivedDailySet.has(d));
+                housingSelect.innerHTML = '<option value="">--- اختر اليومية ---</option>' + modeList.map(dailyOpt).join('');
+                housingSelect.value = modeList.includes(prevValue) ? prevValue : '';
             }
         }
 
@@ -9102,8 +9109,11 @@
             if (!btn) return;
             const val = housingArchiveFilter || 'active';
             btn.dataset.value = val;
-            btn.textContent = val === 'archived' ? '📁 المؤرشفة' : '📁 النشطة';
-            btn.classList.toggle('active', val === 'archived');
+            const archivedMode = val === 'archived';
+            /* عداد عدد اليوميات في الوضع الحالي (اليومية مؤرشفة فقط لو كل شحناتها مؤرشفة) */
+            const modeDailies = (availableDailyValues || []).filter(d => archivedMode ? archivedDailySet.has(d) : !archivedDailySet.has(d));
+            btn.textContent = archivedMode ? `📁 المؤرشفة (${modeDailies.length})` : `📁 النشطة (${modeDailies.length})`;
+            btn.classList.toggle('active', archivedMode);
         }
 
         function toggleHousingArchiveFilter() {
