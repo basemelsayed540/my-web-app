@@ -443,6 +443,7 @@
             document.querySelectorAll('#adminTabs .sidebar-tab').forEach(function (b) {
                 b.classList.toggle('active', b.dataset.tab === tab);
             });
+            try { localStorage.setItem('adminDashboardTab', tab); } catch (e) { }
             if (tab === 'overview') renderOverview();
             if (tab === 'accounts') renderUserList();
             if (tab === 'archive') renderArchive();
@@ -1358,7 +1359,19 @@
             fr.dataset.loaded = '1';
             fr.src = 'housing-dashboard.html';
         }
+        try { localStorage.setItem('adminDashboardTab', 'housing'); } catch (e) { }
     };
+
+    /* استرجاع آخر تبويب كان مفتوحاً بعد تحديث الصفحة (بدل الرجوع لإحصائيات دائماً) */
+    (function () {
+        var saved = null;
+        try { saved = localStorage.getItem('adminDashboardTab'); } catch (e) { }
+        if (saved === 'housing') {
+            window.showHousingTab();
+        } else if (saved === 'overview' || saved === 'accounts' || saved === 'archive') {
+            window.switchTab(saved);
+        }
+    })();
 </script>
 </body>
 </html>
