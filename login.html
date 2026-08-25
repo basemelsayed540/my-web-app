@@ -12,6 +12,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class'}</script>
+    <script>(function(){try{var s=localStorage.getItem('shipment-theme');var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('light-forced',s==='light'||(!s&&!d));}catch(e){}})();</script>
     <link rel="stylesheet" href="assets/css/style.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
@@ -275,6 +276,7 @@
             const icon = document.getElementById('themeIcon');
             if (icon) icon.className = isDark ? 'fas fa-sun text-xl' : 'fas fa-moon text-xl';
             localStorage.setItem('shipment-theme', isDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('light-forced', !isDark);
             requestAnimationFrame(() => document.body.classList.remove('no-transitions'));
         }
 

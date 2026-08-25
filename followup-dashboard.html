@@ -9,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.tailwindcss.com"></script>
     <script>tailwind.config={darkMode:'class'}</script>
+    <script>(function(){try{var s=localStorage.getItem('shipment-theme');var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('light-forced',s==='light'||(!s&&!d));}catch(e){}})();</script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -316,6 +317,7 @@
         var icon = document.getElementById('themeIcon');
         icon.className = isLight ? 'fas fa-sun' : 'fas fa-moon';
         localStorage.setItem('shipment-theme', isLight ? 'light' : 'dark');
+        document.documentElement.classList.toggle('light-forced', isLight);
         document.querySelector('meta[name="color-scheme"]')?.setAttribute('content', isLight ? 'light' : 'dark');
         requestAnimationFrame(function() { document.body.classList.remove('disable-transitions'); });
     }
