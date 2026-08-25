@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -66,7 +66,7 @@
         .dark .shipment-row .sub { color: #94a3b8; }
         .shipment-row .field-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; margin-left: 2px; }
         .dark .shipment-row .field-label { color: #64748b; }
-        .shipment-row .customer-name { color: #4f46e5; }
+        .shipment-row .customer-name { color: #c2410c; }
         .dark .shipment-row .customer-name { color: #818cf8; }
         .shipment-row .detail-address { color: #0f766e; font-weight: 600; }
         .dark .shipment-row .detail-address { color: #5eead4; }
@@ -80,11 +80,11 @@
         .empty-state { text-align: center; padding: 48px 24px; color: #94a3b8; line-height: 1.7; }
         .dark .empty-state { color: #64748b; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #6366f1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 10px; }
         .icon-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid rgba(148,163,184,0.15); color: #64748b; transition: background 0.25s, color 0.25s, transform 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .dark .icon-btn { background: #1e293b; border-color: rgba(148,163,184,0.12); color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
-        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(99,102,241,0.15); }
-        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(99,102,241,0.25); }
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(234, 88, 12,0.15); }
+        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(234, 88, 12,0.25); }
         .icon-btn.logout:hover { color: #f43f5e; }
         .dark .icon-btn.logout:hover { color: #fb7185; background: #1e293b; }
         .fav-btn { background: none; border: none; cursor: pointer; padding: 0; transition: all 0.2s; color: #94a3b8; line-height: 1; vertical-align: middle; font-size: 1rem; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
@@ -119,8 +119,8 @@
         .menu-panel.show { display: block; }
         .menu-item { padding: 14px 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 10px; color: #0f172a; border-bottom: 1px solid rgba(148,163,184,0.08); }
         .dark .menu-item { color: #f8fafc; border-color: rgba(148,163,184,0.06); }
-        .menu-item:hover { background: rgba(99,102,241,0.06); }
-        .dark .menu-item:hover { background: rgba(99,102,241,0.1); }
+        .menu-item:hover { background: rgba(234, 88, 12,0.06); }
+        .dark .menu-item:hover { background: rgba(234, 88, 12,0.1); }
         .menu-item.logout-item { color: #dc2626; border-bottom: none; }
         .dark .menu-item.logout-item { color: #fb7185; }
         .menu-item.logout-item:hover { background: rgba(220,38,38,0.06); }
@@ -130,13 +130,13 @@
         .filter-chip { padding: 9px 6px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); font-size: 0.75rem; font-weight: 700; cursor: pointer; background: white; color: #475569; text-align: center; transition: background 0.2s, color 0.2s, transform 0.2s; }
         .dark .filter-chip { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,0.1); }
         .filter-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .filter-chip.active { background: #4f46e5; color: white; border-color: #4f46e5; }
-        .dark .filter-chip.active { background: #6366f1; color: white; border-color: #6366f1; }
+        .filter-chip.active { background: #c2410c; color: white; border-color: #c2410c; }
+        .dark .filter-chip.active { background: #ea580c; color: white; border-color: #ea580c; }
         /* === Popup option reusable colors (light mode: soft pastel, dark: unchanged) === */
-        .popup-opt-ivy { border-color: #c7d2fe; background: #eef2ff; color: #4338ca; }
-        .popup-opt-ivy.active { border-color: #818cf8; background: #e0e7ff; color: #3730a3; }
-        .dark .popup-opt-ivy { border-color: rgba(99,102,241,0.3); background: rgba(99,102,241,0.1); color: #a5b4fc; }
-        .dark .popup-opt-ivy.active { border-color: #6366f1; background: rgba(99,102,241,0.2); color: #c7d2fe; }
+        .popup-opt-ivy { border-color: #fed7aa; background: #eef2ff; color: #4338ca; }
+        .popup-opt-ivy.active { border-color: #818cf8; background: #e0e7ff; color: #9a3412; }
+        .dark .popup-opt-ivy { border-color: rgba(234, 88, 12,0.3); background: rgba(234, 88, 12,0.1); color: #a5b4fc; }
+        .dark .popup-opt-ivy.active { border-color: #ea580c; background: rgba(234, 88, 12,0.2); color: #fed7aa; }
         .popup-opt-herb { border-color: #a7f3d0; background: #ecfdf5; color: #065f46; }
         .popup-opt-herb.active { border-color: #34d399; background: #d1fae5; color: #047857; }
         .dark .popup-opt-herb { border-color: rgba(5,150,105,0.3); background: rgba(5,150,105,0.1); color: #6ee7b7; }
@@ -429,7 +429,7 @@
             showCancelButton: true,
             confirmButtonText: 'حفظ',
             cancelButtonText: 'الغاء',
-            confirmButtonColor: '#6366f1',
+            confirmButtonColor: '#ea580c',
             customClass: {
                 popup: isDark ? 'swal-dark' : '',
                 title: isDark ? 'swal-title-dark' : ''
@@ -724,7 +724,7 @@
                     </div>
                     <div class="text-left">
                         <div class="main text-indigo-600 dark:text-indigo-400">${enNum(s['كود الشحنة'] || '-')}${isArchived ? ' <span class="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-full">📦 مؤرشفة</span>' : ''}</div>
-                        <div class="sub ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? 'text-green-500' : s['الحالة'] === 'قيد التوصيل' ? 'text-amber-500' : s['الحالة'] === 'مؤجل' ? 'text-orange-500' : (s['الحالة'] === 'الغاء' || s['الحالة'] === 'الغاء') ? 'text-red-500' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? 'text-indigo-500' : ''}" style="color: ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' : s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' : s['الحالة'] === 'مؤجل' ? '#f97316' : (s['الحالة'] === 'الغاء' || s['الحالة'] === 'الغاء') ? '#ef4444' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#6366f1' : ''} !important">${s['الحالة'] || '-'}</div>
+                        <div class="sub ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? 'text-green-500' : s['الحالة'] === 'قيد التوصيل' ? 'text-amber-500' : s['الحالة'] === 'مؤجل' ? 'text-orange-500' : (s['الحالة'] === 'الغاء' || s['الحالة'] === 'الغاء') ? 'text-red-500' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? 'text-indigo-500' : ''}" style="color: ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' : s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' : s['الحالة'] === 'مؤجل' ? '#f97316' : (s['الحالة'] === 'الغاء' || s['الحالة'] === 'الغاء') ? '#ef4444' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#ea580c' : ''} !important">${s['الحالة'] || '-'}</div>
                     </div>
                 </div>
                 <div class="mt-2 text-sm text-slate-500 space-y-1.5">

@@ -19,12 +19,12 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <style>
         .highlight-active {
-            background-color: #6366f1 !important;
-            border-color: #6366f1 !important;
+            background-color: #ea580c !important;
+            border-color: #ea580c !important;
             color: #ffffff !important;
         }
         :root {
-            --primary: #6366f1;
+            --primary: #ea580c;
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -349,7 +349,7 @@
             position: relative;
             overflow: hidden;
             background:
-                radial-gradient(circle at top right, rgba(99, 102, 241, 0.12), transparent 36%),
+                radial-gradient(circle at top right, rgba(234, 88, 12, 0.12), transparent 36%),
                 linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.98));
             border: 1px solid rgba(148, 163, 184, 0.18);
             border-radius: 20px;
@@ -360,7 +360,7 @@
 
         .rep-stat-card:hover {
             box-shadow: 0 18px 40px rgba(15, 23, 42, 0.12);
-            border-color: rgba(99, 102, 241, 0.28);
+            border-color: rgba(234, 88, 12, 0.28);
         }
 
         .rep-stat-card::before {
@@ -395,8 +395,8 @@
             align-items: center;
             margin-top: 4px;
             border-radius: 999px;
-            background: rgba(99, 102, 241, 0.12);
-            color: #4f46e5;
+            background: rgba(234, 88, 12, 0.12);
+            color: #c2410c;
             font-size: 0.68rem;
             font-weight: 800;
             padding: 0.22rem 0.6rem;
@@ -533,7 +533,7 @@
 
         .rep-stat-row:hover {
             box-shadow: 0 12px 28px rgba(15, 23, 42, 0.1);
-            border-color: rgba(99, 102, 241, 0.24);
+            border-color: rgba(234, 88, 12, 0.24);
         }
 
         .rep-stat-row-main {
@@ -553,8 +553,8 @@
             align-items: center;
             margin-top: 4px;
             border-radius: 999px;
-            background: rgba(99, 102, 241, 0.1);
-            color: #4f46e5;
+            background: rgba(234, 88, 12, 0.1);
+            color: #c2410c;
             font-size: 0.66rem;
             font-weight: 800;
             padding: 0.2rem 0.52rem;
@@ -674,14 +674,14 @@
         [data-bs-theme="dark"] .rep-stat-card,
         .dark .rep-stat-card {
             background:
-                radial-gradient(circle at top right, rgba(99, 102, 241, 0.16), transparent 34%),
+                radial-gradient(circle at top right, rgba(234, 88, 12, 0.16), transparent 34%),
                 linear-gradient(180deg, rgba(30, 41, 59, 0.98), rgba(15, 23, 42, 0.98));
             border-color: rgba(148, 163, 184, 0.18);
         }
 
         [data-bs-theme="dark"] .rep-stat-card:hover,
         .dark .rep-stat-card:hover {
-            border-color: rgba(99, 102, 241, 0.32);
+            border-color: rgba(234, 88, 12, 0.32);
             box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35);
         }
 
@@ -711,7 +711,7 @@
 
         [data-bs-theme="dark"] .rep-stat-row:hover,
         .dark .rep-stat-row:hover {
-            border-color: rgba(99, 102, 241, 0.28);
+            border-color: rgba(234, 88, 12, 0.28);
             box-shadow: 0 12px 28px rgba(0, 0, 0, 0.3);
         }
 
@@ -922,14 +922,14 @@
 
             0%,
             100% {
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.08), 0 0 10px rgba(99, 102, 241, 0.16);
-                border-color: rgba(99, 102, 241, 0.45);
+                box-shadow: 0 0 0 0 rgba(234, 88, 12, 0.08), 0 0 10px rgba(234, 88, 12, 0.16);
+                border-color: rgba(234, 88, 12, 0.45);
                 transform: translateY(0) scale(1);
             }
 
             50% {
-                box-shadow: 0 0 0 5px rgba(99, 102, 241, 0.16), 0 0 24px rgba(99, 102, 241, 0.48);
-                border-color: rgba(99, 102, 241, 1);
+                box-shadow: 0 0 0 5px rgba(234, 88, 12, 0.16), 0 0 24px rgba(234, 88, 12, 0.48);
+                border-color: rgba(234, 88, 12, 1);
                 transform: translateY(-1px) scale(1.01);
             }
         }
@@ -977,7 +977,7 @@
         .loading-overlay .loading-bar {
             height: 100%;
             width: 0%;
-            background: linear-gradient(90deg, #6366f1, #06b6d4);
+            background: linear-gradient(90deg, #ea580c, #06b6d4);
             border-radius: 10px;
             transition: width 0.15s linear;
         }
@@ -994,7 +994,7 @@
             background: #1e293b;
             border-color: #334155;
         }
-        [data-bs-theme="dark"] .card-total { border-right-color: #6366f1; }
+        [data-bs-theme="dark"] .card-total { border-right-color: #ea580c; }
         [data-bs-theme="dark"] .card-visible { border-right-color: #06b6d4; }
         [data-bs-theme="dark"] .card-nodelegate { border-right-color: #f59e0b; }
         [data-bs-theme="dark"] .card-mjash { border-right-color: #ef4444; }
@@ -1003,8 +1003,8 @@
         [data-bs-theme="dark"] .card-warehouse { border-right-color: #d97706; }
         [data-bs-theme="dark"] .card-indelivery { border-right-color: #0891b2; }
         [data-bs-theme="dark"] .card-done { border-right-color: #10b981; }
-        [data-bs-theme="dark"] .card-amended { border-right-color: #6366f1; }
-        [data-bs-theme="dark"] .card-shipping { border-right-color: #6366f1; }
+        [data-bs-theme="dark"] .card-amended { border-right-color: #ea580c; }
+        [data-bs-theme="dark"] .card-shipping { border-right-color: #ea580c; }
         [data-bs-theme="dark"] .card-reject { border-right-color: #ef4444; }
         [data-bs-theme="dark"] .card-cancel { border-right-color: #f59e0b; }
         [data-bs-theme="dark"] .card-postponed { border-right-color: #f97316; }
@@ -1041,7 +1041,7 @@
         [data-bs-theme="dark"] .card-cancel .toolbar-stat-icon { color: #fde047; }
         [data-bs-theme="dark"] .card-postponed .toolbar-stat-label,
         [data-bs-theme="dark"] .card-postponed .toolbar-stat-icon { color: #fdba74; }
-        .toolbar-stat-filter.active.card-total { background: color-mix(in srgb, #6366f1 12%, white); }
+        .toolbar-stat-filter.active.card-total { background: color-mix(in srgb, #ea580c 12%, white); }
         .toolbar-stat-filter.active.card-visible { background: color-mix(in srgb, #06b6d4 12%, white); }
         .toolbar-stat-filter.active.card-nodelegate { background: color-mix(in srgb, #f59e0b 12%, white); }
         .toolbar-stat-filter.active.card-mjash { background: color-mix(in srgb, #ef4444 12%, white); }
@@ -1050,8 +1050,8 @@
         .toolbar-stat-filter.active.card-warehouse { background: color-mix(in srgb, #d97706 12%, white); }
         .toolbar-stat-filter.active.card-indelivery { background: color-mix(in srgb, #0891b2 12%, white); }
         .toolbar-stat-filter.active.card-done { background: color-mix(in srgb, #10b981 12%, white); }
-        .toolbar-stat-filter.active.card-amended { background: color-mix(in srgb, #6366f1 12%, white); }
-        .toolbar-stat-filter.active.card-shipping { background: color-mix(in srgb, #6366f1 12%, white); }
+        .toolbar-stat-filter.active.card-amended { background: color-mix(in srgb, #ea580c 12%, white); }
+        .toolbar-stat-filter.active.card-shipping { background: color-mix(in srgb, #ea580c 12%, white); }
         .toolbar-stat-filter.active.card-reject { background: color-mix(in srgb, #ef4444 12%, white); }
         .toolbar-stat-filter.active.card-cancel { background: color-mix(in srgb, #f59e0b 12%, white); }
         .toolbar-stat-filter.active.card-postponed { background: color-mix(in srgb, #f97316 12%, white); }
@@ -1161,7 +1161,7 @@
         }
 
         .housing-editdate-item:hover {
-            background: rgba(99, 102, 241, 0.08);
+            background: rgba(234, 88, 12, 0.08);
         }
 
         .housing-status-text {
@@ -1232,14 +1232,14 @@
 
         .scanner-card {
             background:
-                radial-gradient(circle at top right, rgba(99, 102, 241, 0.14), transparent 35%),
+                radial-gradient(circle at top right, rgba(234, 88, 12, 0.14), transparent 35%),
                 linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(248, 250, 252, 0.96));
-            border: 1px solid rgba(99, 102, 241, 0.16);
+            border: 1px solid rgba(234, 88, 12, 0.16);
         }
 
         [data-bs-theme="dark"] .scanner-card {
             background:
-                radial-gradient(circle at top right, rgba(99, 102, 241, 0.22), transparent 35%),
+                radial-gradient(circle at top right, rgba(234, 88, 12, 0.22), transparent 35%),
                 linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.96));
             border-color: rgba(96, 165, 250, 0.2);
         }
@@ -1292,7 +1292,7 @@
         }
 
         .housing-toolbar {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.08));
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.08), rgba(6, 182, 212, 0.08));
             border: 1px solid var(--border);
             border-radius: 16px;
             padding: 12px;
@@ -1533,8 +1533,8 @@
             transition: all .2s, background .3s, border-color .3s, color .3s;
             white-space: nowrap;
         }
-        .housing-toolbar-chip:hover { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.06); }
-        .housing-toolbar-chip.active { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.1); }
+        .housing-toolbar-chip:hover { border-color: #ea580c; color: #ea580c; background: rgba(234, 88, 12,.06); }
+        .housing-toolbar-chip.active { border-color: #ea580c; color: #ea580c; background: rgba(234, 88, 12,.1); }
 
         .housing-toolbar-chip-select {
             padding: .3rem .5rem;
@@ -1552,15 +1552,15 @@
             appearance: auto;
             min-width: 90px;
         }
-        .housing-toolbar-chip-select:hover { border-color: #6366f1; color: #6366f1; }
+        .housing-toolbar-chip-select:hover { border-color: #ea580c; color: #ea580c; }
         .housing-toolbar-chip-select option { background: #fff; color: #1e293b; }
 
         [data-bs-theme="dark"] .housing-toolbar-chip { border-color: rgba(148,163,184,.15); color: #94a3b8; background: transparent; }
-        [data-bs-theme="dark"] .housing-toolbar-chip.active { border-color: #6366f1; color: #6366f1; background: rgba(99,102,241,.15); }
-        [data-bs-theme="dark"] .housing-toolbar-chip:hover { background: rgba(99,102,241,.08); }
+        [data-bs-theme="dark"] .housing-toolbar-chip.active { border-color: #ea580c; color: #ea580c; background: rgba(234, 88, 12,.15); }
+        [data-bs-theme="dark"] .housing-toolbar-chip:hover { background: rgba(234, 88, 12,.08); }
         [data-bs-theme="dark"] .housing-toolbar-chip-select { background: rgba(15,23,42,.5); color: #94a3b8; border-color: rgba(148,163,184,.15); }
         [data-bs-theme="dark"] .housing-toolbar-chip-select option { background: #1e293b; color: #e2e8f0; }
-        [data-bs-theme="dark"] .housing-toolbar-chip-select:hover { color: #6366f1; }
+        [data-bs-theme="dark"] .housing-toolbar-chip-select:hover { color: #ea580c; }
 
         @media (max-width:640px) {
             .housing-toolbar-chip, .housing-toolbar-chip-select { font-size: .6rem; padding: .15rem .35rem; min-width: 65px; }
@@ -1694,7 +1694,7 @@
 
         /* —— تسكين الشحنات: تحسين الوضع الداكن والخلفيات —— */
         [data-bs-theme="dark"] .housing-toolbar {
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.14), rgba(6, 182, 212, 0.1));
+            background: linear-gradient(135deg, rgba(234, 88, 12, 0.14), rgba(6, 182, 212, 0.1));
             border-color: rgba(148, 163, 184, 0.28);
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
         }
@@ -1779,7 +1779,7 @@
         }
         .col-resizer:hover::after,
         body.housing-col-resizing .col-resizer.is-active::after {
-            background: #6366f1;
+            background: #ea580c;
         }
         /* ===== فلاتر رأس الجدول بستايل الإكسل ===== */
         .housing-excel-filter-btn {
@@ -1803,11 +1803,11 @@
             z-index: 6;
         }
         .housing-excel-filter-btn:hover {
-            background: rgba(99, 102, 241, 0.14);
-            color: #6366f1;
+            background: rgba(234, 88, 12, 0.14);
+            color: #ea580c;
         }
         .housing-excel-filter-btn.is-active {
-            background: #6366f1;
+            background: #ea580c;
             color: #fff;
         }
         .housing-excel-panel {
@@ -1863,14 +1863,14 @@
         .housing-excel-chip {
             font-size: 0.65rem;
             font-weight: 700;
-            border: 1px solid rgba(99,102,241,.55);
-            color: #6366f1;
+            border: 1px solid rgba(234, 88, 12,.55);
+            color: #ea580c;
             background: transparent;
             border-radius: 999px;
             padding: 2px 8px;
             cursor: pointer;
         }
-        .housing-excel-chip:hover, .housing-excel-chip.is-active { background: rgba(99,102,241,.15); }
+        .housing-excel-chip:hover, .housing-excel-chip.is-active { background: rgba(234, 88, 12,.15); }
         .housing-excel-list { flex: 1; overflow-y: auto; padding: 4px 2px; }
         .housing-excel-item {
             display: flex;
@@ -1881,7 +1881,7 @@
             border-radius: 6px;
             cursor: pointer;
         }
-        .housing-excel-item:hover { background: rgba(99,102,241,.09); }
+        .housing-excel-item:hover { background: rgba(234, 88, 12,.09); }
         .housing-excel-item input { flex-shrink: 0; }
         .housing-excel-item .val {
             white-space: nowrap;
@@ -1905,7 +1905,7 @@
             cursor: pointer;
             border: none;
         }
-        .housing-excel-btn-apply { background: #6366f1; color: #fff; }
+        .housing-excel-btn-apply { background: #ea580c; color: #fff; }
         .housing-excel-btn-clear { background: rgba(148,163,184,.2); color: inherit; }
         /* شارات الفلاتر النشطة داخل زر مسح الفلاتر */
         .housing-excel-badges {
@@ -1971,7 +1971,7 @@
             max-width: 100%;
         }
         .housing-header-dropdown-item:hover {
-            background: var(--primary, #6366f1);
+            background: var(--primary, #ea580c);
             color: #fff;
         }
         .housing-dropdown-search {
@@ -1981,8 +1981,8 @@
             outline: none;
         }
         .housing-dropdown-search:focus {
-            border-color: var(--primary, #6366f1);
-            box-shadow: 0 0 0 2px rgba(99,102,241,0.15);
+            border-color: var(--primary, #ea580c);
+            box-shadow: 0 0 0 2px rgba(234, 88, 12,0.15);
         }
         [data-bs-theme="dark"] .housing-dropdown-search {
             background: rgba(15,23,42,.5);
@@ -2053,8 +2053,8 @@
             color: #10b981;
         }
         .housing-finance-card--indigo .housing-finance-card__icon-wrap {
-            background: rgba(99, 102, 241, 0.12);
-            color: #6366f1;
+            background: rgba(234, 88, 12, 0.12);
+            color: #ea580c;
         }
         .housing-finance-card--orange .housing-finance-card__icon-wrap {
             background: rgba(249, 115, 22, 0.12);
@@ -2108,7 +2108,7 @@
 
         /* ألوان القيم حسب نوع البطاقة */
         .housing-finance-card--green .housing-finance-card__value { color: #10b981; }
-        .housing-finance-card--indigo .housing-finance-card__value { color: #6366f1; }
+        .housing-finance-card--indigo .housing-finance-card__value { color: #ea580c; }
         .housing-finance-card--orange .housing-finance-card__value { color: #f97316; }
         .housing-finance-card--cyan .housing-finance-card__value { color: #06b6d4; }
         .housing-finance-card--amber .housing-finance-card__value { color: #f59e0b; }
@@ -2127,7 +2127,7 @@
             background: rgba(16, 185, 129, 0.18);
         }
         [data-bs-theme="dark"] .housing-finance-card--indigo .housing-finance-card__icon-wrap {
-            background: rgba(99, 102, 241, 0.18);
+            background: rgba(234, 88, 12, 0.18);
         }
         [data-bs-theme="dark"] .housing-finance-card--orange .housing-finance-card__icon-wrap {
             background: rgba(249, 115, 22, 0.18);
@@ -2149,7 +2149,7 @@
             transition: all 0.25s ease;
         }
         .housing-finance-card.active.housing-finance-card--green { background: color-mix(in srgb, #10b981 15%, var(--card-bg)); }
-        .housing-finance-card.active.housing-finance-card--indigo { background: color-mix(in srgb, #6366f1 15%, var(--card-bg)); }
+        .housing-finance-card.active.housing-finance-card--indigo { background: color-mix(in srgb, #ea580c 15%, var(--card-bg)); }
         .housing-finance-card.active.housing-finance-card--orange { background: color-mix(in srgb, #f97316 15%, var(--card-bg)); }
         .housing-finance-card.active.housing-finance-card--cyan { background: color-mix(in srgb, #06b6d4 15%, var(--card-bg)); }
         .housing-finance-card.active.housing-finance-card--amber { background: color-mix(in srgb, #f59e0b 15%, var(--card-bg)); }
@@ -2264,14 +2264,14 @@
         }
         #bulkActionBar { display: none; }
         .section-tab:hover {
-            background: rgba(99,102,241,0.08);
+            background: rgba(234, 88, 12,0.08);
             color: var(--text-color, #1e293b);
         }
         .section-tab.active-section-tab {
-            background: var(--primary, #6366f1) !important;
+            background: var(--primary, #ea580c) !important;
             color: #fff !important;
-            border-color: var(--primary, #6366f1);
-            box-shadow: 0 2px 8px rgba(99,102,241,0.25);
+            border-color: var(--primary, #ea580c);
+            box-shadow: 0 2px 8px rgba(234, 88, 12,0.25);
         }
 
         [data-bs-theme="dark"] .admin-sidebar {
@@ -2287,8 +2287,8 @@
         }
 
         .sidebar-tab:hover:not(.active-tab):not(.active-section-tab) {
-            background: rgba(99, 102, 241, 0.08);
-            border-color: rgba(99, 102, 241, 0.12);
+            background: rgba(234, 88, 12, 0.08);
+            border-color: rgba(234, 88, 12, 0.12);
         }
 
         [data-bs-theme="dark"] .sidebar-tab:hover:not(.active-tab):not(.active-section-tab) {
@@ -2299,14 +2299,14 @@
 
         .sidebar-tab.active-tab,
         .sidebar-tab.active-section-tab {
-            background: rgba(99, 102, 241, 0.12) !important;
-            border-color: rgba(99, 102, 241, 0.28) !important;
-            box-shadow: 0 2px 10px rgba(99, 102, 241, 0.12);
+            background: rgba(234, 88, 12, 0.12) !important;
+            border-color: rgba(234, 88, 12, 0.28) !important;
+            box-shadow: 0 2px 10px rgba(234, 88, 12, 0.12);
         }
 
         [data-bs-theme="dark"] .sidebar-tab.active-tab,
         [data-bs-theme="dark"] .sidebar-tab.active-section-tab {
-            background: rgba(99, 102, 241, 0.22) !important;
+            background: rgba(234, 88, 12, 0.22) !important;
             border-color: rgba(96, 165, 250, 0.45) !important;
             color: #bfdbfe !important;
             box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.2), 0 4px 14px rgba(0, 0, 0, 0.25);
@@ -2354,11 +2354,11 @@
         }
         .housing-filter-sidebar-tab:hover {
             color: var(--text-color);
-            background: rgba(99,102,241,0.05);
+            background: rgba(234, 88, 12,0.05);
         }
         .housing-filter-sidebar-tab.active {
-            color: var(--primary, #6366f1);
-            border-bottom-color: var(--primary, #6366f1);
+            color: var(--primary, #ea580c);
+            border-bottom-color: var(--primary, #ea580c);
         }
         [data-bs-theme="dark"] .housing-filter-sidebar-tab.active {
             color: #a5b4fc;
@@ -2380,7 +2380,7 @@
             transition: background 0.2s, border-color 0.2s;
         }
         .housing-filter-sidebar-search input:focus {
-            border-color: var(--primary, #6366f1);
+            border-color: var(--primary, #ea580c);
         }
         .housing-filter-sidebar-list {
             flex: 1;
@@ -2408,11 +2408,11 @@
             margin-bottom: 2px;
         }
         .housing-filter-sidebar-item:hover {
-            background: rgba(99,102,241,0.08);
+            background: rgba(234, 88, 12,0.08);
         }
         .housing-filter-sidebar-item.active {
-            background: rgba(99,102,241,0.15);
-            color: var(--primary, #6366f1);
+            background: rgba(234, 88, 12,0.15);
+            color: var(--primary, #ea580c);
         }
         [data-bs-theme="dark"] .housing-filter-sidebar-item.active {
             background: rgba(96,165,250,0.15);
@@ -2429,7 +2429,7 @@
             text-align: center;
         }
         .housing-filter-sidebar-item.active .count {
-            background: var(--primary, #6366f1);
+            background: var(--primary, #ea580c);
             color: #fff;
         }
         [data-bs-theme="dark"] .housing-filter-sidebar-item.active .count {
@@ -2457,8 +2457,8 @@
 
         /* Visual highlight for active filters */
         .filter-active-glow {
-            border-color: rgba(99, 102, 241, 0.55) !important;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.16), 0 6px 16px rgba(99, 102, 241, 0.12);
+            border-color: rgba(234, 88, 12, 0.55) !important;
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.16), 0 6px 16px rgba(234, 88, 12, 0.12);
         }
 
         [data-bs-theme="dark"] .filter-active-glow {
@@ -2470,7 +2470,7 @@
             background: linear-gradient(135deg, rgba(219, 234, 254, 0.92), rgba(191, 219, 254, 0.82));
             color: #4338ca !important;
             border-color: rgba(37, 99, 235, 0.58) !important;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.18), 0 8px 20px rgba(99, 102, 241, 0.16);
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.18), 0 8px 20px rgba(234, 88, 12, 0.16);
         }
 
         #section-housing .housing-editdate-item.filter-active-glow,
@@ -2513,15 +2513,15 @@
             border: 1px solid rgba(148, 163, 184, 0.28);
         }
         [data-bs-theme="dark"] #housingBulkActionBar .input-group .btn-primary {
-            background: #4f46e5;
-            border-color: #4f46e5;
+            background: #c2410c;
+            border-color: #c2410c;
         }
         [data-bs-theme="dark"] #housingBulkActionBar .input-group .btn-primary:hover {
             background: #4338ca;
             border-color: #4338ca;
         }
         #housingBulkActionBar .dropdown-item:hover {
-            background: rgba(99,102,241,0.08);
+            background: rgba(234, 88, 12,0.08);
         }
 
         [data-bs-theme="dark"] #housingColumnsBtn,
@@ -2608,7 +2608,7 @@
             background-color: var(--primary) !important;
             border-color: var(--primary) !important;
             color: white !important;
-            box-shadow: 0 8px 16px rgba(99, 102, 241, 0.25);
+            box-shadow: 0 8px 16px rgba(234, 88, 12, 0.25);
         }
 
         .stat-card-btn.active small,
@@ -2677,7 +2677,7 @@
         .toolbar-stat-label { display: block; font-size: 0.65rem; font-weight: 700; color: #64748b; margin-bottom: 1px; z-index: 2; }
         .toolbar-stat-value { display: block; font-size: 1rem; font-weight: 800; line-height: 1.2; color: #1e293b; z-index: 2; }
 
-        .card-total { border-right: 3px solid #6366f1; }
+        .card-total { border-right: 3px solid #ea580c; }
         .card-visible { border-right: 3px solid #06b6d4; }
         .card-nodelegate { border-right: 3px solid #f59e0b; }
         .card-mjash { border-right: 3px solid #ef4444; }
@@ -2686,14 +2686,14 @@
         .card-warehouse { border-right: 3px solid #d97706; }
         .card-indelivery { border-right: 3px solid #0891b2; }
         .card-done { border-right: 3px solid #10b981; }
-        .card-amended { border-right: 3px solid #6366f1; }
-        .card-shipping { border-right: 3px solid #6366f1; }
+        .card-amended { border-right: 3px solid #ea580c; }
+        .card-shipping { border-right: 3px solid #ea580c; }
         .card-reject { border-right: 3px solid #ef4444; }
         .card-cancel { border-right: 3px solid #f59e0b; }
         .card-postponed { border-right: 3px solid #f97316; }
 
         .card-total .toolbar-stat-label,
-        .card-total .toolbar-stat-icon { color: #6366f1; }
+        .card-total .toolbar-stat-icon { color: #ea580c; }
         .card-visible .toolbar-stat-label,
         .card-visible .toolbar-stat-icon { color: #06b6d4; }
         .card-nodelegate .toolbar-stat-label,
@@ -2711,9 +2711,9 @@
         .card-done .toolbar-stat-label,
         .card-done .toolbar-stat-icon { color: #10b981; }
         .card-amended .toolbar-stat-label,
-        .card-amended .toolbar-stat-icon { color: #6366f1; }
+        .card-amended .toolbar-stat-icon { color: #ea580c; }
         .card-shipping .toolbar-stat-label,
-        .card-shipping .toolbar-stat-icon { color: #6366f1; }
+        .card-shipping .toolbar-stat-icon { color: #ea580c; }
         .card-reject .toolbar-stat-label,
         .card-reject .toolbar-stat-icon { color: #ef4444; }
         .card-cancel .toolbar-stat-label,
@@ -2745,7 +2745,7 @@
         .housing-extra-stats-wrap.collapsed { max-height: 0 !important; opacity: 0 !important; }
 
         .stat-amount-card {
-            background: linear-gradient(135deg, #4f46e5, #312e81);
+            background: linear-gradient(135deg, #c2410c, #312e81);
             color: white;
             border-radius: 16px;
             padding: 10px 20px;
@@ -2755,7 +2755,7 @@
             justify-content: center;
             min-width: 130px;
             flex-shrink: 0;
-            box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+            box-shadow: 0 4px 12px rgba(194, 65, 12, 0.2);
         }
 
         .stats-actions-bar {
@@ -2809,7 +2809,7 @@
             content: "";
             position: absolute;
             inset: 0;
-            background: radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 34%);
+            background: radial-gradient(circle at top right, rgba(234, 88, 12, 0.08), transparent 34%);
             pointer-events: none;
         }
 
@@ -2827,7 +2827,7 @@
         .rep-analytics-card-title,
         .rep-chart-card-title {
             margin: 0;
-            color: #4f46e5;
+            color: #c2410c;
             font-size: 1rem;
             font-weight: 900;
         }
@@ -2861,8 +2861,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            background: rgba(99, 102, 241, 0.12);
-            color: #4f46e5;
+            background: rgba(234, 88, 12, 0.12);
+            color: #c2410c;
             flex-shrink: 0;
         }
 
@@ -2961,7 +2961,7 @@
 
         .rep-band-count,
         .rep-status-legend-value {
-            color: #4f46e5;
+            color: #c2410c;
             font-size: 0.86rem;
             font-weight: 900;
         }
@@ -3072,7 +3072,7 @@
             height: var(--bar-height);
             min-height: 18px;
             border-radius: 12px 12px 4px 4px;
-            background: linear-gradient(180deg, #6366f1 0%, #4f46e5 100%);
+            background: linear-gradient(180deg, #ea580c 0%, #c2410c 100%);
             box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
             transition: height 0.25s ease;
         }
@@ -3263,12 +3263,12 @@
         }
         .gen-stats-card-sub.active-filter {
             border-color: var(--primary) !important;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2);
             animation: pulse-border 1.5s infinite alternate;
         }
         @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1); }
-            100% { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); }
+            0% { box-shadow: 0 0 0 1px rgba(234, 88, 12, 0.1); }
+            100% { box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.3); }
         }
         .gen-stats-progress-container {
             width: 100%;
@@ -3403,7 +3403,7 @@
         }
         .toolbar-stat-card:hover {
             transform: translateY(-1px);
-            box-shadow: var(--shadow-hover, 0 22px 55px rgba(79,70,229,0.14));
+            box-shadow: var(--shadow-hover, 0 22px 55px rgba(194, 65, 12,0.14));
         }
         [data-bs-theme="dark"] .toolbar-stat-card {
             background: rgba(15, 23, 42, 0.78) !important;
@@ -3493,11 +3493,11 @@
             background: rgba(15, 23, 42, 0.4);
         }
         .gen-stats-card-sub.active-filter {
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2) !important;
+            box-shadow: 0 0 0 3px rgba(234, 88, 12, 0.2) !important;
         }
         @keyframes pulse-border {
-            0% { box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.1); }
-            100% { box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3); }
+            0% { box-shadow: 0 0 0 1px rgba(234, 88, 12, 0.1); }
+            100% { box-shadow: 0 0 0 4px rgba(234, 88, 12, 0.3); }
         }
 
         .gen-stats-filters-box {
@@ -3801,7 +3801,7 @@
                         
                         <!-- Top Shipment & No Courier Cards -->
                         <div class="gen-stats-grid-2 mb-3">
-                            <div class="p-3 rounded-3 text-center border" style="background: linear-gradient(to left, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05)); border-color: rgba(99, 102, 241, 0.2);">
+                            <div class="p-3 rounded-3 text-center border" style="background: linear-gradient(to left, rgba(234, 88, 12, 0.15), rgba(234, 88, 12, 0.05)); border-color: rgba(234, 88, 12, 0.2);">
                                 <span class="text-xs fw-bold text-primary d-flex align-items-center justify-content-center gap-1 mb-1">
                                     <i class="fas fa-chart-simple"></i> الشحنات
                                 </span>
@@ -3817,7 +3817,7 @@
                         
                         <!-- Financial Breakdown Cards -->
                         <div class="gen-stats-grid-3 mb-3">
-                            <div class="p-2 rounded-3 border text-center" style="border-color: rgba(99, 102, 241, 0.15); background: rgba(99, 102, 241, 0.05);">
+                            <div class="p-2 rounded-3 border text-center" style="border-color: rgba(234, 88, 12, 0.15); background: rgba(234, 88, 12, 0.05);">
                                 <span class="text-xs d-block mb-1 font-bold text-primary">المدفوع</span>
                                 <span id="genStatsTotalPaid" class="text-sm font-extrabold text-primary">0</span>
                             </div>
@@ -5749,7 +5749,7 @@
                 { value: `${successRate}%`, label: 'معدل نجاح التسليم', bar: successRate, color: '#10b981' },
                 { value: `${cancelRate}%`, label: 'نسبة الإلغاء', bar: cancelRate, color: '#ef4444' },
                 { value: `${postponeRate}%`, label: 'نسبة التأجيل', bar: postponeRate, color: '#f97316' },
-                { value: avgProfit.toLocaleString() + ' ', label: 'متوسط الربح لكل شحنة ناجحة', bar: 100, color: '#6366f1' }
+                { value: avgProfit.toLocaleString() + ' ', label: 'متوسط الربح لكل شحنة ناجحة', bar: 100, color: '#ea580c' }
             ];
 
             container.innerHTML = items.map(item => `
@@ -5871,9 +5871,9 @@
                     const placeholder = document.createElement('div');
                     placeholder.id = 'statsPlaceholder';
                     placeholder.className = 'order-card p-5 text-center my-4 shadow-sm border-0';
-                    placeholder.style.background = 'linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(6, 182, 212, 0.05))';
+                    placeholder.style.background = 'linear-gradient(135deg, rgba(234, 88, 12, 0.05), rgba(6, 182, 212, 0.05))';
                     placeholder.style.borderRadius = '24px';
-                    placeholder.style.border = '1px dashed rgba(99, 102, 241, 0.25)';
+                    placeholder.style.border = '1px dashed rgba(234, 88, 12, 0.25)';
                     placeholder.innerHTML = `
                         <style>
                             @keyframes statsPlaceholderPulse {
@@ -6611,7 +6611,7 @@
 
             const performanceBands = [
                 { label: 'ممتاز (80% فأكثر)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 80).length, color: '#22c55e' },
-                { label: 'جيد (60% - 79%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 60 && getSuccessRate(stats) < 80).length, color: '#6366f1' },
+                { label: 'جيد (60% - 79%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 60 && getSuccessRate(stats) < 80).length, color: '#ea580c' },
                 { label: 'متوسط (40% - 59%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) >= 40 && getSuccessRate(stats) < 60).length, color: '#f59e0b' },
                 { label: 'ضعيف (أقل من 40%)', count: sortedEntries.filter(([, stats]) => getSuccessRate(stats) < 40).length, color: '#ef4444' }
             ];
@@ -6680,7 +6680,7 @@
             const statusItems = [
                 { label: 'تم', value: doneCount, color: '#22c55e' },
                 { label: 'الغاء', value: cancelCount, color: '#fb923c' },
-                { label: 'شحن', value: shippingCount, color: '#6366f1' },
+                { label: 'شحن', value: shippingCount, color: '#ea580c' },
                 { label: 'رفض', value: rejectCount, color: '#f43f5e' },
                 { label: 'تعديل سعر', value: amendedCount, color: '#8b5cf6' },
                 { label: 'قيد التنفيذ', value: pendingCount, color: '#94a3b8' }
@@ -7426,7 +7426,7 @@
                                             <span class="text-xs font-bold text-secondary">${courier['تعديل سعر']}</span>
                                             <span class="text-[9px] d-block text-secondary font-bold" style="font-size: 0.65rem;">${enNum(Math.round(courier.paidForPriceAdj))}</span>
                                         </div>
-                                        <div class="p-1 border rounded-3 bg-light-subtle" style="border-color: rgba(99, 102, 241, 0.15);">
+                                        <div class="p-1 border rounded-3 bg-light-subtle" style="border-color: rgba(234, 88, 12, 0.15);">
                                             <span class="text-[9px] d-block text-primary font-bold" style="font-size: 0.65rem;">شحن</span>
                                             <span class="text-xs font-bold text-primary">${courier['شحن']}</span>
                                             <span class="text-[9px] d-block text-primary font-bold" style="font-size: 0.65rem;">${enNum(Math.round(courier.paidForShipping))}</span>
@@ -7442,7 +7442,7 @@
                                     </div>
                                     
                                     <div class="gen-stats-grid-3 text-center">
-                                        <div class="p-2 border rounded-3" style="border-color: rgba(99, 102, 241, 0.1); background: rgba(99, 102, 241, 0.02);">
+                                        <div class="p-2 border rounded-3" style="border-color: rgba(234, 88, 12, 0.1); background: rgba(234, 88, 12, 0.02);">
                                             <span class="text-[9px] text-primary d-block mb-0.5 font-bold" style="font-size:0.65rem;">المدفوع</span>
                                             <span class="text-xs font-extrabold text-primary">${enNum(Math.round(courier.paid))}</span>
                                         </div>
@@ -8587,7 +8587,7 @@
                             confirmButtonText: `توليد ${rowsWithoutCode} كود والمتابعة`,
                             cancelButtonText: 'الغاء',
                             showCancelButton: true,
-                            confirmButtonColor: '#4f46e5'
+                            confirmButtonColor: '#c2410c'
                         });
                         if (!codeConfirm) { return; }
                     }
@@ -8631,7 +8631,7 @@
                         showCancelButton: true,
                         confirmButtonText: 'تأكيد الرفع لقاعدة البيانات',
                         cancelButtonText: 'الغاء وفحص الملف',
-                        confirmButtonColor: '#4f46e5'
+                        confirmButtonColor: '#c2410c'
                     });
 
             if (!isConfirmed) { window.housingWriteOperationActive = false; return; }
@@ -8646,7 +8646,7 @@
                         showCancelButton: true,
                         confirmButtonText: 'متابعة الرفع',
                         cancelButtonText: 'الغاء',
-                        confirmButtonColor: '#4f46e5',
+                        confirmButtonColor: '#c2410c',
                         inputValidator: (value) => {
                             if (!String(value || '').trim()) {
                                 return 'يرجى كتابة قيمة اليومية أولاً.';

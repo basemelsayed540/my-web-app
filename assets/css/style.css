@@ -6,9 +6,9 @@
 /* --- Light Mode (Default) --- */
 :root {
     /* Primary Color */
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --primary-soft: rgba(99, 102, 241, 0.14);
+    --primary: #ea580c;
+    --primary-dark: #c2410c;
+    --primary-soft: rgba(234, 88, 12, 0.14);
 
     /* Backgrounds */
     --bg-body: #f6f8fc;
@@ -25,7 +25,7 @@
 
     /* Shadows */
     --shadow-card: 0 18px 45px rgba(15, 23, 42, 0.08);
-    --shadow-hover: 0 22px 55px rgba(79, 70, 229, 0.14);
+    --shadow-hover: 0 22px 55px rgba(194, 65, 12, 0.14);
 
     /* Radius */
     --radius-sm: 8px;
@@ -58,7 +58,7 @@ body.dark,
     --text-muted: #94a3b8;
     --border-color: rgba(148, 163, 184, 0.14);
     --shadow-card: 0 18px 48px rgba(0, 0, 0, 0.34);
-    --shadow-hover: 0 22px 55px rgba(79, 70, 229, 0.14);
+    --shadow-hover: 0 22px 55px rgba(194, 65, 12, 0.14);
 }
 
 /* --- Bootstrap Dark Mode Compatibility --- */
@@ -79,7 +79,7 @@ body.dark,
         --text-muted: #94a3b8;
         --border-color: rgba(148, 163, 184, 0.14);
         --shadow-card: 0 18px 48px rgba(0, 0, 0, 0.34);
-        --shadow-hover: 0 22px 55px rgba(79, 70, 229, 0.14);
+        --shadow-hover: 0 22px 55px rgba(194, 65, 12, 0.14);
         /* Backward aliases */
         --bg-dark: #020617;
         --card-dark: #0f172a;
@@ -99,10 +99,7 @@ body.dark,
 }
 
 body {
-    background:
-        radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 24rem),
-        radial-gradient(circle at bottom left, rgba(16, 185, 129, 0.06), transparent 22rem),
-        linear-gradient(180deg, #f8fbff 0%, var(--bg-body) 100%);
+    background: var(--bg-body);
     color: var(--text-primary);
     transition: background 0.3s ease, color 0.3s ease;
     overflow-x: hidden;
@@ -111,9 +108,7 @@ body {
 
 body.dark,
 [data-bs-theme="dark"] {
-    background:
-        radial-gradient(circle at top right, rgba(99, 102, 241, 0.16), transparent 20rem),
-        linear-gradient(180deg, #020617 0%, #0b1120 100%);
+    background: var(--bg-body);
     color: var(--text-primary);
 }
 
@@ -154,11 +149,11 @@ body.dark .glass,
     transition: background 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
     border: none;
     cursor: pointer;
-    box-shadow: 0 12px 24px rgba(79, 70, 229, 0.22);
+    box-shadow: 0 12px 24px rgba(194, 65, 12, 0.22);
 }
 
 .btn-primary:hover {
-    box-shadow: 0 18px 32px rgba(79, 70, 229, 0.28);
+    box-shadow: 0 18px 32px rgba(194, 65, 12, 0.28);
 }
 
 .input-field {
@@ -176,7 +171,7 @@ body.dark .input-field,
 [data-bs-theme="dark"] .input-field {
     background: rgba(15, 23, 42, 0.92);
     color: white;
-    border-color: rgba(99, 102, 241, 0.18);
+    border-color: rgba(234, 88, 12, 0.18);
 }
 
 .input-field:focus {
@@ -223,7 +218,7 @@ body.dark .input-field:focus,
     overflow-x: auto;
     border-radius: var(--radius-xl);
     scrollbar-width: thin;
-    scrollbar-color: rgba(99, 102, 241, 0.35) transparent;
+    scrollbar-color: rgba(234, 88, 12, 0.35) transparent;
 }
 
 table {
@@ -249,24 +244,24 @@ body.dark tr,
 }
 
 thead th {
-    background: rgba(99, 102, 241, 0.08);
-    color: #3730a3;
+    background: rgba(234, 88, 12, 0.08);
+    color: #9a3412;
     font-weight: 800;
 }
 
 body.dark thead th,
 [data-bs-theme="dark"] thead th {
-    background: rgba(99, 102, 241, 0.14);
-    color: #c7d2fe;
+    background: rgba(234, 88, 12, 0.14);
+    color: #fed7aa;
 }
 
 tbody tr:hover {
-    background: rgba(99, 102, 241, 0.04);
+    background: rgba(234, 88, 12, 0.04);
 }
 
 body.dark tbody tr:hover,
 [data-bs-theme="dark"] tbody tr:hover {
-    background: rgba(99, 102, 241, 0.08);
+    background: rgba(234, 88, 12, 0.08);
 }
 
 select,
@@ -280,17 +275,13 @@ button {
 
 @media (max-width: 768px) {
     body {
-        background:
-            radial-gradient(circle at top right, rgba(99, 102, 241, 0.08), transparent 18rem),
-            linear-gradient(180deg, #fbfdff 0%, var(--bg-body) 100%) !important;
+        background: var(--bg-body) !important;
         color: var(--text-primary) !important;
     }
 
     body.dark,
     [data-bs-theme="dark"] {
-        background:
-            radial-gradient(circle at top right, rgba(99, 102, 241, 0.15), transparent 16rem),
-            linear-gradient(180deg, #020617 0%, #0f172a 100%) !important;
+        background: var(--bg-body) !important;
         color: var(--text-primary) !important;
     }
 
@@ -310,7 +301,7 @@ button {
 
     .input-field {
         background: #ffffff !important;
-        border-color: rgba(99, 102, 241, 0.14) !important;
+        border-color: rgba(234, 88, 12, 0.14) !important;
         color: #0f172a !important;
         box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04), 0 4px 14px rgba(15, 23, 42, 0.04);
     }
@@ -318,7 +309,7 @@ button {
     body.dark .input-field,
     [data-bs-theme="dark"] .input-field {
         background: rgba(15, 23, 42, 0.96) !important;
-        border-color: rgba(99, 102, 241, 0.24) !important;
+        border-color: rgba(234, 88, 12, 0.24) !important;
         color: #f8fafc !important;
     }
 
