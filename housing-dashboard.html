@@ -10530,7 +10530,7 @@
                         <button type="button" data-stat-key="total" class="toolbar-stat-card card-total ${_vis('total')}" style="cursor:default;min-height:56px;">
                             <i class="fas fa-boxes-stacked toolbar-stat-icon"></i>
                             <span class="toolbar-stat-label">الشحنات</span>
-                            <strong class="toolbar-stat-value">${showCounts ? shipments.length : '0'}</strong>
+                            <strong class="toolbar-stat-value">${allShipments.length}</strong>
                         </button>
                         <button type="button" data-stat-key="all" class="toolbar-stat-card card-visible ${_vis('all')}" style="cursor:default;min-height:56px;">
                             <i class="fas fa-eye toolbar-stat-icon"></i>
@@ -10541,11 +10541,6 @@
                             <i class="fas fa-user-slash toolbar-stat-icon"></i>
                             <span class="toolbar-stat-label">بدون مندوب</span>
                             <strong class="toolbar-stat-value">${cardValue(noDelegate)}</strong>
-                        </button>
-                        <button type="button" data-stat-key="mjash" onclick="toggleHousingDashStatFilter('مجاش')" class="toolbar-stat-card toolbar-stat-filter card-mjash ${getActiveClass('مجاش')} ${_vis('mjash')}" style="min-height:56px;">
-                            <i class="fas fa-user-xmark toolbar-stat-icon"></i>
-                            <span class="toolbar-stat-label">مجاش</span>
-                            <strong class="toolbar-stat-value">${cardValue(mjashCount)}</strong>
                         </button>
                         <button type="button" data-stat-key="noAmount" onclick="toggleHousingDashStatFilter('بدون مبلغ')" class="toolbar-stat-card toolbar-stat-filter card-noamount ${getActiveClass('بدون مبلغ')} ${_vis('noAmount')}" style="min-height:56px;">
                             <i class="fas fa-comment-dollar toolbar-stat-icon"></i>
@@ -10666,7 +10661,6 @@
 
         const HOUSING_STAT_CARDS = [
             { key: 'noDelegate', label: 'بدون مندوب' },
-            { key: 'mjash', label: 'مجاش' },
             { key: 'noAmount', label: 'بدون مبلغ' },
             { key: 'duplicatePhone', label: 'هاتف مكرر' },
             { key: 'grossAmount', label: 'المبلغ' },

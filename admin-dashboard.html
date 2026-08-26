@@ -136,6 +136,7 @@
         <div class="glass-card p-3 space-y-3">
             <div class="flex items-center justify-between gap-2 flex-wrap">
                 <select id="ovDailySelect" class="soft-input flex-1 min-w-[160px]" aria-label="اختيار اليومية"><option value="">اختر اليومية</option></select>
+                <select id="ovSenderSelect" class="soft-input flex-1 min-w-[160px]" aria-label="اختيار الراسل" disabled><option value="">اختر اليومية أولاً</option></select>
                 <button onclick="toggleArchiveMode()" id="archiveModeBtn" class="filter-chip"><i class="fas fa-archive ml-1"></i> نشطة</button>
             </div>
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="statusFilterRow"></div>
@@ -309,6 +310,7 @@
             shipments: [],
             users: [],
             currentDaily: '',
+            currentSender: '',
             overviewMode: 'active', // active | archived
             statusFilter: '',
             repSearch: '',
@@ -643,6 +645,10 @@
                 var dv = state.currentDaily;
                 rows = rows.filter(function (s) { return (s['اليومية'] || '') === dv; });
             }
+            if (state.currentSender) {
+                var sv = state.currentSender;
+                rows = rows.filter(function (s) { return (s['الراسل'] || '') === sv; });
+            }
             if (state.statusFilter) {
                 var sf = state.statusFilter;
                 rows = rows.filter(function (s) { return (s['الحالة'] || '') === sf || (sf === 'الغاء' && (s['الحالة'] || '') === 'إلغاء'); });
@@ -729,6 +735,38 @@
             select.value = state.currentDaily;
         }
 
+        function populateSenderOptions() {
+            var select = $('ovSenderSelect');
+            if (!select) return;
+            if (!state.currentDaily) {
+                select.disabled = true;
+                select.innerHTML = '<option value="">اختر اليومية أولاً</option>';
+                return;
+            }
+            /* أسماء الراسل الموجودة فعليًا داخل نفس اليومية المختارة ونفس وضع نشطة/مؤرشفة الحالي */
+            var rows = state.shipments.filter(function (s) {
+                if (state.overviewMode === 'active' && isArchived(s)) return false;
+                if (state.overviewMode === 'archived' && !isArchived(s)) return false;
+                return (s['اليومية'] || '') === state.currentDaily;
+            });
+            var counts = {};
+            rows.forEach(function (s) {
+                var name = (s['الراسل'] || '').trim();
+                if (!name) return;
+                counts[name] = (counts[name] || 0) + 1;
+            });
+            var senders = Object.keys(counts).sort(function (a, b) { return a.localeCompare(b, 'ar'); });
+
+            /* لو الراسل المختار سابقًا لم يعد موجودًا ضمن اليومية الجديدة، صفّر الاختيار */
+            if (senders.indexOf(state.currentSender) === -1) state.currentSender = '';
+
+            select.disabled = false;
+            select.innerHTML = '<option value="">كل الراسلين</option>' + senders.map(function (name) {
+                return '<option value="' + esc(name) + '">' + esc(name) + ' (' + enNum(counts[name]) + ')</option>';
+            }).join('');
+            select.value = state.currentSender;
+        }
+
         function renderRepList() {
             var container = $('repListContainer');
             var rows = getOverviewRows();
@@ -785,11 +823,7 @@
                         var color = st === 'تم' ? 'text-emerald-500' : st === 'الغاء' ? 'text-red-500' : st === 'مؤجل' ? 'text-orange-500' : st === 'تعديل سعر' ? 'text-purple-500' : st === 'شحن' ? 'text-indigo-500' : 'text-amber-500';
                         return '<div class="p-2 rounded-lg bg-slate-50 dark:bg-slate-800/60 text-center"><div class="text-sm font-extrabold ' + color + '">' + enNum(c) + '</div><div class="text-[10px] font-bold text-slate-400">' + st + '</div></div>';
                     }).join('') + '</div>'
-                    + '<div class="grid grid-cols-3 gap-1.5 mt-1.5">'
-                    + '<div class="p-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-center"><div class="text-sm font-extrabold text-emerald-600 dark:text-emerald-400">' + money(r.paid) + '</div><div class="text-[10px] font-bold text-slate-400">المدفوع</div></div>'
-                    + '<div class="p-2 rounded-lg bg-sky-50 dark:bg-sky-900/20 text-center"><div class="text-sm font-extrabold text-sky-600 dark:text-sky-400">' + money(r.commission) + '</div><div class="text-[10px] font-bold text-slate-400">العمولة</div></div>'
-                    + '<div class="p-2 rounded-lg bg-rose-50 dark:bg-rose-900/20 text-center"><div class="text-sm font-extrabold text-rose-600 dark:text-rose-400">' + money(r.supply) + '</div><div class="text-[10px] font-bold text-slate-400">التوريد</div></div>'
-                    + '</div></div>' : '';
+                    + '</div>' : '';
 
                 return '<div class="rep-row border-b border-slate-100 dark:border-slate-800/60 py-3" data-name="' + esc(r.name) + '">'
                     + '<div class="flex items-center justify-between gap-2">'
@@ -843,6 +877,7 @@
 
         function renderOverview() {
             populateDailyOptions();
+            populateSenderOptions();
             updateArchiveModeBtnCount();
             /* بوابة العرض: لا تفاصيل قبل اختيار يومية */
             var noDaily = !state.currentDaily;
@@ -897,6 +932,12 @@
 
         $('ovDailySelect').addEventListener('change', function () {
             state.currentDaily = this.value;
+            state.currentSender = ''; // قائمة الراسل تعتمد على اليومية، فيجب تصفيرها عند تغييرها
+            renderOverview();
+        });
+
+        $('ovSenderSelect').addEventListener('change', function () {
+            state.currentSender = this.value;
             renderOverview();
         });
 
@@ -909,6 +950,7 @@
         window.toggleArchiveMode = function () {
             state.overviewMode = state.overviewMode === 'active' ? 'archived' : 'active';
             state.currentDaily = '';
+            state.currentSender = '';
             $('ovDailySelect').value = '';
             state.statusFilter = '';
             renderOverview();
