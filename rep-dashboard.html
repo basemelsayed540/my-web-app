@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="expires" content="0">
@@ -83,17 +83,23 @@
         .shipment-row .main { font-size: 0.95rem; font-weight: 700; }
         .shipment-row .sub { font-size: 0.8rem; font-weight: 500; color: #64748b; }
         .dark .shipment-row .sub { color: #94a3b8; }
-        .shipment-row .field-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; margin-left: 2px; }
+        .shipment-row .field-label { font-size: 10px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
         .dark .shipment-row .field-label { color: #64748b; }
-        .shipment-row .customer-name { color: #c2410c; }
-        .dark .shipment-row .customer-name { color: #818cf8; }
-        .shipment-row .detail-address { color: #0f766e; font-weight: 600; }
-        .dark .shipment-row .detail-address { color: #5eead4; }
-        .shipment-amount { font-weight: 800; color: #047857; }
-        .dark .shipment-amount { font-weight: 800; color: #34d399; }
+        .shipment-row .customer-name { font-size: 14px; font-weight: 700; color: #c2410c; }
+        .dark .shipment-row .customer-name { font-size: 14px; font-weight: 700; color: #818cf8; }
+        .shipment-row .detail-address { font-size: 12px; font-weight: 500; color: #0f766e; }
+        .dark .shipment-row .detail-address { font-size: 12px; font-weight: 500; color: #5eead4; }
+        .shipment-amount { font-size: 16px; font-weight: 700; color: #047857; }
+        .dark .shipment-amount { font-size: 16px; font-weight: 700; color: #34d399; }
         .archived-row { opacity: 0.5; }
         .dark .archived-row { opacity: 0.4; }
         .swal-dark .swal2-title { color: #f8fafc !important; }
+
+        .value-product { font-size: 14px; font-weight: 700; }
+        .value-sender { font-size: 12px; font-weight: 500; }
+        .value-notes { font-size: 11px; font-weight: 500; }
+        .value-amount { font-size: 16px; font-weight: 700; }
+        .status-badge { font-size: 14px; font-weight: 700; }
         .swal-dark .swal2-html-container { color: #cbd5e1 !important; }
         .swal-dark .swal2-validation-message { background: #1e293b; color: #f8fafc; }
         .empty-state { text-align: center; padding: 48px 24px; color: #94a3b8; line-height: 1.7; }
@@ -201,7 +207,7 @@
             .filter-row select { font-size: 0.7rem; padding: 5px 6px; }
             .shipment-row { padding: 14px 14px; }
             .shipment-row .main { font-size: 0.9rem; }
-            .shipment-row .field-label { font-size: 0.7rem; }
+            .shipment-row .field-label { font-size: 10px; }
         }
     </style>
 </head>
@@ -536,7 +542,7 @@
             if (!result.isConfirmed) return;
             const { name, phone, pass } = result.value;
             try {
-                const updates = { full_name: name, phone: phone };
+                const updates = { username: name, phone: phone };
                 if (pass) updates.password = pass;
                 const { error } = await supabaseClient
                     .from('users')
@@ -885,13 +891,13 @@
                     </div>
                     <div class="text-left">
                         <div class="main text-indigo-600 dark:text-indigo-400">${enNum(s['كود الشحنة'] || '-')}${isArchived ? ' <span class="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-full">📦 مؤرشفة</span>' : ''}</div>
-                        <div class="sub ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? 'text-green-500' : s['الحالة'] === 'قيد التوصيل' ? 'text-amber-500' : s['الحالة'] === 'مؤجل' ? 'text-orange-500' : s['الحالة'] === 'الغاء' ? 'text-red-500' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? 'text-indigo-500' : ''}" style="color: ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' : s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' : s['الحالة'] === 'مؤجل' ? '#f97316' : s['الحالة'] === 'الغاء' ? '#ef4444' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#ea580c' : ''} !important">${s['الحالة'] || '-'}</div>
+                        <div class="sub status-badge ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? 'text-green-500' : s['الحالة'] === 'قيد التوصيل' ? 'text-amber-500' : s['الحالة'] === 'مؤجل' ? 'text-orange-500' : s['الحالة'] === 'الغاء' ? 'text-red-500' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? 'text-indigo-500' : ''}" style="color: ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' : s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' : s['الحالة'] === 'مؤجل' ? '#f97316' : s['الحالة'] === 'الغاء' ? '#ef4444' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#ea580c' : ''} !important">${s['الحالة'] || '-'}</div>
                     </div>
                 </div>
                 <div class="mt-2 text-sm text-slate-500 space-y-1.5">
-                    <div><i class="fas fa-box ml-1.5"></i><span class="field-label">المنتج:</span>${enNum(s['المنتج'] || '-')}</div>
+                    <div><i class="fas fa-box ml-1.5"></i><span class="field-label">المنتج:</span><span class="value-product">${enNum(s['المنتج'] || '-')}</span></div>
                     <div><i class="fas fa-map-pin ml-1.5"></i><span class="field-label">العنوان:</span><span class="detail-address">${enNum(s['العنوان'] || '-')}</span></div>
-                    <div><i class="fas fa-layer-group ml-1.5"></i><span class="field-label">الزون:</span>${enNum(s['الزون'] || '-')} <span class="mr-4"><i class="fas fa-building ml-0.5"></i><span class="field-label">الراسل:</span>${enNum(s['الراسل'] || '-')}</span> <span class="mr-4"><i class="fas fa-money-bill ml-0.5"></i><span class="field-label">المبلغ:</span><span class="shipment-amount">${(['تم','تم التسليم','تعديل سعر','شحن'].includes(s['الحالة']||'') && s['المدفوع'] != null && s['المدفوع'] !== '') ? enNum(s['المدفوع']) : enNum(s['المبلغ'] || '0')}</span></span></div>
+                    <div><i class="fas fa-layer-group ml-1.5"></i><span class="field-label">الزون:</span>${enNum(s['الزون'] || '-')} <span class="mr-4"><i class="fas fa-building ml-0.5"></i><span class="field-label">الراسل:</span><span class="value-sender">${enNum(s['الراسل'] || '-')}</span></span> <span class="mr-4"><i class="fas fa-money-bill ml-0.5"></i><span class="field-label">المبلغ:</span><span class="shipment-amount">${(['تم','تم التسليم','تعديل سعر','شحن'].includes(s['الحالة']||'') && s['المدفوع'] != null && s['المدفوع'] !== '') ? enNum(s['المدفوع']) : enNum(s['المبلغ'] || '0')}</span></span></div>
                 </div>
                 ${finalHideActions ? '' : `
                 <div class="action-btns${actionsHidden ? ' hidden-actions' : ''}">

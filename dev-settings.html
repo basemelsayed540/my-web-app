@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="expires" content="0">
+    <title>إعدادات المطور | نظام الشحن</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>tailwind.config={darkMode:'class'}</script>
+    <script>(function(){try{var s=localStorage.getItem('shipment-theme');var d=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches;document.documentElement.classList.toggle('light-forced',s==='light'||(!s&&!d));}catch(e){}})();</script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <style>
+        * { font-family: 'Cairo', 'Tajawal', sans-serif; box-sizing: border-box; }
+        body { background: #f6f8fc; min-height: 100vh; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+        body.dark { background: #020617; }
+        .glass-card { background: #fff; border-radius: 1rem; border: 1px solid rgba(148,163,184,0.15); box-shadow: 0 2px 10px rgba(0,0,0,0.04); }
+        .dark .glass-card { background: #0f172a; border-color: rgba(148,163,184,0.1); box-shadow: 0 4px 20px rgba(0,0,0,0.25); }
+        .soft-input {
+            width: 100%;
+            min-height: 2.85rem;
+            padding: 0.65rem 0.9rem;
+            border-radius: 0.75rem;
+            border: 1px solid rgba(148,163,184,0.25);
+            background: #fff;
+            color: #0f172a;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+        .soft-input:focus {
+            outline: none;
+            border-color: rgba(234,88,12,0.5);
+            box-shadow: 0 0 0 4px rgba(234,88,12,0.1);
+        }
+        .dark .soft-input { background: #1e293b; color: #e2e8f0; border-color: rgba(148,163,184,0.18); }
+        .btn-primary {
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+            color: #fff;
+            font-weight: 800;
+            border: none;
+            border-radius: 0.8rem;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .btn-primary:hover { filter: brightness(1.08); }
+        .btn-ghost {
+            background: transparent;
+            border: 1px solid rgba(148,163,184,0.3);
+            color: #475569;
+            font-weight: 700;
+            border-radius: 0.8rem;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+        .dark .btn-ghost { color: #cbd5e1; border-color: rgba(148,163,184,0.2); }
+        .btn-ghost:hover { background: rgba(148,163,184,0.12); }
+        .ltr { direction: ltr; text-align: left; }
+        .ltr::placeholder { text-align: right; }
+        .danger-text { color: #ef4444; }
+        .dark .swal2-popup { background:#1e293b!important; color:#e2e8f0!important; }
+        .dark .swal2-title { color:#f1f5f9!important; }
+        .dark .swal2-html-container { color:#cbd5e1!important; }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-200 transition-colors duration-300">
+
+    <!-- شاشة القفل: تُعرض حتى يتم التحقق بهوية المطور -->
+    <div id="lockScreen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="glass-card p-6 sm:p-8 rounded-[2rem] w-full max-w-md">
+            <div class="flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4" style="background:linear-gradient(135deg,#c2410c,#0ea5e9);box-shadow:0 18px 44px rgba(194,65,12,.32)">
+                <i class="fas fa-code text-white text-2xl"></i>
+            </div>
+            <h1 class="text-2xl font-extrabold text-center text-slate-800 dark:text-white mb-1">إعدادات المطور</h1>
+            <p class="text-center text-slate-500 dark:text-slate-400 font-semibold mb-6 text-sm">هذه المنطقة مقصورة على المطور فقط</p>
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">رقم الموبايل</label>
+                    <input type="text" id="lockPhone" class="soft-input text-base" placeholder="019" autocomplete="off">
+                </div>
+                <div>
+                    <label class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">كلمة المرور</label>
+                    <div class="relative">
+                        <input type="password" id="lockPass" class="soft-input text-base pl-11" placeholder="••••" autocomplete="off">
+                        <button type="button" onclick="toggleLockPass()" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200" style="background:none;border:none;padding:0;cursor:pointer"><i class="fas fa-eye"></i></button>
+                    </div>
+                </div>
+                <button id="lockBtn" onclick="tryUnlock()" class="btn-primary w-full py-4 text-lg flex items-center justify-center gap-2">
+                    <span>الدخول</span><i class="fas fa-lock-open"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- لوحة الإعدادات: تظهر فقط بعد التحقق -->
+    <div id="settingsPanel" class="hidden max-w-3xl mx-auto p-4 sm:p-6">
+        <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
+            <div class="flex items-center gap-3">
+                <div class="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style="background:linear-gradient(135deg,#ea580c,#c2410c);box-shadow:0 8px 20px rgba(234,88,12,.28)">
+                    <i class="fas fa-code text-white"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-extrabold text-slate-800 dark:text-white">إعدادات المطور</h1>
+                    <p class="text-xs text-slate-500 dark:text-slate-400 font-semibold">ربط قواعد البيانات • الحقول الحسّاسة</p>
+                </div>
+            </div>
+            <button onclick="logoutDev()" class="btn-ghost text-sm flex items-center gap-2"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+        </div>
+
+        <div class="glass-card p-5 rounded-2xl mb-4">
+            <div class="flex items-center gap-2 mb-1">
+                <i class="fas fa-triangle-exclamation text-amber-500"></i>
+                <h2 class="font-extrabold text-slate-800 dark:text-white">تنبيه</h2>
+            </div>
+            <p class="text-sm text-slate-600 dark:text-slate-400 font-semibold leading-6">
+                تغيير هذه الإعدادات يؤثر على <span class="font-extrabold text-slate-800 dark:text-white">جميع صفحات النظام</span> (المدير، تسكين الشحنات، المناديب، المتابعة، البث المباشر). تُحفظ القيم مُشفّرة بالـ Base64 (قابلة للفك من أدوات المطوّر — ليست تشفيراً حقيقياً) وتُطبّق عند تحميل أي صفحة. <span class="font-extrabold text-rose-600 dark:text-rose-400">اختبار الاتصال إلزامي قبل الحفظ</span>، ولا تضع مفتاح service_role أبداً ولا تشارك المفاتيح مع أحد.
+            </p>
+        </div>
+
+        <form id="settingsForm" class="glass-card p-5 rounded-2xl space-y-5">
+            <div>
+                <label for="fApiUrl" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">
+                    <i class="fas fa-globe text-orange-600 ml-1"></i> API URL
+                    <span id="stApiUrl" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
+                </label>
+                <input type="text" id="fApiUrl" class="soft-input text-sm ltr" dir="ltr" placeholder="https://xxxx.supabase.co" autocomplete="off">
+                <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">رابط مشروع Supabase (https://[project-ref].supabase.co)</p>
+            </div>
+
+            <div>
+                <label for="fAnonKey" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">
+                    <i class="fas fa-key text-orange-600 ml-1"></i> Anon Public Key
+                    <span id="stAnonKey" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
+                </label>
+                <div class="relative">
+                    <input type="password" id="fAnonKey" class="soft-input text-sm ltr" dir="ltr" placeholder="eyJhbGciOi..." autocomplete="off" spellcheck="false">
+                    <button type="button" onclick="toggleKeyVis('fAnonKey', this)" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300" style="background:none;border:none;padding:0;cursor:pointer"><i class="fas fa-eye"></i></button>
+                </div>
+                <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">المفتاح العام (anon / public) لمشروع Supabase — يُرفض مفتاح service_role تلقائياً</p>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                    <label for="fTableShip" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">
+                        <i class="fas fa-table text-sky-600 ml-1"></i> جدول الشحنات
+                        <span id="stTableShip" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
+                    </label>
+                    <input type="text" id="fTableShip" class="soft-input text-sm ltr" dir="ltr" placeholder="invoices" autocomplete="off">
+                    <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">اسم جدول الشحنات في القاعدة</p>
+                </div>
+                <div>
+                    <label for="fTableUser" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">
+                        <i class="fas fa-users text-indigo-600 ml-1"></i> جدول اليوزر
+                        <span id="stTableUser" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
+                    </label>
+                    <input type="text" id="fTableUser" class="soft-input text-sm ltr" dir="ltr" placeholder="users" autocomplete="off">
+                    <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">اسم جدول المستخدمين في القاعدة</p>
+                </div>
+            </div>
+
+            <div class="pt-2 border-t border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-2 mb-3">
+                    <i class="fas fa-palette text-orange-600"></i>
+                    <h3 class="font-extrabold text-slate-800 dark:text-white">الهوية البصرية</h3>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label for="fSystemName" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">
+                            <i class="fas fa-signature text-orange-600 ml-1"></i> اسم النظام
+                            <span id="stSystemName" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
+                        </label>
+                        <input type="text" id="fSystemName" class="soft-input text-sm ml-2" maxlength="40" placeholder="لايت شبينج" autocomplete="off">
+                        <button type="button" onclick="saveSystemName()" class="btn-ghost text-sm px-4 py-2 mt-1 align-middle"><i class="fas fa-check"></i> حفظ الاسم</button>
+                        <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">اسم يظهر في شاشة تسجيل الدخول فقط. حد أقصى 40 حرفاً.</p>
+                    </div>
+
+                    <div>
+                        <label for="fSystemColor" class="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-2 mr-1">
+                            <i class="fas fa-paint-roller text-orange-600 ml-1"></i> اللون الأساسي
+                            <span id="stSystemColor" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
+                        </label>
+                        <div class="grid grid-cols-[1fr_auto] gap-3 items-center">
+                            <input type="text" id="fSystemColor" class="soft-input text-sm ltr" dir="ltr" maxlength="7" placeholder="#ea580c" autocomplete="off" spellcheck="false">
+                            <input type="color" id="fSystemColorPicker" value="#ea580c" class="w-12 h-12 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent cursor-pointer p-1">
+                        </div>
+                        <div class="flex items-center gap-3 mt-3">
+                            <div class="flex-1 h-11 rounded-lg flex items-center justify-center font-extrabold text-white text-sm" id="colorPreview" style="background:linear-gradient(135deg,#ea580c,#c2410c)">
+                                <span id="colorPreviewText">معاينة اللون</span>
+                            </div>
+                            <button type="button" onclick="saveSystemColor()" class="btn-primary text-sm flex items-center gap-2 shrink-0 px-4">
+                                <i class="fas fa-check"></i> حفظ اللون
+                            </button>
+                            <button type="button" onclick="resetColorDefault()" class="btn-ghost text-sm flex items-center gap-2 shrink-0">
+                                <i class="fas fa-rotate"></i> استعادة الافتراضي
+                            </button>
+                        </div>
+                        <p class="text-xs text-slate-400 font-semibold mt-2 mr-1">صيغة Hex فقط (مثل #ea580c). يُطبَّق على العناصر التي تعتمد على المتغيرات المركزية في النظام؛ بعض العناصر ذات الألوان الثابتة داخل صفحات معيّنة لن تتغير.</p>
+                        <p class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1 mr-1">التغييرات محلية في هذا المتصفح فقط، ولا تُنقل لبقية المستخدمين.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="rounded-xl border border-slate-200 dark:border-slate-700 p-3">
+                <div class="flex flex-col sm:flex-row gap-2">
+                    <button type="button" id="testBtn" onclick="testConnection()" class="btn-ghost flex-1 text-base flex items-center justify-center gap-2">
+                        <i class="fas fa-plug"></i> اختبار الاتصال
+                    </button>
+                    <button type="button" id="testBtn2" onclick="testConnection(true)" class="btn-ghost flex-1 text-base flex items-center justify-center gap-2">
+                        <i class="fas fa-flask"></i> اختبار وحفظ فوراً
+                    </button>
+                </div>
+                <p id="testResult" class="hidden text-sm font-bold mt-2 mr-1 leading-6"></p>
+                <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">يجب أن ينجح الاختبار قبل حفظ الإعدادات. الاختبار يتحقق من صحة الرابط والمفتاح ووجود الجدولين.</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                <button type="submit" id="saveBtn" disabled class="btn-primary flex-1 text-lg flex items-center justify-center gap-2 opacity-60 cursor-not-allowed">
+                    <i class="fas fa-save"></i> حفظ التغييرات
+                </button>
+                <button type="button" onclick="resetDefaults()" class="btn-ghost flex-1 text-lg flex items-center justify-center gap-2">
+                    <i class="fas fa-rotate-left"></i> استعادة الافتراضي
+                </button>
+            </div>
+        </form>
+
+        <div class="text-center mt-6">
+            <p class="text-xs text-slate-400 font-bold">© 2026 نظام الشحن المتطور — إعدادات المطور</p>
+        </div>
+    </div>
+
+    <script src="assets/js/shipment-config.js"></script>
+    <script>
+        // كل هذه التوابع تترابط مع shipment-config.js المحمّل أعلاه (CONFIG, DEV_PHONE, DEV_PASS, _enc, _dec)
+
+        var devUnlocked = false;
+
+        function toggleLockPass() {
+            var inp = document.getElementById('lockPass');
+            var icon = document.querySelector('#lockPass ~ button i');
+            if (inp.type === 'password') { inp.type = 'text'; if (icon) icon.className = 'fas fa-eye-slash'; }
+            else { inp.type = 'password'; if (icon) icon.className = 'fas fa-eye'; }
+        }
+
+        function toggleKeyVis(id, btn) {
+            var inp = document.getElementById(id);
+            var icon = btn.querySelector('i');
+            if (inp.type === 'password') { inp.type = 'text'; icon.className = 'fas fa-eye-slash'; }
+            else { inp.type = 'password'; icon.className = 'fas fa-eye'; }
+        }
+
+        function tryUnlock() {
+            var phone = (document.getElementById('lockPhone').value || '').trim();
+            var pass = document.getElementById('lockPass').value || '';
+            var btn = document.getElementById('lockBtn');
+            if (phone !== DEV_PHONE || pass !== DEV_PASS) {
+                document.getElementById('lockPass').value = '';
+                if (window.Swal) {
+                    Swal.fire({ icon: 'error', title: 'غير مصرح', text: 'بيانات المطور غير صحيحة.' });
+                }
+                return;
+            }
+            localStorage.setItem('dev_logged_in', 'true');
+            openPanel();
+        }
+
+        function openPanel() {
+            devUnlocked = true;
+            document.getElementById('lockScreen').classList.add('hidden');
+            document.getElementById('settingsPanel').classList.remove('hidden');
+            populateFields();
+        }
+
+        function readDevOverride(key) {
+            try {
+                var raw = localStorage.getItem(key);
+                if (!raw) return null;
+                return _dec(raw);
+            } catch (e) { return null; }
+        }
+
+        function populateFields() {
+            // القيم الحالية: إما override من localStorage أو القيم الافتراضية المتآتية من CONFIG
+            var url = readDevOverride('dev_supabase_url') || CONFIG.SUPABASE_URL;
+            var key = readDevOverride('dev_supabase_key') || CONFIG.SUPABASE_KEY;
+            var ts = readDevOverride('dev_table_shipments') || CONFIG.TABLES.SHIPMENTS;
+            var tu = readDevOverride('dev_table_users') || CONFIG.TABLES.USERS;
+            document.getElementById('fApiUrl').value = url;
+            document.getElementById('fAnonKey').value = key;
+            document.getElementById('fTableShip').value = ts;
+            document.getElementById('fTableUser').value = tu;
+
+            // اسم النظام + اللون الأساسي
+            var nm = readDevOverride('dev_system_name') || '';
+            document.getElementById('fSystemName').value = nm;
+            var color = readDevOverride('dev_system_color') || '#ea580c';
+            document.getElementById('fSystemColor').value = color;
+            var picker = document.getElementById('fSystemColorPicker');
+            if (picker) picker.value = /^#[0-9A-Fa-f]{6}$/.test(color) ? color : '#ea580c';
+            applyColorPreview();
+
+            updateStatusBadges();
+            clearTest();
+        }
+
+        function saveValue(key, value) {
+            try { localStorage.setItem(key, _enc(value)); }
+            catch (e) { throw new Error('تعذر الحفظ في التخزين المحلي.'); }
+        }
+
+        function removeOverride(keys) {
+            keys.forEach(function (k) { try { localStorage.removeItem(k); } catch (e) {} });
+        }
+
+        // ===== أدوات التحقق =====
+
+        function validateUrl(url) {
+            // يقبل فقط https://[محدد-المشروع].supabase.co حيث المحدد أحرف/أرقام وشرطات
+            if (!/^https:\/\/[a-z0-9][a-z0-9-]*\.supabase\.co$/.test(url)) return false;
+            return true;
+        }
+
+        function decodeJwtPayload(jwt) {
+            try {
+                var parts = jwt.split('.');
+                if (parts.length !== 3) return null;
+                var b64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+                while (b64.length % 4 !== 0) b64 += '=';
+                var json = decodeURIComponent(escape(atob(b64)));
+                return JSON.parse(json);
+            } catch (e) { return null; }
+        }
+
+        // يتحقق أن المفتاح صيغته JWT سليمة ويرفض service_role
+        function validateAnonKey(key) {
+            if (!key || key.split('.').length !== 3) return { ok: false, msg: 'صيغة المفتاح غير صحيحة (يجب أن يكون JWT مكوّن من 3 أجزاء).' };
+            var payload = decodeJwtPayload(key);
+            if (!payload) return { ok: false, msg: 'تعذّر فك المفتاح، تحقق من صيغته.' };
+            var role = String(payload.role || '').toLowerCase();
+            if (role === 'service_role') {
+                return { ok: false, msg: 'هذا مفتاح service_role! يُرفض لأسباب أمنية. استخدم المفتاح العام (anon / public) فقط.' };
+            }
+            return { ok: true };
+        }
+
+        function getFieldValues() {
+            return {
+                url: document.getElementById('fApiUrl').value.trim(),
+                key: document.getElementById('fAnonKey').value.trim(),
+                ts: document.getElementById('fTableShip').value.trim(),
+                tu: document.getElementById('fTableUser').value.trim()
+            };
+        }
+
+        function setResult(type, html) {
+            var el = document.getElementById('testResult');
+            el.classList.remove('hidden');
+            el.className = 'text-sm font-bold mt-2 mr-1 leading-6 ' +
+                (type === 'ok' ? 'text-emerald-600 dark:text-emerald-400' :
+                 type === 'warn' ? 'text-amber-600 dark:text-amber-400' : 'text-rose-600 dark:text-rose-400');
+            el.innerHTML = html;
+        }
+
+        function clearTest() {
+            var el = document.getElementById('testResult');
+            el.classList.add('hidden');
+            el.innerHTML = '';
+            disableSave(true);
+        }
+
+        function disableSave(disabled) {
+            var btn = document.getElementById('saveBtn');
+            btn.disabled = disabled;
+            if (disabled) { btn.classList.add('opacity-60', 'cursor-not-allowed'); }
+            else { btn.classList.remove('opacity-60', 'cursor-not-allowed'); }
+        }
+
+        // شارة تميز القيمة الافتراضية عن القيمة المخصّصة المحفوظة
+        function updateStatusBadges() {
+            var overrideNames = ['Url', 'AnonKey', 'TableShip', 'TableUser', 'SystemName', 'SystemColor'];
+            var overrides = {
+                Url: readDevOverride('dev_supabase_url'),
+                AnonKey: readDevOverride('dev_supabase_key'),
+                TableShip: readDevOverride('dev_table_shipments'),
+                TableUser: readDevOverride('dev_table_users'),
+                SystemName: readDevOverride('dev_system_name'),
+                SystemColor: readDevOverride('dev_system_color')
+            };
+            overrideNames.forEach(function (n) {
+                var badge = document.getElementById('st' + n);
+                if (!badge) return;
+                var isCustom = overrides[n] != null;
+                badge.classList.remove('hidden');
+                if (isCustom) {
+                    badge.textContent = 'مخصّص';
+                    badge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2 bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300';
+                } else {
+                    badge.textContent = 'افتراضي';
+                    badge.className = 'text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2 bg-slate-200 text-slate-600 dark:bg-slate-700 dark:text-slate-300';
+                }
+            });
+        }
+
+        // ===== الهوية البصرية: اسم النظام واللون الأساسي =====
+
+        function applyColorPreview() {
+            var hex = document.getElementById('fSystemColor').value.trim();
+            var preview = document.getElementById('colorPreview');
+            if (!preview) return;
+            if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                preview.style.background = 'linear-gradient(135deg,#ea580c,#c2410c)';
+                preview.style.color = '#fff';
+                document.getElementById('colorPreviewText').textContent = 'معاينة غير متاحة (صيغة خاطئة)';
+                return;
+            }
+            var rgb = hexToRgbArr(hex);
+            var dark = shadeHex(hex, -0.35);
+            preview.style.background = 'linear-gradient(135deg,' + hex + ',' + dark + ')';
+            preview.style.color = contrastRatio(rgb, [255,255,255]) >= 3 ? '#fff' : '#0f172a';
+            document.getElementById('colorPreviewText').textContent = hex.toUpperCase();
+        }
+
+        function hexToRgbArr(hex) {
+            var n = parseInt(hex.slice(1), 16);
+            return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+        }
+
+        function shadeHex(hex, pct) {
+            var c = hexToRgbArr(hex);
+            c = c.map(function (v) {
+                var r = Math.round(v * (1 + pct));
+                return Math.max(0, Math.min(255, r));
+            });
+            return '#' + ((1 << 24) + (c[0] << 16) + (c[1] << 8) + c[2]).toString(16).slice(1);
+        }
+
+        function lum(rgb) {
+            var f = function (v) {
+                v = v / 255;
+                return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+            };
+            return 0.2126 * f(rgb[0]) + 0.7152 * f(rgb[1]) + 0.0722 * f(rgb[2]);
+        }
+
+        function contrastRatio(a, b) {
+            var la = lum(a), lb = lum(b);
+            var hi = Math.max(la, lb), lo = Math.min(la, lb);
+            return (hi + 0.05) / (lo + 0.05);
+        }
+
+        function updateColorFromInput() {
+            var hex = document.getElementById('fSystemColor').value.trim();
+            var picker = document.getElementById('fSystemColorPicker');
+            if (/^#[0-9A-Fa-f]{6}$/.test(hex) && picker) picker.value = hex;
+            applyColorPreview();
+        }
+
+        function saveSystemName() {
+            if (!devUnlocked) return;
+            var name = document.getElementById('fSystemName').value.trim().slice(0, 40);
+            if (!name) {
+                Swal.fire({ icon: 'warning', title: 'الاسم مطلوب', text: 'أدخل اسم النظام أو امسح الحفظ الحالي بالاستعادة.' });
+                return;
+            }
+            var text = 'سيتم تطبيق اسم "' + name + '" على شاشة تسجيل الدخول (محلياً في هذا المتصفح فقط). متابعة؟';
+            Swal.fire({
+                title: 'تأكيد حفظ الاسم؟',
+                text: text,
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احفظ',
+                cancelButtonText: 'إلغاء'
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+                try {
+                    saveValue('dev_system_name', name);
+                    updateStatusBadges();
+                    Swal.fire({ icon: 'success', title: 'تم حفظ الاسم', text: 'سيظهر في شاشة تسجيل الدخول عند التحميل.', confirmButtonText: 'حسناً' });
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'فشل الحفظ', text: (err && err.message) || 'حدث خطأ.' });
+                }
+            });
+        }
+
+        function saveSystemColor() {
+            if (!devUnlocked) return;
+            var hex = document.getElementById('fSystemColor').value.trim();
+            if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
+                Swal.fire({ icon: 'error', title: 'صيغة غير صحيحة', text: 'أدخل اللون بصيغة Hex فقط، مثل #ea580c (6 أرقام/حروف).' });
+                return;
+            }
+            var rgb = hexToRgbArr(hex);
+            var cWhite = contrastRatio(rgb, [255,255,255]);
+            var cDark = contrastRatio(rgb, [2,6,23]);
+            if (cWhite < 3) {
+                Swal.fire({ icon: 'error', title: 'لون فاتح جداً', text: 'هذا اللون فاتح جداً وسيجعل النص الأبيض على الأزرار غير مقروء. اختر لوناً أغمق.' });
+                return;
+            }
+            if (cDark < 3) {
+                Swal.fire({ icon: 'error', title: 'تماسك ضعيف', text: 'هذا اللون قريب من لون الخلفية الداكنة وسيقلل القراءة. اختر لوناً أوضح.' });
+                return;
+            }
+            Swal.fire({
+                title: 'تأكيد حفظ اللون؟',
+                text: 'سيُطبَّق على العناصر المعتمدة على المتغيرات المركزية في النظام (محلياً في هذا المتصفح فقط). متابعة؟',
+                icon: 'question',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احفظ',
+                cancelButtonText: 'إلغاء'
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+                try {
+                    saveValue('dev_system_color', hex);
+                    updateStatusBadges();
+                    Swal.fire({ icon: 'success', title: 'تم حفظ اللون', text: 'سيُطبَّق على العناصر المركزية عند تحميل الصفحات.', confirmButtonText: 'حسناً' });
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'فشل الحفظ', text: (err && err.message) || 'حدث خطأ.' });
+                }
+            });
+        }
+
+        function resetColorDefault() {
+            if (!devUnlocked) return;
+            Swal.fire({
+                title: 'استعادة اللون الافتراضي؟',
+                text: 'سيُعاد اللون البرتقالي الأصلي #ea580c.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، استعد',
+                cancelButtonText: 'إلغاء'
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+                try { localStorage.removeItem('dev_system_color'); } catch (e) {}
+                document.getElementById('fSystemColor').value = '#ea580c';
+                var picker = document.getElementById('fSystemColorPicker');
+                if (picker) picker.value = '#ea580c';
+                applyColorPreview();
+                updateStatusBadges();
+                if (window.Swal) Swal.fire({ icon: 'success', title: 'تمت الاستعادة', text: 'عاد اللون الافتراضي.' });
+            });
+        }
+
+        (function bindVisualIdentity() {
+            var txt = document.getElementById('fSystemColor');
+            var picker = document.getElementById('fSystemColorPicker');
+            if (txt) txt.addEventListener('input', updateColorFromInput);
+            if (picker) picker.addEventListener('input', function () {
+                var hex = picker.value;
+                document.getElementById('fSystemColor').value = hex;
+                applyColorPreview();
+            });
+        })();
+
+        // اختبار الاتصال بالمشروع والجدولين
+        async function testConnection(autoSave) {
+            if (!devUnlocked) return;
+            var v = getFieldValues();
+            if (!v.url) { Swal.fire({ icon: 'warning', title: 'API URL مطلوب', text: 'أدخل رابط المشروع أولاً.' }); return; }
+            if (!v.key) { Swal.fire({ icon: 'warning', title: 'المفتاح مطلوب', text: 'أدخل Anon Public Key أولاً.' }); return; }
+            if (!v.ts) { Swal.fire({ icon: 'warning', title: 'جدول الشحنات مطلوب', text: 'أدخل اسم جدول الشحنات.' }); return; }
+            if (!v.tu) { Swal.fire({ icon: 'warning', title: 'جدول اليوزر مطلوب', text: 'أدخل اسم جدول اليوزر.' }); return; }
+
+            if (!validateUrl(v.url)) {
+                setResult('err', '<i class="fas fa-xmark"></i> رابط غير صالح: يجب أن يكون بالصيغة <b>https://[project-ref].supabase.co</b>');
+                disableSave(true);
+                return;
+            }
+            var keyCheck = validateAnonKey(v.key);
+            if (!keyCheck.ok) {
+                setResult('err', '<i class="fas fa-xmark"></i> المفتاح مرفوض: ' + keyCheck.msg);
+                disableSave(true);
+                return;
+            }
+
+            var btn = document.getElementById('testBtn');
+            var old = btn.innerHTML;
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الاختبار...';
+            setResult('warn', '<i class="fas fa-spinner fa-spin"></i> جارٍ التحقق من الاتصال والجدولين...');
+            disableSave(true);
+
+            try {
+                var tables = [
+                    { name: v.ts, label: 'جدول الشحنات' },
+                    { name: v.tu, label: 'جدول اليوزر' }
+                ];
+                var okTables = [];
+                var failed = [];
+                for (var i = 0; i < tables.length; i++) {
+                    var url2 = v.url.replace(/\/+$/, '') + '/rest/v1/' + encodeURIComponent(tables[i].name) + '?select=*&limit=1';
+                    var resp = await fetch(url2, {
+                        method: 'GET',
+                        headers: {
+                            'apikey': v.key,
+                            'Authorization': 'Bearer ' + v.key,
+                            'Accept': 'application/json'
+                        }
+                    });
+                    if (resp.ok) { okTables.push(tables[i].label + ' ✓'); }
+                    else { failed.push(tables[i].label + ' (HTTP ' + resp.status + ')'); }
+                }
+
+                if (failed.length === 0) {
+                    setResult('ok', '<i class="fas fa-circle-check"></i> نجح الاتصال: ' + okTables.join(' • '));
+                    disableSave(false);
+                    if (autoSave) {
+                        saveConfirmed(v);
+                    }
+                } else {
+                    setResult('err', '<i class="fas fa-xmark"></i> فشل الاختبار: ' + failed.join(' • ') + ' — تحقق من الرابط والمفتاح وأسماء الجداول.');
+                    disableSave(true);
+                }
+            } catch (err) {
+                setResult('err', '<i class="fas fa-xmark"></i> تعذّر الوصول للخادم: ' + (err && err.message ? err.message : 'خطأ شبكة').replace(/</g, '&lt;'));
+                disableSave(true);
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = old;
+            }
+        }
+
+        function saveConfirmed(v) {
+            // تأكيد ثانٍ قبل الكتابة فوق إعدادات الإنتاج
+            Swal.fire({
+                title: 'تأكيد الحفظ؟',
+                text: 'سيتم التطبيق الفوري على جميع صفحات النظام لهذا المتصفح. هل تريد المتابعة؟',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، احفظ',
+                cancelButtonText: 'إلغاء'
+            }).then(function (res) {
+                if (!res.isConfirmed) return;
+                var btn = document.getElementById('saveBtn');
+                var old = btn.innerHTML;
+                btn.disabled = true;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جارٍ الحفظ...';
+                try {
+                    saveValue('dev_supabase_url', v.url);
+                    saveValue('dev_supabase_key', v.key);
+                    saveValue('dev_table_shipments', v.ts);
+                    saveValue('dev_table_users', v.tu);
+                    updateStatusBadges();
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'تم الحفظ بنجاح',
+                        text: 'أعد تحميل الصفحات لتطبيق الإعدادات الجديدة.',
+                        confirmButtonText: 'حسناً'
+                    });
+                } catch (err) {
+                    Swal.fire({ icon: 'error', title: 'فشل الحفظ', text: (err && err.message) || 'حدث خطأ أثناء الحفظ.' });
+                } finally {
+                    btn.disabled = false;
+                    btn.innerHTML = old;
+                }
+            });
+        }
+
+        document.getElementById('settingsForm').addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (!devUnlocked) return;
+            // زر الحفظ لا يُفعّل إلا بعد نجاح اختبار الاتصال
+            var btn = document.getElementById('saveBtn');
+            if (btn.disabled) {
+                Swal.fire({
+                    icon: 'info',
+                    title: 'اختبار الاتصال أولاً',
+                    text: 'يجب نجاح "اختبار الاتصال" قبل حفظ الإعدادات. استخدم الزر ثم احفظ.',
+                    confirmButtonText: 'حسناً'
+                });
+                return;
+            }
+            saveConfirmed(getFieldValues());
+        });
+
+        function resetDefaults() {
+            if (!devUnlocked) return;
+            if (!window.Swal) { doReset(); return; }
+            Swal.fire({
+                title: 'استعادة الافتراضي؟',
+                text: 'سيتم مسح جميع التعديلات والعودة لإعدادات الكود الافتراضية المضمّنة.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'نعم، استعد',
+                cancelButtonText: 'إلغاء'
+            }).then(function (res) {
+                if (res.isConfirmed) doReset();
+            });
+        }
+
+        function doReset() {
+            removeOverride(['dev_supabase_url', 'dev_supabase_key', 'dev_table_shipments', 'dev_table_users', 'dev_system_name', 'dev_system_color']);
+            populateFields();
+            updateStatusBadges();
+            clearTest();
+            if (window.Swal) {
+                Swal.fire({ icon: 'success', title: 'تمت الاستعادة', text: 'عادت جميع الإعدادات للقيم الافتراضية المضمّنة.' });
+            }
+        }
+
+        function logoutDev() {
+            try { localStorage.removeItem('dev_logged_in'); } catch (e) {}
+            window.location.href = 'login.html';
+        }
+
+        // عند فتح الصفحة: إن وُجدت جلسة مطور صالحة تُفتح مباشرة، وإلا تبقى شاشة القفل
+        (function initDevPage() {
+            var isDev = false;
+            try { isDev = localStorage.getItem('dev_logged_in') === 'true'; } catch (e) {}
+            if (isDev) {
+                openPanel();
+            }
+        })();
+    </script>
+</body>
+</html>

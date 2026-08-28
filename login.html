@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="expires" content="0">
@@ -159,7 +159,7 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                     </svg>
                 </div>
-                <h1 class="text-3xl login-brand mb-2">بن نشات</h1>
+                <h1 id="loginBrand" class="text-3xl login-brand mb-2">لايت شبينج</h1>
             </div>
 
             <form id="loginForm" class="space-y-6 relative">
@@ -254,6 +254,21 @@
         const loginForm = document.getElementById('loginForm');
         const loginBtn = document.getElementById('loginBtn');
         const rememberMeCheckbox = document.getElementById('rememberMe');
+
+        // اسم النظام: قراءة override المطوّر (آمن عبر textContent + حد أقصى + fallback)
+        (function applySystemBrand() {
+            var brand = document.getElementById('loginBrand');
+            if (!brand) return;
+            var custom = '';
+            try {
+                var raw = localStorage.getItem('dev_system_name');
+                if (raw) custom = _dec(raw);
+            } catch (e) {}
+            if (typeof custom !== 'string' || !custom.trim()) return; // fallback للاسم الأصلي
+            custom = custom.replace(/[<>&"']/g, '').trim().slice(0, 40);
+            if (!custom) return;
+            brand.textContent = custom; // textContent يمنع أي حقن HTML/سكريبت
+        })();
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedPhone = localStorage.getItem('savedPhone');
@@ -467,3 +482,4 @@
     </script>
 </body>
 </html>
+

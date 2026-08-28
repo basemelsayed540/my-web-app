@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html dir="rtl">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="Permissions-Policy" content="geolocation=(self), camera=(self), microphone=(), payment=(), usb=(), browsing-topics=()">
     <title>لوحة التحكم | نظام الإدارة المركزي</title>
@@ -3517,39 +3517,23 @@
             background: rgba(148, 163, 184, 0.1);
         }
 
-        /* ===== Housing Auto-Refresh Countdown Badge ===== */
-        .housing-refresh-badge {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            min-width: 18px;
-            height: 18px;
-            padding: 0 4px;
-            margin-inline-start: 4px;
-            font-size: 0.6rem;
-            font-weight: 700;
-            line-height: 1;
-            color: #64748b;
-            background: rgba(148, 163, 184, 0.12);
-            border-radius: 9px;
-            transition: opacity 0.3s, background 0.3s;
-            vertical-align: middle;
-            user-select: none;
+        /* تحسين مظهر عمود التمرير العام للصفحة في الوضع الداكن — إضافة معزولة، لا تمس أي تنسيق قائم */
+        [data-bs-theme="dark"] ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
         }
-        .housing-refresh-badge.near-zero {
-            color: #f59e0b;
-            background: rgba(245, 158, 11, 0.12);
+        [data-bs-theme="dark"] ::-webkit-scrollbar-track {
+            background: #0f172a;
         }
-        .housing-refresh-badge.refreshing {
-            opacity: 0;
+        [data-bs-theme="dark"] ::-webkit-scrollbar-thumb {
+            background: #ea580c;
+            border-radius: 8px;
         }
-        [data-bs-theme="dark"] .housing-refresh-badge {
-            color: #94a3b8;
-            background: rgba(148, 163, 184, 0.1);
+        [data-bs-theme="dark"] ::-webkit-scrollbar-thumb:hover {
+            background: #c2410c;
         }
-        [data-bs-theme="dark"] .housing-refresh-badge.near-zero {
-            color: #fbbf24;
-            background: rgba(251, 191, 36, 0.1);
+        [data-bs-theme="dark"] {
+            scrollbar-color: #ea580c #0f172a;
         }
     </style>
 </head>
@@ -3946,12 +3930,6 @@
                                     <i class="fas fa-save me-1"></i> حفظ
                                     <span class="badge bg-white text-primary housing-save-count ms-1"
                                         id="housingChangesBadge">0</span>
-                                </button>
-                                <button type="button" id="housingRefreshBtn"
-                                    class="btn btn-outline-secondary rounded-pill fw-bold shadow-sm flex-shrink-0 px-3"
-                                    onclick="housingManualRefresh()" title="تحديث البيانات">
-                                    <i class="fas fa-sync-alt me-1"></i> تحديث
-                                    <span class="housing-refresh-badge" id="housingRefreshBadge">60</span>
                                 </button>
                                 <input id="housingSearch" type="text"
                                     class="form-control rounded-pill border-secondary"
@@ -4506,6 +4484,7 @@
 
         let allShipments = [];
         let currentDailyFilter = '';
+        const dailyShipmentsCache = new Map();
         let originalShipments = new Map();
         let bulkModalShipments = [];
         let housingDashStatFilter = ''; // Dashboard stat filter
@@ -4621,7 +4600,6 @@
                 } else {
                     const created = await invokeUsersAdminAction('admin_upsert_user', {
                         username: `GPS Enforcement: ${repName || userId}`,
-                        full_name: `GPS Enforcement: ${repName || userId}`,
                         phone: getRepGpsEnforcementSystemPhone(userId),
                         email: getRepGpsEnforcementSystemEmail(userId),
                         role: 'admin',
@@ -4698,7 +4676,7 @@
                 await syncGpsEnforcementStateFromUsers();
                 populateQrRepList();
                 if (currentDailyFilter) {
-                    await fetchShipments(currentDailyFilter);
+                    await fetchShipments(currentDailyFilter, true);
                 }
                 refreshDashboard();
                 if (localStorage.getItem('adminActiveSection') === 'housing') {
@@ -4729,7 +4707,7 @@
                 .channel('global-shipment-changes')
                 .on('postgres_changes', { event: '*', schema: 'public', table: CONFIG.TABLES.SHIPMENTS }, async (payload) => {
                     if (currentDailyFilter) {
-                        await fetchShipments(currentDailyFilter);
+                        await fetchShipments(currentDailyFilter, true);
                         const activeSection = localStorage.getItem('adminActiveSection') || 'housing';
                         if (activeSection === 'housing') {
                             renderHousingSection();
@@ -4824,12 +4802,23 @@
             }
         }
 
-        async function fetchShipments(dailyFilter) {
+        async function fetchShipments(dailyFilter, forceRefresh = false) {
             if (!dailyFilter) {
                 allShipments = [];
                 allShipmentsById = new Map();
                 currentDailyFilter = '';
                 markHousingDataChanged();
+                return;
+            }
+            if (!forceRefresh && dailyShipmentsCache.has(dailyFilter)) {
+                const cached = dailyShipmentsCache.get(dailyFilter);
+                allShipments = cached;
+                allShipmentsById = new Map(allShipments.map(s => [String(s.id), s]));
+                if (typeof populateGenStatsFilters === 'function') populateGenStatsFilters();
+                housingDuplicatePhoneFreq = null;
+                currentDailyFilter = dailyFilter;
+                markHousingDataChanged();
+                originalShipments = new Map(allShipments.map(s => [String(s.id), { المدفوع: s.المدفوع, الهاتف: s.الهاتف, هاتف_بديل: s['هاتف_بديل'], الحالة: s.الحالة, اسم_العميل: s.اسم_العميل, الراسل: s.الراسل }]));
                 return;
             }
             const pageSize = 1000;
@@ -4853,6 +4842,7 @@
                 from += pageSize;
             }
 
+            dailyShipmentsCache.set(dailyFilter, fetchedAll);
             allShipments = fetchedAll;
             allShipmentsById = new Map(allShipments.map(s => [String(s.id), s]));
             if (typeof populateGenStatsFilters === 'function') populateGenStatsFilters();
@@ -4867,7 +4857,7 @@
             if (dailyVal) {
                 showLoading(true);
                 try {
-                    await fetchShipments(dailyVal);
+                    await fetchShipments(dailyVal, true);
                     renderHousingSection();
                 } catch (error) {
                     console.error('Error refreshing housing data:', error);
@@ -8380,7 +8370,7 @@
             window.housingWriteOperationActive = true;
 
             const extractMissingSchemaColumn = (message) => {
-                const match = String(message || '').match(/Could not find the '([^']+)' column of 'abdo'/);
+                const match = String(message || '').match(/Could not find the '([^']+)' column of 'invoices'/);
                 return match ? match[1] : '';
             };
 
@@ -8551,6 +8541,9 @@
                                 const normalizedDate = normalizeExcelDateValue(val);
                                 if (normalizedDate) payload[k] = normalizedDate;
                                 else delete payload[k];
+                            }
+                            if (k === 'الراسل') {
+                                payload[k] = normalizeSenderName(val);
                             }
                         }
 
@@ -8769,7 +8762,7 @@
                         try {
                             await fetchAvailableDailyValues();
                             _populateDailySelects();
-                            if (currentDailyFilter) await fetchShipments(currentDailyFilter);
+                            if (currentDailyFilter) await fetchShipments(currentDailyFilter, true);
                             housingDataVersion++;
                             housingDisplayDataCache.clear();
                             housingFilteredResultsCache.clear();
@@ -9698,7 +9691,7 @@
                 هاتف_بديل: document.getElementById(`housing-alt-${id}`)?.value.trim() || '',
                 الزون: document.getElementById(`housing-zone-${id}`)?.value.trim() || '',
                 المنتج: document.getElementById(`housing-product-${id}`)?.value.trim() || '',
-                الراسل: document.getElementById(`housing-sender-${id}`)?.value.trim() || '',
+                الراسل: normalizeSenderName(document.getElementById(`housing-sender-${id}`)?.value || ''),
                 العنوان: document.getElementById(`housing-address-${id}`)?.value.trim() || '',
                 المبلغ: document.getElementById(`housing-amount-${id}`)?.value ?? '',
                 المدفوع: document.getElementById(`housing-adjusted-${id}`)?.value || null,
@@ -9888,7 +9881,7 @@
             }
 
             // احتساب الصافي تلقائياً:
-            // تم => المدفوع - الشحن | تعديل سعر => المبلغ - المدفوع - الشحن | باقي الحالات => المبلغ - الشحن
+            // تم => المدفوع - الشحن | تعديل سعر => المبلغ - المدفوع | باقي الحالات => المبلغ - الشحن
             const safiInp = document.getElementById(`housing-safi-${idStr}`);
             if (safiInp && !safiInp.disabled) {
                 const paidVal = parseHousingNumericValue(adjustedInp?.value || '');
@@ -9896,7 +9889,7 @@
                 let computedSafi;
                 if (statusVal === 'تعديل سعر') {
                     const amountVal = parseHousingNumericValue(document.getElementById(`housing-amount-${idStr}`)?.value || '');
-                    computedSafi = String(amountVal - paidVal - shippingVal);
+                    computedSafi = String(amountVal - paidVal);
                 } else if (statusVal === 'تم') {
                     computedSafi = String(paidVal - shippingVal);
                 } else {
@@ -10477,7 +10470,7 @@
                     const _paid = parseFloat(String(d.المدفوع ?? '').replace(/[^0-9.-]+/g, '')) || 0;
                     const _amount = parseFloat(String(d.المبلغ ?? '').replace(/[^0-9.-]+/g, '')) || 0;
                     if (rawStatus === 'تم') safiColumnSum += _paid - shippingCost;
-                    else if (rawStatus === 'تعديل سعر') safiColumnSum += _amount - _paid - shippingCost;
+                    else if (rawStatus === 'تعديل سعر') safiColumnSum += _amount - _paid;
                     else safiColumnSum += _amount - shippingCost;
                 }
             }
@@ -11648,8 +11641,8 @@
                             /* تم => المدفوع - الشحن */
                             val = String(parseHousingNumericValue(d.المدفوع ?? d['المدفوع']) - parseHousingNumericValue(d.الشحن ?? d['الشحن']));
                         } else if (_st === 'تعديل سعر') {
-                            /* تعديل سعر => المبلغ - المدفوع - الشحن */
-                            val = String(parseHousingNumericValue(d.المبلغ ?? d['المبلغ']) - parseHousingNumericValue(d.المدفوع ?? d['المدفوع']) - parseHousingNumericValue(d.الشحن ?? d['الشحن']));
+                            /* تعديل سعر => المبلغ - المدفوع */
+                            val = String(parseHousingNumericValue(d.المبلغ ?? d['المبلغ']) - parseHousingNumericValue(d.المدفوع ?? d['المدفوع']));
                         } else {
                             /* باقي الحالات => المبلغ - الشحن */
                             val = String(parseHousingNumericValue(d.المبلغ ?? d['المبلغ']) - parseHousingNumericValue(d.الشحن ?? d['الشحن']));
@@ -11894,7 +11887,7 @@
             const ship = parseHousingNumericValue(d.الشحن ?? d['الشحن']);
             const amount = parseHousingNumericValue(d.المبلغ ?? d['المبلغ']);
             if (st === 'تم') return paid - ship;
-            if (st === 'تعديل سعر') return amount - paid - ship;
+            if (st === 'تعديل سعر') return amount - paid;
             return amount - ship;
         }
         function getHousingExcelCellValue(s, idx) {
@@ -12562,7 +12555,7 @@
                 if (whProgressText) whProgressText.innerText = 'جاري التأكد من قاعدة البيانات...';
 
                 const dailyVal = currentDailyFilter || document.getElementById('housingEditDateFilterSelect')?.value;
-                if (dailyVal) await fetchShipments(dailyVal);
+                if (dailyVal) await fetchShipments(dailyVal, true);
                 housingDataVersion++;
                 housingDisplayDataCache.clear();
                 housingFilteredResultsCache.clear();
@@ -12912,7 +12905,7 @@
                 if (dlProgressText) dlProgressText.innerText = 'جاري التأكد من قاعدة البيانات...';
 
                 const dailyVal = currentDailyFilter || document.getElementById('housingEditDateFilterSelect')?.value;
-                if (dailyVal) await fetchShipments(dailyVal);
+                if (dailyVal) await fetchShipments(dailyVal, true);
                 housingDataVersion++;
                 housingDisplayDataCache.clear();
                 housingFilteredResultsCache.clear();
@@ -13537,7 +13530,7 @@
 
                 const { error: e2 } = await supabaseClient.from(CONFIG.TABLES.SHIPMENTS).update({ اليومية: value.daily }).eq('id', Number(value.id));
                 if (e2) { Swal.fire('خطأ', e2.message || 'فشل الإرجاع', 'error'); return; }
-                if (currentDailyFilter) { try { await fetchShipments(currentDailyFilter); } catch (e) { } }
+                if (currentDailyFilter) { try { await fetchShipments(currentDailyFilter, true); } catch (e) { } }
                 renderHousingSection();
                 const remaining = orphans.length - 1;
                 await Swal.fire({
@@ -14806,100 +14799,11 @@
             });
         }
 
-        /* =============================================================
-           HOUSING AUTO-REFRESH COUNTDOWN — Isolated Module
-           =============================================================
-           Added: 2026-07-13
-           To remove: delete everything between these comment markers
-           (from this block to the end of this module) and also:
-             - Remove the <span id="housingRefreshBadge"> from the button HTML
-             - Remove the .housing-refresh-badge CSS block
-             - Change onclick="housingManualRefresh()" back to onclick="refreshHousingData()"
-             - Remove id="housingRefreshBtn" from the button
-           ============================================================= */
-
-        (function () {
-            'use strict';
-
-            var HOUSING_REFRESH_INTERVAL = 60;
-            var housingAutoRefreshIntervalId = null;
-            var housingRefreshCountdown = HOUSING_REFRESH_INTERVAL;
-            var housingIsAutoRefreshing = false;
-            window.housingWriteOperationActive = false;
-
-            function isHousingSectionVisible() {
-                var el = document.getElementById('section-housing');
-                if (!el || el.style.display === 'none') return false;
-                if (typeof Swal !== 'undefined' && Swal.isVisible && Swal.isVisible()) return false;
-                return true;
-            }
-
-            function isUserTypingInHousingTable() {
-                var active = document.activeElement;
-                var table = document.getElementById('housingShipmentsTable');
-                return !!(active && table && table.contains(active) &&
-                          (active.tagName === 'INPUT' || active.tagName === 'SELECT' || active.tagName === 'TEXTAREA'));
-            }
-
-            function updateBadgeUI() {
-                var badge = document.getElementById('housingRefreshBadge');
-                if (!badge) return;
-                badge.textContent = housingRefreshCountdown;
-                badge.classList.toggle('near-zero', housingRefreshCountdown <= 10);
-            }
-
-            async function housingAutoRefreshSilent() {
-                if (housingIsAutoRefreshing) return;
-                housingIsAutoRefreshing = true;
-                try {
-                    var dailyVal = currentDailyFilter || document.getElementById('housingEditDateFilterSelect')?.value;
-                    if (dailyVal) {
-                        await fetchShipments(dailyVal);
-                        housingDataVersion++;
-                        housingDisplayDataCache.clear();
-                        housingFilteredResultsCache.clear();
-                        renderHousingSection();
-                    }
-                } catch (err) {
-                    console.warn('Housing auto-refresh failed:', err);
-                }
-                housingIsAutoRefreshing = false;
-            }
-
-            function housingAutoRefreshTick() {
-                if (!isHousingSectionVisible()) {
-                    housingRefreshCountdown = HOUSING_REFRESH_INTERVAL;
-                    updateBadgeUI();
-                    return;
-                }
-                housingRefreshCountdown--;
-                if (housingRefreshCountdown <= 0) {
-                    housingRefreshCountdown = HOUSING_REFRESH_INTERVAL;
-                    if (!window.housingWriteOperationActive && !isUserTypingInHousingTable()) {
-                        housingAutoRefreshSilent();
-                    }
-                }
-                updateBadgeUI();
-            }
-
-            function startHousingAutoRefreshCountdown() {
-                if (housingAutoRefreshIntervalId) {
-                    clearInterval(housingAutoRefreshIntervalId);
-                }
-                housingRefreshCountdown = HOUSING_REFRESH_INTERVAL;
-                updateBadgeUI();
-                housingAutoRefreshIntervalId = setInterval(housingAutoRefreshTick, 1000);
-            }
-
-            window.housingManualRefresh = function () {
-                refreshHousingData();
-                housingRefreshCountdown = HOUSING_REFRESH_INTERVAL;
-                updateBadgeUI();
-            };
-
-            startHousingAutoRefreshCountdown();
-        })();
 </script>
 </body>
 
 </html>
+
+
+
+

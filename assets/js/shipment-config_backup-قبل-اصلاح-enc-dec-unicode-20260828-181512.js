@@ -1,25 +1,6 @@
 ﻿const _salt = '__supa__';
-const _enc = function(s) {
-    // UTF-8 لدعم العربية وأي يونيكود (btoa الأصلي يدعم Latin-1 فقط فيفشل مع العربية)
-    try {
-        var bin = '';
-        new TextEncoder().encode(_salt + s).forEach(function(b) { bin += String.fromCharCode(b); });
-        return btoa(bin);
-    } catch (e) {
-        return btoa(_salt + s); // Fallback للمتصفحات القديمة جداً بلا TextEncoder (نصوص ASCII فقط)
-    }
-};
-const _dec = function(s) {
-    try {
-        var bin = atob(s);
-        var bytes = new Uint8Array(bin.length);
-        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i) & 0xff;
-        var decoded = new TextDecoder('utf-8').decode(bytes);
-        return decoded.indexOf(_salt) === 0 ? decoded.slice(_salt.length) : decoded;
-    } catch (e) {
-        return s; // بيانات تالفة/غير صحيحة => إرجاع القيمة كما هي (Fallback آمن، لا شاشة بيضاء)
-    }
-};
+const _enc = function(s) { return btoa(_salt + s); };
+const _dec = function(s) { try { var r = atob(s); return r.indexOf(_salt) === 0 ? r.slice(_salt.length) : r; } catch(e) { return s; } };
 
 const _b64 = {
     URL: 'aHR0cHM6Ly9ldnJxeGducXduZ29rdWtxZXJwcy5zdXBhYmFzZS5jbw==',

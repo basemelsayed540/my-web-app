@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="color-scheme" content="light dark">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="expires" content="0">
@@ -107,16 +107,12 @@
     <!-- Header -->
     <div class="flex items-center gap-2 sm:gap-3 mb-3">
         <div class="flex items-center gap-2 min-w-0">
-            <div class="hidden sm:flex items-center justify-center rounded-2xl bg-gradient-to-br from-indigo-600 to-sky-500 shadow-lg shrink-0" style="width:44px;height:44px">
-                <i class="fas fa-user-shield text-white text-lg"></i>
-            </div>
             <p class="hidden" aria-hidden="true">مرحباً، <span id="adminName">...</span></p>
         </div>
         <div id="adminTabs" role="tablist" class="flex items-center justify-center gap-1 sm:gap-2 flex-1 min-w-0 overflow-x-auto py-1">
             <button class="sidebar-tab shrink-0" data-tab="housing" onclick="showHousingTab()"><i class="fas fa-boxes-stacked"></i><span class="hidden sm:inline">تسكين الشحنات</span></button>
             <button class="sidebar-tab active shrink-0" data-tab="overview" onclick="switchTab('overview')"><i class="fas fa-chart-pie"></i><span class="hidden sm:inline">إحصائيات</span></button>
             <button class="sidebar-tab shrink-0" data-tab="accounts" onclick="switchTab('accounts')"><i class="fas fa-users"></i><span class="hidden sm:inline">حسابات</span></button>
-            <button class="sidebar-tab shrink-0" data-tab="archive" onclick="switchTab('archive')"><i class="fas fa-archive"></i><span class="hidden sm:inline">مؤرشفة</span></button>
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <button onclick="adminRefresh()" class="icon-btn" title="تحديث البيانات"><i class="fas fa-sync-alt" id="refreshIcon"></i></button>
@@ -139,6 +135,13 @@
                 <select id="ovSenderSelect" class="soft-input flex-1 min-w-[160px]" aria-label="اختيار الراسل" disabled><option value="">اختر اليومية أولاً</option></select>
                 <button onclick="toggleArchiveMode()" id="archiveModeBtn" class="filter-chip"><i class="fas fa-archive ml-1"></i> نشطة</button>
             </div>
+            <div id="ovArchivedDailyPicker" class="glass-card p-3 space-y-2" style="display:none;">
+                <div class="flex items-center justify-between gap-2 mb-1">
+                    <span class="text-xs font-bold text-slate-400" id="ovArchivedDailyCount">لم يتم اختيار أي يومية</span>
+                    <button type="button" onclick="clearArchivedDailySelection()" class="filter-chip">إلغاء التحديد</button>
+                </div>
+                <div id="ovArchivedDailyMonths" class="space-y-3 max-h-[360px] overflow-y-auto"></div>
+            </div>
             <div class="grid grid-cols-3 sm:grid-cols-6 gap-2" id="statusFilterRow"></div>
         </div>
 
@@ -150,7 +153,17 @@
             <div class="stat-card col-span-2"><div class="num text-rose-600 dark:text-rose-400" id="ovSupply">0</div><div class="label">التوريد (المدفوع − العمولة)</div><div class="breakdown" id="ovSupplyBreakdown"></div></div>
         </div>
 
-        <div id="ovDailyPlaceholder" class="glass-card p-6 text-center" style="display:none;">
+                <div class="glass-card p-4" id="ovRingsCard">
+            <h3 class="font-extrabold text-slate-800 dark:text-white mb-3 flex items-center gap-2 text-sm"><i class="fas fa-chart-pie text-indigo-500"></i> نسب الحالات</h3>
+            <div class="grid grid-cols-3 gap-3" id="archiveRings"></div>
+        </div>
+
+        <div class="glass-card p-4" id="ovDailyChartCard">
+            <h3 class="font-extrabold text-slate-800 dark:text-white mb-1 flex items-center gap-2 text-sm"><i class="fas fa-chart-bar text-emerald-500"></i> الشحنات اليومية</h3>
+            <p class="text-xs text-slate-400 font-semibold mb-3" id="barChartLabel"></p>
+            <div id="barChartContainer" class="w-full overflow-x-auto"></div>
+        </div>
+<div id="ovDailyPlaceholder" class="glass-card p-6 text-center" style="display:none;">
             <i class="fas fa-calendar-day text-4xl text-slate-300 dark:text-slate-600 mb-3" style="display:block;"></i>
             <p class="font-extrabold text-slate-700 dark:text-white mb-1">اختر اليومية أولاً</p>
             <p class="text-xs font-bold text-slate-400">لا تظهر تفاصيل الإحصائيات إلا بعد اختيار يومية من القائمة بالأعلى</p>
@@ -158,7 +171,8 @@
 
         <div class="glass-card p-3" id="ovRepsCard">
             <div class="flex items-center justify-between mb-3 gap-2">
-                <h3 class="font-extrabold text-slate-800 dark:text-white flex items-center gap-2 text-sm"><i class="fas fa-users text-indigo-500"></i> المناديب</h3>
+                <h3 class="font-extrabold text-slate-800 dark:text-white flex items-center gap-2 text-sm" id="ovRepsTitle"><i class="fas fa-users text-indigo-500"></i> المناديب</h3>
+            <button onclick="toggleRepViewMode()" id="repViewToggleBtn" class="filter-chip"><i class="fas fa-right-left ml-1"></i> عرض حسب الراسل</button>
                 <span class="text-xs font-bold text-slate-400" id="ovRepCount">0 مندوب</span>
             </div>
             <div class="flex gap-2 items-center mb-3">
@@ -194,32 +208,18 @@
         </div>
 
         <div id="userListContainer"></div>
-    </div>
-
-    <!-- ============ ARCHIVE ============ -->
-    <div id="tab-archive" class="hidden space-y-4">
-        <div class="glass-card p-3 space-y-2">
-            <label class="field-label mb-1" for="archiveMonthSelect">فلترة حسب الشهر</label>
-            <select id="archiveMonthSelect" class="soft-select w-full min-h-[44px]" aria-label="فلترة حسب الشهر">
-                <option value="">كل الشهور</option>
-            </select>
-            <div id="archiveDailiesList" class="space-y-1 pt-1"></div>
-        </div>
-
-        <div class="glass-card p-4">
-            <h3 class="font-extrabold text-slate-800 dark:text-white mb-3 flex items-center gap-2 text-sm"><i class="fas fa-chart-pie text-indigo-500"></i> نسب الحالات من إجمالي المؤرشف</h3>
-            <div class="grid grid-cols-3 gap-3" id="archiveRings"></div>
-        </div>
-
-        <div class="glass-card p-4">
-            <h3 class="font-extrabold text-slate-800 dark:text-white mb-1 flex items-center gap-2 text-sm"><i class="fas fa-chart-bar text-emerald-500"></i> الشحنات اليومية</h3>
-            <p class="text-xs text-slate-400 font-semibold mb-3" id="barChartLabel"></p>
-            <div id="barChartContainer" class="w-full overflow-x-auto"></div>
-        </div>
-
-        <div class="glass-card p-4">
-            <h3 class="font-extrabold text-slate-800 dark:text-white mb-3 flex items-center gap-2 text-sm"><i class="fas fa-trophy text-amber-500"></i> ترتيب أداء المناديب في المؤرشف</h3>
-            <div id="archiveRepsContainer"></div>
+        <div id="senderUnifyCard" class="glass-card p-4 space-y-3 hidden">
+            <h3 class="font-extrabold text-slate-800 dark:text-white flex items-center gap-2 text-sm">
+                <i class="fas fa-code-branch text-indigo-500"></i> توحيد أسماء الراسلين
+            </h3>
+            <p class="text-xs text-slate-400 font-semibold">
+                يكتشف القيم المتطابقة شكلاً (مسافات، همزة، حالة أحرف) ويعرضها للمراجعة قبل الدمج.
+            </p>
+            <button onclick="analyzeSenderGroups()" id="senderAnalyzeBtn" class="btn-primary text-sm min-h-[44px] flex items-center gap-2">
+                <i class="fas fa-search"></i> تحليل أسماء الراسلين
+            </button>
+            <div id="senderGroupsStatus" class="text-xs font-bold text-slate-400"></div>
+            <div id="senderGroupsList" class="space-y-2 max-h-[420px] overflow-y-auto"></div>
         </div>
     </div>
 
@@ -310,12 +310,13 @@
             shipments: [],
             users: [],
             currentDaily: '',
+            currentDailies: [], // تُستخدم فقط في وضع مؤرشفة (اختيار متعدد)
             currentSender: '',
             overviewMode: 'active', // active | archived
             statusFilter: '',
             repSearch: '',
             repSort: 'default',
-            expandedReps: {},
+            repViewMode: 'rep', // rep | sender
             userSearch: '',
             userRoleFilter: 'all',
             editingUserId: null,
@@ -460,7 +461,7 @@
 
         // ---------- Tabs ----------
         window.switchTab = function (tab) {
-            ['overview', 'accounts', 'archive', 'housing'].forEach(function (k) {
+            ['overview', 'accounts', 'housing'].forEach(function (k) {
                 var p = $('tab-' + k);
                 if (p) p.classList.add('hidden');
             });
@@ -472,7 +473,7 @@
             try { localStorage.setItem('adminDashboardTab', tab); } catch (e) { }
             if (tab === 'overview') renderOverview();
             if (tab === 'accounts') renderUserList();
-            if (tab === 'archive') renderArchive();
+
         };
 
         // ---------- Cache ----------
@@ -641,7 +642,11 @@
             var rows = state.shipments;
             if (state.overviewMode === 'active') rows = rows.filter(function (s) { return !isArchived(s); });
             else if (state.overviewMode === 'archived') rows = rows.filter(function (s) { return isArchived(s); });
-            if (state.currentDaily) {
+            if (state.overviewMode === 'archived') {
+                if (state.currentDailies.length) {
+                    rows = rows.filter(function (s) { return state.currentDailies.indexOf(s['اليومية'] || '') !== -1; });
+                }
+            } else if (state.currentDaily) {
                 var dv = state.currentDaily;
                 rows = rows.filter(function (s) { return (s['اليومية'] || '') === dv; });
             }
@@ -735,10 +740,76 @@
             select.value = state.currentDaily;
         }
 
+        function populateArchivedDailyMonths() {
+            var container = $('ovArchivedDailyMonths');
+            if (!container) return;
+
+            /* نفس منطق تحديد "اليومية المؤرشفة بالكامل" المستخدم في populateDailyOptions */
+            var totals = {}, archs = {};
+            state.shipments.forEach(function (s) {
+                var d = (s['اليومية'] || '').trim();
+                if (!d) return;
+                totals[d] = (totals[d] || 0) + 1;
+                if (isArchived(s)) archs[d] = (archs[d] || 0) + 1;
+            });
+            var archivedDays = Object.keys(totals).filter(function (d) { return archs[d] === totals[d]; });
+
+            /* تجميع اليوميات حسب الشهر باستخدام parseDate و locMonth الموجودتين بالفعل */
+            var months = {}; // key: "YYYY-MM" -> { label, days: [{name, count}] }
+            archivedDays.forEach(function (d) {
+                var dt = parseDate(d);
+                if (!dt) return;
+                var key = dt.y + '-' + (dt.m < 10 ? '0' : '') + dt.m;
+                if (!months[key]) months[key] = { label: locMonth(dt.m) + ' ' + enNum(dt.y), days: [] };
+                months[key].days.push({ name: d, count: totals[d] });
+            });
+
+            var monthKeys = Object.keys(months).sort().reverse();
+            if (!monthKeys.length) {
+                container.innerHTML = '<p class="text-xs font-bold text-slate-400 text-center py-4">لا توجد يوميات مؤرشفة</p>';
+                return;
+            }
+
+            container.innerHTML = monthKeys.map(function (mk) {
+                var month = months[mk];
+                month.days.sort(function (a, b) { return a.name.localeCompare(b.name, 'ar'); });
+                var allChecked = month.days.every(function (dd) { return state.currentDailies.indexOf(dd.name) !== -1; });
+                var daysHtml = month.days.map(function (dd) {
+                    var checked = state.currentDailies.indexOf(dd.name) !== -1 ? 'checked' : '';
+                    return '<label class="flex items-center justify-between gap-2 px-2 py-1.5 rounded-lg bg-slate-50 dark:bg-slate-800/60 text-xs font-bold cursor-pointer">'
+                        + '<span class="flex items-center gap-2"><input type="checkbox" class="archived-daily-checkbox" data-daily="' + esc(dd.name) + '" ' + checked + '> ' + esc(dd.name) + '</span>'
+                        + '<span class="text-slate-400 shrink-0">' + enNum(dd.count) + '</span></label>';
+                }).join('');
+                return '<div class="border border-slate-100 dark:border-slate-800 rounded-xl p-2">'
+                    + '<label class="flex items-center gap-2 font-extrabold text-slate-700 dark:text-white text-sm mb-2 cursor-pointer">'
+                    + '<input type="checkbox" class="archived-month-checkbox" data-month="' + mk + '" ' + (allChecked ? 'checked' : '') + '> ' + month.label
+                    + '</label>'
+                    + '<div class="space-y-1 pr-1">' + daysHtml + '</div></div>';
+            }).join('');
+
+            updateArchivedDailyCountLabel();
+        }
+
+        function updateArchivedDailyCountLabel() {
+            var el = $('ovArchivedDailyCount');
+            if (!el) return;
+            var n = state.currentDailies.length;
+            el.textContent = n ? (enNum(n) + ' يومية محددة') : 'لم يتم اختيار أي يومية';
+        }
+
+        window.clearArchivedDailySelection = function () {
+            state.currentDailies = [];
+            state.currentSender = '';
+            populateArchivedDailyMonths();
+            populateSenderOptions();
+            renderOverview();
+        };
+
         function populateSenderOptions() {
             var select = $('ovSenderSelect');
             if (!select) return;
-            if (!state.currentDaily) {
+            var hasSelection = state.overviewMode === 'archived' ? state.currentDailies.length > 0 : !!state.currentDaily;
+            if (!hasSelection) {
                 select.disabled = true;
                 select.innerHTML = '<option value="">اختر اليومية أولاً</option>';
                 return;
@@ -747,6 +818,7 @@
             var rows = state.shipments.filter(function (s) {
                 if (state.overviewMode === 'active' && isArchived(s)) return false;
                 if (state.overviewMode === 'archived' && !isArchived(s)) return false;
+                if (state.overviewMode === 'archived') return state.currentDailies.indexOf(s['اليومية'] || '') !== -1;
                 return (s['اليومية'] || '') === state.currentDaily;
             });
             var counts = {};
@@ -774,8 +846,8 @@
             // تجميع واحد لكل دورة رسم
             var repMap = {};
             rows.forEach(function (s) {
-                var name = String(s['المندوب'] || '').trim();
-                if (!name) return;
+                var groupField = state.repViewMode === 'sender' ? 'الراسل' : 'المندوب';
+                var name = String(s[groupField] || '').trim();
                 if (!repMap[name]) {
                     repMap[name] = { name: name, total: 0, delivered: 0, paid: 0, commission: 0, supply: 0, statuses: {} };
                 }
@@ -804,10 +876,11 @@
             else if (state.repSort === 'count-asc') list.sort(function (a, b) { return a.total - b.total; });
             else if (state.repSort === 'count-desc') list.sort(function (a, b) { return b.total - a.total; });
 
-            $('ovRepCount').textContent = enNum(list.length) + ' مندوب';
-
+            var unitLabel = state.repViewMode === 'sender' ? 'راسل' : 'مندوب';
+            $('ovRepCount').textContent = enNum(list.length) + ' ' + unitLabel;
             if (!list.length) {
-                container.innerHTML = emptyState('<i class="fas fa-users-slash text-4xl mb-3 opacity-40"></i><p class="font-bold">لا يوجد مندوبون</p>');
+                var emptyLabel = state.repViewMode === 'sender' ? 'لا يوجد راسلون' : 'لا يوجد مندوبون';
+                container.innerHTML = emptyState("<i class='fas fa-users-slash text-4xl mb-3 opacity-40'></i><p class='font-bold'>" + emptyLabel + "</p>");
                 return;
             }
 
@@ -877,11 +950,12 @@
 
         function renderOverview() {
             populateDailyOptions();
+            if (state.overviewMode === 'archived') populateArchivedDailyMonths();
             populateSenderOptions();
             updateArchiveModeBtnCount();
             /* بوابة العرض: لا تفاصيل قبل اختيار يومية */
-            var noDaily = !state.currentDaily;
-            ['ovCardsGrid', 'statusFilterRow', 'ovRepsCard'].forEach(function (id) {
+            var noDaily = state.overviewMode === 'archived' ? !state.currentDailies.length : !state.currentDaily;
+            ['ovCardsGrid', 'statusFilterRow', 'ovRingsCard', 'ovDailyChartCard', 'ovRepsCard'].forEach(function (id) {
                 var el = $(id);
                 if (el) el.style.display = noDaily ? 'none' : '';
             });
@@ -898,6 +972,9 @@
             $('ovSupply').textContent = money(agg.supply);
             $('ovSupplyBreakdown').textContent = 'شحنات محصّلة: ' + enNum(agg.collectedCount);
             renderStatusRow(agg);
+            var overviewRows = getOverviewRows();
+            renderArchiveRings(overviewRows, overviewRows.length);
+            renderBarChart(overviewRows);
             renderRepList();
         }
 
@@ -941,20 +1018,64 @@
             renderOverview();
         });
 
-        // فلتر شهر تبويب المؤرشف
-        $('archiveMonthSelect').addEventListener('change', function () {
-            state.archiveMonth = this.value;
-            renderArchive();
+        $('ovArchivedDailyMonths').addEventListener('change', function (e) {
+            var target = e.target;
+            if (target.classList.contains('archived-daily-checkbox')) {
+                var daily = target.getAttribute('data-daily');
+                var idx = state.currentDailies.indexOf(daily);
+                if (target.checked && idx === -1) state.currentDailies.push(daily);
+                else if (!target.checked && idx !== -1) state.currentDailies.splice(idx, 1);
+                state.currentSender = '';
+                populateArchivedDailyMonths();
+                populateSenderOptions();
+                renderOverview();
+            } else if (target.classList.contains('archived-month-checkbox')) {
+                var monthKey = target.getAttribute('data-month');
+                var monthContainer = target.closest('.border');
+                var checkboxesInMonth = monthContainer.querySelectorAll('.archived-daily-checkbox');
+                checkboxesInMonth.forEach(function (cb) {
+                    var daily = cb.getAttribute('data-daily');
+                    var idx = state.currentDailies.indexOf(daily);
+                    if (target.checked && idx === -1) state.currentDailies.push(daily);
+                    else if (!target.checked && idx !== -1) state.currentDailies.splice(idx, 1);
+                });
+                state.currentSender = '';
+                populateArchivedDailyMonths();
+                populateSenderOptions();
+                renderOverview();
+            }
         });
 
         window.toggleArchiveMode = function () {
             state.overviewMode = state.overviewMode === 'active' ? 'archived' : 'active';
             state.currentDaily = '';
+            state.currentDailies = [];
             state.currentSender = '';
             $('ovDailySelect').value = '';
             state.statusFilter = '';
+            var isArchived = state.overviewMode === 'archived';
+            $('ovDailySelect').style.display = isArchived ? 'none' : '';
+            $('ovArchivedDailyPicker').style.display = isArchived ? '' : 'none';
+            if (isArchived) populateArchivedDailyMonths();
             renderOverview();
         };
+        window.toggleRepViewMode = function () {
+            state.repViewMode = state.repViewMode === 'rep' ? 'sender' : 'rep';
+            state.expandedReps = {};
+            var btn = document.getElementById('repViewToggleBtn');
+            if (btn) {
+                btn.innerHTML = state.repViewMode === 'sender' ? '<i class="fas fa-users ml-1"></i> عرض حسب المندوب' : '<i class="fas fa-right-left ml-1"></i> عرض حسب الراسل';
+            }
+            var titleEl = document.getElementById('ovRepsTitle');
+            if (titleEl) {
+                titleEl.innerHTML = state.repViewMode === 'sender'
+                    ? '<i class="fas fa-truck-fast text-indigo-500"></i> الراسلين'
+                    : '<i class="fas fa-users text-indigo-500"></i> المناديب';
+            }
+            renderRepList();
+            renderOverview();
+        };
+
 
         // =================================================================
         // 2) ACCOUNTS
@@ -1180,14 +1301,14 @@
 
             try {
                 if (isEdit) {
-                    var payload = { full_name: name, phone: phone, email: email || null, role: role, approved: approved };
+                    var payload = { username: name, phone: phone, email: email || null, role: role, approved: approved };
                     if (password) payload.password = await hashPasswordIfNeeded(password);
                     var res = await supabaseClient.from(CONFIG.TABLES.USERS).update(payload).eq('id', state.editingUserId);
                     if (res.error) throw res.error;
                     toast('success', 'تم تحديث الحساب');
                 } else {
                     var newHash = await hashPassword(password);
-                    var payload = { username: name, full_name: name, phone: phone, email: email || null, role: role, approved: approved, password: newHash };
+                    var payload = { username: name, phone: phone, email: email || null, role: role, approved: approved, password: newHash };
                     var res = await supabaseClient.from(CONFIG.TABLES.USERS).insert([payload]).select().single();
                     if (res.error) throw res.error;
                     toast('success', 'تم إنشاء الحساب');
@@ -1238,15 +1359,7 @@
         }
 
         function renderArchive() {
-            // الفلترة الموحّدة: كل عناصر التبويب تشتغل على نفس المجموعة (المؤرشف + الشهر المختار)
-            var arch = filterArchiveByMonth(getArchiveShipments());
-            var total = arch.length;
-
             buildArchiveMonthOptions();
-            renderArchiveRings(arch, total);
-            renderBarChart(arch);
-            renderArchiveReps(arch, total);
-            renderArchiveDailies(arch);
         }
 
         // فلترة موحّدة تُستخدم من جميع عناصر تبويب المؤرشف (الحلقات/الشارت/المناديب/اليوميات)
@@ -1328,43 +1441,6 @@
             }).join('');
         }
 
-        function renderArchiveReps(arch, total) {
-            var container = $('archiveRepsContainer');
-            var repMap = {};
-            arch.forEach(function (s) {
-                var name = String(s['المندوب'] || '').trim();
-                if (!name) return;
-                if (!repMap[name]) repMap[name] = { name: name, total: 0, paid: 0, commission: 0, supply: 0 };
-                var r = repMap[name];
-                r.total++;
-                r.paid += parseFloat(s['المدفوع']) || 0;
-                r.commission += parseFloat(s['عمولة المندوب']) || 0;
-                r.supply = r.paid - r.commission;
-            });
-
-            var list = Object.keys(repMap).map(function (k) { return repMap[k]; });
-            if (!list.length) {
-                container.innerHTML = emptyState('<i class="fas fa-box-open text-4xl mb-3 opacity-40"></i><p class="font-bold">لا توجد شحنات مؤرشفة</p>');
-                return;
-            }
-            list.sort(function (a, b) { return b.total - a.total; });
-            var maxTotal = Math.max.apply(null, list.map(function (r) { return r.total; })) || 1;
-            var totalRows = list.reduce(function (s, r) { return s + r.total; }, 0);
-
-            container.innerHTML = list.map(function (r) {
-                var pctOfTotal = total ? Math.round((r.total / total) * 100) : 0;
-                var supplyPos = r.supply >= 0;
-                return '<div class="mb-4">'
-                    + '<div class="flex items-center justify-between text-sm mb-1 gap-2">'
-                    + '<span class="font-extrabold text-slate-800 dark:text-white truncate">' + esc(r.name) + '</span>'
-                    + '<span class="text-xs font-bold text-slate-400 shrink-0">' + enNum(r.total) + ' شحنة • ' + enNum(pctOfTotal) + '%</span></div>'
-                    + '<div class="progress-bar"><div class="fill" style="width:' + Math.round((r.total / maxTotal) * 100) + '%"></div></div>'
-                    + '<div class="flex items-center gap-2 mt-1.5 flex-wrap">'
-                    + '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold bg-sky-100 text-sky-700 dark:bg-sky-900/30 dark:text-sky-300">عمولة: ' + money(r.commission) + '</span>'
-                    + '<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-bold ' + (supplyPos ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300' : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300') + '">توريد: ' + money(r.supply) + '</span>'
-                    + '</div></div>';
-            }).join('');
-        }
 
         function renderBarChart(rows) {
             var dated = [];
@@ -1382,56 +1458,81 @@
                 return;
             }
 
-            // أحدث شهر متاح في البيانات
-            var latest = dated.reduce(function (a, b) { return (b.y * 100 + b.m) > (a.y * 100 + a.m) ? b : a; });
-
-            var cur = {}; // day -> count
-            var prev = {}; // day -> count (الشهر السابق)
-            var py = latest.m === 1 ? latest.y - 1 : latest.y;
-            var pm = latest.m === 1 ? 12 : latest.m - 1;
+            /* استخراج كل الشهور المختلفة الموجودة فعليًا في البيانات، من الأحدث للأقدم */
+            var monthKeySet = {};
             dated.forEach(function (d) {
-                if (d.y === latest.y && d.m === latest.m) cur[d.d] = (cur[d.d] || 0) + 1;
-                else if (d.y === py && d.m === pm) prev[d.d] = (prev[d.d] || 0) + 1;
+                var key = d.y * 100 + d.m;
+                monthKeySet[key] = { y: d.y, m: d.m };
+            });
+            var monthKeys = Object.keys(monthKeySet).map(Number).sort(function (a, b) { return b - a; });
+
+            var sectionsHtml = [];
+            var validSectionsCount = 0;
+
+            monthKeys.forEach(function (mk) {
+                var monthInfo = monthKeySet[mk];
+                var y = monthInfo.y, m = monthInfo.m;
+
+                var cur = {}; // day -> count
+                var prev = {}; // day -> count (الشهر السابق)
+                var py = m === 1 ? y - 1 : y;
+                var pm = m === 1 ? 12 : m - 1;
+                dated.forEach(function (d) {
+                    if (d.y === y && d.m === m) cur[d.d] = (cur[d.d] || 0) + 1;
+                    else if (d.y === py && d.m === pm) prev[d.d] = (prev[d.d] || 0) + 1;
+                });
+
+                var days = Object.keys(cur).map(Number).sort(function (a, b) { return a - b; });
+                if (!days.length) return; // لا توجد بيانات لهذا الشهر تحديدًا (احترازي)
+
+                validSectionsCount++;
+
+                var maxC = Math.max.apply(null, days.map(function (d) { return cur[d]; }).concat([1]));
+                var bw = 22, gap = 6;
+                var chartWidth = Math.max(days.length * (bw + gap) + 12, 340);
+                var H = 200;
+
+                var x = function (i) { return 6 + i * (bw + gap); };
+                var yBase = H - 20;
+                var barH = function (v) { return Math.max(2, (v / maxC) * (H - 44)); };
+
+                var bars = days.map(function (d, i) {
+                    var cVal = cur[d] || 0;
+                    var pVal = prev[d] || 0;
+                    var h = barH(cVal);
+                    var growth, growColor;
+                    if (pVal > 0) {
+                        growth = (cVal - pVal > 0 ? '+' : '') + Math.round(((cVal - pVal) / pVal) * 100) + '%';
+                        growColor = cVal >= pVal ? '#22c55e' : '#ef4444';
+                    } else {
+                        growth = cVal > 0 ? 'جديد' : '';
+                        growColor = '#22c55e';
+                    }
+                    return '<g>'
+                        + '<rect x="' + x(i) + '" y="' + (yBase - h) + '" width="' + bw + '" height="' + h + '" rx="4" fill="#ea580c"/>'
+                        + '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase - h - 6) + '" text-anchor="middle" font-size="9" font-weight="700" class="bar-text">' + enNum(cVal) + '</text>'
+                        + '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase + 14) + '" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="600">' + enNum(d) + '</text>'
+                        + (growth ? '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase + 25) + '" text-anchor="middle" font-size="8" font-weight="800" fill="' + growColor + '">' + growth + '</text>' : '')
+                        + '</g>';
+                }).join('');
+
+                sectionsHtml.push(
+                    '<div class="mb-4">'
+                    + '<p class="text-xs text-slate-400 font-semibold mb-2">شهر ' + locMonth(m) + ' ' + enNum(y) + ' — المقارنة مع نفس اليوم في الشهر السابق</p>'
+                    + '<svg viewBox="0 0 ' + chartWidth + ' ' + H + '" class="block" style="min-width:340px;width:' + chartWidth + 'px;height:' + H + 'px">' + bars + '</svg>'
+                    + '</div>'
+                );
             });
 
-            var days = Object.keys(cur).map(Number).sort(function (a, b) { return a - b; });
-            if (!days.length) {
+            if (!validSectionsCount) {
                 labelEl.textContent = 'لا توجد بيانات كافية';
-                container.innerHTML = emptyState('لا توجد شحنات بتاريخ صالح في آخر شهر');
+                container.innerHTML = emptyState('لا توجد شحنات بتاريخ صالح للعرض');
                 return;
             }
 
-            var maxC = Math.max.apply(null, days.map(function (d) { return cur[d]; }).concat([1]));
-            var bw = 22, gap = 6;
-            var chartWidth = Math.max(days.length * (bw + gap) + 12, 340);
-            var H = 200;
-
-            var x = function (i) { return 6 + i * (bw + gap); };
-            var yBase = H - 20;
-            var barH = function (v) { return Math.max(2, (v / maxC) * (H - 44)); };
-
-            var bars = days.map(function (d, i) {
-                var cVal = cur[d] || 0;
-                var pVal = prev[d] || 0;
-                var h = barH(cVal);
-                var growth, growColor;
-                if (pVal > 0) {
-                    growth = (cVal - pVal > 0 ? '+' : '') + Math.round(((cVal - pVal) / pVal) * 100) + '%';
-                    growColor = cVal >= pVal ? '#22c55e' : '#ef4444';
-                } else {
-                    growth = cVal > 0 ? 'جديد' : '';
-                    growColor = '#22c55e';
-                }
-                return '<g>'
-                    + '<rect x="' + x(i) + '" y="' + (yBase - h) + '" width="' + bw + '" height="' + h + '" rx="4" fill="#ea580c"/>'
-                    + '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase - h - 6) + '" text-anchor="middle" font-size="9" font-weight="700" class="bar-text">' + enNum(cVal) + '</text>'
-                    + '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase + 14) + '" text-anchor="middle" font-size="9" fill="#94a3b8" font-weight="600">' + enNum(d) + '</text>'
-                    + (growth ? '<text x="' + (x(i) + bw / 2) + '" y="' + (yBase + 25) + '" text-anchor="middle" font-size="8" font-weight="800" fill="' + growColor + '">' + growth + '</text>' : '')
-                    + '</g>';
-            }).join('');
-
-            labelEl.textContent = 'شهر ' + locMonth(latest.m) + ' ' + enNum(latest.y) + ' — المقارنة مع نفس اليوم في الشهر السابق';
-            container.innerHTML = '<svg viewBox="0 0 ' + chartWidth + ' ' + H + '" class="block" style="min-width:340px;width:' + chartWidth + 'px;height:' + H + 'px">' + bars + '</svg>';
+            /* العنوان أعلى القسم أصبح عامًا بدل تخصيصه لشهر واحد، لأن كل شهر له عنوانه الخاص أسفل شارته الآن */
+            labelEl.textContent = validSectionsCount > 1 ? (enNum(validSectionsCount) + ' شهور معروضة') : '';
+            container.innerHTML = sectionsHtml.join('');
         }
 
         // =================================================================
@@ -1440,7 +1541,7 @@
         function renderAll() {
             renderOverview();
             renderUserList();
-            renderArchive();
+
         }
 
         // إظهار التبويب الافتراضي (إحصائيات) عند التحميل
@@ -1453,7 +1554,7 @@
 <script>
     // تبويب تسكين الشحنات — إضافة معزولة، لا تمس أي وظيفة قائمة
     window.showHousingTab = function () {
-        ['overview', 'accounts', 'archive', 'housing'].forEach(function (k) {
+        ['overview', 'accounts', 'housing'].forEach(function (k) {
             var p = document.getElementById('tab-' + k);
             if (p) p.classList.add('hidden');
         });
@@ -1477,10 +1578,141 @@
         try { saved = localStorage.getItem('adminDashboardTab'); } catch (e) { }
         if (saved === 'housing') {
             window.showHousingTab();
-        } else if (saved === 'overview' || saved === 'accounts' || saved === 'archive') {
+        } else if (saved === 'overview' || saved === 'accounts' ) {
             window.switchTab(saved);
         }
     })();
 </script>
+
+<script>
+    // أداة توحيد أسماء الراسلين — إضافة معزولة، لا تمس أي وظيفة قائمة
+    (function () {
+        var user = null;
+        try { user = JSON.parse(localStorage.getItem('user') || 'null'); } catch (e) {}
+        var card = document.getElementById('senderUnifyCard');
+        if (!card) return;
+        if (user && user.role === 'admin') card.classList.remove('hidden');
+    })();
+
+    window._senderGroupsCache = [];
+
+    window.analyzeSenderGroups = async function () {
+        var btn = document.getElementById('senderAnalyzeBtn');
+        var statusEl = document.getElementById('senderGroupsStatus');
+        var listEl = document.getElementById('senderGroupsList');
+        try {
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> جاري التحليل...';
+            statusEl.textContent = 'جاري جلب البيانات...';
+            listEl.innerHTML = '';
+            var client = getSharedSupabaseClient();
+            var result = await client.from(CONFIG.TABLES.SHIPMENTS).select('الراسل').not('الراسل', 'is', null);
+            if (result.error) throw new Error(result.error.message);
+            var data = result.data || [];
+            var counts = {};
+            data.forEach(function (r) {
+                var raw = String(r['الراسl'] || '').trim();
+                if (!raw) return;
+                counts[raw] = (counts[raw] || 0) + 1;
+            });
+            var groups = {};
+            Object.keys(counts).forEach(function (raw) {
+                var key = normalizeSenderName(raw);
+                if (!key) return;
+                if (!groups[key]) groups[key] = {};
+                groups[key][raw] = counts[raw];
+            });
+            var candidates = Object.keys(groups).map(function (key) {
+                return { key: key, variants: groups[key] };
+            }).filter(function (g) {
+                return Object.keys(g.variants).length > 1;
+            }).sort(function (a, b) {
+                return Object.keys(b.variants).length - Object.keys(a.variants).length;
+            });
+            window._senderGroupsCache = candidates;
+            if (!candidates.length) {
+                statusEl.textContent = 'لا توجد مجموعات مكررة — كل الأسماء موحدة بالفعل.';
+                btn.innerHTML = '<i class="fas fa-check-circle"></i> تم';
+                return;
+            }
+            statusEl.textContent = candidates.length + ' مجموعة مرشحة للمراجعة.';
+            listEl.innerHTML = candidates.map(function (g, gi) {
+                var totalRows = Object.values(g.variants).reduce(function (a, b) { return a + b; }, 0);
+                var variantCount = Object.keys(g.variants).length;
+                var options = Object.keys(g.variants).map(function (v) {
+                    return '<label class="flex items-center gap-2 text-xs font-bold text-slate-600 dark:text-slate-300 cursor-pointer p-1 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800/60">'
+                        + '<input type="radio" name="sg-' + gi + '" value="' + esc(v) + '" ' + (v === Object.keys(g.variants)[0] ? 'checked' : '') + '>'
+                        + '<span>' + esc(v) + '</span>'
+                        + '<span class="text-slate-400 font-normal">(' + enNum(counts[v]) + ')</span>'
+                        + '</label>';
+                }).join('');
+                return '<div class="border rounded-xl p-3 space-y-2 bg-white dark:bg-slate-900/40" data-group="' + gi + '">'
+                    + '<div class="flex items-center justify-between gap-2 flex-wrap">'
+                    + '<div class="text-xs font-extrabold text-slate-700 dark:text-white">'
+                    + 'المفتاح: ' + esc(g.key) + ' — ' + enNum(totalRows) + ' شحنة / ' + enNum(variantCount) + ' صيغة'
+                    + '</div>'
+                    + '<button onclick="mergeSenderGroup(' + gi + ')" class="btn-primary text-xs min-h-[36px] flex items-center gap-1"><i class="fas fa-code-merge"></i> دمج</button>'
+                    + '</div>'
+                    + '<div class="grid grid-cols-1 sm:grid-cols-2 gap-1">' + options + '</div>'
+                    + '</div>';
+            }).join('');
+        } catch (err) {
+            statusEl.textContent = 'خطأ: ' + (err.message || err);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = '<i class="fas fa-search"></i> تحليل أسماء الراسلين';
+        }
+    };
+
+    window.mergeSenderGroup = async function (gi) {
+        var g = window._senderGroupsCache[gi];
+        if (!g) return;
+        var container = document.querySelector('#senderGroupsList [data-group="' + gi + '"]');
+        var radio = container ? container.querySelector('input[type=radio]:checked') : null;
+        var chosen = radio ? radio.value : null;
+        var variants = Object.keys(g.variants);
+        var others = variants.filter(function (v) { return v !== chosen; });
+        if (!chosen || !others.length) return;
+        var totalRows = Object.values(g.variants).reduce(function (a, b) { return a + b; }, 0);
+        var variantLines = variants.map(function (v) {
+            var extra = v === chosen ? ' ← سيصبح القيمة الموحدة' : '';
+            return '• ' + esc(v) + ' (' + enNum(g.variants[v]) + ')' + extra;
+        }).join('<br>');
+        var isConfirmed = (await Swal.fire({
+            title: 'تأكيد دمج المجموعة',
+            html: '<div class="text-right" style="font-size:0.85rem;">' + variantLines + '</div><div class="mt-2 fw-bold">يتأثر حتى ' + enNum(totalRows) + ' شحنة</div>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، ادمج',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#c2410c'
+        })).isConfirmed;
+        if (!isConfirmed) return;
+        try {
+            var client = getSharedSupabaseClient();
+            var updResult = await client.from(CONFIG.TABLES.SHIPMENTS)
+                .update({ 'الراسl': chosen })
+                .in('الراسl', variants)
+                .select('id');
+            if (updResult.error) throw new Error(updResult.error.message);
+            var affected = (updResult.data || []).length;
+            await Swal.fire({
+                icon: 'success',
+                title: 'تم الدمج',
+                text: 'عدد الصفوف المحدثة: ' + enNum(affected),
+                confirmButtonColor: '#c2410c'
+            });
+            analyzeSenderGroups();
+        } catch (err) {
+            Swal.fire({ icon: 'error', title: 'فشل الدمج', text: err.message || String(err), confirmButtonColor: '#c2410c' });
+        }
+    };
+</script>
 </body>
 </html>
+
+
+
+
+
+
