@@ -99,6 +99,34 @@
             width: 100vw;
             margin-inline: calc((100% - 100vw) / 2);
         }
+        /* القائمة المنسدلة (تعديل الحساب / تسجيل الخروج) */
+        .admin-dropdown {
+            position: absolute;
+            top: calc(100% + 8px);
+            left: 0;
+            min-width: 195px;
+            z-index: 40;
+            background: #fff;
+            border: 1px solid rgba(148,163,184,0.18);
+            border-radius: .9rem;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.12);
+            padding: .35rem;
+        }
+        .dark .admin-dropdown { background: #1e293b; border-color: rgba(148,163,184,0.16); box-shadow: 0 12px 30px rgba(0,0,0,0.4); }
+        .admin-dropdown-item {
+            display: flex; align-items: center; gap: .6rem;
+            width: 100%; padding: .6rem .8rem;
+            border: none; background: none; cursor: pointer;
+            border-radius: .65rem;
+            font-weight: 700; font-size: .82rem;
+            color: #334155; text-align: right;
+            transition: background .15s, color .15s;
+        }
+        .dark .admin-dropdown-item { color: #e2e8f0; }
+        .admin-dropdown-item:hover { background: rgba(234,88,12,.08); color: #ea580c; }
+        .dark .admin-dropdown-item:hover { background: rgba(234,88,12,.14); color: #fdba74; }
+        .admin-dropdown-item-danger:hover { background: rgba(220,38,38,.1); color: #dc2626; }
+        .dark .admin-dropdown-item-danger:hover { background: rgba(220,38,38,.16); color: #f87171; }
     </style>
 </head>
 <body>
@@ -117,7 +145,13 @@
         <div class="flex items-center gap-2 shrink-0">
             <button onclick="adminRefresh()" class="icon-btn" title="تحديث البيانات"><i class="fas fa-sync-alt" id="refreshIcon"></i></button>
             <button onclick="toggleTheme()" class="icon-btn" title="الوضع الليلي"><i id="themeIcon" class="fas fa-moon"></i></button>
-            <button onclick="logout()" class="icon-btn" title="تسجيل الخروج"><i class="fas fa-sign-out-alt"></i></button>
+            <div class="relative" id="adminMenuWrap">
+                <button onclick="toggleAdminMenu()" class="icon-btn" title="القائمة" id="adminMenuBtn"><i class="fas fa-bars"></i></button>
+                <div id="adminDropdown" class="hidden admin-dropdown">
+                    <button type="button" onclick="adminSelfEdit()" class="admin-dropdown-item"><i class="fas fa-user-pen"></i> تعديل الحساب</button>
+                    <button type="button" onclick="logout()" class="admin-dropdown-item admin-dropdown-item-danger"><i class="fas fa-sign-out-alt"></i> تسجيل الخروج</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -275,6 +309,43 @@
                     <span id="ufSubmitLabel">إنشاء الحساب</span>
                 </button>
                 <button type="button" id="ufCancelBtn" class="px-5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-sm min-h-[44px]" style="background:none">إلغاء</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ============ ADMIN SELF-EDIT MODAL (تعديل حساب المدير فقط) ============ -->
+<div id="adminSelfEditModal" class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/60 backdrop-blur-sm p-3 overflow-y-auto">
+    <div class="w-full max-w-lg glass-card rounded-[1.5rem] p-5 sm:p-6 relative m-4">
+        <button type="button" id="closeAdminSelfEditModal" class="absolute top-3 left-3 w-10 h-10 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-white transition-colors">
+            <i class="fas fa-times"></i>
+        </button>
+        <h2 class="text-xl font-extrabold text-slate-800 dark:text-white mb-4">تعديل حسابي</h2>
+        <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mb-4">هذه البيانات تخص حساب المدير الحالي فقط.</p>
+        <form id="adminSelfEditForm" class="grid grid-cols-1 gap-3">
+            <div>
+                <label class="field-label">الاسم الكامل <span class="text-red-500">*</span></label>
+                <input type="text" id="aseName" class="soft-input" placeholder="الاسم بالكامل">
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                    <label class="field-label">رقم الموبايل <span class="text-red-500">*</span></label>
+                    <input type="tel" id="asePhone" class="soft-input" placeholder="01xxxxxxxxx" inputmode="tel">
+                </div>
+                <div>
+                    <label class="field-label">البريد الإلكتروني</label>
+                    <input type="email" id="aseEmail" class="soft-input" placeholder="name@example.com">
+                </div>
+            </div>
+            <div>
+                <label class="field-label">كلمة المرور</label>
+                <input type="password" id="asePassword" class="soft-input" placeholder="اتركها فارغة إذا لم ترد التغيير" autocomplete="new-password">
+            </div>
+            <div class="flex gap-2 mt-2 pt-3 border-t border-slate-100 dark:border-slate-800">
+                <button type="submit" id="aseSubmitBtn" class="btn-primary flex-1 flex items-center justify-center gap-2 text-sm min-h-[44px]">
+                    <span id="aseSubmitLabel">حفظ التعديلات</span>
+                </button>
+                <button type="button" id="aseCancelBtn" class="px-5 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-bold text-sm min-h-[44px]" style="background:none">إلغاء</button>
             </div>
         </form>
     </div>
@@ -761,7 +832,7 @@
                 if (!dt) return;
                 var key = dt.y + '-' + (dt.m < 10 ? '0' : '') + dt.m;
                 if (!months[key]) months[key] = { label: locMonth(dt.m) + ' ' + enNum(dt.y), days: [] };
-                months[key].days.push({ name: d, count: totals[d] });
+                months[key].days.push({ name: d, count: totals[d], dayNum: dt.d });
             });
 
             var monthKeys = Object.keys(months).sort().reverse();
@@ -772,7 +843,10 @@
 
             container.innerHTML = monthKeys.map(function (mk) {
                 var month = months[mk];
-                month.days.sort(function (a, b) { return a.name.localeCompare(b.name, 'ar'); });
+                month.days.sort(function (a, b) {
+                    if (b.dayNum !== a.dayNum) return b.dayNum - a.dayNum;
+                    return a.name.localeCompare(b.name, 'ar');
+                });
                 var allChecked = month.days.every(function (dd) { return state.currentDailies.indexOf(dd.name) !== -1; });
                 var daysHtml = month.days.map(function (dd) {
                     var checked = state.currentDailies.indexOf(dd.name) !== -1 ? 'checked' : '';
@@ -1549,6 +1623,123 @@
 
         $('adminName').textContent = currentUser.full_name || currentUser.username || 'المدير';
         ensureData(false);
+
+        // ===== قائمة الهيدر (تعديل الحساب / تسجيل الخروج) =====
+        function toggleAdminMenu() {
+            var dd = $('adminDropdown');
+            if (!dd) return;
+            var wasHidden = dd.classList.contains('hidden');
+            dd.classList.toggle('hidden');
+            if (wasHidden) {
+                setTimeout(function () {
+                    document.addEventListener('click', closeAdminMenuOnOutside);
+                    document.addEventListener('keydown', closeAdminMenuOnEscape);
+                }, 0);
+            }
+        }
+
+        function closeAdminMenu() {
+            var dd = $('adminDropdown');
+            if (dd) dd.classList.add('hidden');
+            document.removeEventListener('click', closeAdminMenuOnOutside);
+            document.removeEventListener('keydown', closeAdminMenuOnEscape);
+        }
+
+        function closeAdminMenuOnOutside(e) {
+            var wrap = $('adminMenuWrap');
+            if (wrap && !wrap.contains(e.target)) closeAdminMenu();
+        }
+
+        function closeAdminMenuOnEscape(e) {
+            if (e.key === 'Escape') closeAdminMenu();
+        }
+
+        window.toggleAdminMenu = function () { toggleAdminMenu(); };
+
+        $('adminMenuWrap').addEventListener('click', function (e) {
+            e.stopPropagation();
+        });
+
+        // ===== نافذة تعديل حساب المدير الحالي (منفصلة تماماً عن userModal) =====
+        function openAdminSelfEdit() {
+            closeAdminMenu();
+            var base = currentUser || {};
+            $('aseName').value = base.full_name || base.username || '';
+            $('asePhone').value = base.phone || '';
+            $('aseEmail').value = base.email || '';
+            $('asePassword').value = '';
+            $('adminSelfEditModal').classList.remove('hidden');
+            $('adminSelfEditModal').classList.add('flex');
+            document.body.classList.add('overflow-hidden');
+        }
+        window.adminSelfEdit = openAdminSelfEdit;
+
+        function closeAdminSelfEdit() {
+            $('adminSelfEditModal').classList.add('hidden');
+            $('adminSelfEditModal').classList.remove('flex');
+            document.body.classList.remove('overflow-hidden');
+        }
+
+        $('closeAdminSelfEditModal').addEventListener('click', closeAdminSelfEdit);
+        $('aseCancelBtn').addEventListener('click', closeAdminSelfEdit);
+        $('adminSelfEditModal').addEventListener('click', function (e) {
+            if (e.target === $('adminSelfEditModal')) closeAdminSelfEdit();
+        });
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape' && !$('adminSelfEditModal').classList.contains('hidden')) closeAdminSelfEdit();
+        });
+
+        $('adminSelfEditForm').addEventListener('submit', async function (e) {
+            e.preventDefault();
+            var name = $('aseName').value.trim();
+            var phone = $('asePhone').value.trim();
+            var email = $('aseEmail').value.trim();
+            var password = $('asePassword').value;
+
+            if (!name) return Swal.fire({ icon: 'warning', title: 'بيانات ناقصة', text: 'يرجى إدخال الاسم' });
+            if (!phone) return Swal.fire({ icon: 'warning', title: 'بيانات ناقصة', text: 'يرجى إدخال رقم الموبايل' });
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+                return Swal.fire({ icon: 'warning', title: 'بريد غير صحيح', text: 'يرجى إدخال بريد إلكتروني صحيح' });
+            }
+            if (password && password.length < 6) {
+                return Swal.fire({ icon: 'warning', title: 'كلمة مرور ضعيفة', text: 'كلمة المرور يجب ألا تقل عن 6 أحرف' });
+            }
+
+            var submitBtn = $('aseSubmitBtn');
+            submitBtn.disabled = true;
+            $('aseSubmitLabel').textContent = 'جاري الحفظ...';
+
+            try {
+                // الـ payload يقتصر على الحقول المسموح للمدير تعديلها في حسابه فقط
+                // (لا يُرسل username/role/approved إطلاقاً)
+                var payload = { full_name: name, phone: phone, email: email || null };
+                if (password) payload.password = await hashPasswordIfNeeded(password);
+
+                var res = await supabaseClient.from(CONFIG.TABLES.USERS).update(payload).eq('id', currentUser.id);
+                if (res.error) throw res.error;
+
+                // تحديث الجلسة المحلية مع الحفاظ على role/approved/username القائمة
+                var stored = null;
+                try { stored = JSON.parse(localStorage.getItem('user') || 'null'); } catch (err) { stored = null; }
+                var updated = Object.assign({}, stored || {});
+                updated.full_name = name;
+                updated.phone = phone;
+                updated.email = email || '';
+                localStorage.setItem('user', JSON.stringify(updated));
+                currentUser = updated;
+                $('adminName').textContent = currentUser.full_name || currentUser.username || 'المدير';
+
+                await refreshUsersOnly();
+                if (typeof renderAll === 'function') renderAll();
+                closeAdminSelfEdit();
+                toast('success', 'تم تحديث بيانات حسابك');
+            } catch (err) {
+                toast('error', err.message || 'فشل حفظ التعديلات');
+            } finally {
+                submitBtn.disabled = false;
+                $('aseSubmitLabel').textContent = 'حفظ التعديلات';
+            }
+        });
     })();
 </script>
 <script>

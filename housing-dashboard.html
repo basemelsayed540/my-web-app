@@ -9202,7 +9202,7 @@
             return housingDuplicatePhoneFreq;
         }
 
-        function getHousingShipmentsFilteredBy(excludeFields = []) {
+        function getHousingShipmentsFilteredBy(excludeFields = [], excludeStatCard = false) {
             const filters = getHousingColumnFilters();
             return allShipments.filter(s => {
                 if (String(s.المندوب || '').startsWith('PRIVATE:')) return false;
@@ -9219,7 +9219,7 @@
                     }
                 }
 
-                if (housingDashStatFilter) {
+                if (housingDashStatFilter && !excludeStatCard) {
                     const disp = getHousingDashboardDisplayStatus(d);
                     if (housingDashStatFilter === 'بدون مندوب') {
                         if (d.المندوب) return false;
@@ -9319,7 +9319,7 @@
             if (!list) return;
 
             const selected = new Set(getHousingStatusFilters());
-            const baseShipments = getHousingShipmentsFilteredBy(['status']);
+            const baseShipments = getHousingShipmentsFilteredBy(['status'], true);
             const allStatuses = baseShipments.map(s => String(s.الحالة || '').trim());
             const emptyCount = allStatuses.filter(v => !v).length;
             const statuses = [...new Set(allStatuses.filter(Boolean))]
@@ -9335,7 +9335,7 @@
             const showCounts = getHousingEditDateFilters().length > 0;
             const counts = {};
             if (showCounts) {
-                const baseShipments = getHousingShipmentsFilteredBy(['status']);
+                const baseShipments = getHousingShipmentsFilteredBy(['status'], true);
                 baseShipments.forEach(s => {
                     const data = getHousingDisplayShipmentData(s);
                     const val = String(data.الحالة || '').trim();
@@ -9370,7 +9370,7 @@
             if (!list) return;
 
             const selected = new Set(getHousingRepFilters());
-            const baseShipments = getHousingShipmentsFilteredBy(['rep']);
+            const baseShipments = getHousingShipmentsFilteredBy(['rep'], true);
             const reps = [...new Set(baseShipments.map(s => String(s.المندوب || '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b));
 
@@ -9445,7 +9445,7 @@
             if (!list) return;
 
             const selected = new Set(getHousingSenderFilters());
-            const baseShipments = getHousingShipmentsFilteredBy(['sender']);
+            const baseShipments = getHousingShipmentsFilteredBy(['sender'], true);
             const senders = [...new Set(baseShipments.map(s => String(s.الراسل || '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b));
 
@@ -9458,7 +9458,7 @@
             const showCounts = getHousingEditDateFilters().length > 0;
             const counts = {};
             if (showCounts) {
-                const baseShipments = getHousingShipmentsFilteredBy(['sender']);
+                const baseShipments = getHousingShipmentsFilteredBy(['sender'], true);
                 baseShipments.forEach(s => {
                     const data = getHousingDisplayShipmentData(s);
                     const val = String(data.الراسل || '').trim();
