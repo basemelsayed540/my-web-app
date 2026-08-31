@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://evrqxgnqwngokukqerps.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.tailwindcss.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob: https:; connect-src 'self' https://iodyohssotttmbrapgbk.supabase.co https://*.supabase.co wss://*.supabase.co; object-src 'none'; base-uri 'self'; form-action 'self';">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta http-equiv="cache-control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="expires" content="0">
@@ -68,7 +68,7 @@
         .dark .shipment-row .sub { color: #94a3b8; }
         .shipment-row .field-label { font-size: 0.75rem; font-weight: 600; color: #94a3b8; margin-left: 2px; }
         .dark .shipment-row .field-label { color: #64748b; }
-        .shipment-row .customer-name { color: #c2410c; }
+        .shipment-row .customer-name { color: #16a34a; }
         .dark .shipment-row .customer-name { color: #818cf8; }
         .shipment-row .detail-address { color: #0f766e; font-weight: 600; }
         .dark .shipment-row .detail-address { color: #5eead4; }
@@ -82,11 +82,11 @@
         .empty-state { text-align: center; padding: 48px 24px; color: #94a3b8; line-height: 1.7; }
         .dark .empty-state { color: #64748b; }
         ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-thumb { background: #ea580c; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb { background: #22c55e; border-radius: 10px; }
         .icon-btn { width: 2.5rem; height: 2.5rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: white; border: 1px solid rgba(148,163,184,0.15); color: #64748b; transition: background 0.25s, color 0.25s, transform 0.25s; box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
         .dark .icon-btn { background: #1e293b; border-color: rgba(148,163,184,0.12); color: #94a3b8; box-shadow: 0 2px 12px rgba(0,0,0,0.2); }
-        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(234, 88, 12,0.15); }
-        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(234, 88, 12,0.25); }
+        .icon-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 14px rgba(34, 197, 94,0.15); }
+        .dark .icon-btn:hover { background: #334155; color: #e2e8f0; border-color: rgba(34, 197, 94,0.25); }
         .icon-btn.logout:hover { color: #f43f5e; }
         .dark .icon-btn.logout:hover { color: #fb7185; background: #1e293b; }
         .fav-btn { background: none; border: none; cursor: pointer; padding: 0; transition: all 0.2s; color: #94a3b8; line-height: 1; vertical-align: middle; font-size: 1rem; width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: 50%; }
@@ -121,8 +121,8 @@
         .menu-panel.show { display: block; }
         .menu-item { padding: 14px 16px; font-size: 0.85rem; font-weight: 700; cursor: pointer; transition: all 0.15s; display: flex; align-items: center; gap: 10px; color: #0f172a; border-bottom: 1px solid rgba(148,163,184,0.08); }
         .dark .menu-item { color: #f8fafc; border-color: rgba(148,163,184,0.06); }
-        .menu-item:hover { background: rgba(234, 88, 12,0.06); }
-        .dark .menu-item:hover { background: rgba(234, 88, 12,0.1); }
+        .menu-item:hover { background: rgba(34, 197, 94,0.06); }
+        .dark .menu-item:hover { background: rgba(34, 197, 94,0.1); }
         .menu-item.logout-item { color: #dc2626; border-bottom: none; }
         .dark .menu-item.logout-item { color: #fb7185; }
         .menu-item.logout-item:hover { background: rgba(220,38,38,0.06); }
@@ -132,13 +132,13 @@
         .filter-chip { padding: 9px 6px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); font-size: 0.75rem; font-weight: 700; cursor: pointer; background: white; color: #475569; text-align: center; transition: background 0.2s, color 0.2s, transform 0.2s; }
         .dark .filter-chip { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,0.1); }
         .filter-chip:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-        .filter-chip.active { background: #c2410c; color: white; border-color: #c2410c; }
-        .dark .filter-chip.active { background: #ea580c; color: white; border-color: #ea580c; }
+        .filter-chip.active { background: #16a34a; color: white; border-color: #16a34a; }
+        .dark .filter-chip.active { background: #22c55e; color: white; border-color: #22c55e; }
         /* === Popup option reusable colors (light mode: soft pastel, dark: unchanged) === */
-        .popup-opt-ivy { border-color: #fed7aa; background: #eef2ff; color: #4338ca; }
-        .popup-opt-ivy.active { border-color: #818cf8; background: #e0e7ff; color: #9a3412; }
-        .dark .popup-opt-ivy { border-color: rgba(234, 88, 12,0.3); background: rgba(234, 88, 12,0.1); color: #a5b4fc; }
-        .dark .popup-opt-ivy.active { border-color: #ea580c; background: rgba(234, 88, 12,0.2); color: #fed7aa; }
+        .popup-opt-ivy { border-color: #bbf7d0; background: #eef2ff; color: #4338ca; }
+        .popup-opt-ivy.active { border-color: #818cf8; background: #e0e7ff; color: #166534; }
+        .dark .popup-opt-ivy { border-color: rgba(34, 197, 94,0.3); background: rgba(34, 197, 94,0.1); color: #a5b4fc; }
+        .dark .popup-opt-ivy.active { border-color: #22c55e; background: rgba(34, 197, 94,0.2); color: #bbf7d0; }
         .popup-opt-herb { border-color: #a7f3d0; background: #ecfdf5; color: #065f46; }
         .popup-opt-herb.active { border-color: #34d399; background: #d1fae5; color: #047857; }
         .dark .popup-opt-herb { border-color: rgba(5,150,105,0.3); background: rgba(5,150,105,0.1); color: #6ee7b7; }
@@ -159,10 +159,10 @@
         .popup-opt-blush.active { border-color: #f43f5e; background: #ffe4e6; color: #be123c; }
         .dark .popup-opt-blush { border-color: rgba(244,63,94,0.3); background: rgba(244,63,94,0.1); color: #fda4af; }
         .dark .popup-opt-blush.active { border-color: #f43f5e; background: rgba(244,63,94,0.2); color: #fecaca; }
-        .popup-opt-peach { border-color: #fed7aa; background: #fff7ed; color: #9a3412; }
-        .popup-opt-peach.active { border-color: #fb923c; background: #ffedd5; color: #c2410c; }
+        .popup-opt-peach { border-color: #bbf7d0; background: #fff7ed; color: #166534; }
+        .popup-opt-peach.active { border-color: #fb923c; background: #ffedd5; color: #16a34a; }
         .dark .popup-opt-peach { border-color: rgba(251,146,60,0.3); background: rgba(251,146,60,0.1); color: #fdba74; }
-        .dark .popup-opt-peach.active { border-color: #f97316; background: rgba(251,146,60,0.2); color: #fed7aa; }
+        .dark .popup-opt-peach.active { border-color: #f97316; background: rgba(251,146,60,0.2); color: #bbf7d0; }
         .popup-opt-petal { border-color: #fbcfe8; background: #fdf2f8; color: #831843; }
         .popup-opt-petal.active { border-color: #f472b6; background: #fce7f3; color: #a21caf; }
         .dark .popup-opt-petal { border-color: rgba(244,114,182,0.3); background: rgba(244,114,182,0.1); color: #f9a8d4; }
@@ -269,13 +269,21 @@
     </div>
 </div>
 
-<script src="assets/js/shipment-config.js?v=00FF6D6992"></script>
+<script src="assets/js/shipment-config.js?v=3E484FC390"></script>
 <script>
     const BUILD = '4'; if (!window.location.href.includes('_t=')) { localStorage.setItem('monitor-version', BUILD); window.location.href = window.location.href.split('?')[0] + '?_t=' + BUILD; }
     const supabaseClient = getSharedSupabaseClient();
     let currentUser = JSON.parse(localStorage.getItem('user'));
     let allShipments = [];
     let filteredShipments = [];
+
+    function isArchivedShipment(s) {
+        const v = s && s['ارشيف'];
+        if (typeof v === 'boolean') return v;
+        if (v == null) return false;
+        const t = String(v).trim().toLowerCase();
+        return t === 'true' || t === '1' || t === 't' || t === 'yes' || t === 'y' || t === 'نعم';
+    }
 
     function enNum(s) {
         return String(s).replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
@@ -432,7 +440,7 @@
             showCancelButton: true,
             confirmButtonText: 'حفظ',
             cancelButtonText: 'الغاء',
-            confirmButtonColor: '#ea580c',
+            confirmButtonColor: '#22c55e',
             customClass: {
                 popup: isDark ? 'swal-dark' : '',
                 title: isDark ? 'swal-title-dark' : ''
@@ -554,7 +562,7 @@
         const chipColors = ['popup-opt-ivy', 'popup-opt-herb', 'popup-opt-sun', 'popup-opt-air'];
         const activeColors = ['popup-opt-ivy active', 'popup-opt-herb active', 'popup-opt-sun active', 'popup-opt-air active'];
         const ci = ti[type];
-        const archivedDailies = new Set(allShipments.filter(s => (s['ارشيف'] || '').trim()).map(s => s['اليومية'] || '').filter(Boolean));
+        const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
         const optsHtml = ['<div class="grid grid-cols-1 gap-1.5">',
             `<div data-type="${type}" data-value="" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${!current ? activeColors[ci] : chipColors[ci]}">الكل (${items.length})</div>`,
             ...items.map(v => `<div data-type="${type}" data-value="${v.replace(/"/g,'&quot;')}" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${current === v ? activeColors[ci] : chipColors[ci]}">${v}${type === 'daily' && archivedDailies.has(v) ? ' 📦' : ''} (${counts[v] || 0})</div>`),
@@ -708,7 +716,7 @@
             return;
         }
         container.innerHTML = filteredShipments.map((s, idx) => {
-            const isArchived = !!(s['ارشيف'] || '').trim();
+            const isArchived = isArchivedShipment(s);
             const canFav = !isArchived && ['قيد التوصيل', 'مؤجل'].includes(s['الحالة'] || '');
             const sid = String(s.id);
             const isFav = isFavorite(sid);

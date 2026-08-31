@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
@@ -40,7 +40,7 @@
         }
         .dark .soft-input { background: #1e293b; color: #e2e8f0; border-color: rgba(148,163,184,0.18); }
         .btn-primary {
-            background: linear-gradient(135deg, #ea580c, #c2410c);
+            background: linear-gradient(135deg, #22c55e, #16a34a);
             color: #fff;
             font-weight: 800;
             border: none;
@@ -75,7 +75,7 @@
     <!-- شاشة القفل: تُعرض حتى يتم التحقق بهوية المطور -->
     <div id="lockScreen" class="min-h-screen flex items-center justify-center p-4">
         <div class="glass-card p-6 sm:p-8 rounded-[2rem] w-full max-w-md">
-            <div class="flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4" style="background:linear-gradient(135deg,#c2410c,#0ea5e9);box-shadow:0 18px 44px rgba(194,65,12,.32)">
+            <div class="flex items-center justify-center w-16 h-16 rounded-2xl mx-auto mb-4" style="background:linear-gradient(135deg,#16a34a,#0ea5e9);box-shadow:0 18px 44px rgba(194,65,12,.32)">
                 <i class="fas fa-code text-white text-2xl"></i>
             </div>
             <h1 class="text-2xl font-extrabold text-center text-slate-800 dark:text-white mb-1">إعدادات المطور</h1>
@@ -103,7 +103,7 @@
     <div id="settingsPanel" class="hidden max-w-3xl mx-auto p-4 sm:p-6">
         <div class="flex items-center justify-between mb-6 flex-wrap gap-2">
             <div class="flex items-center gap-3">
-                <div class="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style="background:linear-gradient(135deg,#ea580c,#c2410c);box-shadow:0 8px 20px rgba(234,88,12,.28)">
+                <div class="flex items-center justify-center w-11 h-11 rounded-xl shrink-0" style="background:linear-gradient(135deg,#22c55e,#16a34a);box-shadow:0 8px 20px rgba(234,88,12,.28)">
                     <i class="fas fa-code text-white"></i>
                 </div>
                 <div>
@@ -176,7 +176,7 @@
                             <i class="fas fa-signature text-orange-600 ml-1"></i> اسم النظام
                             <span id="stSystemName" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
                         </label>
-                        <input type="text" id="fSystemName" class="soft-input text-sm ml-2" maxlength="40" placeholder="لايت شبينج" autocomplete="off">
+                        <input type="text" id="fSystemName" class="soft-input text-sm ml-2" maxlength="40" placeholder="بن نشات" autocomplete="off">
                         <button type="button" onclick="saveSystemName()" class="btn-ghost text-sm px-4 py-2 mt-1 align-middle"><i class="fas fa-check"></i> حفظ الاسم</button>
                         <p class="text-xs text-slate-400 font-semibold mt-1 mr-1">اسم يظهر في شاشة تسجيل الدخول فقط. حد أقصى 40 حرفاً.</p>
                     </div>
@@ -187,11 +187,11 @@
                             <span id="stSystemColor" class="hidden text-[10px] px-2 py-0.5 rounded-full font-extrabold mr-2"></span>
                         </label>
                         <div class="grid grid-cols-[1fr_auto] gap-3 items-center">
-                            <input type="text" id="fSystemColor" class="soft-input text-sm ltr" dir="ltr" maxlength="7" placeholder="#ea580c" autocomplete="off" spellcheck="false">
-                            <input type="color" id="fSystemColorPicker" value="#ea580c" class="w-12 h-12 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent cursor-pointer p-1">
+                            <input type="text" id="fSystemColor" class="soft-input text-sm ltr" dir="ltr" maxlength="7" placeholder="#22c55e" autocomplete="off" spellcheck="false">
+                            <input type="color" id="fSystemColorPicker" value="#22c55e" class="w-12 h-12 rounded-lg border border-slate-300 dark:border-slate-600 bg-transparent cursor-pointer p-1">
                         </div>
                         <div class="flex items-center gap-3 mt-3">
-                            <div class="flex-1 h-11 rounded-lg flex items-center justify-center font-extrabold text-white text-sm" id="colorPreview" style="background:linear-gradient(135deg,#ea580c,#c2410c)">
+                            <div class="flex-1 h-11 rounded-lg flex items-center justify-center font-extrabold text-white text-sm" id="colorPreview" style="background:linear-gradient(135deg,#22c55e,#16a34a)">
                                 <span id="colorPreviewText">معاينة اللون</span>
                             </div>
                             <button type="button" onclick="saveSystemColor()" class="btn-primary text-sm flex items-center gap-2 shrink-0 px-4">
@@ -201,7 +201,7 @@
                                 <i class="fas fa-rotate"></i> استعادة الافتراضي
                             </button>
                         </div>
-                        <p class="text-xs text-slate-400 font-semibold mt-2 mr-1">صيغة Hex فقط (مثل #ea580c). يُطبَّق على العناصر التي تعتمد على المتغيرات المركزية في النظام؛ بعض العناصر ذات الألوان الثابتة داخل صفحات معيّنة لن تتغير.</p>
+                        <p class="text-xs text-slate-400 font-semibold mt-2 mr-1">صيغة Hex فقط (مثل #22c55e). يُطبَّق على العناصر التي تعتمد على المتغيرات المركزية في النظام؛ بعض العناصر ذات الألوان الثابتة داخل صفحات معيّنة لن تتغير.</p>
                         <p class="text-xs text-amber-600 dark:text-amber-400 font-semibold mt-1 mr-1">التغييرات محلية في هذا المتصفح فقط، ولا تُنقل لبقية المستخدمين.</p>
                     </div>
                 </div>
@@ -235,7 +235,7 @@
         </div>
     </div>
 
-    <script src="assets/js/shipment-config.js?v=00FF6D6992"></script>
+    <script src="assets/js/shipment-config.js?v=3E484FC390"></script>
     <script>
         // كل هذه التوابع تترابط مع shipment-config.js المحمّل أعلاه (CONFIG, DEV_PHONE, DEV_PASS, _enc, _dec)
 
@@ -299,10 +299,10 @@
             // اسم النظام + اللون الأساسي
             var nm = readDevOverride('dev_system_name') || '';
             document.getElementById('fSystemName').value = nm;
-            var color = readDevOverride('dev_system_color') || '#ea580c';
+            var color = readDevOverride('dev_system_color') || '#22c55e';
             document.getElementById('fSystemColor').value = color;
             var picker = document.getElementById('fSystemColorPicker');
-            if (picker) picker.value = /^#[0-9A-Fa-f]{6}$/.test(color) ? color : '#ea580c';
+            if (picker) picker.value = /^#[0-9A-Fa-f]{6}$/.test(color) ? color : '#22c55e';
             applyColorPreview();
 
             updateStatusBadges();
@@ -414,7 +414,7 @@
             var preview = document.getElementById('colorPreview');
             if (!preview) return;
             if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-                preview.style.background = 'linear-gradient(135deg,#ea580c,#c2410c)';
+                preview.style.background = 'linear-gradient(135deg,#22c55e,#16a34a)';
                 preview.style.color = '#fff';
                 document.getElementById('colorPreviewText').textContent = 'معاينة غير متاحة (صيغة خاطئة)';
                 return;
@@ -492,7 +492,7 @@
             if (!devUnlocked) return;
             var hex = document.getElementById('fSystemColor').value.trim();
             if (!/^#[0-9A-Fa-f]{6}$/.test(hex)) {
-                Swal.fire({ icon: 'error', title: 'صيغة غير صحيحة', text: 'أدخل اللون بصيغة Hex فقط، مثل #ea580c (6 أرقام/حروف).' });
+                Swal.fire({ icon: 'error', title: 'صيغة غير صحيحة', text: 'أدخل اللون بصيغة Hex فقط، مثل #22c55e (6 أرقام/حروف).' });
                 return;
             }
             var rgb = hexToRgbArr(hex);
@@ -529,7 +529,7 @@
             if (!devUnlocked) return;
             Swal.fire({
                 title: 'استعادة اللون الافتراضي؟',
-                text: 'سيُعاد اللون البرتقالي الأصلي #ea580c.',
+                text: 'سيُعاد اللون البرتقالي الأصلي #22c55e.',
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'نعم، استعد',
@@ -537,9 +537,9 @@
             }).then(function (res) {
                 if (!res.isConfirmed) return;
                 try { localStorage.removeItem('dev_system_color'); } catch (e) {}
-                document.getElementById('fSystemColor').value = '#ea580c';
+                document.getElementById('fSystemColor').value = '#22c55e';
                 var picker = document.getElementById('fSystemColorPicker');
-                if (picker) picker.value = '#ea580c';
+                if (picker) picker.value = '#22c55e';
                 applyColorPreview();
                 updateStatusBadges();
                 if (window.Swal) Swal.fire({ icon: 'success', title: 'تمت الاستعادة', text: 'عاد اللون الافتراضي.' });
