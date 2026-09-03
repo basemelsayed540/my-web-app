@@ -3920,7 +3920,6 @@
                     <div style="display:none;">
                             <div id="housingRepFilterList" class="d-grid gap-1"></div>
                             <div id="housingStatusFilterList" class="d-grid gap-1"></div>
-                            <div id="housingSenderFilterList" class="d-grid gap-1"></div>
                             <input id="housingNewRepName" type="hidden">
                         </div>
                     <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
@@ -3934,6 +3933,10 @@
                                 <input id="housingSearch" type="text"
                                     class="form-control rounded-pill border-secondary"
                                     style="min-width:140px;max-width:200px;font-size:0.8rem;">
+                                <button type="button" id="housingArchiveFilterBtn"
+                                    class="housing-toolbar-chip flex-shrink-0"
+                                    data-value="active"
+                                    onclick="toggleHousingArchiveFilter()">📁 النشطة</button>
 
                                 <select id="housingEditDateFilterSelect"
                                     class="housing-toolbar-chip-select flex-shrink-0"
@@ -3941,10 +3944,20 @@
                                     onchange="handleHousingEditDateFilterChange()">
                                     <option value="">📅 اليومية</option>
                                 </select>
-                                <button type="button" id="housingArchiveFilterBtn"
-                                    class="housing-toolbar-chip flex-shrink-0"
-                                    data-value="active"
-                                    onclick="toggleHousingArchiveFilter()">📁 النشطة</button>
+                                <div class="housing-sender-filter-wrap" style="position:relative;">
+                                    <button type="button" id="housingSenderFilterBtn"
+                                        class="housing-toolbar-chip flex-shrink-0"
+                                        onclick="toggleHousingSenderFilterDropdown()">👤 الراسل
+                                        <span id="housingSenderFilterBadge" class="badge bg-secondary ms-1">0</span>
+                                    </button>
+                                    <div id="housingSenderFilterDropdown" class="housing-header-dropdown" style="right:0;top:calc(100% + 4px);min-width:200px;">
+                                        <div class="d-flex align-items-center justify-content-between px-2 py-1" style="border-bottom:1px solid var(--border,#dee2e6);margin-bottom:4px;">
+                                            <span class="small fw-bold">فلاتر الراسل</span>
+                                            <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.7rem;" onclick="clearHousingSenderFilter()" title="مسح الراسل">مسح</button>
+                                        </div>
+                                        <div id="housingSenderFilterList" class="d-grid gap-1"></div>
+                                    </div>
+                                </div>
                                 <button class="btn btn-light btn-sm rounded-circle shadow-sm flex-shrink-0 housing-tool-btn" title="إخفاء/إظهار الاحصائيات" style="display:none;" onclick="housingStatsConfig()"><i class="fas fa-sliders-h"></i></button>
                                 <button id="housingColumnsBtn" class="btn btn-light btn-sm rounded-circle shadow-sm flex-shrink-0 housing-tool-btn" title="تنسيق الأعمدة" style="width:30px;height:30px;padding:0;font-size:0.75rem;border:1px solid var(--border,#dee2e6);" onclick="housingColumnsConfig()">
                                     <i class="fas fa-columns"></i>
@@ -4416,7 +4429,7 @@
         </div>
     </div>
 
-    <script src="assets/js/shipment-config.js?v=3E484FC390"></script>
+    <script src="assets/js/shipment-config.js?v=F8F696B76F"></script>
     <script>
         const BUILD = '18'; if (!window.location.href.includes('_t=')) { localStorage.setItem('rep-version', BUILD); window.location.href = window.location.href.split('?')[0] + '?_t=' + BUILD; }
 
@@ -8663,6 +8676,53 @@
                         item['اليومية'] = normalizedUploadedDailyValue;
                     });
 
+                    /* ===== فحص التكرار داخل الملف (client-side) قبل الرفع =====
+                       بما أن كل صفوف هذه الرفعة تُربط بنفس اليومية الموحّدة، فإن أي تكرار
+                       في "كود الشحنة" داخل الملف يعني ظهور زوج (كود, يومية) متكرر
+                       — وهو ما سيرفضه الفهرس المركّب الجديد (كود الشحنة + اليومية).
+                       لذلك نُحصّله هنا ونطلب قراراً واعياً من المستخدم بدل الفشل الصامت. */
+                    const codeCountInFile = new Map();
+                    updates.forEach(u => {
+                        const c = String(u['كود الشحنة'] || '').trim();
+                        codeCountInFile.set(c, (codeCountInFile.get(c) || 0) + 1);
+                    });
+                    const dupInFile = Array.from(codeCountInFile.entries()).filter(([, n]) => n > 1);
+                    if (dupInFile.length > 0) {
+                        let finalRowCount = updates.length;
+                        dupInFile.forEach(([, n]) => { finalRowCount -= (n - 1); });
+                        const dupChips = dupInFile.slice(0, 10).map(([c, n]) =>
+                            `<span class="badge bg-danger me-1 mb-1" style="font-size:0.72rem;">${escapeHtml(c)} (×${n})</span>`
+                        ).join('');
+                        const { isConfirmed: resolveDups } = await Swal.fire({
+                            title: 'توجد أكواد مكررة داخل الملف',
+                            html: `
+                                <div class="text-start mb-2 small fw-bold text-danger">وجدنا ${dupInFile.length} كوداً مكرراً ضمن نفس اليومية <b>${escapeHtml(normalizedUploadedDailyValue)}</b>:</div>
+                                <div class="text-center mb-2">${dupChips}${dupInFile.length > 10 ? ' <span class="small text-muted">…</span>' : ''}</div>
+                                <p class="text-start small text-muted mb-2">بما أن كل صفوف هذه الرفعة تُربط بنفس اليومية، فإن تكرار الكود داخل الملف يعني تكرار الزوج (الكود + اليومية) الذي يرفضه النظام من حيث المبدأ.</p>
+                                <p class="text-start small mb-0">اختر <b>تحديث الصفوف</b> للإبقاء على <b>آخر</b> صف مكرر فقط لكل كود (يُعامل كتحديث للشحنة نفسها داخل اليومية)، أو <b>الغاء</b> لتصحيح الملف قبل الرفع.</p>
+                            `,
+                            icon: 'warning',
+                            showCancelButton: true,
+                            confirmButtonText: `تحديث الصفوف (${finalRowCount} شحنة)`,
+                            cancelButtonText: 'الغاء وتصحيح الملف',
+                            confirmButtonColor: '#16a34a'
+                        });
+                        if (!resolveDups) { window.housingWriteOperationActive = false; return; }
+                        /* إبقاء آخر تكرار فقط لكل كود (النسخة الأحدث تُعتبر تحديثاً مقصوداً) */
+                        const dupSeen = new Set();
+                        const deduped = [];
+                        for (let di = updates.length - 1; di >= 0; di--) {
+                            const c = String(updates[di]['كود الشحنة'] || '').trim();
+                            if (dupSeen.has(c)) continue;
+                            dupSeen.add(c);
+                            deduped.unshift(updates[di]);
+                        }
+                        updates.length = 0;
+                        updates.push(...deduped);
+                    }
+
+                    /* بعد الفحص، تكون الأكواد داخل الملف فريدة، لذا تقسيم الدفعات العادي
+                       (chunkSize ثابت) يضمن عدم وقوع صفّين بنفس الكود في نفس الدفعة */
                     const totalImportRows = updates.length;
                     const totalImportBatches = Math.ceil(totalImportRows / 100);
                     let importCurrentBatch = 0;
@@ -8691,6 +8751,26 @@
                             String(err.message || '').includes('no unique or exclusion constraint matching the ON CONFLICT specification')
                         );
 
+                    /* كشف رفض التكرار الحقيقي للزوج (كود الشحنة + اليومية) في القاعدة
+                       وإظهار رسالة واضحة للمستخدم بدل الفشل الصامت (قاعدة الاتفاق الأساسية) */
+                    const isCompositeUniqueViolation = (err) => err && (
+                        err.code === '23505' ||
+                        String(err.message || '').includes('duplicate key value violates unique constraint') ||
+                        String((err && (err.details || err.message)) || '').includes('already exists')
+                    );
+                    const extractCompositeDuplicateMessage = (err, daily) => {
+                        const details = String((err && (err.details || err.message)) || '');
+                        const keyMatch = details.match(/Key \((.*?)\)=\((.*?)\)\s+already exists/i);
+                        let code = '';
+                        if (keyMatch && keyMatch[2]) {
+                            const values = keyMatch[2].split(',').map(s => String(s).trim());
+                            if (values.length) code = values[0].replace(/^"|"$/g, '');
+                        }
+                        return code
+                            ? `الكود "${code}" مُستخدم بالفعل ضمن يومية "${daily}" — هل تقصد تحديث نفس الشحنة، أم أن هذا كود جديد بالخطأ؟ راجع الملف وأعد الرفع لإجراء قرار واضح.`
+                            : `هناك تكرار في الزوج (كود الشحنة + اليومية "${daily}") موجود مسبقاً في القاعدة — راجع الملف وأعد الرفع.`;
+                    };
+
                     let successCount = 0;
                     let lastError = null;
                     let skippedSchemaField = '';
@@ -8708,7 +8788,7 @@
 
                             let res = await supabaseClient
                                 .from(CONFIG.TABLES.SHIPMENTS)
-                                .upsert(payloads, { onConflict: 'كود الشحنة' });
+                                .upsert(payloads, { onConflict: 'كود الشحنة,اليومية' });
 
                             if (res.error) {
                                 const missingField = extractMissingSchemaColumn(res.error.message);
@@ -8722,11 +8802,16 @@
                                     });
                                     res = await supabaseClient
                                         .from(CONFIG.TABLES.SHIPMENTS)
-                                        .upsert(filteredPayloads, { onConflict: 'كود الشحنة' });
+                                        .upsert(filteredPayloads, { onConflict: 'كود الشحنة,اليومية' });
                                 }
                             }
 
                             if (res.error) {
+                                if (isCompositeUniqueViolation(res.error)) {
+                                    lastError = extractCompositeDuplicateMessage(res.error, normalizedUploadedDailyValue);
+                                    console.error("Chunk duplicate (code+daily) error:", res.error);
+                                    break;
+                                }
                                 lastError = res.error.message;
                                 console.error("Chunk upsert error:", res.error);
                             } else {
@@ -9097,6 +9182,7 @@
             try {
                 await fetchShipments(dailyVal);
                 renderHousingSection();
+                selectAllHousingSenderFilters();
                 saveHousingUiState();
             } catch (error) {
                 console.error('Error fetching data for housing daily filter:', error);
@@ -9499,6 +9585,29 @@
             updateHousingSenderFilterBadge();
             renderHousingSection();
         }
+
+        function updateHousingSenderChipState() {
+            const btn = document.getElementById('housingSenderFilterBtn');
+            if (!btn) return;
+            const hasActive = getHousingSenderFilters().length > 0;
+            btn.classList.toggle('active', hasActive);
+            if (typeof setFilterVisualState === 'function') setFilterVisualState(btn, hasActive);
+        }
+
+        function toggleHousingSenderFilterDropdown() {
+            const dd = document.getElementById('housingSenderFilterDropdown');
+            if (!dd) return;
+            dd.classList.toggle('show');
+        }
+
+        document.addEventListener('click', (e) => {
+            const dd = document.getElementById('housingSenderFilterDropdown');
+            if (!dd) return;
+            const wrap = document.querySelector('.housing-sender-filter-wrap');
+            if (!dd.classList.contains('show')) return;
+            if (wrap && wrap.contains(e.target)) return;
+            dd.classList.remove('show');
+        }, true);
 
         function getHousingColumnFilters() {
             return {
@@ -14093,6 +14202,7 @@
             _origRenderHousingSection();
             populateHousingFilterSidebar();
             updateHousingClearFiltersButton();
+            updateHousingSenderChipState();
         };
 
         if (localStorage.getItem('shipment-theme') === 'dark' || (!localStorage.getItem('shipment-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.body.setAttribute('data-bs-theme', 'dark');

@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
-    <link rel="stylesheet" href="assets/css/style.css?v=0653F38806">
+    <link rel="stylesheet" href="assets/css/style.css?v=3963DF0D8A">
     <style>
         * { font-family: 'Cairo', 'Tajawal', sans-serif; box-sizing: border-box; }
         body { background: #f6f8fc; min-height: 100vh; padding-bottom: 80px; font-size: 16px; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; }
@@ -337,10 +337,11 @@
             <input type="text" id="searchInput" class="flex-1 p-3 rounded-xl border dark:border-slate-600 bg-white/90 text-base text-slate-800 dark:text-gray-100 placeholder-slate-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:border-indigo-400 transition-all" placeholder="🔍 بحث بكود الشحنة / العميل / الهاتف / هاتف بديل" oninput="onFilterChange()">
             <button id="toggleActionsBtn" class="shipment-eye-btn" onclick="toggleRepActions()" title="إخفاء/إظهار الأزرار"><i class="fas fa-eye-slash"></i></button>
         </div>
-        <div class="filter-row grid grid-cols-3 gap-2">
+        <div class="filter-row grid grid-cols-4 gap-2">
             <select id="filterDaily" style="display:none" onchange="onFilterChange()"><option value="">اليومية</option></select>
             <select id="filterZone" style="display:none" onchange="onFilterChange()"><option value="">الزون</option></select>
             <select id="filterSender" style="display:none" onchange="onFilterChange()"><option value="">الراسل</option></select>
+            <button class="filter-chip" id="chipArchive" data-placeholder-active="📁 نشطة" data-placeholder-archived="📁 مؤرشفة" onclick="toggleRepArchiveFilter()">📁 نشطة</button>
             <button class="filter-chip" id="chipDaily" data-placeholder="📅 اليومية" onclick="openFilterChip('daily')">📅 اليومية</button>
             <button class="filter-chip" id="chipZone" data-placeholder="📍 الزون" onclick="openFilterChip('zone')">📍 الزون</button>
             <button class="filter-chip" id="chipSender" data-placeholder="🏢 الراسل" onclick="openFilterChip('sender')">🏢 الراسل</button>
@@ -353,7 +354,7 @@
     </div>
 </div>
 
-<script src="assets/js/shipment-config.js?v=3E484FC390"></script>
+<script src="assets/js/shipment-config.js?v=F8F696B76F"></script>
 <script>
     const BUILD = '6'; if (!window.location.href.includes('_t=')) { localStorage.setItem('rep-version', BUILD); window.location.href = window.location.href.split('?')[0] + '?_t=' + BUILD; }
     const supabaseClient = getSharedSupabaseClient();
@@ -369,6 +370,7 @@
     let allShipments = [];
     let filteredShipments = [];
     let currentStatusFilter = '';
+    let repArchiveFilter = localStorage.getItem('repArchiveFilter') || 'نشطة';
 
     function isArchivedShipment(s) {
         const v = s && s['ارشيف'];
@@ -596,17 +598,94 @@
         }
     }
 
+    /* ===== ترتيب زمني لقيم "اليومية" النصية =====
+       قيمة "اليومية" في النظام نص عربي بصيغة مثل: الاحد5-7، الاربع1-7، السبت10-12
+       (اسم يوم + يوم-شهر، بدون سنة) كما هو موثّق في housing-dashboard.html
+       (parseDailyStringToSortKey / sortDailyValuesList). قد تظهر أيضاً صيغ أخرى
+       (ISO YYYY-MM-DD، يوم/شهر/سنة، اسم شهر عربي، رقم Excel التسلسلي) كما في
+       admin-dashboard.html (parseDate). الدوال التالية تُنتج مفتاح ترتيب موحّداً
+       لكل صيغة، والترتيب يكون من الأحدث إلى الأقدم. أي قيمة لا تُماثل أي صيغة
+       معروفة تُرتب في نهاية القائمة دون حذفها ودون كراش. */
+    function repDailyToSortKey(str) {
+        let s = String(str || '').trim();
+        if (!s) return { ok: false };
+        // تطبيع الأرقام العربية / الفارسية إلى ASCII
+        s = s
+            .replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+            .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
+
+        // رقم تسلسلي Excel (شائع مع البيانات المرفوعة من ملفات Excel)
+        if (/^\d{5,6}$/.test(s)) {
+            var serial = Date.UTC(1899, 11, 30) + parseInt(s, 10) * 86400000;
+            var e = new Date(serial);
+            if (!isNaN(e.getTime()) && e.getUTCFullYear() > 1990 && e.getUTCFullYear() < 2100) {
+                return { ok: true, y: e.getUTCFullYear(), m: e.getUTCMonth() + 1, d: e.getUTCDate() };
+            }
+            return { ok: false };
+        }
+
+        var m;
+        // ISO: YYYY-MM-DD (مع أو بدون وقت)
+        m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (m) return { ok: true, y: parseInt(m[1], 10), m: parseInt(m[2], 10), d: parseInt(m[3], 10) };
+        // يوم/شهر/سنة
+        m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+        if (m) return { ok: true, y: parseInt(m[3], 10), m: parseInt(m[2], 10), d: parseInt(m[1], 10) };
+        // اسم شهر عربي: "15 يناير 2024"
+        m = s.match(/(\d{1,2})\s*([\u0600-\u06FF]+)\s*(\d{4})/);
+        if (m) {
+            var names = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            var mi = names.indexOf(m[2]);
+            if (mi !== -1) return { ok: true, y: parseInt(m[3], 10), m: mi + 1, d: parseInt(m[1], 10) };
+        }
+        // صيغة اليومية العربية: "الاحد5-7" (يوم-شهر، بدون سنة)
+        m = s.match(/(\d{1,2})-(\d{1,2})/);
+        if (m) {
+            var day = parseInt(m[1], 10), month = parseInt(m[2], 10);
+            if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                return { ok: true, y: null, m: month, d: day }; // y = null للصيغة بلا سنة
+            }
+            return { ok: false };
+        }
+        return { ok: false };
+    }
+
+    /* صيغة بلا سنة (مثل الاحد5-7): نعتمد العام الحالي لمعاملتها مع أي صيغ تحمل سنة */
+    function repDailyYearBase(k) {
+        var now = new Date();
+        var y = k.y != null ? k.y : now.getFullYear();
+        return y * 10000 + k.m * 100 + k.d;
+    }
+
+    /* يرتب قائمة اليوميات من الأحدث إلى الأقدم (غير المعروفة في النهاية) */
+    function repSortDailyValues(list) {
+        var tagged = list.map(function (v) { return { v: v, k: repDailyToSortKey(v) }; });
+        return tagged.sort(function (a, b) {
+            var ka = a.k, kb = b.k;
+            if (ka.ok !== kb.ok) return ka.ok ? -1 : 1;      // المعروفة أولاً
+            if (!ka.ok) return a.v.localeCompare(b.v, 'ar');  // المجهولة في النهاية أبجدياً
+            var av = repDailyYearBase(ka), bv = repDailyYearBase(kb);
+            if (bv !== av) return bv - av;                    // الأحدث أولاً
+            return b.v.localeCompare(a.v, 'ar');              // عند التساوي: أبجدي عكسي
+        }).map(function (x) { return x.v; });
+    }
+
     function populateFilters() {
         const dailySel = document.getElementById('filterDaily').value;
         const base = dailySel ? allShipments.filter(s => (s['اليومية'] || '') === dailySel) : allShipments;
 
-        const dailies = [...new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean))].sort();
+        const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
+        const rawDailies = [...new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean))].filter(d =>
+            (repArchiveFilter === 'نشطة' && !archivedDailies.has(d)) ||
+            (repArchiveFilter === 'مؤرشفة' && archivedDailies.has(d))
+        );
+        const dailies = repSortDailyValues(rawDailies);
         const statuses = [...new Set(allShipments.map(s => s['الحالة'] || '').filter(Boolean))].sort();
         const zones = [...new Set(allShipments.map(s => s['الزون'] || '').filter(Boolean))].sort();
         const senders = [...new Set(allShipments.map(s => s['الراسل'] || '').filter(Boolean))].sort();
 
         const dailyCounts = {};
-        allShipments.forEach(s => { const k = s['اليومية'] || ''; if (k) dailyCounts[k] = (dailyCounts[k] || 0) + 1; });
+        allShipments.forEach(s => { const k = s['اليومية'] || ''; if (k && dailies.includes(k)) dailyCounts[k] = (dailyCounts[k] || 0) + 1; });
 
         const zoneCounts = {};
         const senderCounts = {};
@@ -632,6 +711,22 @@
             chip.textContent = val ? val : chip.dataset.placeholder;
             chip.classList.toggle('active', !!val);
         });
+        const archiveChip = document.getElementById('chipArchive');
+        if (archiveChip) {
+            const isActive = repArchiveFilter === 'نشطة';
+            const allDailies = new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean));
+            const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
+            const count = isActive ? (allDailies.size - archivedDailies.size) : archivedDailies.size;
+            const label = isActive ? archiveChip.dataset.placeholderActive : archiveChip.dataset.placeholderArchived;
+            archiveChip.textContent = label + ' (' + count + ')';
+            archiveChip.classList.toggle('active', isActive);
+        }
+    }
+    function toggleRepArchiveFilter() {
+        repArchiveFilter = repArchiveFilter === 'نشطة' ? 'مؤرشفة' : 'نشطة';
+        localStorage.setItem('repArchiveFilter', repArchiveFilter);
+        populateFilters();
+        onFilterChange();
     }
 
     function openFilterChip(type) {
@@ -648,7 +743,7 @@
         const ci = ti[type];
         const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
         const optsHtml = ['<div class="grid grid-cols-1 gap-1.5">',
-            `<div data-type="${type}" data-value="" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${!current ? activeColors[ci] : chipColors[ci]}">الكل (${items.length})</div>`,
+            ...(type !== 'daily' ? [`<div data-type="${type}" data-value="" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${!current ? activeColors[ci] : chipColors[ci]}">الكل (${items.length})</div>`] : []),
             ...items.map(v => `<div data-type="${type}" data-value="${v.replace(/"/g,'&quot;')}" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ${current === v ? activeColors[ci] : chipColors[ci]}">${v}${type === 'daily' && archivedDailies.has(v) ? ' 📦' : ''} (${counts[v] || 0})</div>`),
         '</div>'].join('');
         Swal.fire({ title, html: optsHtml, showCancelButton: true, cancelButtonText: 'الغاء', showConfirmButton: false });
@@ -778,6 +873,13 @@
             }
             return true;
         });
+
+        /* فلترة "نشطة/مؤرشفة" */
+        if (repArchiveFilter === 'نشطة') {
+            filteredShipments = filteredShipments.filter(s => !isArchivedShipment(s));
+        } else {
+            filteredShipments = filteredShipments.filter(s => isArchivedShipment(s));
+        }
 
         /* ترتيب خاص بفلتر "مفضلة" فقط: الاكثر تفضيلا حديثا يظهر اولا */
         if (status === 'مفضلة') {
@@ -1005,7 +1107,7 @@
             const payload = { الحالة: status };
             const _srcStatus = (shipment['الحالة'] || '').trim();
             if (['تم', 'تم التسليم', 'تعديل سعر', 'شحن'].includes(_srcStatus) && status !== _srcStatus) {
-                payload['المدفوع'] = '';
+                payload['المدفوع'] = null;
                 payload['سبب الحالة'] = '';
             }
             if (status === 'تم') {
@@ -1092,7 +1194,7 @@
         const _newStatus = payload['الحالة'];
         if (['تم', 'تم التسليم', 'تعديل سعر', 'شحن'].includes(_srcStatus) && _newStatus !== _srcStatus) {
             const merged = Object.assign({}, payload);
-            merged['المدفوع'] = '';
+            merged['المدفوع'] = null;
             if (payload['سبب الحالة'] === undefined) merged['سبب الحالة'] = '';
             payload = merged;
         }

@@ -38,8 +38,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.all.min.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="assets/js/shipment-config.js?v=3E484FC390"></script>
-    <link rel="stylesheet" href="assets/css/style.css?v=0653F38806">
+    <script src="assets/js/shipment-config.js?v=F8F696B76F"></script>
+    <link rel="stylesheet" href="assets/css/style.css?v=3963DF0D8A">
     <style>
         body { background: #0f172a; color: #e2e8f0; font-family: 'Cairo', sans-serif; min-height: 100vh; transition: background .3s, color .3s; }
         body.light { background: #f8fafc; color: #1e293b; }
@@ -632,6 +632,73 @@
         fetchDailyShipments(daily);
     }
 
+    /* ===== ترتيب زمني لقيم "اليومية" النصية =====
+       نسخة مطابقة لدوال rep-dashboard.html لضمان نفس الترتيب في كل الصفحات.
+       قيمة "اليومية" نص عربي بصيغة مثل: الاحد5-7، الاربع1-7، السبت10-12
+       (اسم يوم + يوم-شهر، بدون سنة) كما هو موثّق في housing-dashboard.html
+       (parseDailyStringToSortKey / sortDailyValuesList). قد تظهر أيضاً صيغ أخرى
+       (ISO YYYY-MM-DD، يوم/شهر/سنة، اسم شهر عربي، رقم Excel التسلسلي) كما في
+       admin-dashboard.html (parseDate). يُنتَج مفتاح ترتيب موحّد لكل صيغة،
+       والترتيب من الأحدث إلى الأقدم. أي قيمة لا تُماثل صيغة معروفة تُرتب في
+       نهاية القائمة دون حذفها ودون كراش. */
+    function repDailyToSortKey(str) {
+        var s = String(str || '').trim();
+        if (!s) return { ok: false };
+        s = s
+            .replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+            .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
+
+        if (/^\d{5,6}$/.test(s)) {
+            var serial = Date.UTC(1899, 11, 30) + parseInt(s, 10) * 86400000;
+            var e = new Date(serial);
+            if (!isNaN(e.getTime()) && e.getUTCFullYear() > 1990 && e.getUTCFullYear() < 2100) {
+                return { ok: true, y: e.getUTCFullYear(), m: e.getUTCMonth() + 1, d: e.getUTCDate() };
+            }
+            return { ok: false };
+        }
+
+        var m;
+        m = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (m) return { ok: true, y: parseInt(m[1], 10), m: parseInt(m[2], 10), d: parseInt(m[3], 10) };
+        m = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/);
+        if (m) return { ok: true, y: parseInt(m[3], 10), m: parseInt(m[2], 10), d: parseInt(m[1], 10) };
+        m = s.match(/(\d{1,2})\s*([\u0600-\u06FF]+)\s*(\d{4})/);
+        if (m) {
+            var names = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+            var mi = names.indexOf(m[2]);
+            if (mi !== -1) return { ok: true, y: parseInt(m[3], 10), m: mi + 1, d: parseInt(m[1], 10) };
+        }
+        m = s.match(/(\d{1,2})-(\d{1,2})/);
+        if (m) {
+            var day = parseInt(m[1], 10), month = parseInt(m[2], 10);
+            if (month >= 1 && month <= 12 && day >= 1 && day <= 31) {
+                return { ok: true, y: null, m: month, d: day };
+            }
+            return { ok: false };
+        }
+        return { ok: false };
+    }
+
+    /* صيغة بلا سنة (مثل الاحد5-7): نعتمد العام الحالي لمعاملتها مع أي صيغ تحمل سنة */
+    function repDailyYearBase(k) {
+        var now = new Date();
+        var y = k.y != null ? k.y : now.getFullYear();
+        return y * 10000 + k.m * 100 + k.d;
+    }
+
+    /* يرتب قائمة اليوميات من الأحدث إلى الأقدم (غير المعروفة في النهاية) */
+    function repSortDailyValues(list) {
+        var tagged = list.map(function (v) { return { v: v, k: repDailyToSortKey(v) }; });
+        return tagged.sort(function (a, b) {
+            var ka = a.k, kb = b.k;
+            if (ka.ok !== kb.ok) return ka.ok ? -1 : 1;
+            if (!ka.ok) return a.v.localeCompare(b.v, 'ar');
+            var av = repDailyYearBase(ka), bv = repDailyYearBase(kb);
+            if (bv !== av) return bv - av;
+            return b.v.localeCompare(a.v, 'ar');
+        }).map(function (x) { return x.v; });
+    }
+
     function populateFilters() {
         var dailyVal = document.getElementById('filterDaily').value;
         var archivedDailies = new Set();
@@ -649,11 +716,11 @@
             if (dailyArchivedCount[d] && dailyArchivedCount[d] === dailyTotalCount[d]) archivedDailies.add(d);
         });
 
-        var dailies = allDailies.filter(function(d) {
+        var dailies = repSortDailyValues(allDailies.filter(function(d) {
             if (repArchiveFilter === 'نشطة' && archivedDailies.has(d)) return false;
             if (repArchiveFilter === 'مؤرشفة' && !archivedDailies.has(d)) return false;
             return true;
-        }).sort();
+        }));
 
         var dailyCounts = {};
         allDailyKeys.forEach(function(s) {
@@ -766,8 +833,10 @@
             if (d && isArchivedVal(s)) archivedDailies.add(d);
         });
         var totalCount = items.reduce(function(sum, v) { return sum + (counts[v] || 0); }, 0);
-        var optsHtml = '<div class="grid grid-cols-1 gap-1.5">' +
-            '<div data-type="' + type + '" data-value="" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ' + chipColors[type] + (!current ? ' active' : '') + '">الكل (' + totalCount + ')</div>';
+        var optsHtml = '<div class="grid grid-cols-1 gap-1.5">';
+        if (type !== 'daily') {
+            optsHtml += '<div data-type="' + type + '" data-value="" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ' + chipColors[type] + (!current ? ' active' : '') + '">الكل (' + totalCount + ')</div>';
+        }
         items.forEach(function(v) {
             var badge = (type === 'daily' && archivedDailies.has(v)) ? ' 📦' : '';
             optsHtml += '<div data-type="' + type + '" data-value="' + v.replace(/"/g, '&quot;') + '" onclick="selectFilterChip(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm ' + chipColors[type] + (current === v ? ' active' : '') + '">' + v + badge + ' (' + (counts[v] || 0) + ')</div>';
