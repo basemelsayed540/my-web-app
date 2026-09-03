@@ -866,7 +866,7 @@
             if (searchTerm) {
                 const term = searchTerm.toLowerCase();
                 const match = (s['كود الشحنة'] || '').toLowerCase().includes(term)
-                    || (s['اسم العميل'] || '').toLowerCase().includes(term)
+                    || (s['العميل'] || '').toLowerCase().includes(term)
                     || (s['الهاتف'] || '').toLowerCase().includes(term)
                     || (s['هاتف بديل'] || '').toLowerCase().includes(term);
                 if (!match) return false;
