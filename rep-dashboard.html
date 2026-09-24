@@ -243,7 +243,10 @@
                         <i class="fas fa-user-edit"></i> تعديل الحساب
                     </div>
                     <div class="menu-divider"></div>
-                    <div class="menu-item logout-item" onclick="toggleMenu();logout()">
+                    <div class="menu-item" id="adminBackMenuItem" style="display:none" onclick="toggleMenu();exitAdminView()">
+                        <i class="fas fa-arrow-right"></i> العودة للوحة المدير
+                    </div>
+                    <div class="menu-item logout-item" id="logoutMenuItem" onclick="toggleMenu();logout()">
                         <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                     </div>
                 </div>
@@ -345,6 +348,8 @@
             <button class="filter-chip" id="chipDaily" data-placeholder="📅 اليومية" onclick="openFilterChip('daily')">📅 اليومية</button>
             <button class="filter-chip" id="chipZone" data-placeholder="📍 الزون" onclick="openFilterChip('zone')">📍 الزون</button>
             <button class="filter-chip" id="chipSender" data-placeholder="🏢 الراسل" onclick="openFilterChip('sender')">🏢 الراسل</button>
+            <select id="filterRep" style="display:none" onchange="onFilterChange()"><option value="">المندوب</option></select>
+            <button class="filter-chip" id="chipRep" data-placeholder="👤 المندوب" onclick="openFilterChip('rep')" style="display:none">👤 المندوب</button>
         </div>
     </div>
 
@@ -356,21 +361,57 @@
 
 <script src="assets/js/shipment-config.js?v=F8F696B76F"></script>
 <script>
-    const BUILD = '6'; if (!window.location.href.includes('_t=')) { localStorage.setItem('rep-version', BUILD); window.location.href = window.location.href.split('?')[0] + '?_t=' + BUILD; }
+    const BUILD = '7';
+    try {
+        const _buildUrl = new URL(window.location.href);
+        if (_buildUrl.searchParams.get('_t') !== BUILD) {
+            _buildUrl.searchParams.set('_t', BUILD);
+            localStorage.setItem('rep-version', BUILD);
+            window.location.href = _buildUrl.toString();
+        }
+    } catch (e) { try { localStorage.setItem('rep-version', BUILD); } catch (e2) {} }
     const supabaseClient = getSharedSupabaseClient();
-    let actionsHidden = localStorage.getItem('rep-actions-hidden') === 'true';
+    let actionsHidden = false;
     function toggleRepActions() {
         actionsHidden = !actionsHidden;
-        localStorage.setItem('rep-actions-hidden', actionsHidden ? 'true' : 'false');
+        repStoreSet('rep-actions-hidden', actionsHidden ? 'true' : 'false');
         document.querySelectorAll('.action-btns').forEach(el => el.classList.toggle('hidden-actions', actionsHidden));
         const btn = document.getElementById('toggleActionsBtn');
         if (btn) btn.innerHTML = '<i class="fas ' + (actionsHidden ? 'fa-eye' : 'fa-eye-slash') + '"></i>';
     }
     let currentUser = JSON.parse(localStorage.getItem('user'));
+
+    /* ===== وضع «عرض كمدير» (تصفح المدير لشحنات مندوب معيّن) =====
+       يُفعّل عبر rep-dashboard.html?adminMode=1&repName=<اسم المندوب> من لوحة الإدارة.
+       - لا يغيّر دور المستخدم ولا يمنح صلاحية إضافية في قاعدة البيانات (نفس صلاحيات المدير).
+       - يعزل مفاتيح حالة المندوب تحت adminView:<rep>:<key> فلا يمس مفاتيح المندوب الحقيقية،
+         ومع ذلك تبقى حالة كل مندوب محفوظة داخل نفس الجلسة عند التبديل بينهم.
+       - يُمسح تلقائياً بإغلاق التاب (sessionStorage) أو بزر العودة في القائمة. */
+    const _repParams = new URLSearchParams(window.location.search);
+    const _isAdminUser = !!(currentUser && currentUser.role === 'admin');
+    if (_isAdminUser && _repParams.get('adminMode') === '1') {
+        try {
+            sessionStorage.setItem('adminViewMode', '1');
+            if (_repParams.get('repName')) sessionStorage.setItem('adminViewRepName', _repParams.get('repName'));
+        } catch (e) {}
+    }
+    const adminViewMode = _isAdminUser && (_repParams.get('adminMode') === '1' || sessionStorage.getItem('adminViewMode') === '1');
+    const adminViewRepName = adminViewMode ? (_repParams.get('repName') || sessionStorage.getItem('adminViewRepName') || '') : '';
+    function repKey(name) { return adminViewMode ? ('adminView:' + (adminViewRepName || '__none__') + ':' + name) : name; }
+    function repStoreGet(name) { try { return localStorage.getItem(repKey(name)); } catch (e) { return null; } }
+    function repStoreSet(name, val) { try { localStorage.setItem(repKey(name), val); } catch (e) {} }
+    function repStoreRemove(name) { try { localStorage.removeItem(repKey(name)); } catch (e) {} }
+    function exitAdminView() {
+        try { sessionStorage.removeItem('adminViewMode'); sessionStorage.removeItem('adminViewRepName'); } catch (e) {}
+        window.location.href = 'admin-dashboard.html';
+    }
+    window.exitAdminView = exitAdminView;
+
+    actionsHidden = repStoreGet('rep-actions-hidden') === 'true';
     let allShipments = [];
     let filteredShipments = [];
     let currentStatusFilter = '';
-    let repArchiveFilter = localStorage.getItem('repArchiveFilter') || 'نشطة';
+    let repArchiveFilter = repStoreGet('repArchiveFilter') || 'نشطة';
 
     function isArchivedShipment(s) {
         const v = s && s['ارشيف'];
@@ -393,17 +434,17 @@
         const snap = {};
         allShipments.forEach(s => { snap[s.id] = s['الحالة'] || ''; });
         notifSnapshot = snap;
-        localStorage.setItem('repNotifSnapshot', JSON.stringify(snap));
+        repStoreSet('repNotifSnapshot', JSON.stringify(snap));
     }
 
     function loadSnapshot() {
-        try { notifSnapshot = JSON.parse(localStorage.getItem('repNotifSnapshot')) || {}; } catch (e) { notifSnapshot = {}; }
+        try { notifSnapshot = JSON.parse(repStoreGet('repNotifSnapshot')) || {}; } catch (e) { notifSnapshot = {}; }
     }
 
     function getFavorites() {
-        try { return JSON.parse(localStorage.getItem('repFavorites')) || {}; } catch (e) { return {}; }
+        try { return JSON.parse(repStoreGet('repFavorites')) || {}; } catch (e) { return {}; }
     }
-    function saveFavorites(fav) { localStorage.setItem('repFavorites', JSON.stringify(fav)); }
+    function saveFavorites(fav) { repStoreSet('repFavorites', JSON.stringify(fav)); }
     function isFavorite(id) { return !!getFavorites()[id]; }
     function toggleFavorite(id) {
         const fav = getFavorites();
@@ -417,15 +458,15 @@
     }
 
     function getFollowupsSent() {
-        try { return JSON.parse(localStorage.getItem('repFollowupsSent')) || {}; } catch (e) { return {}; }
+        try { return JSON.parse(repStoreGet('repFollowupsSent')) || {}; } catch (e) { return {}; }
     }
-    function saveFollowupsSent(obj) { localStorage.setItem('repFollowupsSent', JSON.stringify(obj)); }
+    function saveFollowupsSent(obj) { repStoreSet('repFollowupsSent', JSON.stringify(obj)); }
     function markFollowupSent(id) { const o = getFollowupsSent(); o[id] = true; saveFollowupsSent(o); }
 
     function getFollowupsDismissed() {
-        try { return JSON.parse(localStorage.getItem('repFollowupsDismissed')) || {}; } catch (e) { return {}; }
+        try { return JSON.parse(repStoreGet('repFollowupsDismissed')) || {}; } catch (e) { return {}; }
     }
-    function saveFollowupsDismissed(obj) { localStorage.setItem('repFollowupsDismissed', JSON.stringify(obj)); }
+    function saveFollowupsDismissed(obj) { repStoreSet('repFollowupsDismissed', JSON.stringify(obj)); }
     function markFollowupDismissed(id) { const o = getFollowupsDismissed(); o[id] = true; saveFollowupsDismissed(o); }
 
     function checkNotifications(isInitial) {
@@ -478,12 +519,19 @@
         }
     });
 
-    if (!currentUser || !['rep', 'مندوب فرعي'].includes(currentUser.role)) {
+    if (!currentUser || (!['rep', 'مندوب فرعي'].includes(currentUser.role) && !(currentUser.role === 'admin' && adminViewMode))) {
         window.location.href = 'login.html';
     }
+    if (adminViewMode && !adminViewRepName) {
+        window.location.href = 'admin-dashboard.html';
+    }
 
-    const repDisplayName = currentUser.full_name || currentUser.username || '';
-    document.getElementById('repName').textContent = repDisplayName;
+    const repDisplayName = adminViewMode ? adminViewRepName : (currentUser.full_name || currentUser.username || '');
+    document.getElementById('repName').textContent = adminViewMode ? ('عرض: ' + repDisplayName) : repDisplayName;
+    if (adminViewMode) {
+        const _repRoleEl = document.getElementById('repRole');
+        if (_repRoleEl) _repRoleEl.textContent = 'وضع المدير — عرض كمندوب';
+    }
 
     if (localStorage.getItem('shipment-theme') === 'dark' || (!localStorage.getItem('shipment-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
         document.body.classList.add('dark');
@@ -701,14 +749,22 @@
         setOptions('filterSender', senders, senderCounts);
         filterData = { daily: dailies, zone: zones, sender: senders };
         filterCounts = { daily: dailyCounts, zone: zoneCounts, sender: senderCounts };
+        if (adminViewMode) {
+            const selRep = document.getElementById('filterRep');
+            if (selRep) selRep.value = repDisplayName;
+            filterData.rep = adminRepList.slice();
+            filterCounts.rep = {};
+        }
         updateChips();
     }
     function updateChips() {
-        ['daily','zone','sender'].forEach(t => {
+        const chipTypes = adminViewMode ? ['daily','zone','sender','rep'] : ['daily','zone','sender'];
+        chipTypes.forEach(t => {
             const sel = document.getElementById('filter' + t.charAt(0).toUpperCase() + t.slice(1));
             const chip = document.getElementById('chip' + t.charAt(0).toUpperCase() + t.slice(1));
+            if (!sel || !chip) return;
             const val = sel.value;
-            chip.textContent = val ? val : chip.dataset.placeholder;
+            chip.textContent = (t === 'rep' ? (val || repDisplayName) : val) || chip.dataset.placeholder;
             chip.classList.toggle('active', !!val);
         });
         const archiveChip = document.getElementById('chipArchive');
@@ -724,12 +780,23 @@
     }
     function toggleRepArchiveFilter() {
         repArchiveFilter = repArchiveFilter === 'نشطة' ? 'مؤرشفة' : 'نشطة';
-        localStorage.setItem('repArchiveFilter', repArchiveFilter);
+        repStoreSet('repArchiveFilter', repArchiveFilter);
         populateFilters();
         onFilterChange();
     }
 
     function openFilterChip(type) {
+        if (type === 'rep') {
+            const reps = (adminRepList && adminRepList.length) ? adminRepList : [repDisplayName].filter(Boolean);
+            const opts = ['<div class="grid grid-cols-1 gap-1.5">',
+                ...reps.map(v => {
+                    const isCur = v === repDisplayName;
+                    return `<div data-value="${String(v).replace(/"/g, '&quot;')}" onclick="selectAdminRep(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-herb${isCur ? ' active' : ''}">${v}${isCur ? ' ✓' : ''}</div>`;
+                }),
+                '</div>'].join('');
+            Swal.fire({ title: '👤 المندوب', html: opts, showCancelButton: true, cancelButtonText: 'الغاء', showConfirmButton: false });
+            return;
+        }
         const items = filterData[type] || [];
         const counts = filterCounts[type] || {};
         const sel = document.getElementById('filter' + type.charAt(0).toUpperCase() + type.slice(1));
@@ -757,6 +824,41 @@
         updateChips();
         onFilterChange();
     };
+
+    /* ===== مبدّل المندوب في وضع «عرض كمدير» ===== */
+    let adminRepList = [];
+    window.selectAdminRep = function(el) {
+        const val = (el && el.getAttribute('data-value')) || '';
+        if (Swal.isVisible()) Swal.close();
+        if (!val || val === repDisplayName) return;
+        try {
+            sessionStorage.setItem('adminViewMode', '1');
+            sessionStorage.setItem('adminViewRepName', val);
+        } catch (e) {}
+        try {
+            const u = new URL(window.location.href);
+            u.searchParams.set('adminMode', '1');
+            u.searchParams.set('repName', val);
+            u.searchParams.set('_t', BUILD);
+            window.location.href = u.toString();
+        } catch (e) {
+            window.location.href = 'rep-dashboard.html?adminMode=1&repName=' + encodeURIComponent(val);
+        }
+    };
+    function initAdminRepChip() {
+        if (!adminViewMode) return;
+        const chip = document.getElementById('chipRep');
+        if (chip) chip.style.display = '';
+        const backItem = document.getElementById('adminBackMenuItem');
+        if (backItem) backItem.style.display = '';
+        const logoutItem = document.getElementById('logoutMenuItem');
+        if (logoutItem) logoutItem.style.display = 'none';
+        try {
+            const stored = JSON.parse(sessionStorage.getItem('adminViewRepList') || '[]');
+            if (Array.isArray(stored)) adminRepList = stored.filter(Boolean);
+        } catch (e) {}
+        if (repDisplayName && adminRepList.indexOf(repDisplayName) === -1) adminRepList.push(repDisplayName);
+    }
     function setOptions(id, items, counts) {
         const sel = document.getElementById(id);
         const current = sel.value;
@@ -779,12 +881,12 @@
             sender: document.getElementById('filterSender').value,
             search: document.getElementById('searchInput').value
         };
-        localStorage.setItem('repFilters', JSON.stringify(filters));
+        repStoreSet('repFilters', JSON.stringify(filters));
     }
 
     function restoreFilters() {
         try {
-            const saved = JSON.parse(localStorage.getItem('repFilters'));
+            const saved = JSON.parse(repStoreGet('repFilters'));
             if (!saved) return;
             document.getElementById('filterDaily').value = saved.daily || '';
             currentStatusFilter = saved.status || '';
@@ -795,13 +897,13 @@
     }
 
     function restoreScroll() {
-        const saved = localStorage.getItem('repScrollPos');
+        const saved = repStoreGet('repScrollPos');
         if (saved) setTimeout(() => window.scrollTo(0, parseInt(saved)), 100);
-        localStorage.removeItem('repScrollPos');
+        repStoreRemove('repScrollPos');
     }
 
     window.addEventListener('beforeunload', () => {
-        localStorage.setItem('repScrollPos', String(window.scrollY));
+        repStoreSet('repScrollPos', String(window.scrollY));
     });
 
     function onFilterChange() {
@@ -1023,6 +1125,7 @@
                         <button class="action-btn call" onclick="event.stopPropagation();showPhonesDialog('${enNum(s['الهاتف'] || '')}','${enNum(s['هاتف بديل'] || '')}')"><i class="fas fa-phone ml-1"></i> اتصال${s['الهاتف'] && s['هاتف بديل'] ? `<span class="badge-num">2</span>` : ''}</button>
                         <button class="action-btn whatsapp" onclick="event.stopPropagation();showWhatsAppDialog(${idx})"><i class="fab fa-whatsapp ml-1"></i> واتساب${s['الهاتف'] && s['هاتف بديل'] ? `<span class="badge-num">2</span>` : ''}</button>
                     </div>
+                    ${adminViewMode ? `<div class="row"><button class="action-btn" style="background:#0ea5e9;color:#fff" onclick="event.stopPropagation();openAdminShipmentEditor(${idx})"><i class="fas fa-pen ml-1"></i> تعديل التفاصيل</button></div>` : ''}
                 </div>
                 `}
             </div>`;
@@ -1185,6 +1288,116 @@
             }
         });
     }
+
+    /* تعديل تفاصيل الشحنة الكامل — متاح في وضع «عرض كمدير» فقط.
+       ينسخ قواعد housing: منع المؤرشفة، إلزام المدفوع لحالتي «تعديل سعر/شحن»،
+       مسح المندوب عند «مجاش»، ومسح سبب الحالة/المدفوع عند مغادرة حالة منجزة. */
+    function openAdminShipmentEditor(idx) {
+        const s = filteredShipments[idx];
+        if (!s) return;
+        if (!adminViewMode) return;
+        if (isArchivedShipment(s)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        const escA = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const field = (id, label, val, mode) => '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">' + label + '</label><input id="' + id + '" ' + (mode || '') + ' class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm" value="' + escA(val) + '"></div>';
+        const statusList = ['', 'تم', 'قيد التوصيل', 'تعديل سعر', 'شحن', 'الغاء', 'مؤجل', 'مجاش'];
+        const statusOptions = statusList.map(st => '<option value="' + st + '"' + ((s['الحالة'] || '') === st ? ' selected' : '') + '>' + (st || '-') + '</option>').join('');
+        const pn = (x) => { const n = parseFloat(String(x == null ? '' : x).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^0-9.-]+/g, '')); return isNaN(n) ? 0 : n; };
+        const computeAdminSafi = (status, paid, amount, shipping) => {
+            if (status === 'تعديل سعر') return String(pn(amount) - pn(paid));
+            if (status === 'تم') return String(pn(paid) - pn(shipping));
+            return String(pn(amount) - pn(shipping));
+        };
+        const html = '<div class="grid grid-cols-2 gap-2 text-right" dir="rtl">'
+            + field('aedName', 'اسم العميل', s['اسم العميل'])
+            + field('aedPhone', 'الهاتف', s['الهاتف'])
+            + field('aedAlt', 'هاتف بديل', s['هاتف بديل'])
+            + field('aedAddress', 'العنوان', s['العنوان'])
+            + field('aedProduct', 'المنتج', s['المنتج'])
+            + field('aedZone', 'الزون', s['الزون'])
+            + field('aedSender', 'الراسل', s['الراسل'])
+            + field('aedRep', 'المندوب', s['المندوب'])
+            + field('aedDaily', 'اليومية', s['اليومية'])
+            + field('aedAmount', 'المبلغ', s['المبلغ'])
+            + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">الحالة</label><select id="aedStatus" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + statusOptions + '</select></div>'
+            + field('aedPaid', 'المدفوع (السعر)', s['المدفوع'], 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + field('aedShipping', 'الشحن', s['الشحن'], 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + field('aedReason', 'سبب الحالة', s['سبب الحالة'])
+            + '<div class="col-span-2"><label class="text-[11px] font-bold text-indigo-600 block mb-0.5">الصافي (يُحسب تلقائيًا — للعرض فقط)</label><input id="aedSafi" type="text" readonly dir="ltr" style="text-align:end" class="w-full p-2 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-indigo-50 dark:bg-slate-700 text-sm font-bold text-indigo-700 dark:text-indigo-300" placeholder="—"></div>'
+            + '</div>';
+        Swal.fire({
+            title: 'تعديل تفاصيل الشحنة',
+            html: html,
+            width: 640,
+            showCancelButton: true,
+            confirmButtonText: 'حفظ',
+            cancelButtonText: 'الغاء',
+            confirmButtonColor: '#7c3aed',
+            didOpen: () => {
+                const refreshPreview = () => {
+                    const el = document.getElementById('aedSafi');
+                    if (!el) return;
+                    const st = document.getElementById('aedStatus');
+                    const gv = (id) => { const f = document.getElementById(id); return f ? f.value.trim() : ''; };
+                    el.value = computeAdminSafi(st ? st.value : '', gv('aedPaid'), gv('aedAmount'), gv('aedShipping'));
+                };
+                ['aedAmount', 'aedPaid', 'aedShipping'].forEach(id => { const e = document.getElementById(id); if (e) e.addEventListener('input', refreshPreview); });
+                const st = document.getElementById('aedStatus');
+                if (st) st.addEventListener('change', refreshPreview);
+                refreshPreview();
+            },
+            preConfirm: () => {
+                const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+                const status = document.getElementById('aedStatus').value;
+                let rep = v('aedRep');
+                let paid = v('aedPaid');
+                if (status === 'مجاش') rep = '';
+                if ((status === 'تعديل سعر' || status === 'شحن') && (!paid || paid === '0' || isNaN(parseFloat(paid)))) {
+                    Swal.showValidationMessage('يرجى إدخال المدفوع (السعر) بقيمة صحيحة لهذه الحالة');
+                    return false;
+                }
+                const src = (s['الحالة'] || '').trim();
+                const clearOnPending = status === 'قيد التوصيل' && ['تم', 'تم التسليم', 'تعديل سعر', 'شحن', 'الغاء', 'رفض', 'مؤجل'].includes(src);
+                const clearOnReject = ['تم', 'تم التسليم', 'تعديل سعر', 'شحن'].includes(src) && ['الغاء', 'مؤجل', ''].includes(status);
+                const clearPayment = clearOnPending || clearOnReject;
+                let paidFinal = clearPayment ? '' : paid;
+                let reasonFinal = clearPayment ? '' : v('aedReason');
+                if (status === 'تم' && (!paidFinal || paidFinal === '0')) paidFinal = v('aedAmount');
+                return {
+                    'اسم العميل': v('aedName'),
+                    'الهاتف': v('aedPhone'),
+                    'هاتف بديل': v('aedAlt'),
+                    'العنوان': v('aedAddress'),
+                    'المنتج': v('aedProduct'),
+                    'الزون': v('aedZone'),
+                    'الراسل': v('aedSender'),
+                    'المندوب': rep,
+                    'اليومية': v('aedDaily'),
+                    'المبلغ': v('aedAmount'),
+                    'الحالة': status,
+                    'سبب الحالة': reasonFinal,
+                    'المدفوع': paidFinal,
+                    'الشحن': v('aedShipping'),
+                    'الصافي': computeAdminSafi(status, paidFinal, v('aedAmount'), v('aedShipping'))
+                };
+            }
+        }).then(async (result) => {
+            if (!result.isConfirmed || !result.value) return;
+            try {
+                const { error } = await supabaseClient
+                    .from(CONFIG.TABLES.SHIPMENTS)
+                    .update(result.value)
+                    .eq('id', s.id);
+                if (error) throw error;
+                Object.assign(s, result.value);
+                removeFavorite(String(s.id));
+                applyFilters();
+                Swal.fire({ icon: 'success', title: 'تم حفظ التعديلات', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+            } catch (err) {
+                Swal.fire('خطأ', err.message, 'error');
+            }
+        });
+    }
+    window.openAdminShipmentEditor = openAdminShipmentEditor;
 
     function doUpdateShipment(idx, payload) {
         const shipment = filteredShipments[idx];
@@ -1362,6 +1575,7 @@
     const toggleBtn = document.getElementById('toggleActionsBtn');
     if (toggleBtn) toggleBtn.innerHTML = '<i class="fas ' + (actionsHidden ? 'fa-eye' : 'fa-eye-slash') + '"></i>';
 
+    initAdminRepChip();
     loadShipments();
 </script>
 </body>

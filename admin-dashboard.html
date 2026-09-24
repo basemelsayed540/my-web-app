@@ -35,9 +35,29 @@
         .stat-card .breakdown { font-size: .62rem; font-weight: 700; color: #94a3b8; margin-top: 2px; }
         #statusFilterRow .stat-card { min-height: 86px; }
 
-        .progress-bar { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
+.progress-bar { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; }
         .dark .progress-bar { background: #1e293b; }
         .progress-bar .fill { height: 100%; border-radius: 10px; background: linear-gradient(135deg, #16a34a, #0ea5e9); transition: width .5s ease; }
+
+        /* مؤشر تحميل غير محدد المدة (indeterminate) — كلاس منفصل تمامًا، لا يمس .progress-bar/.fill الأصليين ولا استخدامهما في النسب الثابتة */
+        .loading-progress { height: 10px; border-radius: 10px; background: #e2e8f0; overflow: hidden; position: relative; }
+        .dark .loading-progress { background: #1e293b; }
+        .loading-progress .fill { position: absolute; top: 0; left: 100%; width: 40%; height: 100%; border-radius: 10px; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); animation: loading-progress-move 1.4s ease-in-out infinite; }
+        @keyframes loading-progress-move {
+            0%   { left: 100%; }
+            100% { left: -40%; }
+        }
+
+        /* كلاس تعديل لحالة التحميل فقط — يدمج المؤشر مع خلفية التبويب بدل صندوق زجاجي بارز، يُضاف/يُزال عبر classList ولا يمس .glass-card نفسها */
+        .loading-block-slim {
+            background: transparent !important;
+            border: none !important;
+            box-shadow: none !important;
+            padding: 4px 0 !important;
+        }
+        .dark .loading-block-slim {
+            background: transparent !important;
+        }
 
         .filter-chip { padding: 8px 12px; border-radius: 999px; border: 2px solid rgba(148,163,184,.18); background: #fff; color: #475569; font-weight: 700; font-size: .72rem; cursor: pointer; white-space: nowrap; transition: all .2s; }
         .dark .filter-chip { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,.12); }
@@ -144,6 +164,7 @@
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <button onclick="adminRefresh()" class="icon-btn" title="تحديث البيانات"><i class="fas fa-sync-alt" id="refreshIcon"></i></button>
+            <button onclick="openAdminViewAsRepPicker()" class="icon-btn" title="عرض شحنات مندوب"><i class="fas fa-user-astronaut"></i></button>
             <button onclick="toggleTheme()" class="icon-btn" title="الوضع الليلي"><i id="themeIcon" class="fas fa-moon"></i></button>
             <div class="relative" id="adminMenuWrap">
                 <button onclick="toggleAdminMenu()" class="icon-btn" title="القائمة" id="adminMenuBtn"><i class="fas fa-bars"></i></button>
@@ -532,6 +553,7 @@
 
         // ---------- Tabs ----------
         window.switchTab = function (tab) {
+            activeTab = tab;
             ['overview', 'accounts', 'housing'].forEach(function (k) {
                 var p = $('tab-' + k);
                 if (p) p.classList.add('hidden');
@@ -542,6 +564,10 @@
                 b.classList.toggle('active', b.dataset.tab === tab);
             });
             try { localStorage.setItem('adminDashboardTab', tab); } catch (e) { }
+            if (tab === 'overview' || tab === 'accounts') {
+                if (pendingBlockState === 'loading') showLoading();
+                else if (pendingBlockState === 'error') showEmptyFallback();
+            }
             if (tab === 'overview') renderOverview();
             if (tab === 'accounts') renderUserList();
 
@@ -694,16 +720,89 @@
             });
         };
 
+        // فتح لوحة المندوب في وضع «عرض كمدير»: المدير يتصفح شحنات مندوب معيّن
+        // (قراءة + تعديل بنفس قواعد housing). تُحفظ قائمة المناديب في sessionStorage
+        // ليستعملها فلتر «المندوب» داخل rep-dashboard دون قراءة جدول users هناك.
+        window.openAdminViewAsRep = function (name) {
+            name = String(name || '').trim();
+            if (!name) return;
+            var reps = [];
+            try {
+                (getOverviewRows() || []).forEach(function (s) {
+                    var n = String(s['المندوب'] || '').trim();
+                    if (n && reps.indexOf(n) === -1) reps.push(n);
+                });
+            } catch (e) {}
+            if (reps.indexOf(name) === -1) reps.push(name);
+            try {
+                sessionStorage.setItem('adminViewMode', '1');
+                sessionStorage.setItem('adminViewRepName', name);
+                sessionStorage.setItem('adminViewRepList', JSON.stringify(reps));
+            } catch (e) {}
+            var target = 'rep-dashboard.html';
+            try {
+                var u = new URL(target, window.location.href);
+                u.searchParams.set('adminMode', '1');
+                u.searchParams.set('repName', name);
+                target = u.toString();
+            } catch (e) {}
+            window.location.href = target;
+        };
+
+        // حالة مؤشر التحميل المعلّقة والتبويب النشط فعليًا (مشتركان بين script 1 و script 2)
+
+        // زر الشريط العلوي «عرض كمندوب»: قائمة المناديب (نفس مصدر بيانات الشحنات) ثم التجوال
+        window.openAdminViewAsRepPicker = function () {
+            var names = [];
+            try {
+                (getOverviewRows() || []).forEach(function (s) {
+                    var n = String(s['المندوب'] || '').trim();
+                    if (n && names.indexOf(n) === -1) names.push(n);
+                });
+            } catch (e) {}
+            if (!names.length) {
+                Swal.fire('لا توجد بيانات', 'تعذر تجميع قائمة المناديب (تأكد من تحميل تبويب الإحصائيات)', 'info');
+                return;
+            }
+            var opts = ['<div class="grid grid-cols-1 gap-1.5">',
+                names.map(function (n) {
+                    return '<div data-rep="' + esc(n) + '" onclick="pickAdminRep(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-air">' + esc(n) + '</div>';
+                }),
+                '</div>'].join('');
+            Swal.fire({ title: '👤 اختر المندوب لعرض شحناته', html: opts, showCancelButton: true, cancelButtonText: 'الغاء', showConfirmButton: false });
+        };
+        window.pickAdminRep = function (el) {
+            var name = el.getAttribute('data-rep');
+            if (Swal.isVisible()) Swal.close();
+            if (name) openAdminViewAsRep(name);
+        };
+        var pendingBlockState = null; // null | 'loading' | 'error'
+        var activeTab = 'overview';
+
         function showLoading() {
-            var b = $('loadingBlock');
-            b.classList.remove('hidden');
-            b.innerHTML = '<div class="w-10 h-10 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin mb-3"></div><p class="font-bold text-slate-500 dark:text-slate-400 text-sm">جاري تحميل البيانات...</p>';
+            pendingBlockState = 'loading';
+            if (activeTab === 'overview' || activeTab === 'accounts') {
+                var b = $('loadingBlock');
+                b.classList.remove('hidden');
+                b.classList.add('loading-block-slim');
+                b.style.minHeight = '';
+                b.innerHTML = '<div class="loading-progress mb-3"><div class="fill"></div></div><p class="font-bold text-slate-500 dark:text-slate-400 text-sm">جاري تحميل البيانات...</p>';
+            }
         }
-        function hideLoading() { $('loadingBlock').classList.add('hidden'); }
+        function hideLoading() {
+            pendingBlockState = null;
+            $('loadingBlock').classList.add('hidden');
+            $('loadingBlock').classList.remove('loading-block-slim');
+        }
         function showEmptyFallback() {
-            var b = $('loadingBlock');
-            b.classList.remove('hidden');
-            b.innerHTML = '<div class="text-center text-slate-400 py-8 space-y-2"><i class="fas fa-wifi-slash text-5xl opacity-50 mb-2"></i><p class="font-bold">تعذر الاتصال بالخادم</p><p class="text-sm">يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً</p><button onclick="location.reload()" class="btn-primary mt-3">إعادة المحاولة</button></div>';
+            pendingBlockState = 'error';
+            if (activeTab === 'overview' || activeTab === 'accounts') {
+                var b = $('loadingBlock');
+                b.classList.remove('hidden');
+                b.classList.remove('loading-block-slim');
+                b.style.minHeight = '280px';
+                b.innerHTML = '<div class="text-center text-slate-400 py-8 space-y-2"><i class="fas fa-wifi-slash text-5xl opacity-50 mb-2"></i><p class="font-bold">تعذر الاتصال بالخادم</p><p class="text-sm">يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً</p><button onclick="location.reload()" class="btn-primary mt-3">إعادة المحاولة</button></div>';
+            }
         }
 
         // =================================================================
@@ -981,6 +1080,7 @@
                     + '<div class="text-[11px] font-bold text-slate-400">' + enNum(r.total) + ' شحنة • ' + enNum(r.delivered) + ' تم</div>'
                     + '</div></div>'
                     + '<div class="flex items-center gap-1.5 shrink-0">'
+                    + (state.repViewMode !== 'sender' ? '<button data-rep="' + esc(r.name) + '" class="toast-btn text-sky-600" style="background:rgba(14,165,233,.08);border:1px solid rgba(14,165,233,.22)" onclick="event.stopPropagation();openAdminViewAsRep(this.getAttribute(\'data-rep\'))"><i class="fas fa-eye ml-1"></i>عرض كمندوب</button>' : '')
                     + '<span class="text-xs font-extrabold ' + pctColor + '">' + enNum(pctVal) + '%</span>'
                     + '<i class="fas fa-chevron-down text-slate-400 text-xs transition-transform ' + (isOpen ? 'rotate-180' : '') + '"></i>'
                     + '</div></div>'
@@ -1744,24 +1844,29 @@
 </script>
 <script>
     // تبويب تسكين الشحنات — إضافة معزولة، لا تمس أي وظيفة قائمة
-    window.showHousingTab = function () {
-        ['overview', 'accounts', 'housing'].forEach(function (k) {
-            var p = document.getElementById('tab-' + k);
-            if (p) p.classList.add('hidden');
-        });
-        var panel = document.getElementById('tab-housing');
-        if (panel) panel.classList.remove('hidden');
-        document.querySelectorAll('#adminTabs .sidebar-tab').forEach(function (b) {
-            b.classList.toggle('active', b.dataset.tab === 'housing');
-        });
-        var fr = document.getElementById('housingFrame');
-        if (fr && (!fr.dataset.loaded || fr.src === 'about:blank')) {
-            fr.dataset.loaded = '1';
-            /* cache-bust: ضمان تحميل احدث نسخة من صفحة تسكين الشحنات */
-            fr.src = 'housing-dashboard.html?v=' + Date.now();
-        }
-        try { localStorage.setItem('adminDashboardTab', 'housing'); } catch (e) { }
-    };
+        // نسخة صفحة تسكين الشحنات: تُحدَّث يدويًا فقط عند أي تعديل فعلي على housing-dashboard.html
+        var HOUSING_PAGE_VERSION = 'v1';
+        window.showHousingTab = function () {
+            activeTab = 'housing';
+            ['overview', 'accounts', 'housing'].forEach(function (k) {
+                var p = document.getElementById('tab-' + k);
+                if (p) p.classList.add('hidden');
+            });
+            var panel = document.getElementById('tab-housing');
+            if (panel) panel.classList.remove('hidden');
+            document.querySelectorAll('#adminTabs .sidebar-tab').forEach(function (b) {
+                b.classList.toggle('active', b.dataset.tab === 'housing');
+            });
+            var lb = document.getElementById('loadingBlock');
+            if (lb) lb.classList.add('hidden');
+            var fr = document.getElementById('housingFrame');
+            if (fr && (!fr.dataset.loaded || fr.src === 'about:blank')) {
+                fr.dataset.loaded = '1';
+                /* cache-bust بثابت إصدار: يُحدَّث يدويًا فقط عند تعديل صفحة تسكين الشحنات فعليًا */
+                fr.src = 'housing-dashboard.html?v=' + HOUSING_PAGE_VERSION;
+            }
+            try { localStorage.setItem('adminDashboardTab', 'housing'); } catch (e) { }
+        };
 
     /* استرجاع آخر تبويب كان مفتوحاً بعد تحديث الصفحة (بدل الرجوع لإحصائيات دائماً) */
     (function () {
