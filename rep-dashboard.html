@@ -153,6 +153,11 @@
         .menu-item.logout-item:hover { background: rgba(220,38,38,0.06); }
         .dark .menu-item.logout-item:hover { background: rgba(220,38,38,0.1); }
         .menu-divider { height: 1px; background: rgba(148,163,184,0.1); margin: 0; }
+        .shipment-menu-panel { right: 0; left: auto; width: 175px; }
+        .menu-item.danger-item { color: #dc2626; border-bottom: none; }
+        .dark .menu-item.danger-item { color: #fb7185; }
+        .menu-item.danger-item:hover { background: rgba(220,38,38,0.06); }
+        .dark .menu-item.danger-item:hover { background: rgba(220,38,38,0.1); }
 
         .filter-chip { padding: 9px 6px; border-radius: 12px; border: 1px solid rgba(148,163,184,0.15); font-size: 0.75rem; font-weight: 700; cursor: pointer; background: white; color: #475569; text-align: center; transition: background 0.2s, color 0.2s, transform 0.2s; }
         .dark .filter-chip { background: #1e293b; color: #94a3b8; border-color: rgba(148,163,184,0.1); }
@@ -814,6 +819,13 @@
         setOptions('filterDaily', dailies, dailyCounts);
         setOptions('filterZone', zones, zoneCounts);
         setOptions('filterSender', senders, senderCounts);
+        const repCountsForSelect = Object.assign({}, repCounts);
+        if (adminViewMode && noRepCount > 0) {
+            repCountsForSelect[NO_REP_VALUE] = noRepCount;
+            setOptions('filterRep', repNames.concat(NO_REP_VALUE), repCountsForSelect);
+        } else {
+            setOptions('filterRep', repNames, repCountsForSelect);
+        }
         filterData = { daily: dailies, zone: zones, sender: senders, rep: adminViewMode ? repNames : [] };
         filterCounts = { daily: dailyCounts, zone: zoneCounts, sender: senderCounts, rep: adminViewMode ? repCounts : {} };
         if (adminViewMode) {
@@ -1241,7 +1253,7 @@
             <div class="shipment-row ${rowClass}">
                 <div class="flex items-center justify-between">
                     <div>
-                        <div class="main"><span class="shipment-actions-bar"><span class="shipment-dots-btn" onclick="event.stopPropagation();copyShipmentDetails(${idx})"><i class="fas fa-ellipsis-v"></i></span>${adminViewMode ? `<span class="shipment-rep-label">${enNum(s['المندوب'] || '-')}</span>` : ''}${canFav ? `<button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${sid}')"><i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i></button>` : ''}</span>${needsFollowup ? (followupSent ? `<button class="followup-sent-card" onclick="event.stopPropagation();dismissFollowup('${sid}')"><i class="fas fa-check-circle"></i> تم ارسال المتابعة</button>` : `<button class="followup-btn" onclick="event.stopPropagation();doFollowup(${idx},'${sid}')"><i class="fab fa-whatsapp"></i></button>`) : ''}</div>
+                        <div class="main"><span class="shipment-actions-bar"><span class="shipment-dots-btn" onclick="event.stopPropagation();${adminViewMode ? `toggleShipmentMenu('${sid}')` : `copyShipmentDetails(${idx})`}"><i class="fas fa-ellipsis-v"></i></span>${adminViewMode ? `<span style="position:relative;display:inline-block;width:0;height:0;top:12px"><div class="menu-panel shipment-menu-panel" id="shipMenu${sid}"><div class="menu-item" onclick="event.stopPropagation();closeShipmentMenus();copyShipmentDetails(${idx})">📋 نسخ</div><div class="menu-item" onclick="event.stopPropagation();closeShipmentMenus();openAdminShipmentEditor(${idx})">✏️ تعديل</div><div class="menu-item danger-item" onclick="event.stopPropagation();closeShipmentMenus();deleteAdminShipment(${idx})">🗑️ حذف</div></div></span>` : ''}${adminViewMode ? `<span class="shipment-rep-label">${enNum(s['المندوب'] || '-')}</span>` : ''}${canFav ? `<button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${sid}')"><i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i></button>` : ''}</span>${needsFollowup ? (followupSent ? `<button class="followup-sent-card" onclick="event.stopPropagation();dismissFollowup('${sid}')"><i class="fas fa-check-circle"></i> تم ارسال المتابعة</button>` : `<button class="followup-btn" onclick="event.stopPropagation();doFollowup(${idx},'${sid}')"><i class="fab fa-whatsapp"></i></button>`) : ''}</div>
                         <div class="main customer-name mt-1">${enNum(s['اسم العميل'] || '-')}</div>
                     </div>
                     <div class="text-left">
@@ -1269,7 +1281,6 @@
                         <button class="action-btn call" onclick="event.stopPropagation();showPhonesDialog('${enNum(s['الهاتف'] || '')}','${enNum(s['هاتف بديل'] || '')}')"><i class="fas fa-phone ml-1"></i> اتصال${s['الهاتف'] && s['هاتف بديل'] ? `<span class="badge-num">2</span>` : ''}</button>
                         <button class="action-btn whatsapp" onclick="event.stopPropagation();showWhatsAppDialog(${idx})"><i class="fab fa-whatsapp ml-1"></i> واتساب${s['الهاتف'] && s['هاتف بديل'] ? `<span class="badge-num">2</span>` : ''}</button>
                     </div>
-                    ${adminViewMode ? `<div class="row"><button class="action-btn" style="background:#0ea5e9;color:#fff" onclick="event.stopPropagation();openAdminShipmentEditor(${idx})"><i class="fas fa-pen ml-1"></i> تعديل التفاصيل</button></div>` : ''}
                 </div>
                 `}
             </div>`;
@@ -1296,6 +1307,56 @@
         }).catch(() => {
             Swal.fire('خطأ', 'فشل النسخ', 'error');
         });
+    }
+
+    function closeShipmentMenus() {
+        document.querySelectorAll('.shipment-menu-panel').forEach(p => p.classList.remove('show'));
+    }
+    window.toggleShipmentMenu = function (sid) {
+        const p = document.getElementById('shipMenu' + sid);
+        if (!p) return;
+        closeShipmentMenus();
+        p.classList.toggle('show');
+    };
+    document.addEventListener('click', (e) => {
+        if (!e.target.closest('.shipment-actions-bar')) closeShipmentMenus();
+    });
+
+    async function deleteAdminShipment(idx) {
+        if (!adminViewMode) return;
+        const s = filteredShipments[idx];
+        if (!s) return;
+        const sid = String(s.id);
+        if (isArchivedShipment(s)) {
+            Swal.fire('لا يمكن حذف شحنة مؤرشفة', '', 'warning');
+            return;
+        }
+        const code = enNum(s['كود الشحنة'] || '');
+        const cust = enNum(s['اسم العميل'] || '');
+        const escA2 = (v) => String(v).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const { isConfirmed } = await Swal.fire({
+            title: 'حذف الشحنة',
+            html: 'هل أنت متأكد من حذف الشحنة؟<br><b>' + escA2('كود: ') + '<span class="text-indigo-600 dark:text-indigo-400">' + escA2(code) + '</span></b><br><span class="text-red-500">' + escA2(cust) + '</span>',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'نعم، احذف',
+            cancelButtonText: 'إلغاء',
+            confirmButtonColor: '#ef4444',
+            showLoaderOnConfirm: true,
+            allowOutsideClick: () => !Swal.isLoading()
+        });
+        if (!isConfirmed) return;
+        try {
+            const delRes = await supabaseClient.from(CONFIG.TABLES.SHIPMENTS).delete().eq('id', s.id);
+            if (delRes && delRes.error) throw delRes.error;
+            removeFavorite(sid);
+            allShipments = allShipments.filter(x => String(x.id) !== sid);
+            applyFilters();
+            Swal.fire({ icon: 'success', title: 'تم حذف الشحنة', toast: true, position: 'top-end', showConfirmButton: false, timer: 1500 });
+        } catch (err) {
+            console.error('deleteAdminShipment:', err);
+            Swal.fire('خطأ', 'فشل حذف الشحنة', 'error');
+        }
     }
 
     function doFollowup(idx, sid) {
@@ -1697,12 +1758,19 @@
                 let paid = v('addShipPaid');
                 const amount = v('addShipAmount');
                 const shipping = v('addShipShipping');
+                const sender = v('addShipSender');
+                const commission = v('addShipCommission');
                 if (!name) { Swal.showValidationMessage('يرجى إدخال اسم العميل'); return false; }
                 if (!dailyVal) { Swal.showValidationMessage('اليومية غير محددة'); return false; }
                 if ((status === 'تعديل سعر' || status === 'شحن') && (!paid || paid === '0' || isNaN(parseFloat(paid)))) {
                     Swal.showValidationMessage('يرجى إدخال المدفوع (السعر) بقيمة صحيحة لهذه الحالة');
                     return false;
                 }
+                if (sender === '') { Swal.showValidationMessage('يرجى إدخال الراسل'); return false; }
+                if (status === '') { Swal.showValidationMessage('يرجى اختيار الحالة'); return false; }
+                if (amount === '') { Swal.showValidationMessage('يرجى إدخال المبلغ (يمكن أن يكون 0)'); return false; }
+                if (shipping === '') { Swal.showValidationMessage('يرجى إدخال الشحن (يمكن أن يكون 0)'); return false; }
+                if (commission === '') { Swal.showValidationMessage('يرجى إدخال عمولة المندوب (يمكن أن تكون 0)'); return false; }
                 const paidFinal = status === 'تم' && (!paid || paid === '0') ? amount : paid;
                 let code = v('addShipCode');
                 if (!code) code = await _repGenerateShipmentCode(dailyVal);
