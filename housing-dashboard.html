@@ -1167,6 +1167,18 @@
             cursor: inherit;
         }
 
+        /* شحنة "قديمة" (تاريخها أقدم من تاريخ اليوم وقت العرض) — تلوين نصوص الحقول فقط، لا الخلفية.
+           يُستثنى من "قديمة": الصفوف المؤرشفة (لا يُضاف لها هذا الكلاس أصلاً)،
+           وخلايا الهاتف المتطابق phone-match-text (تبقى خضراء بقاعدة !important القائمة). */
+        .housing-old-row .form-control,
+        .housing-old-row .form-select {
+            color: #ef4444;
+        }
+        [data-bs-theme="dark"] .housing-old-row .form-control,
+        [data-bs-theme="dark"] .housing-old-row .form-select {
+            color: #f87171;
+        }
+
         .housing-editdate-menu {
             max-height: 280px;
             overflow-y: auto;
@@ -8495,7 +8507,7 @@
                         { key: 'الحالة', labels: ['الحالة'] },
                         { key: 'سبب الحالة', labels: ['سبب الحالة', 'سبب_الحالة'] },
                         { key: 'ملاحظات', labels: ['ملاحظات'] },
-                        { key: 'التاريخ', labels: ['التاريخ', 'تاريخ_التحديث', 'الابيديت'] },
+                        { key: 'التاريخ', labels: ['التاريخ'] },
                         { key: 'الصافي', labels: ['الصافي'] },
                         { key: 'الشحن', labels: ['الشحن'] },
                         { key: 'عدد', labels: ['عدد', 'كود اضافي', 'كود_اضافي'] },
@@ -8551,6 +8563,12 @@
                     const CODE_PREFIX = 'COD';
                     const CODE_TS = Date.now().toString(36).toUpperCase();
                     const NUMERIC_FIELDS = new Set(['المبلغ', 'المدفوع', 'الصافي', 'الشحن', 'عمولة المندوب']);
+                    /* تاريخ اليوم بصيغة YYYY-MM-DD المطابقة لصيغة normalizeExcelDateValue المستخدمة فعلياً في هذا الاستيراد */
+                    const TODAY_DATE_ISO = (() => {
+                        const _d = new Date();
+                        const _p = n => String(n).padStart(2, '0');
+                        return _d.getFullYear() + '-' + _p(_d.getMonth() + 1) + '-' + _p(_d.getDate());
+                    })();
                     const skipUnsupported = unsupportedShipmentSchemaFields.size > 0;
 
                     for (let rowIndex = 1; rowIndex < rows.length; rowIndex++) {
@@ -8599,6 +8617,12 @@
                             if (k === 'الراسل') {
                                 payload[k] = normalizeSenderName(val);
                             }
+                        }
+
+                        /* الجزء 1: إذا لم تُقرأ قيمة صالحة لعمود "التاريخ" من صف الملف، تُكتب قيمة تاريخ اليوم؛
+                           لا تُكتب فوق قيمة موجودة جاهزة من الملف (نتيجة بهذه الطريقة قيمة موجودة تبقى دون مساس) */
+                        if (!payload['التاريخ']) {
+                            payload['التاريخ'] = TODAY_DATE_ISO;
                         }
 
                         if (skipUnsupported) {
@@ -11161,6 +11185,41 @@
             renderHousingTableOnly();
         }
 
+        /* تحقق آمن من كون التاريخ "قديماً": يميّز صيغ ISO و يوم/شهر/سنة والرقم التسلسلي
+           لـExcel واسم الشهر العربي واليوم/الشهر بلا سنة (بعام اليوم كاتفاق المشروع)،
+           مع تطبيع للأرقام العربية/الفارسية. أي قيمة فارغة أو غير قابلة للتحليل بثقة
+           تُرجع false (لا تُعتبر قديمة بالخطأ). */
+        function housingIsOldDate(val) {
+            let s = String(val || '').trim();
+            if (!s) return false;
+            s = s
+                .replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+                .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
+            let y = null, m = null, dd = null;
+            let mt;
+            if (/^\d{5,6}$/.test(s)) {
+                const e = new Date(Date.UTC(1899, 11, 30) + parseInt(s, 10) * 86400000);
+                if (!isNaN(e.getTime()) && e.getUTCFullYear() > 1990 && e.getUTCFullYear() < 2100) {
+                    y = e.getUTCFullYear(); m = e.getUTCMonth() + 1; dd = e.getUTCDate();
+                }
+            } else if ((mt = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/))) {
+                y = parseInt(mt[1], 10); m = parseInt(mt[2], 10); dd = parseInt(mt[3], 10);
+            } else if ((mt = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/))) {
+                dd = parseInt(mt[1], 10); m = parseInt(mt[2], 10); y = parseInt(mt[3], 10);
+            } else if ((mt = s.match(/(\d{1,2})\s*([\u0600-\u06FF]+)\s*(\d{4})/))) {
+                const names = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+                const mi = names.indexOf(mt[2]);
+                if (mi !== -1) { dd = parseInt(mt[1], 10); m = mi + 1; y = parseInt(mt[3], 10); }
+            } else if ((mt = s.match(/^(\d{1,2})-(\d{1,2})$/))) {
+                const dd2 = parseInt(mt[1], 10), mm = parseInt(mt[2], 10);
+                if (mm >= 1 && mm <= 12 && dd2 >= 1 && dd2 <= 31) { dd = dd2; m = mm; y = new Date().getFullYear(); }
+            }
+            if (y === null || m === null || dd === null) return false;
+            const now = new Date();
+            const today = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+            return (y * 10000 + m * 100 + dd) < today;
+        }
+
         let _housingPageOnlyChange = false;
 
         function renderHousingTableOnly() {
@@ -11229,9 +11288,10 @@
                 const isMjashDraft = draft && draft.الحالة === 'مجاش';
                 const isArchived = isArchivedShipment(currentData);
                 const archivedAttr = isArchived ? 'disabled' : '';
+                const isOldShipment = !isArchived && housingIsOldDate(currentData['التاريخ'] || currentData.تاريخ_التحديث);
 
                 return `
-                    <tr class="${hasAnotherShipment ? 'housing-duplicate-row' : ''}${isArchived ? ' housing-archived-row' : ''}" title="${hasAnotherShipment ? 'له شحنة أخرى بنفس رقم الهاتف' : ''}${isArchived ? ' مؤرشفة' : ''}">
+                    <tr class="${hasAnotherShipment ? 'housing-duplicate-row' : ''}${isArchived ? ' housing-archived-row' : ''}${isOldShipment ? ' housing-old-row' : ''}" title="${hasAnotherShipment ? 'له شحنة أخرى بنفس رقم الهاتف' : ''}${isArchived ? ' مؤرشفة' : ''}">
                         <td class="text-center" data-col-idx="0">
                             <input class="form-check-input housing-row-checkbox border-secondary" type="checkbox" value="${escapeAttr(s.id)}" data-db-id="${escapeAttr(shipmentDbId)}" data-shipment-code="${escapeAttr(s['كود الشحنة'] || s.order_id || '')}" ${shipmentDbId && !isArchived ? (housingSelectedIds.has(shipmentDbId) ? 'checked ' : '') : 'disabled title="لا يمكن تنفيذ عمليات جماعية لأن معرف قاعدة البيانات غير متوفر لهذه الشحنة"'} onclick="updateHousingRowSelection()">
                         </td>

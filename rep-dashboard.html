@@ -83,6 +83,8 @@
         .shipment-row .main { font-size: 0.95rem; font-weight: 700; }
         .shipment-row .sub { font-size: 0.8rem; font-weight: 500; color: #64748b; }
         .dark .shipment-row .sub { color: #94a3b8; }
+        .shipment-rep-label { display: inline-block; vertical-align: middle; line-height: 1; font-size: 0.75rem; font-weight: 600; color: #64748b; max-width: 110px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .dark .shipment-rep-label { color: #94a3b8; }
         .shipment-row .field-label { font-size: 10px; font-weight: 400; color: #94a3b8; margin-left: 2px; }
         .dark .shipment-row .field-label { color: #64748b; }
         .shipment-row .customer-name { font-size: 14px; font-weight: 700; color: #16a34a; }
@@ -234,6 +236,8 @@
             <button onclick="toggleTheme()" class="icon-btn" title="الوضع الليلي">
                 <i id="themeIcon" class="fas fa-moon"></i>
             </button>
+            <button onclick="exitAdminView()" id="adminBackIconBtn" class="icon-btn" title="العودة للوحة المدير" style="display:none"><i class="fas fa-building-user"></i></button>
+            <button onclick="openAdminShipmentAdd()" id="adminAddShipmentBtn" class="icon-btn" title="إضافة شحنة" style="display:none"><i class="fas fa-plus"></i></button>
             <div style="position:relative">
                 <button onclick="toggleMenu()" class="icon-btn" title="القائمة">
                     <i class="fas fa-bars"></i>
@@ -243,9 +247,6 @@
                         <i class="fas fa-user-edit"></i> تعديل الحساب
                     </div>
                     <div class="menu-divider"></div>
-                    <div class="menu-item" id="adminBackMenuItem" style="display:none" onclick="toggleMenu();exitAdminView()">
-                        <i class="fas fa-arrow-right"></i> العودة للوحة المدير
-                    </div>
                     <div class="menu-item logout-item" id="logoutMenuItem" onclick="toggleMenu();logout()">
                         <i class="fas fa-sign-out-alt"></i> تسجيل الخروج
                     </div>
@@ -384,7 +385,7 @@
     /* ===== وضع «عرض كمدير» (تصفح المدير لشحنات مندوب معيّن) =====
        يُفعّل عبر rep-dashboard.html?adminMode=1&repName=<اسم المندوب> من لوحة الإدارة.
        - لا يغيّر دور المستخدم ولا يمنح صلاحية إضافية في قاعدة البيانات (نفس صلاحيات المدير).
-       - يعزل مفاتيح حالة المندوب تحت adminView:<rep>:<key> فلا يمس مفاتيح المندوب الحقيقية،
+       - يعزل مفاتيح الحالة تحت adminView:<اليومية>:<key> فلا يمس مفاتيح المندوب الحقيقية،
          ومع ذلك تبقى حالة كل مندوب محفوظة داخل نفس الجلسة عند التبديل بينهم.
        - يُمسح تلقائياً بإغلاق التاب (sessionStorage) أو بزر العودة في القائمة. */
     const _repParams = new URLSearchParams(window.location.search);
@@ -397,7 +398,13 @@
     }
     const adminViewMode = _isAdminUser && (_repParams.get('adminMode') === '1' || sessionStorage.getItem('adminViewMode') === '1');
     const adminViewRepName = adminViewMode ? (_repParams.get('repName') || sessionStorage.getItem('adminViewRepName') || '') : '';
-    function repKey(name) { return adminViewMode ? ('adminView:' + (adminViewRepName || '__none__') + ':' + name) : name; }
+    /* وضع «اليومية أولًا»: اليومية هي بوابة التحميل في وضع المدير (تُختار أولاً ثم تُحمَّل كل شحناتها بكل المناديب). */
+    if (adminViewMode) {
+        try {
+            document.getElementById('filterDaily').value = sessionStorage.getItem('adminViewDaily') || '';
+        } catch (e) {}
+    }
+    function repKey(name) { return adminViewMode ? ('adminView:' + (document.getElementById('filterDaily').value || '__none__') + ':' + name) : name; }
     function repStoreGet(name) { try { return localStorage.getItem(repKey(name)); } catch (e) { return null; } }
     function repStoreSet(name, val) { try { localStorage.setItem(repKey(name), val); } catch (e) {} }
     function repStoreRemove(name) { try { localStorage.removeItem(repKey(name)); } catch (e) {} }
@@ -412,6 +419,7 @@
     let filteredShipments = [];
     let currentStatusFilter = '';
     let repArchiveFilter = repStoreGet('repArchiveFilter') || 'نشطة';
+    let adminArchiveGateChosen = true;
 
     function isArchivedShipment(s) {
         const v = s && s['ارشيف'];
@@ -522,15 +530,14 @@
     if (!currentUser || (!['rep', 'مندوب فرعي'].includes(currentUser.role) && !(currentUser.role === 'admin' && adminViewMode))) {
         window.location.href = 'login.html';
     }
-    if (adminViewMode && !adminViewRepName) {
-        window.location.href = 'admin-dashboard.html';
-    }
-
     const repDisplayName = adminViewMode ? adminViewRepName : (currentUser.full_name || currentUser.username || '');
-    document.getElementById('repName').textContent = adminViewMode ? ('عرض: ' + repDisplayName) : repDisplayName;
     if (adminViewMode) {
+        const _adminDailyHere = document.getElementById('filterDaily').value;
+        document.getElementById('repName').textContent = _adminDailyHere ? ('عرض يومية: ' + _adminDailyHere) : 'اختر يومية';
         const _repRoleEl = document.getElementById('repRole');
-        if (_repRoleEl) _repRoleEl.textContent = 'وضع المدير — عرض كمندوب';
+        if (_repRoleEl) _repRoleEl.textContent = 'وضع المدير — تصفح اليوميات';
+    } else {
+        document.getElementById('repName').textContent = repDisplayName;
     }
 
     if (localStorage.getItem('shipment-theme') === 'dark' || (!localStorage.getItem('shipment-theme') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
@@ -622,12 +629,27 @@
     }
 
     async function loadShipments() {
+        const localDaily = document.getElementById('filterDaily').value;
+        if (adminViewMode && !localDaily) {
+            allShipments = [];
+            loadSnapshot();
+            populateFilters();
+            restoreFilters();
+            document.getElementById('filterDaily').value = '';
+            filteredShipments = [];
+            resetStats();
+            refreshAdminGateChrome();
+            document.getElementById('shipmentsContainer').innerHTML = '<div class="empty-state"><i class="fas fa-calendar-day text-4xl mb-3 opacity-50"></i><p class="font-bold">اختر يومية من الفلتر أعلاه لعرض شحناتها</p></div>';
+            return;
+        }
         try {
-            const { data, error } = await supabaseClient
+            let query = supabaseClient
                 .from(CONFIG.TABLES.SHIPMENTS)
-                .select('*')
-                .eq('المندوب', repDisplayName)
-                .order('كود الشحنة', { ascending: false });
+                .select('*');
+            query = adminViewMode
+                ? query.eq('اليومية', localDaily)
+                : query.eq('المندوب', repDisplayName);
+            const { data, error } = await query.order('كود الشحنة', { ascending: false });
 
             if (error) throw error;
             allShipments = data || [];
@@ -635,6 +657,11 @@
             checkNotifications(true);
             populateFilters();
             restoreFilters();
+            if (adminViewMode) {
+                try {
+                    document.getElementById('filterDaily').value = sessionStorage.getItem('adminViewDaily') || '';
+                } catch (e) {}
+            }
             document.querySelectorAll('.quick-status-card').forEach(c => c.classList.toggle('active', c.dataset.status === currentStatusFilter));
             if (document.getElementById('filterDaily').value) {
                 applyFilters();
@@ -705,6 +732,19 @@
         return y * 10000 + k.m * 100 + k.d;
     }
 
+    /* "شحنة قديمة": قيمة عمود "التاريخ" أقدم (سابقة) من تاريخ اليوم وقت العرض.
+       يعتمد على نفس منطق repDailyToSortKey (ISO / يوم-شهر-سنة / تسلسلي Excel /
+       اسم شهر عربي / يوم-شهر بلا سنة)، وأي قيمة فارغة أو غير قابلة للتحليل بثقة
+       لا تُعتبر قديمة (تُرجع false). */
+    function repShipmentIsOld(val) {
+        if (val == null || String(val).trim() === '') return false;
+        const k = repDailyToSortKey(val);
+        if (!k.ok) return false;
+        const now = new Date();
+        const today = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+        return repDailyYearBase(k) < today;
+    }
+
     /* يرتب قائمة اليوميات من الأحدث إلى الأقدم (غير المعروفة في النهاية) */
     function repSortDailyValues(list) {
         var tagged = list.map(function (v) { return { v: v, k: repDailyToSortKey(v) }; });
@@ -718,42 +758,68 @@
         }).map(function (x) { return x.v; });
     }
 
+    let adminRepPresetDone = false;
+    const NO_REP_VALUE = '__NO_REP__';
+    let noRepCount = 0;
     function populateFilters() {
         const dailySel = document.getElementById('filterDaily').value;
         const base = dailySel ? allShipments.filter(s => (s['اليومية'] || '') === dailySel) : allShipments;
 
         const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
-        const rawDailies = [...new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean))].filter(d =>
-            (repArchiveFilter === 'نشطة' && !archivedDailies.has(d)) ||
-            (repArchiveFilter === 'مؤرشفة' && archivedDailies.has(d))
-        );
+        let rawDailies;
+        let dailyCounts = {};
+        if (adminViewMode && adminDailiesList.length && adminArchiveGateChosen) {
+            const gate = repArchiveFilter;
+            const matching = adminDailiesList.filter(d => gate === 'نشطة' ? (d.activeCount || 0) > 0 : (d.archivedCount || 0) > 0);
+            rawDailies = matching.map(d => d.name);
+            matching.forEach(d => { dailyCounts[d.name] = (gate === 'نشطة' ? (d.activeCount || 0) : (d.archivedCount || 0)) || 0; });
+        } else if (adminViewMode) {
+            rawDailies = [];
+        } else {
+            rawDailies = [...new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean))].filter(d =>
+                (repArchiveFilter === 'نشطة' && !archivedDailies.has(d)) ||
+                (repArchiveFilter === 'مؤرشفة' && archivedDailies.has(d))
+            );
+        }
         const dailies = repSortDailyValues(rawDailies);
+        if (!adminViewMode) {
+            const rawSet = new Set(rawDailies);
+            allShipments.forEach(s => { const k = s['اليومية'] || ''; if (k && rawSet.has(k)) dailyCounts[k] = (dailyCounts[k] || 0) + 1; });
+        }
         const statuses = [...new Set(allShipments.map(s => s['الحالة'] || '').filter(Boolean))].sort();
-        const zones = [...new Set(allShipments.map(s => s['الزون'] || '').filter(Boolean))].sort();
-        const senders = [...new Set(allShipments.map(s => s['الراسل'] || '').filter(Boolean))].sort();
-
-        const dailyCounts = {};
-        allShipments.forEach(s => { const k = s['اليومية'] || ''; if (k && dailies.includes(k)) dailyCounts[k] = (dailyCounts[k] || 0) + 1; });
+        const zones = [...new Set(base.map(s => String(s['الزون'] || '').trim()).filter(Boolean))].sort();
+        const senders = [...new Set(base.map(s => String(s['الراسل'] || '').trim()).filter(Boolean))].sort();
 
         const zoneCounts = {};
         const senderCounts = {};
+        const repNames = [];
+        const repCounts = {};
+        noRepCount = 0;
         base.forEach(s => {
-            const zn = s['الزون'] || '';
+            const zn = String(s['الزون'] || '').trim();
             if (zn) zoneCounts[zn] = (zoneCounts[zn] || 0) + 1;
-            const sr = s['الراسل'] || '';
+            const sr = String(s['الراسل'] || '').trim();
             if (sr) senderCounts[sr] = (senderCounts[sr] || 0) + 1;
+            if (adminViewMode) {
+                const rp = String(s['المندوب'] || '').trim();
+                if (rp) {
+                    if (repNames.indexOf(rp) === -1) repNames.push(rp);
+                    repCounts[rp] = (repCounts[rp] || 0) + 1;
+                } else {
+                    noRepCount++;
+                }
+            }
         });
 
         setOptions('filterDaily', dailies, dailyCounts);
         setOptions('filterZone', zones, zoneCounts);
         setOptions('filterSender', senders, senderCounts);
-        filterData = { daily: dailies, zone: zones, sender: senders };
-        filterCounts = { daily: dailyCounts, zone: zoneCounts, sender: senderCounts };
+        filterData = { daily: dailies, zone: zones, sender: senders, rep: adminViewMode ? repNames : [] };
+        filterCounts = { daily: dailyCounts, zone: zoneCounts, sender: senderCounts, rep: adminViewMode ? repCounts : {} };
         if (adminViewMode) {
             const selRep = document.getElementById('filterRep');
-            if (selRep) selRep.value = repDisplayName;
-            filterData.rep = adminRepList.slice();
-            filterCounts.rep = {};
+            if (selRep && !adminRepPresetDone) selRep.value = repDisplayName;
+            adminRepPresetDone = true;
         }
         updateChips();
     }
@@ -764,21 +830,44 @@
             const chip = document.getElementById('chip' + t.charAt(0).toUpperCase() + t.slice(1));
             if (!sel || !chip) return;
             const val = sel.value;
-            chip.textContent = (t === 'rep' ? (val || repDisplayName) : val) || chip.dataset.placeholder;
+            const chipLabel = (t === 'rep' && val === NO_REP_VALUE) ? 'بدون مندوب' : val;
+            chip.textContent = chipLabel || chip.dataset.placeholder;
             chip.classList.toggle('active', !!val);
         });
         const archiveChip = document.getElementById('chipArchive');
         if (archiveChip) {
             const isActive = repArchiveFilter === 'نشطة';
-            const allDailies = new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean));
-            const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
-            const count = isActive ? (allDailies.size - archivedDailies.size) : archivedDailies.size;
+            let count;
+            if (adminViewMode && adminDailiesList.length) {
+                count = isActive
+                    ? adminDailiesList.filter(d => (d.activeCount || 0) > 0).length
+                    : adminDailiesList.filter(d => (d.archivedCount || 0) > 0).length;
+            } else {
+                const allDailies = new Set(allShipments.map(s => s['اليومية'] || '').filter(Boolean));
+                const archivedDailies = new Set(allShipments.filter(s => isArchivedShipment(s)).map(s => s['اليومية'] || '').filter(Boolean));
+                count = isActive ? (allDailies.size - archivedDailies.size) : archivedDailies.size;
+            }
             const label = isActive ? archiveChip.dataset.placeholderActive : archiveChip.dataset.placeholderArchived;
             archiveChip.textContent = label + ' (' + count + ')';
             archiveChip.classList.toggle('active', isActive);
         }
     }
     function toggleRepArchiveFilter() {
+        if (adminViewMode) {
+            repArchiveFilter = repArchiveFilter === 'نشطة' ? 'مؤرشفة' : 'نشطة';
+            const dSel = document.getElementById('filterDaily');
+            if (dSel) dSel.value = '';
+            try { sessionStorage.removeItem('adminViewDaily'); } catch (e) {}
+            const rSel = document.getElementById('filterRep');
+            if (rSel) rSel.value = '';
+            try { sessionStorage.removeItem('adminViewRepName'); } catch (e) {}
+            const repNameEl = document.getElementById('repName');
+            if (repNameEl) repNameEl.textContent = 'اختر يومية';
+            repStoreSet('repArchiveFilter', repArchiveFilter);
+            refreshAdminGateChrome();
+            loadShipments();
+            return;
+        }
         repArchiveFilter = repArchiveFilter === 'نشطة' ? 'مؤرشفة' : 'نشطة';
         repStoreSet('repArchiveFilter', repArchiveFilter);
         populateFilters();
@@ -787,11 +876,15 @@
 
     function openFilterChip(type) {
         if (type === 'rep') {
-            const reps = (adminRepList && adminRepList.length) ? adminRepList : [repDisplayName].filter(Boolean);
+            const reps = (filterData.rep && filterData.rep.length) ? filterData.rep : ((adminRepList && adminRepList.length) ? adminRepList : [repDisplayName].filter(Boolean));
+            const counts = filterCounts.rep || {};
+            const current = document.getElementById('filterRep').value;
             const opts = ['<div class="grid grid-cols-1 gap-1.5">',
+                `<div data-value="" onclick="selectAdminRep(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-herb${!current ? ' active' : ''}">الكل (${reps.length})</div>`,
+                ...(noRepCount > 0 ? [`<div data-value="${NO_REP_VALUE}" onclick="selectAdminRep(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-herb${current === NO_REP_VALUE ? ' active' : ''}">🚫 بدون مندوب (${noRepCount})${current === NO_REP_VALUE ? ' ✓' : ''}</div>`] : []),
                 ...reps.map(v => {
-                    const isCur = v === repDisplayName;
-                    return `<div data-value="${String(v).replace(/"/g, '&quot;')}" onclick="selectAdminRep(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-herb${isCur ? ' active' : ''}">${v}${isCur ? ' ✓' : ''}</div>`;
+                    const isCur = v === current;
+                    return `<div data-value="${String(v).replace(/"/g, '&quot;')}" onclick="selectAdminRep(this)" class="p-2.5 rounded-xl border-2 cursor-pointer text-center font-bold text-sm popup-opt-herb${isCur ? ' active' : ''}">${v} (${counts[v] || 0})${isCur ? ' ✓' : ''}</div>`;
                 }),
                 '</div>'].join('');
             Swal.fire({ title: '👤 المندوب', html: opts, showCancelButton: true, cancelButtonText: 'الغاء', showConfirmButton: false });
@@ -819,45 +912,88 @@
         const type = el.dataset.type;
         const value = el.dataset.value;
         const id = 'filter' + type.charAt(0).toUpperCase() + type.slice(1);
+        const prevVal = document.getElementById(id).value;
         document.getElementById(id).value = value;
         if (Swal.isVisible()) Swal.close();
+        if (type === 'daily' && adminViewMode) {
+            if (value !== prevVal) {
+                const filterRepEl = document.getElementById('filterRep');
+                if (filterRepEl) filterRepEl.value = '';
+                try { sessionStorage.removeItem('adminViewRepName'); } catch (e) {}
+            }
+            try {
+                if (value) {
+                    sessionStorage.setItem('adminViewDaily', value);
+                } else {
+                    sessionStorage.removeItem('adminViewDaily');
+                }
+            } catch (e) {}
+            const repNameEl = document.getElementById('repName');
+            if (repNameEl) repNameEl.textContent = value ? ('عرض يومية: ' + value) : 'اختر يومية';
+            refreshAdminGateChrome();
+            loadShipments();
+            return;
+        }
         updateChips();
         onFilterChange();
     };
 
     /* ===== مبدّل المندوب في وضع «عرض كمدير» ===== */
     let adminRepList = [];
+    let adminDailiesList = [];
     window.selectAdminRep = function(el) {
         const val = (el && el.getAttribute('data-value')) || '';
         if (Swal.isVisible()) Swal.close();
-        if (!val || val === repDisplayName) return;
+        if (!adminViewMode) return;
+        const sel = document.getElementById('filterRep');
+        if (!sel) return;
+        sel.value = val;
         try {
-            sessionStorage.setItem('adminViewMode', '1');
-            sessionStorage.setItem('adminViewRepName', val);
+            if (val) sessionStorage.setItem('adminViewRepName', val);
+            else sessionStorage.removeItem('adminViewRepName');
         } catch (e) {}
-        try {
-            const u = new URL(window.location.href);
-            u.searchParams.set('adminMode', '1');
-            u.searchParams.set('repName', val);
-            u.searchParams.set('_t', BUILD);
-            window.location.href = u.toString();
-        } catch (e) {
-            window.location.href = 'rep-dashboard.html?adminMode=1&repName=' + encodeURIComponent(val);
-        }
+        updateChips();
+        onFilterChange();
     };
     function initAdminRepChip() {
         if (!adminViewMode) return;
         const chip = document.getElementById('chipRep');
         if (chip) chip.style.display = '';
-        const backItem = document.getElementById('adminBackMenuItem');
-        if (backItem) backItem.style.display = '';
-        const logoutItem = document.getElementById('logoutMenuItem');
-        if (logoutItem) logoutItem.style.display = 'none';
+        const backBtn = document.getElementById('adminBackIconBtn');
+        if (backBtn) backBtn.style.display = '';
+        const addBtn = document.getElementById('adminAddShipmentBtn');
+        if (addBtn) addBtn.style.display = '';
         try {
             const stored = JSON.parse(sessionStorage.getItem('adminViewRepList') || '[]');
             if (Array.isArray(stored)) adminRepList = stored.filter(Boolean);
         } catch (e) {}
         if (repDisplayName && adminRepList.indexOf(repDisplayName) === -1) adminRepList.push(repDisplayName);
+        try {
+            const storedDailies = JSON.parse(sessionStorage.getItem('adminViewDailiesList') || '[]');
+            if (Array.isArray(storedDailies)) {
+                adminDailiesList = storedDailies
+                    .map(x => (x && typeof x === 'object') ? x : { name: String(x || ''), count: 0, activeCount: 0, archivedCount: 0 })
+                    .filter(x => x && x.name);
+            }
+        } catch (e) {}
+        refreshAdminGateChrome();
+    }
+    function refreshAdminGateChrome() {
+        if (!adminViewMode) return;
+        const gateDaily = document.getElementById('chipDaily');
+        const gateZone = document.getElementById('chipZone');
+        const gateSender = document.getElementById('chipSender');
+        const gateRep = document.getElementById('chipRep');
+        const dailyVal = (document.getElementById('filterDaily') || {}).value || '';
+        if (adminArchiveGateChosen) {
+            if (gateDaily) gateDaily.style.display = '';
+            const showRest = !!dailyVal;
+            if (gateZone) gateZone.style.display = showRest ? '' : 'none';
+            if (gateSender) gateSender.style.display = showRest ? '' : 'none';
+            if (gateRep) gateRep.style.display = showRest ? '' : 'none';
+        } else {
+            [gateDaily, gateZone, gateSender, gateRep].forEach(el => { if (el) el.style.display = 'none'; });
+        }
     }
     function setOptions(id, items, counts) {
         const sel = document.getElementById(id);
@@ -941,6 +1077,7 @@
         const status = currentStatusFilter;
         const zone = document.getElementById('filterZone').value;
         const sender = document.getElementById('filterSender').value;
+        const rep = adminViewMode ? document.getElementById('filterRep').value : '';
         const searchTerm = document.getElementById('searchInput').value.trim();
 
         filteredShipments = getDailyShipments().filter(s => {
@@ -963,8 +1100,13 @@
                     if (status && sStatus !== status) return false;
                 }
             }
-            if (zone && (s['الزون'] || '') !== zone) return false;
-            if (sender && (s['الراسل'] || '') !== sender) return false;
+            if (zone && String(s['الزون'] || '').trim() !== zone) return false;
+            if (sender && String(s['الراسل'] || '').trim() !== sender) return false;
+            if (rep === NO_REP_VALUE) {
+                if (String(s['المندوب'] || '').trim() !== '') return false;
+            } else if (rep && String(s['المندوب'] || '').trim() !== rep) {
+                return false;
+            }
             if (searchTerm) {
                 const term = searchTerm.toLowerCase();
                 const match = (s['كود الشحنة'] || '').toLowerCase().includes(term)
@@ -1085,6 +1227,7 @@
             const hideActions = false;
             const isArchived = isArchivedShipment(s);
             const canFav = !isArchived;
+            const isOldDate = !isArchived && repShipmentIsOld(s['التاريخ']);
             const sid = String(s.id);
             const isFav = isFavorite(sid);
             const isFollowupFilter = currentStatusFilter === 'بحاجة لمتابعة';
@@ -1098,15 +1241,16 @@
             <div class="shipment-row ${rowClass}">
                 <div class="flex items-center justify-between">
                     <div>
-                        <div class="main"><span class="shipment-actions-bar"><span class="shipment-dots-btn" onclick="event.stopPropagation();copyShipmentDetails(${idx})"><i class="fas fa-ellipsis-v"></i></span>${canFav ? `<button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${sid}')"><i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i></button>` : ''}</span>${needsFollowup ? (followupSent ? `<button class="followup-sent-card" onclick="event.stopPropagation();dismissFollowup('${sid}')"><i class="fas fa-check-circle"></i> تم ارسال المتابعة</button>` : `<button class="followup-btn" onclick="event.stopPropagation();doFollowup(${idx},'${sid}')"><i class="fab fa-whatsapp"></i></button>`) : ''}</div>
+                        <div class="main"><span class="shipment-actions-bar"><span class="shipment-dots-btn" onclick="event.stopPropagation();copyShipmentDetails(${idx})"><i class="fas fa-ellipsis-v"></i></span>${adminViewMode ? `<span class="shipment-rep-label">${enNum(s['المندوب'] || '-')}</span>` : ''}${canFav ? `<button class="fav-btn ${isFav ? 'active' : ''}" onclick="event.stopPropagation();toggleFavorite('${sid}')"><i class="fa-${isFav ? 'solid' : 'regular'} fa-heart"></i></button>` : ''}</span>${needsFollowup ? (followupSent ? `<button class="followup-sent-card" onclick="event.stopPropagation();dismissFollowup('${sid}')"><i class="fas fa-check-circle"></i> تم ارسال المتابعة</button>` : `<button class="followup-btn" onclick="event.stopPropagation();doFollowup(${idx},'${sid}')"><i class="fab fa-whatsapp"></i></button>`) : ''}</div>
                         <div class="main customer-name mt-1">${enNum(s['اسم العميل'] || '-')}</div>
                     </div>
                     <div class="text-left">
-                        <div class="main text-indigo-600 dark:text-indigo-400">${enNum(s['كود الشحنة'] || '-')}${isArchived ? ' <span class="text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 py-0.5 rounded-full">📦 مؤرشفة</span>' : ''}</div>
+                        <div class="main text-indigo-600 dark:text-indigo-400">${enNum(s['كود الشحنة'] || '-')}${isArchived ? ' <span class="text-xs text-red-500 bg-red-100 dark:bg-red-900/30 dark:text-red-400 px-1.5 py-0.5 rounded-full">📦 مؤرشفة</span>' : ''}</div>
                         <div class="sub status-badge ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? 'text-green-500' : s['الحالة'] === 'قيد التوصيل' ? 'text-amber-500' : s['الحالة'] === 'مؤجل' ? 'text-orange-500' : s['الحالة'] === 'الغاء' ? 'text-red-500' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? 'text-indigo-500' : ''}" style="color: ${s['الحالة'] === 'تم' || s['الحالة'] === 'تم التسليم' ? '#22c55e' : s['الحالة'] === 'قيد التوصيل' ? '#f59e0b' : s['الحالة'] === 'مؤجل' ? '#f97316' : s['الحالة'] === 'الغاء' ? '#ef4444' : s['الحالة'] === 'تعديل سعر' || s['الحالة'] === 'شحن' ? '#ea580c' : ''} !important">${s['الحالة'] || '-'}</div>
                     </div>
                 </div>
                 <div class="mt-2 text-sm text-slate-500 space-y-1.5">
+                    <div><i class="fas fa-calendar-alt ml-1.5"></i><span class="field-label">التاريخ:</span><span class="shipment-date${isOldDate ? ' text-red-500 dark:text-red-400' : ''}">${enNum(s['التاريخ'] || '-')}</span></div>
                     <div><i class="fas fa-box ml-1.5"></i><span class="field-label">المنتج:</span><span class="value-product">${enNum(s['المنتج'] || '-')}</span></div>
                     <div><i class="fas fa-map-pin ml-1.5"></i><span class="field-label">العنوان:</span><span class="detail-address">${enNum(s['العنوان'] || '-')}</span></div>
                     <div><i class="fas fa-layer-group ml-1.5"></i><span class="field-label">الزون:</span>${enNum(s['الزون'] || '-')} <span class="mr-4"><i class="fas fa-building ml-0.5"></i><span class="field-label">الراسل:</span><span class="value-sender">${enNum(s['الراسل'] || '-')}</span></span> <span class="mr-4"><i class="fas fa-money-bill ml-0.5"></i><span class="field-label">المبلغ:</span><span class="shipment-amount">${(['تم','تم التسليم','تعديل سعر','شحن'].includes(s['الحالة']||'') && s['المدفوع'] != null && s['المدفوع'] !== '') ? enNum(s['المدفوع']) : enNum(s['المبلغ'] || '0')}</span></span></div>
@@ -1321,6 +1465,7 @@
             + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">الحالة</label><select id="aedStatus" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + statusOptions + '</select></div>'
             + field('aedPaid', 'المدفوع (السعر)', s['المدفوع'], 'inputmode="numeric" dir="ltr" style="text-align:end"')
             + field('aedShipping', 'الشحن', s['الشحن'], 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + field('aedCommission', 'عمولة المندوب', s['عمولة المندوب'], 'inputmode="numeric" dir="ltr" style="text-align:end"')
             + field('aedReason', 'سبب الحالة', s['سبب الحالة'])
             + '<div class="col-span-2"><label class="text-[11px] font-bold text-indigo-600 block mb-0.5">الصافي (يُحسب تلقائيًا — للعرض فقط)</label><input id="aedSafi" type="text" readonly dir="ltr" style="text-align:end" class="w-full p-2 rounded-lg border border-indigo-200 dark:border-indigo-700 bg-indigo-50 dark:bg-slate-700 text-sm font-bold text-indigo-700 dark:text-indigo-300" placeholder="—"></div>'
             + '</div>';
@@ -1377,6 +1522,7 @@
                     'سبب الحالة': reasonFinal,
                     'المدفوع': paidFinal,
                     'الشحن': v('aedShipping'),
+                    'عمولة المندوب': v('aedCommission') || null,
                     'الصافي': computeAdminSafi(status, paidFinal, v('aedAmount'), v('aedShipping'))
                 };
             }
@@ -1398,6 +1544,241 @@
         });
     }
     window.openAdminShipmentEditor = openAdminShipmentEditor;
+
+    /* ===== إضافة شحنة (وضع «عرض كمدير» فقط) =====
+       زر «+» في الشريط العلوي بجانب زر العودة للوحة المدير (كلاهما خاصان بوضع المدير).
+       اليومية مقفولة على القيمة المحددة في فلتر «اليومية» (في سطر 401 يدخلها وضع المدير
+       من sessionStorage بنفس قيمة استعلام .eq('اليومية', ...)). */
+    async function _repGenerateShipmentCode(daily) {
+        /* نسخة حرفية من _generateHousingShipmentCode (housing-dashboard.html سطر 11892):
+           نفس الصيغة PREFIX('COD') + ts36 + rand4 + '001'، و5 محاولات مع فحص محلي
+           (allShipments) ثم فحص سيرفر، ومع fallback زمني فريد مضمون. */
+        const PREFIX = 'COD';
+        for (let attempt = 0; attempt < 5; attempt++) {
+            const ts = Date.now().toString(36).toUpperCase();
+            const rand = Math.random().toString(36).substring(2, 6).toUpperCase();
+            const code = PREFIX + ts + rand + '001';
+            let exists = false;
+            for (const s of allShipments) {
+                const sd = String(s['اليومية'] || '').trim();
+                const sc = String(s['كود الشحنة'] || s.order_id || '').trim();
+                if (sd && sd === daily && sc === code) { exists = true; break; }
+            }
+            if (!exists) {
+                try {
+                    const { data } = await supabaseClient
+                        .from(CONFIG.TABLES.SHIPMENTS)
+                        .select('id')
+                        .eq('كود الشحنة', code)
+                        .eq('اليومية', daily)
+                        .limit(1);
+                    if (!data || data.length === 0) return code;
+                } catch (e) { /* نعتمد على فحص السيرفر عند الحفظ */ }
+            }
+        }
+        /* فال باك زمني فريد مضمون */
+        return PREFIX + Date.now().toString(36).toUpperCase() +
+            Math.random().toString(36).substring(2, 8).toUpperCase() +
+            String(Date.now() % 1000000);
+    }
+
+    function _repAddStatusSubModal(statusSel) {
+        /* نسخة معزولة من نافذة السعر الفرعية (نظير _housingAddStatusSubModal):
+           «تم» تملأ المدفوع من المبلغ عند الفراغ؛ و«تعديل سعر/شحن» تطلب السعر الجديد
+           مع نفس التحقق «يرجى إدخال سعر صحيح»؛ والإلغاء يعيد الحالة السابقة. */
+        const newStatus = statusSel.value;
+        const prevStatus = statusSel.dataset.prev || '';
+        if (newStatus === 'تم') {
+            const amountEl = document.getElementById('addShipAmount');
+            const paidEl = document.getElementById('addShipPaid');
+            if (amountEl && paidEl && !paidEl.value.trim()) paidEl.value = amountEl.value;
+            statusSel.dataset.prev = newStatus;
+            return;
+        }
+        if (newStatus === 'تعديل سعر' || newStatus === 'شحن') {
+            const paidEl = document.getElementById('addShipPaid');
+            const currentPrice = paidEl ? paidEl.value.trim() : '';
+            if (!currentPrice || currentPrice === '0') {
+                Swal.fire({
+                    title: newStatus === 'تعديل سعر' ? 'تعديل سعر' : 'شحن',
+                    text: 'يرجى إدخال السعر الجديد',
+                    input: 'text',
+                    inputAttributes: { inputmode: 'numeric', dir: 'ltr' },
+                    showCancelButton: true,
+                    confirmButtonText: 'تأكيد',
+                    cancelButtonText: 'الغاء',
+                    inputValidator: (value) => {
+                        if (!value || value.trim() === '0' || isNaN(parseFloat(value))) {
+                            return 'يرجى إدخال سعر صحيح';
+                        }
+                    }
+                }).then(result => {
+                    if (result.isConfirmed && result.value) {
+                        if (paidEl) paidEl.value = result.value;
+                        statusSel.dataset.prev = newStatus;
+                    } else {
+                        for (let opt of statusSel.options) {
+                            if (opt.value === prevStatus) { opt.selected = true; break; }
+                        }
+                    }
+                });
+                return;
+            }
+        }
+        statusSel.dataset.prev = newStatus;
+    }
+
+    async function openAdminShipmentAdd() {
+        if (!adminViewMode) return;
+        const daily = ((document.getElementById('filterDaily') || {}).value || '').trim();
+        if (!daily) return Swal.fire('تنبيه', 'حدد اليومية أولاً من فلتر «اليومية» أعلاه', 'warning');
+        const escA = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+        const field = (id, label, val, mode) => '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">' + label + '</label><input id="' + id + '" ' + (mode || '') + ' class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm" value="' + escA(val) + '"></div>';
+        const statusList = ['', 'تم', 'قيد التوصيل', 'تعديل سعر', 'شحن', 'الغاء', 'مؤجل', 'مجاش'];
+        const statusOptions = statusList.map(st => '<option value="' + st + '"' + (st === '' ? ' selected' : '') + '>' + (st || '-') + '</option>').join('');
+        const pn = (x) => { const n = parseFloat(String(x == null ? '' : x).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^0-9.-]+/g, '')); return isNaN(n) ? 0 : n; };
+        const computeAdminSafi = (status, paid, amount, shipping) => {
+            if (status === 'تعديل سعر') return String(pn(amount) - pn(paid));
+            if (status === 'تم') return String(pn(paid) - pn(shipping));
+            return String(pn(amount) - pn(shipping));
+        };
+
+        /* مناديب الحسابات الفعلية — نفس مسار housing fetchUsers لحالة admin:
+           invokeUsersAdminAction('admin_list_users') ثم فلترة role في [rep, مندوب فرعي] و approved */
+        let repOptions = '<option value=""></option>';
+        try {
+            const result = await invokeUsersAdminAction('admin_list_users', {}, currentUser);
+            const repNames = [];
+            ((result && result.users) || []).forEach(u => {
+                if (['rep', 'مندوب فرعي'].includes(u.role) && u.approved) {
+                    const name = String(u.username || u.full_name || u.phone || '').trim();
+                    if (name && !repNames.includes(name)) repNames.push(name);
+                }
+            });
+            repNames.sort((a, b) => a.localeCompare(b, 'ar'));
+            repOptions += repNames.map(n => '<option value="' + escA(n) + '">' + escA(n) + '</option>').join('');
+        } catch (e) { /* يبقى مندوب فارغًا */ }
+
+        const html = '<div class="grid grid-cols-2 gap-2 text-right" dir="rtl">'
+            + field('addShipCode', 'كود الشحنة (اختياري — يُولَّد تلقائيًا إن تُرك فارغًا)', '', 'dir="ltr"')
+            + field('addShipName', 'اسم العميل', '')
+            + field('addShipPhone', 'الهاتف', '')
+            + field('addShipAlt', 'هاتف بديل', '')
+            + field('addShipAddress', 'العنوان', '')
+            + field('addShipProduct', 'المنتج', '')
+            + field('addShipZone', 'الزون', '')
+            + field('addShipSender', 'الراسل', '')
+            + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">المندوب</label><select id="addShipRep" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + repOptions + '</select></div>'
+            + field('addShipDaily', 'اليومية (مقفولة على المعروض)', daily, 'readonly dir="ltr" style="text-align:end"')
+            + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">الحالة</label><select id="addShipStatus" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + statusOptions + '</select></div>'
+            + field('addShipAmount', 'المبلغ', '', 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + field('addShipShipping', 'الشحن', '', 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + field('addShipCommission', 'عمولة المندوب', '', 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + '<input type="hidden" id="addShipPaid" value="">'
+            + '</div>';
+
+        Swal.fire({
+            title: 'إضافة شحنة جديدة',
+            html: html,
+            width: 640,
+            showCancelButton: true,
+            confirmButtonText: 'إضافة',
+            cancelButtonText: 'الغاء',
+            confirmButtonColor: '#7c3aed',
+            didOpen: () => {
+                const st = document.getElementById('addShipStatus');
+                if (st) st.addEventListener('change', () => _repAddStatusSubModal(st));
+            },
+            preConfirm: async () => {
+                const v = (id) => { const el = document.getElementById(id); return el ? el.value.trim() : ''; };
+                const name = v('addShipName');
+                const dailyVal = v('addShipDaily');
+                const status = v('addShipStatus');
+                let paid = v('addShipPaid');
+                const amount = v('addShipAmount');
+                const shipping = v('addShipShipping');
+                if (!name) { Swal.showValidationMessage('يرجى إدخال اسم العميل'); return false; }
+                if (!dailyVal) { Swal.showValidationMessage('اليومية غير محددة'); return false; }
+                if ((status === 'تعديل سعر' || status === 'شحن') && (!paid || paid === '0' || isNaN(parseFloat(paid)))) {
+                    Swal.showValidationMessage('يرجى إدخال المدفوع (السعر) بقيمة صحيحة لهذه الحالة');
+                    return false;
+                }
+                const paidFinal = status === 'تم' && (!paid || paid === '0') ? amount : paid;
+                let code = v('addShipCode');
+                if (!code) code = await _repGenerateShipmentCode(dailyVal);
+
+                /* فحص تكرار (كود+اليومية) قبل الإدراج */
+                const dupCheck = await supabaseClient
+                    .from(CONFIG.TABLES.SHIPMENTS)
+                    .select('id')
+                    .eq('كود الشحنة', code)
+                    .eq('اليومية', dailyVal)
+                    .limit(1);
+                if (dupCheck.error) {
+                    Swal.showValidationMessage('تعذر التحقق من الكود: ' + dupCheck.error.message);
+                    return false;
+                }
+                if (dupCheck.data && dupCheck.data.length) {
+                    Swal.showValidationMessage('الكود "' + code + '" مُستخدم بالفعل ضمن يومية "' + dailyVal + '"' + (v('addShipCode') ? '' : ' — اضغط «توليد كود»'));
+                    return false;
+                }
+
+                const safiValue = computeAdminSafi(status, paidFinal, amount, shipping);
+                const basePayload = {
+                    'اسم العميل': name,
+                    'الهاتف': v('addShipPhone'),
+                    'هاتف بديل': v('addShipAlt'),
+                    'العنوان': v('addShipAddress'),
+                    'المنتج': v('addShipProduct'),
+                    'الزون': v('addShipZone'),
+                    'الراسل': v('addShipSender'),
+                    'المندوب': v('addShipRep'),
+                    'اليومية': dailyVal,
+                    'المبلغ': amount,
+                    'المدفوع': paidFinal,
+                    'الشحن': shipping,
+                    'عمولة المندوب': v('addShipCommission'),
+                    'الحالة': status,
+                    'الصافي': safiValue,
+                    'كود الشحنة': code,
+                    'الموظف': (currentUser && (currentUser.full_name || currentUser.username)) || 'المدير'
+                };
+                const payload = {};
+                Object.keys(basePayload).forEach(k => {
+                    const bv = basePayload[k];
+                    if (bv != null && String(bv).trim() !== '') payload[k] = bv;
+                });
+
+                const insRes = await supabaseClient
+                    .from(CONFIG.TABLES.SHIPMENTS)
+                    .insert([payload])
+                    .select();
+                const { data, error } = insRes || {};
+                if (error) {
+                    const msg = String(error.message || error.details || '');
+                    if (error.code === '23505' || msg.includes('duplicate key value violates unique constraint') || msg.includes('already exists')) {
+                        Swal.showValidationMessage('الكود "' + code + '" مُستخدم بالفعل ضمن يومية "' + dailyVal + '"' + (v('addShipCode') ? '' : ' — اضغط «توليد كود»'));
+                    } else {
+                        Swal.showValidationMessage('فشل الإضافة: ' + (error.message || String(error)));
+                    }
+                    return false;
+                }
+                return { row: (data && data[0]) || Object.assign({}, payload), code: code, daily: dailyVal };
+            }
+        }).then(result => {
+            if (!result.isConfirmed || !result.value) return;
+            const { row, code, daily } = result.value;
+            allShipments.push(row);
+            applyFilters();
+            Swal.fire({
+                icon: 'success',
+                title: 'تمت الإضافة',
+                html: 'تمت إضافة شحنة بكود <b dir="ltr">' + escA(code) + '</b> ضمن يومية <b>' + escA(daily) + '</b>',
+                confirmButtonText: 'حسناً'
+            });
+        });
+    }
+    window.openAdminShipmentAdd = openAdminShipmentAdd;
 
     function doUpdateShipment(idx, payload) {
         const shipment = filteredShipments[idx];
@@ -1559,10 +1940,13 @@
     }
 
     setInterval(async () => {
-        const { data } = await supabaseClient
+        const dailyHere = adminViewMode ? document.getElementById('filterDaily').value : '';
+        if (adminViewMode && !dailyHere) return;
+        let q = supabaseClient
             .from(CONFIG.TABLES.SHIPMENTS)
-            .select('id,الحالة,اسم العميل,كود الشحنة')
-            .eq('المندوب', repDisplayName);
+            .select('id,الحالة,اسم العميل,كود الشحنة');
+        q = adminViewMode ? q.eq('اليومية', dailyHere) : q.eq('المندوب', repDisplayName);
+        const { data } = await q;
         if (data) {
             const oldShipments = allShipments;
             allShipments = data;

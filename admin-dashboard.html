@@ -164,7 +164,7 @@
         </div>
         <div class="flex items-center gap-2 shrink-0">
             <button onclick="adminRefresh()" class="icon-btn" title="تحديث البيانات"><i class="fas fa-sync-alt" id="refreshIcon"></i></button>
-            <button onclick="openAdminViewAsRepPicker()" class="icon-btn" title="عرض شحنات مندوب"><i class="fas fa-user-astronaut"></i></button>
+            <button onclick="openAdminViewAsRepDirect()" class="icon-btn" title="عرض شحنات مندوب"><i class="fas fa-user-astronaut"></i></button>
             <button onclick="toggleTheme()" class="icon-btn" title="الوضع الليلي"><i id="themeIcon" class="fas fa-moon"></i></button>
             <div class="relative" id="adminMenuWrap">
                 <button onclick="toggleAdminMenu()" class="icon-btn" title="القائمة" id="adminMenuBtn"><i class="fas fa-bars"></i></button>
@@ -661,6 +661,18 @@
             return false;
         }
 
+        // دمج التحميلات المتزامنة: إن كان تحميل من الخادم جاريًا أعد استخدامه بدل طلب متكرر
+        var pendingDataLoad = null;
+        async function sharedDataLoad() {
+            if (pendingDataLoad) return pendingDataLoad;
+            pendingDataLoad = loadFromServer();
+            try {
+                return await pendingDataLoad;
+            } finally {
+                pendingDataLoad = null;
+            }
+        }
+
         async function loadRawFromTables() {
             var shipments = [], users = [];
             try {
@@ -694,7 +706,7 @@
             }
             showLoading();
             try {
-                var ok = await loadFromServer();
+                var ok = await sharedDataLoad();
                 hideLoading();
                 if (!ok) throw new Error('تعذر تحميل البيانات. تحقق من الاتصال.');
                 renderAll();
@@ -727,17 +739,49 @@
             name = String(name || '').trim();
             if (!name) return;
             var reps = [];
+            var dailies = [];
             try {
                 (getOverviewRows() || []).forEach(function (s) {
                     var n = String(s['المندوب'] || '').trim();
                     if (n && reps.indexOf(n) === -1) reps.push(n);
+                    if (n === name) {
+                        var d = String(s['اليومية'] || '').trim();
+                        if (d && dailies.indexOf(d) === -1) dailies.push(d);
+                    }
                 });
             } catch (e) {}
             if (reps.indexOf(name) === -1) reps.push(name);
+            if (!dailies.length && (state.shipments || []).length) {
+                try {
+                    (state.shipments || []).forEach(function (s) {
+                        if (String(s['المندوب'] || '').trim() !== name) return;
+                        var d = String(s['اليومية'] || '').trim();
+                        if (d && dailies.indexOf(d) === -1) dailies.push(d);
+                    });
+                } catch (e2) {}
+            }
+            var activeDaily = (state.overviewMode === 'archived') ? '' : (state.currentDaily || '');
+            // عدّادات النشاط/الأرشيف لكل يومية من كل الشحنات (لبوابة الأرشفة في rep-dashboard)
+            var repDailies = [];
+            var repDailyMap = {};
+            try {
+                (state.shipments || []).forEach(function (s) {
+                    if (String(s['المندوب'] || '').trim() !== name) return;
+                    var d = String(s['اليومية'] || '').trim();
+                    if (!d) return;
+                    if (!repDailyMap[d]) { repDailyMap[d] = { name: d, count: 0, activeCount: 0, archivedCount: 0 }; repDailies.push(repDailyMap[d]); }
+                    repDailyMap[d].count++;
+                    if (isArchived(s)) repDailyMap[d].archivedCount++; else repDailyMap[d].activeCount++;
+                });
+            } catch (e) {}
+            var storableDailies = repDailies.length ? repDailies : dailies;
             try {
                 sessionStorage.setItem('adminViewMode', '1');
                 sessionStorage.setItem('adminViewRepName', name);
                 sessionStorage.setItem('adminViewRepList', JSON.stringify(reps));
+                sessionStorage.setItem('adminViewDailiesList', JSON.stringify(storableDailies));
+                if (activeDaily) sessionStorage.setItem('adminViewDaily', activeDaily);
+                else sessionStorage.removeItem('adminViewDaily');
             } catch (e) {}
             var target = 'rep-dashboard.html';
             try {
@@ -747,6 +791,85 @@
                 target = u.toString();
             } catch (e) {}
             window.location.href = target;
+        };
+
+        // زر «عرض شحنات مندوب» الفوري: تحويل مباشر بلا نافذة اختيار، مع تعبئة
+        // قائمة المناديب في sessionStorage ليستعملها فلتر «المندوب» في rep-dashboard.
+        window.openAdminViewAsRepDirect = async function () {
+            function collectReps(rows) {
+                var reps = [];
+                try {
+                    (rows || []).forEach(function (s) {
+                        var n = String(s['المندوب'] || '').trim();
+                        if (n && reps.indexOf(n) === -1) reps.push(n);
+                    });
+                } catch (e) {}
+                return reps;
+            }
+            function collectDailies(rows) {
+                var dailies = [];
+                try {
+                    (rows || []).forEach(function (s) {
+                        var d = String(s['اليومية'] || '').trim();
+                        if (d && dailies.indexOf(d) === -1) dailies.push(d);
+                    });
+                } catch (e) {}
+                return dailies;
+            }
+            // نسخة موسّعة: لكل يومية عدّاد إجمالي + نشطة + مؤرشفة (من نفس الصفوف)
+            function collectDailyInfos(rows) {
+                var map = {};
+                var list = [];
+                try {
+                    (rows || []).forEach(function (s) {
+                        var d = String(s['اليومية'] || '').trim();
+                        if (!d) return;
+                        if (!map[d]) { map[d] = { name: d, count: 0, activeCount: 0, archivedCount: 0 }; list.push(map[d]); }
+                        map[d].count++;
+                        if (isArchived(s)) map[d].archivedCount++; else map[d].activeCount++;
+                    });
+                } catch (e) {}
+                return list;
+            }
+            var reps = collectReps(getOverviewRows());
+            var dailies = collectDailies(getOverviewRows());
+            var dailyInfos = collectDailyInfos(state.shipments || []);
+            // إن كانت فلاتر الإحصائيات تحجب كل المناديب، اجمع من كل الشحنات
+            if (!reps.length && (state.shipments || []).length) reps = collectReps(state.shipments);
+            if (!dailies.length && (state.shipments || []).length) dailies = collectDailies(state.shipments);
+            if (!dailyInfos.length && (state.shipments || []).length) dailyInfos = collectDailyInfos(state.shipments);
+            // لم تُحمَّل البيانات بعد — حمّلها أولاً ثم أعد الجمع
+            if (!reps.length && !(state.shipments || []).length) {
+                showLoading();
+                try {
+                    var ok = await sharedDataLoad();
+                    hideLoading();
+                    if (!ok) throw new Error('تعذر تحميل البيانات. تحقق من الاتصال.');
+                    renderAll();
+                    reps = collectReps(getOverviewRows());
+                    if (!reps.length && state.shipments.length) reps = collectReps(state.shipments);
+                    dailies = collectDailies(getOverviewRows());
+                    if (!dailies.length && state.shipments.length) dailies = collectDailies(state.shipments);
+                    dailyInfos = collectDailyInfos(state.shipments || []);
+                    if (!dailyInfos.length && state.shipments.length) dailyInfos = collectDailyInfos(state.shipments);
+                } catch (err) {
+                    hideLoading();
+                    toast('error', err.message || 'تعذر تحميل البيانات. تحقق من الاتصال.');
+                    return; // دون تحويل بقائمة فارغة
+                }
+            }
+            if (!reps.length) {
+                Swal.fire('لا توجد بيانات', 'تعذر تجميع قائمة المناديب — لا توجد شحنات مُسندة لمناديب.', 'info');
+                return;
+            }
+            try {
+                sessionStorage.setItem('adminViewMode', '1');
+                sessionStorage.setItem('adminViewRepList', JSON.stringify(reps));
+                sessionStorage.setItem('adminViewDailiesList', JSON.stringify(dailyInfos.length ? dailyInfos : dailies));
+                sessionStorage.removeItem('adminViewRepName');
+                sessionStorage.removeItem('adminViewDaily');
+            } catch (e) {}
+            window.location.href = 'rep-dashboard.html?adminMode=1';
         };
 
         // حالة مؤشر التحميل المعلّقة والتبويب النشط فعليًا (مشتركان بين script 1 و script 2)

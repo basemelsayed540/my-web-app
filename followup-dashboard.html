@@ -1058,6 +1058,40 @@
         document.getElementById('statPostponed').textContent = enNum(postponed);
     }
 
+    /* "شحنة قديمة": قيمة عمود "التاريخ" أقدم (سابقة) من تاريخ اليوم وقت العرض.
+       يقبل صيغ ISO / يوم-شهر-سنة / الرقم التسلسلي لـExcel / اسم الشهر العربي /
+       يوم-شهر بلا سنة (بعام اليوم)، مع تطبيع الأرقام العربية/الفارسية؛
+       وأي قيمة فارغة أو غير قابلة للتحليل بثقة تُرجع false (لا تُعتبر قديمة). */
+    function followupShipmentIsOld(val) {
+        var s = String(val || '').trim();
+        if (!s) return false;
+        s = s
+            .replace(/[٠-٩]/g, function (d) { return '٠١٢٣٤٥٦٧٨٩'.indexOf(d); })
+            .replace(/[۰-۹]/g, function (d) { return '۰۱۲۳۴۵۶۷۸۹'.indexOf(d); });
+        var y = null, m = null, dd = null, mt;
+        if (/^\d{5,6}$/.test(s)) {
+            var e = new Date(Date.UTC(1899, 11, 30) + parseInt(s, 10) * 86400000);
+            if (!isNaN(e.getTime()) && e.getUTCFullYear() > 1990 && e.getUTCFullYear() < 2100) {
+                y = e.getUTCFullYear(); m = e.getUTCMonth() + 1; dd = e.getUTCDate();
+            }
+        } else if ((mt = s.match(/(\d{4})-(\d{1,2})-(\d{1,2})/))) {
+            y = parseInt(mt[1], 10); m = parseInt(mt[2], 10); dd = parseInt(mt[3], 10);
+        } else if ((mt = s.match(/^(\d{1,2})[\/\-.](\d{1,2})[\/\-.](\d{4})/))) {
+            dd = parseInt(mt[1], 10); m = parseInt(mt[2], 10); y = parseInt(mt[3], 10);
+        } else if ((mt = s.match(/(\d{1,2})\s*([\u0600-\u06FF]+)\s*(\d{4})/))) {
+            var names = ['يناير','فبراير','مارس','أبريل','مايو','يونيو','يوليو','أغسطس','سبتمبر','أكتوبر','نوفمبر','ديسمبر'];
+            var mi = names.indexOf(mt[2]);
+            if (mi !== -1) { dd = parseInt(mt[1], 10); m = mi + 1; y = parseInt(mt[3], 10); }
+        } else if ((mt = s.match(/^(\d{1,2})-(\d{1,2})$/))) {
+            var dd2 = parseInt(mt[1], 10), mm = parseInt(mt[2], 10);
+            if (mm >= 1 && mm <= 12 && dd2 >= 1 && dd2 <= 31) { dd = dd2; m = mm; y = new Date().getFullYear(); }
+        }
+        if (y === null || m === null || dd === null) return false;
+        var now = new Date();
+        var today = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
+        return (y * 10000 + m * 100 + dd) < today;
+    }
+
     function renderShipments() {
         var container = document.getElementById('shipmentsContainer');
         if (!filteredShipments.length) {
@@ -1077,6 +1111,7 @@
             var sid = String(s.id);
             var needsFollowup = followupStatuses.includes(s['الحالة'] || '') && !_dismissed[sid];
             var followupSent = !!_sent[sid];
+            var isOldDate = !isArchivedVal(s) && followupShipmentIsOld(s['التاريخ']);
             return '<div class="shipment-row">' +
                 '<div class="flex items-center justify-between">' +
                     '<div>' +
@@ -1103,6 +1138,7 @@
                     '</div>' +
                 '</div>' +
                 '<div class="mt-2 text-sm text-slate-500 space-y-1.5">' +
+                    '<div><i class="fas fa-calendar-alt ml-1.5"></i><span class="field-label">التاريخ:</span><span class="shipment-date' + (isOldDate ? ' text-red-500 dark:text-red-400' : '') + '">' + enNum(s['التاريخ'] || '-') + '</span></div>' +
                     '<div><i class="fas fa-box ml-1.5"></i><span class="field-label">المنتج:</span><span class="value-product">' + enNum(s['المنتج'] || '-') + '</span></div>' +
                     '<div><i class="fas fa-map-pin ml-1.5"></i><span class="field-label">العنوان:</span><span class="detail-address">' + enNum(s['العنوان'] || '-') + '</span></div>' +
                     '<div><i class="fas fa-layer-group ml-1.5"></i><span class="field-label">الزون:</span>' + enNum(s['الزون'] || '-') +
