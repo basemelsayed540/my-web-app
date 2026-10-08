@@ -1694,7 +1694,8 @@
         const daily = ((document.getElementById('filterDaily') || {}).value || '').trim();
         if (!daily) return Swal.fire('تنبيه', 'حدد اليومية أولاً من فلتر «اليومية» أعلاه', 'warning');
         const escA = (v) => String(v == null ? '' : v).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
-        const field = (id, label, val, mode) => '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">' + label + '</label><input id="' + id + '" ' + (mode || '') + ' class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm" value="' + escA(val) + '"></div>';
+        const reqMark = '<span class="req-ast" style="color:#ef4444">*</span>';
+        const field = (id, label, val, mode, req) => '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">' + label + (req ? ' ' + reqMark : '') + '</label><input id="' + id + '" ' + (mode || '') + ' class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm" value="' + escA(val) + '"></div>';
         const statusList = ['', 'تم', 'قيد التوصيل', 'تعديل سعر', 'شحن', 'الغاء', 'مؤجل', 'مجاش'];
         const statusOptions = statusList.map(st => '<option value="' + st + '"' + (st === '' ? ' selected' : '') + '>' + (st || '-') + '</option>').join('');
         const pn = (x) => { const n = parseFloat(String(x == null ? '' : x).trim().replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^0-9.-]+/g, '')); return isNaN(n) ? 0 : n; };
@@ -1722,19 +1723,19 @@
 
         const html = '<div class="grid grid-cols-2 gap-2 text-right" dir="rtl">'
             + field('addShipCode', 'كود الشحنة (اختياري — يُولَّد تلقائيًا إن تُرك فارغًا)', '', 'dir="ltr"')
-            + field('addShipName', 'اسم العميل', '')
+            + field('addShipName', 'اسم العميل', '', '', true)
             + field('addShipPhone', 'الهاتف', '')
             + field('addShipAlt', 'هاتف بديل', '')
             + field('addShipAddress', 'العنوان', '')
             + field('addShipProduct', 'المنتج', '')
             + field('addShipZone', 'الزون', '')
-            + field('addShipSender', 'الراسل', '')
+            + field('addShipSender', 'الراسل', '', '', true)
             + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">المندوب</label><select id="addShipRep" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + repOptions + '</select></div>'
-            + field('addShipDaily', 'اليومية (مقفولة على المعروض)', daily, 'readonly dir="ltr" style="text-align:end"')
-            + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">الحالة</label><select id="addShipStatus" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + statusOptions + '</select></div>'
-            + field('addShipAmount', 'المبلغ', '', 'inputmode="numeric" dir="ltr" style="text-align:end"')
-            + field('addShipShipping', 'الشحن', '', 'inputmode="numeric" dir="ltr" style="text-align:end"')
-            + field('addShipCommission', 'عمولة المندوب', '', 'inputmode="numeric" dir="ltr" style="text-align:end"')
+            + field('addShipDaily', 'اليومية (مقفولة على المعروض)', daily, 'readonly dir="ltr" style="text-align:end"', true)
+            + '<div><label class="text-[11px] font-bold text-slate-500 dark:text-slate-400 block mb-0.5">الحالة ' + reqMark + '</label><select id="addShipStatus" class="w-full p-2 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm">' + statusOptions + '</select></div>'
+            + field('addShipAmount', 'المبلغ', '', 'inputmode="numeric" dir="ltr" style="text-align:end"', true)
+            + field('addShipShipping', 'الشحن', '', 'inputmode="numeric" dir="ltr" style="text-align:end"', true)
+            + field('addShipCommission', 'عمولة المندوب', '', 'inputmode="numeric" dir="ltr" style="text-align:end"', true)
             + '<input type="hidden" id="addShipPaid" value="">'
             + '</div>';
 

@@ -155,11 +155,9 @@
 
             <div class="text-center mb-8 relative">
                 <div class="brand-orb flex items-center justify-center mx-auto mb-4">
-                    <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
-                    </svg>
+                    <i class="fas fa-truck-fast text-white text-4xl"></i>
                 </div>
-                <h1 id="loginBrand" class="text-3xl login-brand mb-2">بن نشات</h1>
+                <h1 id="loginBrand" class="text-3xl login-brand mb-2">HALK</h1>
             </div>
 
             <form id="loginForm" class="space-y-6 relative">
@@ -255,20 +253,7 @@
         const loginBtn = document.getElementById('loginBtn');
         const rememberMeCheckbox = document.getElementById('rememberMe');
 
-        // اسم النظام: قراءة override المطوّر (آمن عبر textContent + حد أقصى + fallback)
-        (function applySystemBrand() {
-            var brand = document.getElementById('loginBrand');
-            if (!brand) return;
-            var custom = '';
-            try {
-                var raw = localStorage.getItem('dev_system_name');
-                if (raw) custom = _dec(raw);
-            } catch (e) {}
-            if (typeof custom !== 'string' || !custom.trim()) return; // fallback للاسم الأصلي
-            custom = custom.replace(/[<>&"']/g, '').trim().slice(0, 40);
-            if (!custom) return;
-            brand.textContent = custom; // textContent يمنع أي حقن HTML/سكريبت
-        })();
+        // اسم النظام ثابت الآن (HALK) — عُطِّل override المطوّر عبر dev-settings محليًا
 
         window.addEventListener('DOMContentLoaded', () => {
             const savedPhone = localStorage.getItem('savedPhone');
