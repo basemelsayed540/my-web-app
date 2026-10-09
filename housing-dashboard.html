@@ -1987,6 +1987,11 @@
             direction: rtl;
         }
         .housing-header-dropdown.show { display: block; }
+        /* فلتر الراسل — شكل لوحة الإكسل (تطبيق فوري، الحاوية الثابتة نفسها) */
+        .housing-header-dropdown.housing-sender-dd { width: min(300px, calc(100vw - 12px)); max-height: min(380px, calc(100vh - 140px)); overflow-y: hidden; padding: 0; }
+        .housing-header-dropdown.housing-sender-dd.show { display: flex; flex-direction: column; }
+        .housing-sender-dd .housing-sender-list { flex: 1; overflow-y: auto; padding: 4px 2px; }
+        .housing-sender-dd .housing-sender-row[hidden] { display: none !important; }
         .housing-header-dropdown-item {
             padding: 6px 10px;
             border-radius: 6px;
@@ -4008,12 +4013,24 @@
                                         onclick="toggleHousingSenderFilterDropdown()">👤 الراسل
                                         <span id="housingSenderFilterBadge" class="badge bg-secondary ms-1">0</span>
                                     </button>
-                                    <div id="housingSenderFilterDropdown" class="housing-header-dropdown" style="right:0;top:calc(100% + 4px);min-width:200px;">
-                                        <div class="d-flex align-items-center justify-content-between px-2 py-1" style="border-bottom:1px solid var(--border,#dee2e6);margin-bottom:4px;">
+                                    <div id="housingSenderFilterDropdown" class="housing-header-dropdown housing-sender-dd" style="right:0;top:calc(100% + 4px);">
+                                        <div class="d-flex align-items-center justify-content-between px-2 py-1" style="border-bottom:1px solid var(--border,#dee2e6);">
                                             <span class="small fw-bold">فلاتر الراسل</span>
                                             <button type="button" class="btn btn-sm btn-outline-danger py-0 px-2" style="font-size:0.7rem;" onclick="clearHousingSenderFilter()" title="مسح الراسل">مسح</button>
                                         </div>
-                                        <div id="housingSenderFilterList" class="d-grid gap-1"></div>
+                                        <div class="housing-excel-panel-actions">
+                                            <button type="button" class="housing-excel-chip housing-sender-sort" data-sort="asc" onclick="setHousingSenderSort('asc')">ترتيب تصاعدي</button>
+                                            <button type="button" class="housing-excel-chip housing-sender-sort" data-sort="desc" onclick="setHousingSenderSort('desc')">ترتيب تنازلي</button>
+                                            <button type="button" class="housing-excel-chip housing-sender-sort is-active" data-sort="none" onclick="setHousingSenderSort(null)">بدون ترتيب</button>
+                                        </div>
+                                        <div class="housing-excel-panel-search">
+                                            <input type="text" id="housingSenderSearchInput" placeholder="بحث داخل الراسلين..." autocomplete="off" oninput="setHousingSenderSearch(this.value)">
+                                        </div>
+                                        <label class="form-check d-flex align-items-center gap-2 px-2 py-1 mb-0" style="font-weight:700;border-bottom:1px solid rgba(148,163,184,.28);">
+                                            <input class="form-check-input m-0" type="checkbox" id="housingSenderSelectAllCb" onchange="toggleHousingSenderSelectAll(this.checked)">
+                                            <span class="small fw-bold">(تحديد الكل)</span>
+                                        </label>
+                                        <div id="housingSenderFilterList" class="housing-sender-list"></div>
                                     </div>
                                 </div>
                                 <button class="btn btn-light btn-sm rounded-circle shadow-sm flex-shrink-0 housing-tool-btn" title="احصائية التغيرات" style="width:30px;height:30px;padding:0;font-size:0.75rem;border:1px solid var(--border,#dee2e6);" onclick="openHousingChangesStatsModal()"><i class="fas fa-chart-pie"></i></button>
@@ -9591,6 +9608,51 @@
             badge.classList.toggle('bg-primary', selectedCount > 0);
         }
 
+        let housingSenderSortDir = null;   /* null | 'asc' | 'desc' */
+        let housingSenderSearch = '';
+
+        /* يعرض كل الراسلين دائمًا ويُخفي غير المطابق للبحث بـ hidden فقط (لا حذف من الـ DOM)
+           حتى يبقى getHousingSenderFilters() (يقرأ :checked من الصفحة) سليمًا ولا تضيع التحديدات */
+        function applyHousingSenderSearch() {
+            const list = document.getElementById('housingSenderFilterList');
+            if (!list) return;
+            const q = housingSenderSearch.trim().toLowerCase();
+            let visible = 0;
+            list.querySelectorAll('.housing-sender-row').forEach(row => {
+                const match = !q || String(row.dataset.name || '').toLowerCase().includes(q);
+                row.hidden = !match;
+                if (match) visible++;
+            });
+            const empty = list.querySelector('.housing-sender-empty');
+            if (empty) empty.hidden = visible > 0;
+        }
+
+        function syncHousingSenderSelectAllBox() {
+            const sa = document.getElementById('housingSenderSelectAllCb');
+            if (!sa) return;
+            const boxes = document.querySelectorAll('#housingSenderFilterList .housing-sender-option');
+            const checked = Array.from(boxes).filter(b => b.checked).length;
+            sa.checked = boxes.length > 0 && checked === boxes.length;
+            sa.indeterminate = checked > 0 && checked < boxes.length;
+        }
+
+        function setHousingSenderSearch(value) {
+            housingSenderSearch = String(value || '');
+            applyHousingSenderSearch();
+        }
+
+        function setHousingSenderSort(mode) {
+            housingSenderSortDir = (mode === 'asc' || mode === 'desc') ? mode : null;
+            document.querySelectorAll('.housing-sender-sort').forEach(c => {
+                c.classList.toggle('is-active', c.dataset.sort === (housingSenderSortDir || 'none'));
+            });
+            populateHousingSenderFilter();
+        }
+
+        function toggleHousingSenderSelectAll(checked) {
+            if (checked) selectAllHousingSenderFilters(); else clearHousingSenderFilters();
+        }
+
         function populateHousingSenderFilter() {
             const list = document.getElementById('housingSenderFilterList');
             if (!list) return;
@@ -9599,42 +9661,43 @@
             const baseShipments = getHousingShipmentsFilteredBy(['sender'], true);
             const senders = [...new Set(baseShipments.map(s => String(s.الراسل || '').trim()).filter(Boolean))]
                 .sort((a, b) => a.localeCompare(b));
+            if (housingSenderSortDir === 'desc') senders.reverse();
 
             if (!senders.length) {
                 list.innerHTML = `<div class="text-center text-secondary small fw-bold py-2">لا توجد قيم</div>`;
                 updateHousingSenderFilterBadge();
+                syncHousingSenderSelectAllBox();
                 return;
             }
 
-            const showCounts = getHousingEditDateFilters().length > 0;
             const counts = {};
-            if (showCounts) {
-                const baseShipments = getHousingShipmentsFilteredBy(['sender'], true);
-                baseShipments.forEach(s => {
-                    const data = getHousingDisplayShipmentData(s);
-                    const val = String(data.الراسل || '').trim();
-                    if (val) counts[val] = (counts[val] || 0) + 1;
-                });
-            }
+            baseShipments.forEach(s => {
+                const data = getHousingDisplayShipmentData(s);
+                const val = String(data.الراسل || '').trim();
+                if (val) counts[val] = (counts[val] || 0) + 1;
+            });
 
             list.innerHTML = senders.map(sender => {
-                const countStr = showCounts ? ` <span class="text-primary ms-1 opacity-75">(${counts[sender] || 0})</span>` : '';
+                const countStr = ` <span class="text-primary ms-1 opacity-75">(${counts[sender] || 0})</span>`;
                 return `
-                <label class="form-check housing-editdate-item d-flex align-items-center gap-2 px-2 py-1 rounded-3 mb-0">
+                <label class="form-check housing-editdate-item housing-sender-row d-flex align-items-center gap-2 px-2 py-1 rounded-3 mb-0" data-name="${escapeAttr(sender)}">
                     <input class="form-check-input housing-sender-option m-0" type="checkbox" value="${escapeAttr(sender)}" ${selected.has(sender) ? 'checked' : ''}>
                     <span class="small fw-bold">${escapeHtml(sender)}${countStr}</span>
                 </label>
             `;
-            }).join('');
+            }).join('') + `<div class="housing-sender-empty text-center text-secondary small fw-bold py-2" hidden>لا توجد نتائج مطابقة</div>`;
 
             list.querySelectorAll('.housing-sender-option').forEach(cb => {
                 cb.addEventListener('change', () => {
                     updateHousingSenderFilterBadge();
+                    syncHousingSenderSelectAllBox();
                     renderHousingSection();
                 });
             });
 
+            applyHousingSenderSearch();
             updateHousingSenderFilterBadge();
+            syncHousingSenderSelectAllBox();
         }
 
         function clearHousingSenderFilter() {
