@@ -429,6 +429,12 @@
     let repArchiveFilter = repStoreGet('repArchiveFilter') || 'نشطة';
     let adminArchiveGateChosen = true;
 
+    /* قفل المندوب: الشحنة (تم / تعديل سعر / شحن) لا يغيّر المندوب حالتها ولا بياناتها. المدير (adminViewMode) مستثنى. */
+    const REP_LOCKED_STATUSES = ['تم', 'تعديل سعر', 'شحن'];
+    function isRepLockedShipment(s) {
+        return !adminViewMode && REP_LOCKED_STATUSES.includes(String((s && s['الحالة']) || '').trim());
+    }
+
     function isArchivedShipment(s) {
         const v = s && s['ارشيف'];
         if (typeof v === 'boolean') return v;
@@ -1253,6 +1259,7 @@
             const followupSent = needsFollowup && !!getFollowupsSent()[sid];
             const statusClass = ['تم','تعديل سعر','شحن'].includes(s['الحالة']||'') ? 'border-green' : s['الحالة'] === 'قيد التوصيل' ? 'border-yellow' : s['الحالة'] === 'مؤجل' ? 'border-orange' : s['الحالة'] === 'الغاء' ? 'border-red' : '';
             const finalHideActions = hideActions || isArchived;
+            const repLocked = isRepLockedShipment(s);
             const rowClass = isArchived ? (statusClass ? statusClass + ' archived-row' : 'archived-row') : statusClass;
             return `
             <div class="shipment-row ${rowClass}">
@@ -1274,11 +1281,12 @@
                 </div>
                 ${finalHideActions ? '' : `
                 <div class="action-btns${actionsHidden ? ' hidden-actions' : ''}">
-                    <div class="row">
+                    ${repLocked ? '<div class="text-center text-xs font-bold text-slate-400 py-1">🔒 الشحنة مقفولة — تم / تعديل سعر / شحن</div>' : ''}
+                    <div class="row"${repLocked ? ' style="display:none"' : ''}>
                         <button class="action-btn done" onclick="event.stopPropagation();updateShipmentStatus(${idx},'تم')">✅ تم</button>
                         <button class="action-btn price" onclick="event.stopPropagation();showPriceEditDialog(${idx},'${enNum(s['المبلغ'] || '0')}','تعديل سعر')">💰 تعديل سعر</button>
                     </div>
-                    <div class="row">
+                    <div class="row"${repLocked ? ' style="display:none"' : ''}>
                         <button class="action-btn postpone" onclick="event.stopPropagation();showPostponeDialog(${idx})">⏰ مؤجل</button>
                         <button class="action-btn reject" onclick="event.stopPropagation();showRejectDialog(${idx})">❌ الغاء</button>
                     </div>
@@ -1416,6 +1424,7 @@
         const shipment = filteredShipments[idx];
         if (!shipment) return Swal.fire('خطأ', 'لم يتم العثور على الشحنة', 'error');
         if (isArchivedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        if (isRepLockedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة حالتها تم أو تعديل سعر أو شحن', 'warning');
         try {
             const payload = { الحالة: status };
             const _srcStatus = (shipment['الحالة'] || '').trim();
@@ -1446,6 +1455,7 @@
         const shipment = filteredShipments[idx];
         if (!shipment) return;
         if (isArchivedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        if (isRepLockedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة حالتها تم أو تعديل سعر أو شحن', 'warning');
         Swal.fire({
             title: 'تحديث الحالة',
             html: `
@@ -1858,6 +1868,7 @@
         const shipment = filteredShipments[idx];
         if (!shipment) return;
         if (isArchivedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        if (isRepLockedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة حالتها تم أو تعديل سعر أو شحن', 'warning');
         const _srcStatus = (shipment['الحالة'] || '').trim();
         const _newStatus = payload['الحالة'];
         if (['تم', 'تم التسليم', 'تعديل سعر', 'شحن'].includes(_srcStatus) && _newStatus !== _srcStatus) {
@@ -1964,6 +1975,7 @@
         const shipment = filteredShipments[idx];
         if (!shipment) return;
         if (isArchivedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        if (isRepLockedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة حالتها تم أو تعديل سعر أو شحن', 'warning');
         const opts = ['مؤجل غداً', 'مؤجل الأحد أو الاثنين', 'مؤجل الاربع أو الخميس أو الجمعه'];
         const postponeColors = ['popup-opt-sun', 'popup-opt-peach', 'popup-opt-gold'];
         Swal.fire({
@@ -1982,6 +1994,7 @@
         const shipment = filteredShipments[idx];
         if (!shipment) return;
         if (isArchivedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة مؤرشفة', 'warning');
+        if (isRepLockedShipment(shipment)) return Swal.fire('غير مسموح', 'لا يمكن تعديل شحنة حالتها تم أو تعديل سعر أو شحن', 'warning');
         const opts = [
             'العميل طلب الالغاء','العميل مسافر',
             'المنطقه خارج نطاق التوصيل','العنوان غير صحيح',
